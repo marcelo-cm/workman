@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import WorkmanLogo from "../molecules/WorkmanLogo";
 import {
   ArrowLeftToLine,
@@ -11,22 +11,32 @@ import {
   UserRound,
 } from "lucide-react";
 import MenuItem from "./MenuItem";
+import { ExitIcon, FileTextIcon, PersonIcon } from "@radix-ui/react-icons";
 
 interface SideBarProps {
+  activePath: string;
   expanded: boolean;
   setExpanded: (expanded: boolean) => void;
 }
 
 const defaultContextValue: SideBarProps = {
+  activePath: "",
   expanded: false,
   setExpanded: () => {},
 };
 
-const SideBarContext = React.createContext<SideBarProps>(defaultContextValue);
+export const SideBarContext =
+  React.createContext<SideBarProps>(defaultContextValue);
 
 const SideBar = () => {
   const [expanded, setExpanded] = useState(true);
-  const context = { expanded, setExpanded };
+  const [activePath, setActivePath] = useState("");
+
+  useEffect(() => {
+    setActivePath(window.location.pathname);
+  }, []);
+
+  const context = { activePath, expanded, setExpanded };
 
   return (
     <SideBarContext.Provider value={context}>
@@ -44,10 +54,10 @@ const SideBarCollapsed = () => {
     );
   }
 
-  const { expanded, setExpanded } = context;
+  const { activePath, expanded, setExpanded } = context;
 
   return (
-    <div className="w-[105px] border h-full items-center flex flex-col py-8 gap-8">
+    <div className="w-[105px] min-w-[105px] border h-full items-center flex flex-col py-8 gap-8">
       <div className="flex flex-col gap-6 w-full items-center">
         <button
           className="p-1 text-wm-white-300 hover:bg-wm-white-50 rounded cursor-pointer"
@@ -66,20 +76,20 @@ const SideBarCollapsed = () => {
       >
         <div className="flex flex-col gap-2">
           <div className="w-full bg-wm-white-50 rounded-r-lg py-1 pr-2">
-            <MenuItem>
-              <UserRound className="w-4 h-4" />
+            <MenuItem href="/account">
+              <PersonIcon className="w-4 h-4" />
             </MenuItem>
           </div>
           <div className="w-full bg-wm-white-50 rounded-r-lg py-1 pr-2">
             <MenuItem disabled>
               <FileText className="w-4 h-4" />
             </MenuItem>
-            <MenuItem>
+            <MenuItem href="/">
               <div className="text-xs min-h-5 min-w-5 bg-wm-orange rounded-full flex justify-center items-center text-white">
                 5
               </div>
             </MenuItem>
-            <MenuItem>
+            <MenuItem href="/completed">
               <Check className="w-4 h-4" />
             </MenuItem>
           </div>
@@ -103,10 +113,10 @@ const SideBarExpanded = () => {
     );
   }
 
-  const { expanded, setExpanded } = context;
+  const { activePath, expanded, setExpanded } = context;
 
   return (
-    <div className="w-[240px] border h-full items-center flex flex-col py-8 gap-8">
+    <div className="w-[240px] min-w-[240px] border h-full items-center flex flex-col py-8 gap-8">
       <button
         className="absolute left-3.5 top-[32px] p-1 text-wm-white-300 hover:bg-wm-white-50 rounded cursor-pointer"
         onClick={() => setExpanded(false)}
@@ -116,24 +126,24 @@ const SideBarExpanded = () => {
       <WorkmanLogo variant="COMBO" href="/" className="w-1/2 flex" />
       <div
         className="
-        h-full w-full pr-2
+        h-full w-full pr-4
         flex flex-col gap-4
         justify-between
         "
       >
         <div className="flex flex-col gap-2">
           <div className="w-full bg-wm-white-50 rounded-r-lg py-1 pr-2">
-            <MenuItem icon>
-              <UserRound className="w-4 h-4" />
+            <MenuItem icon href="/account">
+              <PersonIcon className="w-4 h-4" />
               Manage Account
             </MenuItem>
           </div>
           <div className="w-full bg-wm-white-50 rounded-r-lg py-1 pr-2">
             <MenuItem icon disabled>
-              <FileText className="w-4 h-4" />
+              <FileTextIcon className="w-4 h-4" />
               Bills
             </MenuItem>
-            <MenuItem>
+            <MenuItem href="/">
               <div className="w-full flex justify-between items-center">
                 For Approval{" "}
                 <div className="text-xs h-5 w-5 bg-wm-orange rounded-full flex justify-center items-center text-white">
@@ -141,7 +151,7 @@ const SideBarExpanded = () => {
                 </div>
               </div>
             </MenuItem>
-            <MenuItem>
+            <MenuItem href="/completed">
               <div className="w-full flex justify-between items-center">
                 Completed
                 <Check className="w-4 h-4" />
@@ -151,7 +161,7 @@ const SideBarExpanded = () => {
         </div>
         <div className="w-full bg-wm-white-50 rounded-r-lg py-1 pr-2 flex flex-col">
           <MenuItem icon>
-            <LogOut className="w-4 h-4" />
+            <ExitIcon className="w-4 h-4" />
             Sign Out
           </MenuItem>
         </div>

@@ -1,14 +1,18 @@
-import React, { ReactNode } from "react";
+import React, { ReactNode, useContext } from "react";
+import { SideBarContext } from "./SideBar";
 
 const MenuItem = ({
   children,
   icon = false,
+  href,
   disabled = false,
 }: {
   children: ReactNode;
+  href?: string;
   icon?: boolean;
   disabled?: boolean;
 }) => {
+  const { activePath } = useContext(SideBarContext);
   return (
     <div
       className={`
@@ -17,11 +21,15 @@ const MenuItem = ({
     rounded-tr rounded-br 
     items-center 
      select-none
+    ${!disabled ? "cursor-pointer hover:bg-white" : null}
     ${
-      !disabled
-        ? "cursor-pointer hover:bg-white hover:border-r-2 hover:border-orange-500"
-        : null
+      activePath == href
+        ? "bg-white border-r-2 border-orange-500"
+        : "bg-wm-white-50"
     }`}
+      onClick={() => {
+        href ? (window.location.href = href) : null;
+      }}
     >
       {children}
     </div>
