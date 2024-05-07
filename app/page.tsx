@@ -1,6 +1,8 @@
 "use client";
 
 import SideBar from "@/components/dashboard/SideBar";
+import { Payment, columns } from "@/components/dashboard/columns";
+import { DataTable } from "@/components/dashboard/data-table";
 import {
   BreadcrumbItem,
   BreadcrumbLink,
@@ -44,18 +46,38 @@ export default function Home() {
           <Button variant="secondary">
             <Pencil2Icon /> Review Selected
           </Button>
-          <div className="flex flex-row flex h-full w-[300px] rounded-md border border-wm-white-300 bg-transparent px-3 py-1 text-sm transition-colors items-center gap-2 text-wm-white-500">
+          <div className="flex flex-row flex h-full w-[300px] rounded-md border bg-transparent px-3 py-1 text-sm transition-colors items-center gap-2 text-wm-white-500">
             <MagnifyingGlassIcon
               className="h-5 w-5 cursor-pointer"
               onClick={() => searchFilterInputRef.current?.focus()}
             />
             <input
               ref={searchFilterInputRef}
-              placeholder="Search Filter"
+              placeholder="Filter by name"
               className="h-full appearance-none outline-none w-full bg-transparent disabled:cursor-not-allowed disabled:opacity-50 text-black placeholder:text-wm-white-500"
             />
           </div>
           <DatePickerWithRange />
+        </div>
+        <div>
+          {" "}
+          <DataTable
+            columns={columns as Payment[]}
+            data={[
+              {
+                id: "728ed52f",
+                amount: 100,
+                status: "pending",
+                email: "m@example.com",
+              },
+              {
+                id: "728ed52f",
+                amount: 150,
+                status: "pending",
+                email: "c@example.com",
+              },
+            ]}
+          />
         </div>
       </div>
     </main>
