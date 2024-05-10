@@ -1,6 +1,5 @@
 "use client";
 
-import * as React from "react";
 import { CalendarIcon } from "@radix-ui/react-icons";
 import { addDays, format } from "date-fns";
 import { DateRange } from "react-day-picker";
@@ -13,14 +12,27 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { useEffect, useState } from "react";
 
 export function DatePickerWithRange({
+  placeholder,
   className,
-}: React.HTMLAttributes<HTMLDivElement>) {
-  const [date, setDate] = React.useState<DateRange | undefined>({
+  onDateChange,
+}: {
+  placeholder?: string;
+  onDateChange?: (date: any) => void;
+  className?: string;
+}) {
+  const [date, setDate] = useState<DateRange | undefined>({
     from: undefined,
     to: undefined,
   });
+
+  useEffect(() => {
+    if (!date?.from || !onDateChange) return;
+
+    onDateChange(date);
+  }, [date]);
 
   return (
     <div className={cn("grid gap-2", className)}>
@@ -44,11 +56,13 @@ export function DatePickerWithRange({
                 format(date.from, "LLL dd, y")
               )
             ) : (
-              <span className="text-wm-white-500">Filter by date range</span>
+              <span className="text-wm-white-500">
+                {placeholder || "Select Date Range"}
+              </span>
             )}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-0" align="start">
+        <PopoverContent className="w-auto p-0 z-50 bg-white" align="start">
           <Calendar
             initialFocus
             mode="range"
