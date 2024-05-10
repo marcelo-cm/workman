@@ -57,7 +57,7 @@ const SideBarCollapsed = () => {
   const { activePath, expanded, setExpanded } = context;
 
   return (
-    <div className="w-[105px] min-w-[105px] border h-full items-center flex flex-col py-8 gap-8">
+    <div className="w-[105px] min-w-[105px] border-r h-dvh items-center flex flex-col py-8 gap-8 bg-white">
       <div className="flex flex-col gap-6 w-full items-center">
         <button
           className="p-1 text-wm-white-300 hover:bg-wm-white-50 rounded cursor-pointer"
@@ -116,7 +116,7 @@ const SideBarExpanded = () => {
   const { activePath, expanded, setExpanded } = context;
 
   return (
-    <div className="w-[240px] min-w-[240px] border h-full items-center flex flex-col py-8 gap-8">
+    <div className="w-[240px] min-w-[240px] border-r items-center flex flex-col py-8 gap-8 h-dvh bg-white">
       <button
         className="absolute left-3.5 top-[32px] p-1 text-wm-white-300 hover:bg-wm-white-50 rounded cursor-pointer"
         onClick={() => setExpanded(false)}

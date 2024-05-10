@@ -343,8 +343,7 @@ const invoices: Invoice[] = [
 
 export default function Home() {
   return (
-    <main className="flex items-center h-dvh">
-      <SideBar />
+    <>
       <div className="flex w-full h-full py-8 px-4 flex-col gap-4">
         <BreadcrumbList className="text-wm-white-400">
           <BreadcrumbItem>Bills</BreadcrumbItem>
@@ -365,6 +364,6 @@ export default function Home() {
         </p>
         <DataTable columns={columns} data={invoices} />
       </div>
-    </main>
+    </>
   );
 }
