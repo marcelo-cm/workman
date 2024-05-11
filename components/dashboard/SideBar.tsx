@@ -29,12 +29,16 @@ export const SideBarContext =
   React.createContext<SideBarProps>(defaultContextValue);
 
 const SideBar = () => {
-  const [expanded, setExpanded] = useState(true);
+  const [expanded, setExpanded] = useState(() => {
+    const isExpanded = localStorage.getItem("sidebar-expanded");
+    return isExpanded ? JSON.parse(isExpanded) : true;
+  });
   const [activePath, setActivePath] = useState("");
 
   useEffect(() => {
     setActivePath(window.location.pathname);
-  }, []);
+    localStorage.setItem("sidebar-expanded", JSON.stringify(expanded));
+  }, [expanded]);
 
   const context = { activePath, expanded, setExpanded };
 
@@ -84,7 +88,7 @@ const SideBarCollapsed = () => {
             <MenuItem disabled>
               <FileText className="w-4 h-4" />
             </MenuItem>
-            <MenuItem href="/">
+            <MenuItem href="/for-approval">
               <div className="text-xs min-h-5 min-w-5 bg-wm-orange rounded-full flex justify-center items-center text-white">
                 5
               </div>
@@ -143,7 +147,7 @@ const SideBarExpanded = () => {
               <FileTextIcon className="w-4 h-4" />
               Bills
             </MenuItem>
-            <MenuItem href="/">
+            <MenuItem href="/for-approval">
               <div className="w-full flex justify-between items-center">
                 For Approval{" "}
                 <div className="text-xs h-5 w-5 bg-wm-orange rounded-full flex justify-center items-center text-white">

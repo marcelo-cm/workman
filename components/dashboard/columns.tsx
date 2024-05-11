@@ -1,7 +1,6 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown, MoreHorizontal } from "lucide-react";
 import { Button } from "../ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -175,7 +174,7 @@ export const columns: ColumnDef<Invoice>[] = [
         <div className="flex justify-end gap-2 items-center">
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="p-0 px-2">
-              <p>Filter by Status</p>{" "}
+              <p>Filter</p>{" "}
               <MixerHorizontalIcon
                 className={`h-4 w-4 ${
                   column.getFilterValue() ? " text-wm-orange-500" : null

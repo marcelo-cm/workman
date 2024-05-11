@@ -341,6 +341,29 @@ const invoices: Invoice[] = [
   },
 ];
 
-export default function Home() {
-  return <>Default Route</>;
+export default function ForApproval() {
+  return (
+    <>
+      <div className="flex w-full h-full py-8 px-4 flex-col gap-4">
+        <BreadcrumbList className="text-wm-white-400">
+          <BreadcrumbItem>Bills</BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbLink className="text-black" href="/">
+            For Approval
+          </BreadcrumbLink>
+        </BreadcrumbList>
+        <div className="text-4xl font-poppins flex flex-row justify-between w-full">
+          Bills for Approval{" "}
+          <Button>
+            <UploadIcon /> Upload Document
+          </Button>
+        </div>
+        <p>
+          For us to process your bills, forward the bills you receive to
+          email@workman.so. We’ll process it for you right away!
+        </p>
+        <DataTable columns={columns} data={invoices} />
+      </div>
+    </>
+  );
 }
