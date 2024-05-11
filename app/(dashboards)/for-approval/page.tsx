@@ -18,7 +18,7 @@ import {
   Pencil2Icon,
   UploadIcon,
 } from "@radix-ui/react-icons";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 const invoices: Invoice[] = [
   {
@@ -345,6 +345,15 @@ const invoices: Invoice[] = [
 const supabase = createClient();
 
 export default function ForApproval() {
+  const fileInputRef = useRef<null | HTMLInputElement>(null);
+
+  const handleButtonClick = () => {
+    if (fileInputRef.current) {
+      console.log("Clicking file input");
+      fileInputRef.current.click();
+    }
+  };
+
   async function fetchUser() {
     const user = await supabase.auth.getUser();
     console.log(user);
@@ -352,6 +361,34 @@ export default function ForApproval() {
   useEffect(() => {
     fetchUser();
   }, []);
+
+  const handleFileChange = async (event: any) => {
+    const filesList = event.target.files;
+    if (!filesList) {
+      console.log("No files selected!");
+      return;
+    }
+
+    const files = Array.from(filesList) as File[];
+
+    const uploadPromises = Array.from(files).map((file: File) => {
+      const filePath = `/${file.name}_${new Date().getTime()}`;
+      return supabase.storage.from("invoices").upload(filePath, file);
+    });
+
+    try {
+      const results = await Promise.all(uploadPromises);
+      results.forEach(({ data, error }, index) => {
+        if (error) {
+          console.error(`Error uploading file ${files[index].name}:`, error);
+        } else {
+          console.log(`File uploaded successfully ${files[index].name}:`, data);
+        }
+      });
+    } catch (error) {
+      console.error("Error uploading files:", error);
+    }
+  };
 
   return (
     <>
@@ -365,7 +402,15 @@ export default function ForApproval() {
         </BreadcrumbList>
         <div className="text-4xl font-poppins flex flex-row justify-between w-full">
           Bills for Approval{" "}
-          <Button>
+          <Button onClick={handleButtonClick}>
+            <input
+              type="file"
+              ref={fileInputRef}
+              multiple
+              accept="application/pdf"
+              onChange={handleFileChange}
+              style={{ display: "none" }}
+            />
             <UploadIcon /> Upload Document
           </Button>
         </div>

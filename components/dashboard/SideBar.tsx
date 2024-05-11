@@ -101,6 +101,11 @@ const SideBarCollapsed = () => {
             <MenuItem disabled>
               <FileText className="w-4 h-4" />
             </MenuItem>
+            <MenuItem href="/unprocessed">
+              <div className="text-xs min-h-5 min-w-5 bg-gray-800 rounded-full flex justify-center items-center text-white">
+                3
+              </div>
+            </MenuItem>
             <MenuItem href="/for-approval">
               <div className="text-xs min-h-5 min-w-5 bg-wm-orange rounded-full flex justify-center items-center text-white">
                 5
@@ -159,6 +164,14 @@ const SideBarExpanded = () => {
             <MenuItem icon disabled>
               <FileTextIcon className="w-4 h-4" />
               Bills
+            </MenuItem>
+            <MenuItem href="/unprocessed">
+              <div className="w-full flex justify-between items-center">
+                Unprocessed
+                <div className="text-xs h-5 w-5 bg-wm-white-800 rounded-full flex justify-center items-center text-white">
+                  3
+                </div>
+              </div>
             </MenuItem>
             <MenuItem href="/for-approval">
               <div className="w-full flex justify-between items-center">
