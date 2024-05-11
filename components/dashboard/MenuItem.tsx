@@ -6,11 +6,13 @@ const MenuItem = ({
   icon = false,
   href,
   disabled = false,
+  onClick,
 }: {
   children: ReactNode;
   href?: string;
   icon?: boolean;
   disabled?: boolean;
+  onClick?: () => void;
 }) => {
   const { activePath } = useContext(SideBarContext);
   return (
@@ -27,9 +29,9 @@ const MenuItem = ({
         ? "bg-white border-r-2 border-orange-500"
         : "bg-wm-white-50"
     }`}
-      onClick={() => {
-        href ? (window.location.href = href) : null;
-      }}
+      onClick={
+        onClick ? onClick : () => (href ? (window.location.href = href) : null)
+      }
     >
       {children}
     </div>

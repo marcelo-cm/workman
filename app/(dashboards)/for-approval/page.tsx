@@ -12,12 +12,13 @@ import {
 import { Button } from "@/components/ui/button";
 import { DatePickerWithRange } from "@/components/ui/date-range-picker";
 import { Invoice } from "@/interfaces/common.interfaces";
+import { createClient } from "@/utils/supabase/client";
 import {
   MagnifyingGlassIcon,
   Pencil2Icon,
   UploadIcon,
 } from "@radix-ui/react-icons";
-import { useRef } from "react";
+import { useEffect } from "react";
 
 const invoices: Invoice[] = [
   {
@@ -341,7 +342,17 @@ const invoices: Invoice[] = [
   },
 ];
 
+const supabase = createClient();
+
 export default function ForApproval() {
+  async function fetchUser() {
+    const user = await supabase.auth.getUser();
+    console.log(user);
+  }
+  useEffect(() => {
+    fetchUser();
+  }, []);
+
   return (
     <>
       <div className="flex w-full h-full py-8 px-4 flex-col gap-4">

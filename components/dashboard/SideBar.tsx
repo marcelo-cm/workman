@@ -12,6 +12,8 @@ import {
 } from "lucide-react";
 import MenuItem from "./MenuItem";
 import { ExitIcon, FileTextIcon, PersonIcon } from "@radix-ui/react-icons";
+import useLocalStorage from "@/lib/hooks/useLocalStorage";
+import { createClient } from "@/utils/supabase/client";
 
 interface SideBarProps {
   activePath: string;
@@ -28,16 +30,27 @@ const defaultContextValue: SideBarProps = {
 export const SideBarContext =
   React.createContext<SideBarProps>(defaultContextValue);
 
+const supabase = createClient();
+
+async function handleSignOut() {
+  await supabase.auth.signOut();
+  window.location.href = "/";
+}
+
 const SideBar = () => {
-  const [expanded, setExpanded] = useState(() => {
-    const isExpanded = localStorage.getItem("sidebar-expanded");
-    return isExpanded ? JSON.parse(isExpanded) : true;
-  });
+  const { getItem, setItem } = useLocalStorage();
+  const [expanded, setExpanded] = useState(false);
   const [activePath, setActivePath] = useState("");
 
   useEffect(() => {
     setActivePath(window.location.pathname);
-    localStorage.setItem("sidebar-expanded", JSON.stringify(expanded));
+    if (JSON.parse(getItem("sidebar-expanded")) !== expanded) {
+      setExpanded(JSON.parse(getItem("sidebar-expanded")));
+    }
+  }, []);
+
+  useEffect(() => {
+    setItem("sidebar-expanded", expanded);
   }, [expanded]);
 
   const context = { activePath, expanded, setExpanded };
@@ -99,7 +112,7 @@ const SideBarCollapsed = () => {
           </div>
         </div>
         <div className="w-full bg-wm-white-50 rounded-r-lg py-1 pr-2 flex flex-col">
-          <MenuItem>
+          <MenuItem onClick={handleSignOut}>
             <LogOut className="w-4 h-4" />
           </MenuItem>
         </div>
@@ -164,7 +177,7 @@ const SideBarExpanded = () => {
           </div>
         </div>
         <div className="w-full bg-wm-white-50 rounded-r-lg py-1 pr-2 flex flex-col">
-          <MenuItem icon>
+          <MenuItem icon onClick={handleSignOut}>
             <ExitIcon className="w-4 h-4" />
             Sign Out
           </MenuItem>

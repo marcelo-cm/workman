@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { signIn } from "@/lib/actions/actions";
+import { signUp } from "@/lib/actions/actions";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -17,21 +17,22 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/utils/supabase/client";
+import { redirect } from "next/dist/server/api-utils";
 
 const formSchema = z.object({
   email: z.string().email(),
   password: z.string().min(6),
 });
 
-const SignIn = () => {
+const SignUp = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       email: "",
       password: "",
     },
-    criteriaMode: "all",
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
@@ -39,7 +40,7 @@ const SignIn = () => {
     console.log(values);
 
     const supabase = createClient();
-    const { error } = await supabase.auth.signInWithPassword(values);
+    const { error } = await supabase.auth.signUp(values);
 
     if (error) {
       setErrorMessage(
@@ -48,7 +49,7 @@ const SignIn = () => {
       return;
     }
 
-    console.log("Sign in successful!");
+    console.log("Sign up successful!");
     window.location.href = "/for-approval";
   }
 
@@ -82,7 +83,7 @@ const SignIn = () => {
             </FormItem>
           )}
         />
-        <Button type="submit">Sign In</Button>
+        <Button type="submit">Sign Up</Button>
         {errorMessage && (
           <FormDescription className="text-red-500">
             {errorMessage}
@@ -93,4 +94,4 @@ const SignIn = () => {
   );
 };
 
-export default SignIn;
+export default SignUp;

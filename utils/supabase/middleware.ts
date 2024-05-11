@@ -58,7 +58,3 @@ export async function updateSession(request: NextRequest) {
 
   return response;
 }
-
-// export const config = {
-//   matcher: "/*",
-// };
