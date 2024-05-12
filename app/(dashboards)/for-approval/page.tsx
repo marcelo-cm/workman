@@ -10,14 +10,9 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
-import { DatePickerWithRange } from "@/components/ui/date-range-picker";
 import { Invoice } from "@/interfaces/common.interfaces";
 import { createClient } from "@/utils/supabase/client";
-import {
-  MagnifyingGlassIcon,
-  Pencil2Icon,
-  UploadIcon,
-} from "@radix-ui/react-icons";
+import { UploadIcon } from "@radix-ui/react-icons";
 import { useEffect, useRef } from "react";
 
 const invoices: Invoice[] = [

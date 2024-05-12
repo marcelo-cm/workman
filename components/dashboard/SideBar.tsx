@@ -44,10 +44,14 @@ const SideBar = () => {
 
   useEffect(() => {
     setActivePath(window.location.pathname);
+    checkExpandedState();
+  }, []);
+
+  function checkExpandedState() {
     if (JSON.parse(getItem("sidebar-expanded")) !== expanded) {
       setExpanded(JSON.parse(getItem("sidebar-expanded")));
     }
-  }, []);
+  }
 
   useEffect(() => {
     setItem("sidebar-expanded", expanded);

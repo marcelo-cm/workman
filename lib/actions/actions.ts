@@ -2,8 +2,9 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-
 import { createClient } from "@/utils/supabase/server";
+import * as mindee from "mindee";
+import { createMindeeClient } from "@/utils/mindee/client";
 
 export async function signIn(formData: FormData) {
   const supabase = createClient();
@@ -39,4 +40,17 @@ export async function signUp(formData: FormData) {
 
   revalidatePath("/", "layout");
   redirect("/for-approval");
+}
+
+export async function mindeeScan(fileUrl: string) {
+  const mindeeClient = createMindeeClient();
+
+  const inputSource = await mindeeClient.docFromUrl(fileUrl);
+  const respPromise = await mindeeClient.parse(
+    mindee.product.InvoiceV4,
+    inputSource
+  );
+
+  console.log(respPromise);
+  return JSON.stringify(respPromise);
 }
