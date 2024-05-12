@@ -3,11 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next && prettier --write .",
+    "dev": "prettier -- write . && next",
     "build": "next build",
     "start": "next start",
     "lint": "tsc && prettier --check .",
-    "format": "eslint --fix . && prettier --write ."
+    "format": "prettier --write .",
+    "analyze": "ANALYZE=true next build",
+    "clean": "rm -rf .next/ && next build"
+
   },
   "dependencies": {
     "@hookform/resolvers": "^3.3.4",
