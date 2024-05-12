@@ -171,7 +171,7 @@ export const columns: ColumnDef<Invoice>[] = [
     accessorKey: "status",
     header: ({ column }) => (
       <DropdownMenu>
-        <div className="flex justify-end gap-2 items-center">
+        <div className="flex items-center justify-end gap-2">
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="p-0 px-2">
               <p>Filter</p>{" "}
@@ -183,7 +183,7 @@ export const columns: ColumnDef<Invoice>[] = [
             </Button>
           </DropdownMenuTrigger>
         </div>
-        <DropdownMenuContent className="bg-white w-fit text-wm-white-500">
+        <DropdownMenuContent className="w-fit bg-white text-wm-white-500">
           <DropdownMenuRadioGroup
             value={column.getFilterValue() as string}
             onValueChange={(e) => {

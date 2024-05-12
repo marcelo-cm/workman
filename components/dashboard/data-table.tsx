@@ -40,7 +40,7 @@ export function DataTable<TData, TValue>({
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
+    [],
   );
   const [rowSelection, setRowSelection] = React.useState({});
   const [dateRange, setDateRange] = React.useState({
@@ -64,7 +64,7 @@ export function DataTable<TData, TValue>({
     console.log("Filtering data by date range", dateRange);
     const filtered = data.filter((item) => {
       const invoiceDate = new Date(
-        (item as Invoice).data.date_invoiced
+        (item as Invoice).data.date_invoiced,
       ).getTime();
       const fromTime = dateRange.from && new Date(dateRange.from).getTime();
       const toTime = dateRange.to && new Date(dateRange.to).getTime();
@@ -104,7 +104,7 @@ export function DataTable<TData, TValue>({
         <Button variant="secondary">
           <Pencil2Icon /> Review Selected
         </Button>
-        <div className="flex flex-row flex h-full w-[300px] rounded-md border bg-transparent px-3 py-1 text-sm transition-colors items-center gap-2 text-wm-white-500">
+        <div className="flex flex h-full w-[300px] flex-row items-center gap-2 rounded-md border bg-transparent px-3 py-1 text-sm text-wm-white-500 transition-colors">
           <MagnifyingGlassIcon
             className="h-5 w-5 cursor-pointer"
             onClick={() => searchFilterInputRef.current?.focus()}
@@ -122,7 +122,7 @@ export function DataTable<TData, TValue>({
                 ?.setFilterValue(event.target.value)
             }
             placeholder="Filter by invoice name or sender"
-            className="h-full appearance-none outline-none w-full bg-transparent disabled:cursor-not-allowed disabled:opacity-50 text-black placeholder:text-wm-white-500"
+            className="h-full w-full appearance-none bg-transparent text-black outline-none placeholder:text-wm-white-500 disabled:cursor-not-allowed disabled:opacity-50"
           />
         </div>
         <DatePickerWithRange
@@ -136,7 +136,7 @@ export function DataTable<TData, TValue>({
             console.log(
               "Clearing all filters",
               !columnFilters.values as boolean,
-              !dateRange.from as boolean
+              !dateRange.from as boolean,
             );
             setColumnFilters([]);
             setDateRange({ from: undefined, to: undefined });
@@ -157,7 +157,7 @@ export function DataTable<TData, TValue>({
                         ? null
                         : flexRender(
                             header.column.columnDef.header,
-                            header.getContext()
+                            header.getContext(),
                           )}
                     </TableHead>
                   );
@@ -176,7 +176,7 @@ export function DataTable<TData, TValue>({
                     <TableCell key={cell.id}>
                       {flexRender(
                         cell.column.columnDef.cell,
-                        cell.getContext()
+                        cell.getContext(),
                       )}
                     </TableCell>
                   ))}
@@ -197,7 +197,7 @@ export function DataTable<TData, TValue>({
             <TableRow>
               <TableCell colSpan={columns.length}>
                 <div className="flex items-center justify-end space-x-2 ">
-                  <div className="flex-1 text-sm items-center text-muted-foreground">
+                  <div className="text-muted-foreground flex-1 items-center text-sm">
                     {table.getFilteredSelectedRowModel().rows.length} of{" "}
                     {table.getFilteredRowModel().rows.length} invoice(s)
                     selected.

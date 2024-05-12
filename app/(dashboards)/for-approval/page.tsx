@@ -1,6 +1,5 @@
 "use client";
 
-import SideBar from "@/components/dashboard/SideBar";
 import { columns } from "@/components/dashboard/columns";
 import { DataTable } from "@/components/dashboard/data-table";
 import {
@@ -387,7 +386,7 @@ export default function ForApproval() {
 
   return (
     <>
-      <div className="flex w-full h-full py-8 px-4 flex-col gap-4">
+      <div className="flex h-full w-full flex-col gap-4 px-4 py-8">
         <BreadcrumbList className="text-wm-white-400">
           <BreadcrumbItem>Bills</BreadcrumbItem>
           <BreadcrumbSeparator />
@@ -395,7 +394,7 @@ export default function ForApproval() {
             For Approval
           </BreadcrumbLink>
         </BreadcrumbList>
-        <div className="text-4xl font-poppins flex flex-row justify-between w-full">
+        <div className="flex w-full flex-row justify-between font-poppins text-4xl">
           Bills for Approval{" "}
           <Button onClick={handleButtonClick}>
             <input

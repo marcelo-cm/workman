@@ -17,7 +17,7 @@ const PDFViewer = ({ fileUrl }: { fileUrl: string }) => {
     <Document
       file={fileUrl}
       onLoadSuccess={onDocumentLoadSuccess}
-      className="flex flex-col gap-2 w-full h-full overflow-auto relative"
+      className="relative flex h-full w-full flex-col gap-2 overflow-auto"
     >
       {Array.from({ length: numPages }, (_, index) => (
         <Page
@@ -27,7 +27,7 @@ const PDFViewer = ({ fileUrl }: { fileUrl: string }) => {
           renderAnnotationLayer={false}
           width={575}
         >
-          <div className="text-xs absolute top-1 left-1 bg-white text-wm-orange rounded-sm border border-wm-white-200 p-1 leading-none">
+          <div className="absolute left-1 top-1 rounded-sm border border-wm-white-200 bg-white p-1 text-xs leading-none text-wm-orange">
             {index + 1} of {numPages}
           </div>
         </Page>

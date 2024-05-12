@@ -5,7 +5,7 @@ const AppLayout = ({ children }: Readonly<{ children: React.ReactNode }>) => {
   return (
     <div className="flex flex-row bg-white text-black">
       <SideBar />
-      <main className="flex items-center h-dvh grow">{children}</main>
+      <main className="flex h-dvh grow items-center">{children}</main>
     </div>
   );
 };

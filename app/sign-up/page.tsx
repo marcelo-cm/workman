@@ -44,7 +44,7 @@ const SignUp = () => {
 
     if (error) {
       setErrorMessage(
-        `[${error.status} ${error.name}] Could not sign in. Please try again or contact support.`
+        `[${error.status} ${error.name}] Could not sign in. Please try again or contact support.`,
       );
       return;
     }

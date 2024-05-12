@@ -3,7 +3,7 @@ import React from "react";
 
 const NotFound = () => {
   return (
-    <div className="text-black flex">
+    <div className="flex text-black">
       <SideBar />
       <div>Whoops. Page not found.</div>
     </div>

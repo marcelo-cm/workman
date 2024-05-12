@@ -18,15 +18,15 @@ const MenuItem = ({
   return (
     <div
       className={`
-    pr-4 ${icon ? "pl-4" : "pl-10"} py-2 
-    flex flex-row gap-2
-    rounded-tr rounded-br 
-    items-center 
-     select-none
+    pr-4 ${icon ? "pl-4" : "pl-10"} flex 
+    select-none flex-row items-center
+    gap-2 rounded-br 
+    rounded-tr 
+     py-2
     ${!disabled ? "cursor-pointer hover:bg-white" : null}
     ${
       activePath == href
-        ? "bg-white border-r-2 border-orange-500"
+        ? "border-r-2 border-orange-500 bg-white"
         : "bg-wm-white-50"
     }`}
       onClick={

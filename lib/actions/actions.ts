@@ -48,7 +48,7 @@ export async function mindeeScan(fileUrl: string) {
   const inputSource = await mindeeClient.docFromUrl(fileUrl);
   const respPromise = await mindeeClient.parse(
     mindee.product.InvoiceV4,
-    inputSource
+    inputSource,
   );
 
   console.log(respPromise);

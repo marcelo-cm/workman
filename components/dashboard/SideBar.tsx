@@ -71,58 +71,58 @@ const SideBarCollapsed = () => {
 
   if (!context) {
     throw new Error(
-      "Cannot use SideBarCollapsed outside of SideBarCollapsed component"
+      "Cannot use SideBarCollapsed outside of SideBarCollapsed component",
     );
   }
 
   const { activePath, expanded, setExpanded } = context;
 
   return (
-    <div className="w-[105px] min-w-[105px] border-r h-dvh items-center flex flex-col py-8 gap-8 bg-white">
-      <div className="flex flex-col gap-6 w-full items-center">
+    <div className="flex h-dvh w-[105px] min-w-[105px] flex-col items-center gap-8 border-r bg-white py-8">
+      <div className="flex w-full flex-col items-center gap-6">
         <button
-          className="p-1 text-wm-white-300 hover:bg-wm-white-50 rounded cursor-pointer"
+          className="cursor-pointer rounded p-1 text-wm-white-300 hover:bg-wm-white-50"
           onClick={() => setExpanded(true)}
         >
-          <ArrowRightToLine className="w-4 h-4" />
+          <ArrowRightToLine className="h-4 w-4" />
         </button>
-        <WorkmanLogo variant="EMBLEM" href="/" className="w-1/2 flex" />
+        <WorkmanLogo variant="EMBLEM" href="/" className="flex w-1/2" />
       </div>
       <div
         className="
-        h-full w-full pr-2
-        flex flex-col gap-4
-        justify-between
+        flex h-full w-full
+        flex-col justify-between gap-4
+        pr-2
         "
       >
         <div className="flex flex-col gap-2">
-          <div className="w-full bg-wm-white-50 rounded-r-lg py-1 pr-2">
+          <div className="w-full rounded-r-lg bg-wm-white-50 py-1 pr-2">
             <MenuItem href="/account">
-              <PersonIcon className="w-4 h-4" />
+              <PersonIcon className="h-4 w-4" />
             </MenuItem>
           </div>
-          <div className="w-full bg-wm-white-50 rounded-r-lg py-1 pr-2">
+          <div className="w-full rounded-r-lg bg-wm-white-50 py-1 pr-2">
             <MenuItem disabled>
-              <FileText className="w-4 h-4" />
+              <FileText className="h-4 w-4" />
             </MenuItem>
             <MenuItem href="/unprocessed">
-              <div className="text-xs min-h-5 min-w-5 bg-gray-800 rounded-full flex justify-center items-center text-white">
+              <div className="flex min-h-5 min-w-5 items-center justify-center rounded-full bg-gray-800 text-xs text-white">
                 3
               </div>
             </MenuItem>
             <MenuItem href="/for-approval">
-              <div className="text-xs min-h-5 min-w-5 bg-wm-orange rounded-full flex justify-center items-center text-white">
+              <div className="flex min-h-5 min-w-5 items-center justify-center rounded-full bg-wm-orange text-xs text-white">
                 5
               </div>
             </MenuItem>
             <MenuItem href="/completed">
-              <Check className="w-4 h-4" />
+              <Check className="h-4 w-4" />
             </MenuItem>
           </div>
         </div>
-        <div className="w-full bg-wm-white-50 rounded-r-lg py-1 pr-2 flex flex-col">
+        <div className="flex w-full flex-col rounded-r-lg bg-wm-white-50 py-1 pr-2">
           <MenuItem onClick={handleSignOut}>
-            <LogOut className="w-4 h-4" />
+            <LogOut className="h-4 w-4" />
           </MenuItem>
         </div>
       </div>
@@ -135,67 +135,67 @@ const SideBarExpanded = () => {
 
   if (!context) {
     throw new Error(
-      "Cannot use SideBarCollapsed outside of SideBarExpanded component"
+      "Cannot use SideBarCollapsed outside of SideBarExpanded component",
     );
   }
 
   const { activePath, expanded, setExpanded } = context;
 
   return (
-    <div className="w-[240px] min-w-[240px] border-r items-center flex flex-col py-8 gap-8 h-dvh bg-white">
+    <div className="flex h-dvh w-[240px] min-w-[240px] flex-col items-center gap-8 border-r bg-white py-8">
       <button
-        className="absolute left-3.5 top-[32px] p-1 text-wm-white-300 hover:bg-wm-white-50 rounded cursor-pointer"
+        className="absolute left-3.5 top-[32px] cursor-pointer rounded p-1 text-wm-white-300 hover:bg-wm-white-50"
         onClick={() => setExpanded(false)}
       >
-        <ArrowLeftToLine className="w-4 h-4" />
+        <ArrowLeftToLine className="h-4 w-4" />
       </button>
-      <WorkmanLogo variant="COMBO" href="/" className="w-1/2 flex" />
+      <WorkmanLogo variant="COMBO" href="/" className="flex w-1/2" />
       <div
         className="
-        h-full w-full pr-4
-        flex flex-col gap-4
-        justify-between
+        flex h-full w-full
+        flex-col justify-between gap-4
+        pr-4
         "
       >
         <div className="flex flex-col gap-2">
-          <div className="w-full bg-wm-white-50 rounded-r-lg py-1 pr-2">
+          <div className="w-full rounded-r-lg bg-wm-white-50 py-1 pr-2">
             <MenuItem icon href="/account">
-              <PersonIcon className="w-4 h-4" />
+              <PersonIcon className="h-4 w-4" />
               Manage Account
             </MenuItem>
           </div>
-          <div className="w-full bg-wm-white-50 rounded-r-lg py-1 pr-2">
+          <div className="w-full rounded-r-lg bg-wm-white-50 py-1 pr-2">
             <MenuItem icon disabled>
-              <FileTextIcon className="w-4 h-4" />
+              <FileTextIcon className="h-4 w-4" />
               Bills
             </MenuItem>
             <MenuItem href="/unprocessed">
-              <div className="w-full flex justify-between items-center">
+              <div className="flex w-full items-center justify-between">
                 Unprocessed
-                <div className="text-xs h-5 w-5 bg-wm-white-800 rounded-full flex justify-center items-center text-white">
+                <div className="flex h-5 w-5 items-center justify-center rounded-full bg-wm-white-800 text-xs text-white">
                   3
                 </div>
               </div>
             </MenuItem>
             <MenuItem href="/for-approval">
-              <div className="w-full flex justify-between items-center">
+              <div className="flex w-full items-center justify-between">
                 For Approval{" "}
-                <div className="text-xs h-5 w-5 bg-wm-orange rounded-full flex justify-center items-center text-white">
+                <div className="flex h-5 w-5 items-center justify-center rounded-full bg-wm-orange text-xs text-white">
                   5
                 </div>
               </div>
             </MenuItem>
             <MenuItem href="/completed">
-              <div className="w-full flex justify-between items-center">
+              <div className="flex w-full items-center justify-between">
                 Completed
-                <Check className="w-4 h-4" />
+                <Check className="h-4 w-4" />
               </div>
             </MenuItem>
           </div>
         </div>
-        <div className="w-full bg-wm-white-50 rounded-r-lg py-1 pr-2 flex flex-col">
+        <div className="flex w-full flex-col rounded-r-lg bg-wm-white-50 py-1 pr-2">
           <MenuItem icon onClick={handleSignOut}>
-            <ExitIcon className="w-4 h-4" />
+            <ExitIcon className="h-4 w-4" />
             Sign Out
           </MenuItem>
         </div>

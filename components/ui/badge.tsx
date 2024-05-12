@@ -17,7 +17,7 @@ const badgeVariants = cva(
     defaultVariants: {
       variant: "info",
     },
-  }
+  },
 );
 
 // className="text-xs font-medium bg-wm-white-50 w-fit px-2 py-1 border border-wm-white-200 rounded-md"
