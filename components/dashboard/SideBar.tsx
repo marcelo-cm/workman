@@ -1,19 +1,18 @@
 "use client";
 
-import React, { useContext, useEffect, useState } from "react";
-import WorkmanLogo from "../molecules/WorkmanLogo";
+import useLocalStorage from "@/lib/hooks/useLocalStorage";
+import { createClient } from "@/utils/supabase/client";
+import { ExitIcon, FileTextIcon, PersonIcon } from "@radix-ui/react-icons";
 import {
   ArrowLeftToLine,
   ArrowRightToLine,
   Check,
   FileText,
   LogOut,
-  UserRound,
 } from "lucide-react";
+import React, { useContext, useEffect, useState } from "react";
+import WorkmanLogo from "../molecules/WorkmanLogo";
 import MenuItem from "./MenuItem";
-import { ExitIcon, FileTextIcon, PersonIcon } from "@radix-ui/react-icons";
-import useLocalStorage from "@/lib/hooks/useLocalStorage";
-import { createClient } from "@/utils/supabase/client";
 
 interface SideBarProps {
   activePath: string;

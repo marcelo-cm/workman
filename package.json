@@ -3,14 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "prettier -- write . && next",
+    "dev": "prettier --write . && next",
     "build": "next build",
     "start": "next start",
     "lint": "tsc && prettier --check .",
     "format": "prettier --write .",
     "analyze": "ANALYZE=true next build",
     "clean": "rm -rf .next/ && next build"
-
   },
   "dependencies": {
     "@hookform/resolvers": "^3.3.4",
@@ -20,6 +19,7 @@
     "@radix-ui/react-label": "^2.0.2",
     "@radix-ui/react-popover": "^1.0.7",
     "@radix-ui/react-slot": "^1.0.2",
+    "@radix-ui/react-tabs": "^1.0.4",
     "@supabase/ssr": "^0.3.0",
     "@supabase/supabase-js": "^2.43.1",
     "@tanstack/react-table": "^8.16.0",

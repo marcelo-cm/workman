@@ -5,15 +5,14 @@ import * as React from "react";
 import {
   ColumnDef,
   ColumnFiltersState,
+  SortingState,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
-  useReactTable,
-  SortingState,
   getSortedRowModel,
+  useReactTable,
 } from "@tanstack/react-table";
-import { Input } from "@/components/ui/input";
 
 import {
   Table,
@@ -24,10 +23,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Button } from "../ui/button";
-import { MagnifyingGlassIcon, Pencil2Icon } from "@radix-ui/react-icons";
-import { DatePickerWithRange } from "../ui/date-range-picker";
 import { Invoice } from "@/interfaces/common.interfaces";
+import { MagnifyingGlassIcon, Pencil2Icon } from "@radix-ui/react-icons";
+import { Button } from "../ui/button";
+import { DatePickerWithRange } from "../ui/date-range-picker";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];

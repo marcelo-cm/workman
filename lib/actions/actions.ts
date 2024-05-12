@@ -1,10 +1,10 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
+import { createMindeeClient } from "@/utils/mindee/client";
 import { createClient } from "@/utils/supabase/server";
 import * as mindee from "mindee";
-import { createMindeeClient } from "@/utils/mindee/client";
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 
 export async function signIn(formData: FormData) {
   const supabase = createClient();

@@ -1,29 +1,25 @@
-"use client";
-
-import ExtractionReview from "@/app/review/page";
 import PDFViewer from "@/components/dashboard/PDFViewer";
+import {
+  BreadcrumbEllipsis,
+  BreadcrumbItem,
+  BreadcrumbList,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
-import { mindeeScan } from "@/lib/actions/actions";
-import { createClient } from "@/utils/supabase/client";
-import { useEffect, useState } from "react";
-
-const getInvoices = async () => {
-  const supabase = createClient();
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return [];
-  }
-
-  const { data } = await supabase.storage
-    .from("invoices")
-    .getPublicUrl("Invoice_3728_from_ROMA_CONCRETE.pdf_1715448182966");
-
-  return [data] || [null];
-};
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { CaretDownIcon, PlusIcon, TrashIcon } from "@radix-ui/react-icons";
+import { useFieldArray, useForm } from "react-hook-form";
+import { z } from "zod";
 
 const mindeeResponse = {
   apiRequest: {
@@ -1521,49 +1517,275 @@ const mindeeResponse = {
   },
 };
 
-const Unprocessed = () => {
-  const [invoices, setInvoices] = useState<{ publicUrl: string }[]>([]);
-  const [mindeeResponse, setMindeeResponse] = useState<any>();
-  const [step, setStep] = useState(0);
+const formSchema = z.object({
+  date: z.string(),
+  dueDate: z.string(),
+  invoiceNumber: z.string(),
+  supplierName: z.string(),
+  supplierAddress: z.string(),
+  supplierEmail: z.string(),
+  supplierPhoneNumber: z.string(),
+  totalNet: z.number(),
+  totalAmount: z.number(),
+  totalTax: z.number(),
+  lineItems: z.array(
+    z.object({
+      confidence: z.number(),
+      description: z.string(),
+      productCode: z.string(),
+      quantity: z.number(),
+      totalAmount: z.number(),
+      unitPrice: z.number(),
+      pageId: z.number(),
+    }),
+  ),
+});
 
-  async function fetchInvoices() {
-    const incomingInvoices = await getInvoices();
-    setInvoices(incomingInvoices);
-  }
+const ExtractionReview = ({ fileUrls }: { fileUrls: string[] }) => {
+  const data = mindeeResponse.document.inference.prediction;
 
-  useEffect(() => {
-    fetchInvoices();
-  }, []);
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      date: data.date.value || "",
+      dueDate: data.dueDate.value || "",
+      invoiceNumber: data.invoiceNumber.value || "",
+      supplierName: data.supplierName.value || "",
+      supplierAddress: data.supplierAddress.value || "",
+      supplierEmail: data.supplierEmail.value || "",
+      supplierPhoneNumber: data.supplierPhoneNumber.value || "",
+      totalNet: data.totalNet.value,
+      totalAmount: data.totalNet.value,
+      totalTax: 0, // Needs to read total tax from the data, but may not exist.
+      lineItems: data.lineItems.map((lineItem) => ({
+        confidence: lineItem.confidence,
+        description: lineItem.description,
+        productCode: lineItem.productCode,
+        quantity: lineItem.quantity,
+        totalAmount: lineItem.totalAmount,
+        unitPrice: lineItem.unitPrice,
+        pageId: lineItem.pageId,
+      })),
+    },
+  });
 
-  if (!invoices.length) {
-    return <div>Loading...</div>;
-  }
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "lineItems",
+  });
 
-  const handleProcessInvoice = async () => {
-    const response = await mindeeScan(invoices[0].publicUrl);
-
-    console.log(JSON.parse(response));
-    setMindeeResponse(response);
+  const addLineItem = () => {
+    append({
+      confidence: 0,
+      description: "",
+      productCode: "",
+      quantity: 0,
+      totalAmount: 0,
+      unitPrice: 0,
+      pageId: 0,
+    });
   };
 
   return (
-    <>
-      {step == 0 ? (
-        <ExtractionReview fileUrls={invoices.map((inv) => inv.publicUrl)} />
-      ) : (
-        <div>
-          {invoices[0].publicUrl}
-          <PDFViewer fileUrl={invoices[0].publicUrl} />
-          <Button onClick={() => setStep(1)}>
-            Process Invoice with Mindee
-          </Button>
-          {mindeeResponse && (
-            <pre>{JSON.stringify(mindeeResponse, null, 2)}</pre>
-          )}
+    <div className="flex h-full w-full flex-col gap-4 overflow-hidden pl-4 pt-8">
+      <BreadcrumbList className="text-wm-white-400">
+        <BreadcrumbItem>Bills</BreadcrumbItem>
+        <BreadcrumbSeparator />
+        <BreadcrumbEllipsis />
+        <BreadcrumbSeparator />
+        <BreadcrumbItem className="text-black">Review</BreadcrumbItem>
+      </BreadcrumbList>
+      <div className="flex h-full w-full rounded-tl border-l border-t">
+        <div className="flex w-fit flex-col border-r">
+          <div className="flex h-fit min-h-10 items-center justify-between border-b bg-wm-white-50 px-2 text-sm">
+            <p className="font-medium">Current File</p>
+            <p className="flex items-center gap-1">
+              <CaretDownIcon />
+              {mindeeResponse.document.filename}
+            </p>
+          </div>
+          <div className="flex h-full w-fit flex-col bg-wm-white-50 p-4">
+            <PDFViewer fileUrl={fileUrls[0]} />
+          </div>
         </div>
-      )}
-    </>
+        <Tabs defaultValue="1" className="w-full">
+          <TabsList className="flex h-10 min-h-10 w-full rounded-none">
+            <TabsTrigger
+              value="1"
+              className="flex h-full w-full justify-start border-b data-[state=active]:border-wm-orange data-[state=active]:text-wm-orange"
+            >
+              1. Review & Edit Details
+            </TabsTrigger>
+            <TabsTrigger
+              value="2"
+              className="flex h-full w-full justify-start border-b data-[state=active]:border-wm-orange data-[state=active]:text-wm-orange"
+            >
+              2. Upload to Quickbooks
+            </TabsTrigger>
+          </TabsList>
+          <TabsContent
+            value="1"
+            className="flex h-[calc(100%-92px)] flex-col gap-4 overflow-scroll  p-4"
+          >
+            <Form {...form}>
+              <form className="space-y-4">
+                <div className="flex w-full items-center justify-between">
+                  <p className="text-2xl">
+                    Total: ${form.getValues("totalAmount")?.toFixed(2) || 0}
+                  </p>
+                  <div className="text-xs">
+                    <p>Tax: ${form.getValues("totalTax")?.toFixed(2) || 0}</p>
+                    <p>
+                      Tax: ${form.getValues("totalAmount")?.toFixed(2) || 0}
+                    </p>
+                  </div>
+                </div>
+                <div className="space-y-3 rounded-md border">
+                  <div className="flex h-10 w-full items-center border-b p-2 text-sm font-medium">
+                    Bill Details
+                  </div>
+                  <div className="grid grid-cols-2 gap-3 p-3 pt-0">
+                    <FormField
+                      control={form.control}
+                      name="supplierName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Vendor Name</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Workman Concrete" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="invoiceNumber"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Invoice #</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Workman Concrete" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="dueDate"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Date Due</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Workman Concrete" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="date"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Date Issued</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Workman Concrete" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+                <div className="space-y-3 rounded-md border last:space-y-0">
+                  <div className="flex h-10 w-full items-center border-b p-2 text-sm font-medium">
+                    Line Items
+                  </div>
+                  {form.getValues().lineItems?.map((lineItem, index) => (
+                    <div className="grid grid-cols-2 gap-3 border-b p-4 pt-2 last:border-0">
+                      <FormField
+                        control={form.control}
+                        name={`lineItems.${index}.description`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Description</FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="Workman Concrete"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name={`lineItems.${index}.totalAmount`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Balance ($)</FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="Workman Concrete"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name={`lineItems.${index}.productCode`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Code</FormLabel>
+                            <FormControl>
+                              <Input
+                                placeholder="Workman Concrete"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <div className="flex items-center justify-end gap-4 self-end text-xs">
+                        Confidence:{" "}
+                        {Number(lineItem.confidence.toFixed(2)) * 100}%
+                        <button
+                          type="button"
+                          onClick={() => remove(index)}
+                          className="rounded p-2 hover:bg-wm-white-50 hover:text-red-500"
+                        >
+                          <TrashIcon />
+                        </button>
+                      </div>
+                    </div>
+                  )) || <p>No line items</p>}
+                  <Button
+                    variant={"ghost"}
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault;
+                      addLineItem();
+                    }}
+                  >
+                    <PlusIcon />
+                    Add Line Item
+                  </Button>
+                </div>
+              </form>
+            </Form>
+          </TabsContent>
+          <TabsContent value="2">Step 2</TabsContent>
+        </Tabs>
+      </div>
+    </div>
   );
 };
 
-export default Unprocessed;
+export default ExtractionReview;

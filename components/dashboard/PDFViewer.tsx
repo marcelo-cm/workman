@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { pdfjs, Document, Page } from "react-pdf";
+import { useState } from "react";
+import { Document, Page, pdfjs } from "react-pdf";
 
 pdfjs.GlobalWorkerOptions.workerSrc =
   "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.js";
@@ -26,12 +26,18 @@ const PDFViewer = ({ fileUrl }: { fileUrl: string }) => {
           renderTextLayer={false}
           renderAnnotationLayer={false}
           width={575}
+          className={"border border-wm-white-200"}
         >
           <div className="absolute left-1 top-1 rounded-sm border border-wm-white-200 bg-white p-1 text-xs leading-none text-wm-orange">
             {index + 1} of {numPages}
           </div>
         </Page>
       ))}
+      <p className="flex w-full items-center gap-2 text-xs text-wm-white-300">
+        <hr className="grow" />
+        End of Document
+        <hr className="grow" />
+      </p>
     </Document>
   );
 };

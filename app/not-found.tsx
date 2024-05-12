@@ -1,5 +1,4 @@
 import SideBar from "@/components/dashboard/SideBar";
-import React from "react";
 
 const NotFound = () => {
   return (
