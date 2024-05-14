@@ -1,7 +1,7 @@
 "use client";
 
-import ExtractionReview from "@/app/review/page";
 import PDFViewer from "@/components/dashboard/PDFViewer";
+import ExtractionReview from "@/components/extraction/ExtractionReview";
 import { Button } from "@/components/ui/button";
 import { mindeeScan } from "@/lib/actions/actions";
 import { createClient } from "@/utils/supabase/client";
@@ -50,7 +50,6 @@ const getInvoices = async () => {
 
 const Unprocessed = () => {
   const [invoices, setInvoices] = useState<{ publicUrl: string }[]>([]);
-  const [mindeeResponse, setMindeeResponse] = useState<any>();
   const [step, setStep] = useState(0);
 
   async function fetchInvoices() {
@@ -66,13 +65,6 @@ const Unprocessed = () => {
     return <div>Loading...</div>;
   }
 
-  const handleProcessInvoice = async () => {
-    const response = await mindeeScan(invoices[0].publicUrl);
-
-    console.log(JSON.parse(response));
-    setMindeeResponse(response);
-  };
-
   return (
     <>
       {step == 1 ? (
@@ -87,9 +79,6 @@ const Unprocessed = () => {
           <Button onClick={() => setStep(1)}>
             Process Invoice with Mindee
           </Button>
-          {mindeeResponse && (
-            <pre>{JSON.stringify(mindeeResponse, null, 2)}</pre>
-          )}
         </div>
       )}
     </>
