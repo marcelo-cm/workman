@@ -17,7 +17,7 @@ const PDFViewer = ({ fileUrl }: { fileUrl: string }) => {
     <Document
       file={fileUrl}
       onLoadSuccess={onDocumentLoadSuccess}
-      className="relative flex h-full w-full flex-col gap-2 overflow-auto"
+      className="relative flex h-full w-fit flex-col gap-2 overflow-auto"
     >
       {Array.from({ length: numPages }, (_, index) => (
         <Page
