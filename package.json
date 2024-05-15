@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "prettier --write . && next",
+    "dev": "next && prettier --write .",
     "build": "next build",
     "start": "next start",
     "lint": "tsc && prettier --check .",

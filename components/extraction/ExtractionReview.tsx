@@ -41,7 +41,7 @@ const ExtractionReview = ({ fileUrls }: ExtractionReviewProps) => {
 
   return (
     <>
-      <div className="flex h-dvh w-full flex-col gap-4 overflow-hidden pl-4 pt-8">
+      <div className="flex h-dvh w-full flex-col gap-4 pl-4 pt-8">
         <BreadcrumbList className="text-wm-white-400">
           <BreadcrumbItem>Bills</BreadcrumbItem>
           <BreadcrumbSeparator />
@@ -76,7 +76,7 @@ const ExtractionReview = ({ fileUrls }: ExtractionReviewProps) => {
                 <PDFViewer fileUrl={fileUrls[activeFile]} />
               </div>
             </div>
-            <div className="bottom-0 flex min-h-14 items-center gap-2 border-t px-2">
+            <div className="sticky bottom-0 flex h-14 min-h-14 items-center gap-2 border-t bg-white px-2">
               <Button
                 variant="outline"
                 className="py-2"

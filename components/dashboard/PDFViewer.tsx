@@ -5,7 +5,6 @@ pdfjs.GlobalWorkerOptions.workerSrc =
   "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.js";
 
 const PDFViewer = ({ fileUrl }: { fileUrl: string }) => {
-  console.log(fileUrl);
   const [numPages, setNumPages] = useState<number>(0);
 
   function onDocumentLoadSuccess(document: any): void {
@@ -33,11 +32,11 @@ const PDFViewer = ({ fileUrl }: { fileUrl: string }) => {
           </div>
         </Page>
       ))}
-      <p className="flex w-full items-center gap-2 text-xs text-wm-white-300">
+      <div className="flex w-full items-center gap-2 text-xs text-wm-white-300">
         <hr className="grow" />
         End of Document
         <hr className="grow" />
-      </p>
+      </div>
     </Document>
   );
 };
