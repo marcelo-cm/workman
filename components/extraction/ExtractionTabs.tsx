@@ -17,6 +17,7 @@ import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 import ExtractionFormComponent from "./ExtractionFormComponent";
 import { mindeeScan } from "@/lib/actions/actions";
+import Invoice from "@/models/Invoice";
 
 const formSchema = z.object({
   date: z.string().min(1, "Date is required"),
@@ -27,7 +28,8 @@ const formSchema = z.object({
   supplierEmail: z
     .string()
     .min(1, "Supplier email is required")
-    .email("Invalid email"),
+    .email("Invalid email")
+    .optional(),
   supplierPhoneNumber: z.string().min(1, "Supplier phone number is required"),
   totalNet: z.number().min(0, "Total net should be a positive number"),
   totalAmount: z.number().min(0, "Total amount should be a positive number"),
@@ -51,48 +53,6 @@ const formSchema = z.object({
 });
 
 const ExtractionTabs = ({ fileUrl }: { fileUrl: string }) => {
-  const [data, setData] = useState<any | null>(null);
-
-  useEffect(() => {
-    if (!data) {
-      console.log("No data");
-      return;
-    }
-    form.setValue("supplierName", data?.supplierName.value);
-    form.setValue("supplierAddress", data?.supplierAddress.value);
-    form.setValue("supplierEmail", data?.supplierEmail.value);
-    form.setValue("supplierPhoneNumber", data?.supplierPhoneNumber.value);
-    form.setValue("date", data?.date.value || "");
-    form.setValue("dueDate", data?.dueDate.value || "");
-    form.setValue("invoiceNumber", data?.invoiceNumber.value || "");
-    form.setValue("totalNet", data?.totalNet.value);
-    form.setValue("totalAmount", data?.totalNet.value);
-    form.setValue("totalTax", data?.totalTax.value);
-    form.setValue(
-      "lineItems",
-      data?.lineItems.map(
-        (lineItem: {
-          confidence: number;
-          description: string;
-          productCode: string;
-          quantity: number;
-          totalAmount: number;
-          unitPrice: number;
-          pageId: number;
-        }) => ({
-          confidence: lineItem.confidence,
-          description: lineItem.description,
-          productCode: lineItem.productCode,
-          quantity: lineItem.quantity,
-          totalAmount: lineItem.totalAmount,
-          unitPrice: lineItem.unitPrice,
-          pageId: lineItem.pageId,
-        }),
-      ),
-    );
-    form.setValue("notes", "");
-  }, [data]);
-
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -116,18 +76,6 @@ const ExtractionTabs = ({ fileUrl }: { fileUrl: string }) => {
     name: "lineItems",
   });
 
-  const addLineItem = () => {
-    append({
-      confidence: 1,
-      description: "",
-      productCode: "",
-      quantity: 0,
-      totalAmount: 0,
-      unitPrice: 0,
-      pageId: 0,
-    });
-  };
-
   const watchLineItems = useWatch({
     control: form.control,
     name: "lineItems",
@@ -137,6 +85,21 @@ const ExtractionTabs = ({ fileUrl }: { fileUrl: string }) => {
     control: form.control,
     name: "totalTax",
   });
+
+  useEffect(() => {
+    handleFileChange();
+  }, [fileUrl]);
+
+  const handleFileChange = async () => {
+    form.reset();
+    const invoice = await Invoice.getByUrl(fileUrl);
+    if (invoice) {
+      mapDataToForm(invoice.data);
+    } else {
+      console.log("No invoice found, processing...");
+      handleProcessInvoice(fileUrl);
+    }
+  };
 
   useEffect(() => {
     const totalAmount = watchLineItems.reduce(
@@ -155,20 +118,73 @@ const ExtractionTabs = ({ fileUrl }: { fileUrl: string }) => {
     });
   }, [watchLineItems, watchTotalTax, form]);
 
+  const addLineItem = () => {
+    append({
+      confidence: 1,
+      description: "",
+      productCode: "",
+      quantity: 0,
+      totalAmount: 0,
+      unitPrice: 0,
+      pageId: 0,
+    });
+  };
+
+  const mapDataToForm = async (data: any) => {
+    form.setValue("supplierName", data?.supplierName);
+    form.setValue("supplierAddress", data?.supplierAddress);
+    form.setValue("supplierEmail", data?.supplierEmail);
+    form.setValue("supplierPhoneNumber", data?.supplierPhoneNumber);
+    form.setValue("date", data?.date);
+    form.setValue("dueDate", data?.dueDate);
+    form.setValue("invoiceNumber", data?.invoiceNumber);
+    form.setValue("totalNet", data?.totalNet);
+    form.setValue("totalAmount", data?.totalNet);
+    form.setValue("totalTax", data?.totalTax);
+    form.setValue(
+      "lineItems",
+      data?.lineItems.map(
+        (lineItem: {
+          confidence: number;
+          description: string;
+          productCode: string;
+          quantity: number;
+          totalAmount: number;
+          unitPrice: number;
+          pageId: number;
+        }) => ({
+          confidence: lineItem.confidence,
+          description: lineItem.description,
+          productCode: lineItem.productCode,
+          quantity: lineItem.quantity,
+          totalAmount: lineItem.totalAmount,
+          unitPrice: lineItem.unitPrice,
+          pageId: lineItem.pageId,
+        }),
+      ),
+    );
+    form.setValue("notes", data.notes);
+
+    console.log("Mapped data to form", form.getValues());
+
+    const invoice = await Invoice.getByUrl(fileUrl);
+    if (!invoice) {
+      console.log("Creating invoice...");
+      Invoice.create(form.getValues(), fileUrl);
+    }
+  };
+
   const handleProcessInvoice = async (fileUrl: string) => {
     const response = await mindeeScan(fileUrl);
-    const parsedResponse = JSON.parse(response); // Parse the response string into a JSON object
-    console.log(parsedResponse);
-    setData(parsedResponse.document.inference.prediction);
+    const parsedResponse = JSON.parse(response);
+    const mappedReponse = await Invoice.parse(parsedResponse);
+    mapDataToForm(mappedReponse);
   };
 
-  const onSubmit = (data: any) => {
-    console.log(data);
+  const handleUpdateInvoiceData = async (fileUrl: string) => {
+    const data = form.getValues();
+    const response = await Invoice.update(fileUrl, data);
   };
-
-  useEffect(() => {
-    form.reset();
-  }, [fileUrl]);
 
   return (
     <Tabs defaultValue="1" className="relative flex h-full w-full flex-col">
@@ -408,9 +424,12 @@ const ExtractionTabs = ({ fileUrl }: { fileUrl: string }) => {
           variant={"secondary"}
           onClick={() => handleProcessInvoice(fileUrl)}
         >
-          Re-Scan
+          Scan
         </Button>
-        <Button type="submit" onClick={() => form.handleSubmit(onSubmit)()}>
+        <Button
+          variant={"secondary"}
+          onClick={() => handleUpdateInvoiceData(fileUrl)}
+        >
           Approve
         </Button>
       </div>
