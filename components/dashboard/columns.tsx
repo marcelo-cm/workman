@@ -1,8 +1,7 @@
 "use client";
 
 import { Checkbox } from "@/components/ui/checkbox";
-import { Invoice } from "@/interfaces/common.interfaces";
-import { formatDate } from "@/lib/utils";
+import { formatDate, toTitleCase } from "@/lib/utils";
 import {
   CaretDownIcon,
   CaretUpIcon,
@@ -18,23 +17,24 @@ import {
   DropdownMenuRadioItem,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
+import { InvoiceObject } from "@/models/Invoice";
 
 // define badge type by status type
 type BadgeType = "success" | "destructive" | "warning" | "info";
 function getBadgeType(status: string): BadgeType {
   switch (status) {
-    case "Successful":
+    case "SUCCESS":
       return "success";
-    case "Missing Fields":
+    case "MISSING_FIELDS":
       return "destructive";
-    case "Manual Review":
+    case "MANUAL_REVIEW":
       return "warning";
     default:
       return "info";
   }
 }
 
-export const columns: ColumnDef<Invoice>[] = [
+export const columns: ColumnDef<InvoiceObject>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -58,29 +58,33 @@ export const columns: ColumnDef<Invoice>[] = [
   },
   {
     accessorKey: "file_name&sender",
-    accessorFn: (row) => row.file_name + " " + row.sender,
+    accessorFn: (row) =>
+      row.fileUrl.split("/")[8]?.split(".pdf")[0] + " " + row.data.supplierName,
     header: ({ column }) => {
       return <div>Invoice Name & Company</div>;
     },
     cell: ({ row }) => {
       return (
         <div className="flex flex-col">
-          <div>{row.original.file_name}</div>
-          <div className="text-xs">{row.original.sender}</div>
+          <div className="flex items-center gap-1">
+            {row.original.fileUrl.split("/")[8].split(".pdf")[0]}
+            <p className="text-xs text-wm-white-200">({row.original.id})</p>
+          </div>
+          <div className="text-xs">{row.original.data.supplierName}</div>
         </div>
       );
     },
   },
-  {
-    accessorKey: "project_code",
-    header: () => <div>Project</div>,
-    cell: ({ row }) => (
-      <Badge variant="info">{row.original.data.project_code}</Badge>
-    ),
-  },
+  // {
+  //   accessorKey: "project_code",
+  //   header: () => <div>Project</div>,
+  //   cell: ({ row }) => (
+  //     <Badge variant="info">{row.original.data.project_code}</Badge>
+  //   ),
+  // },
   {
     accessorKey: "date_due", // Unique accessor key for date due
-    accessorFn: (row) => new Date(row.data.date_due),
+    accessorFn: (row) => new Date(row.data.dueDate),
     header: ({ column }) => (
       <Button
         variant="ghost"
@@ -96,12 +100,12 @@ export const columns: ColumnDef<Invoice>[] = [
       </Button>
     ),
     cell: ({ row }) => (
-      <div>{formatDate(new Date(row.original.data.date_due))}</div>
+      <div>{formatDate(new Date(row.original.data.dueDate))}</div>
     ),
   },
   {
     accessorKey: "date_invoiced", // Unique accessor key for date invoiced
-    accessorFn: (row) => new Date(row.data.date_invoiced),
+    accessorFn: (row) => new Date(row.data.date),
     header: ({ column }) => (
       <Button
         variant="ghost"
@@ -117,7 +121,7 @@ export const columns: ColumnDef<Invoice>[] = [
       </Button>
     ),
     cell: ({ row }) => (
-      <div>{formatDate(new Date(row.original.data.date_invoiced))}</div>
+      <div>{formatDate(new Date(row.original.data.date))}</div>
     ),
   },
   // {
@@ -143,7 +147,7 @@ export const columns: ColumnDef<Invoice>[] = [
   // },
   {
     accessorKey: "balance", // Unique accessor key for balance
-    accessorFn: (row) => row.data.balance,
+    accessorFn: (row) => row.data.totalNet,
     header: ({ column }) => (
       <Button
         variant="ghost"
@@ -162,13 +166,13 @@ export const columns: ColumnDef<Invoice>[] = [
       const formatted = new Intl.NumberFormat("en-US", {
         style: "currency",
         currency: "USD",
-      }).format(row.original.data.balance);
+      }).format(row.original.data.totalNet);
 
       return <div>{formatted}</div>;
     },
   },
   {
-    accessorKey: "status",
+    accessorKey: "flag",
     header: ({ column }) => (
       <DropdownMenu>
         <div className="flex items-center justify-end gap-2">
@@ -191,20 +195,20 @@ export const columns: ColumnDef<Invoice>[] = [
             }}
           >
             <DropdownMenuRadioItem value="Success">
-              <Badge variant={"success"}>Successful</Badge>
+              <Badge variant={"success"}>Success</Badge>
             </DropdownMenuRadioItem>
             <DropdownMenuRadioItem value="Manual Review">
-              <Badge variant={getBadgeType("Manual Review")}>
+              <Badge variant={getBadgeType("MANUAL_REVIEW")}>
                 Manual Review
               </Badge>
             </DropdownMenuRadioItem>
             <DropdownMenuRadioItem value="Missing Fields">
-              <Badge variant={getBadgeType("Missing Fields")}>
+              <Badge variant={getBadgeType("MISSING_FIELDS")}>
                 Missing Fields
               </Badge>
             </DropdownMenuRadioItem>
             <DropdownMenuRadioItem value="Pending">
-              <Badge variant={getBadgeType("Pending")}>Pending</Badge>
+              <Badge variant={getBadgeType("PENDING")}>Pending</Badge>
             </DropdownMenuRadioItem>
           </DropdownMenuRadioGroup>
         </DropdownMenuContent>
@@ -212,8 +216,8 @@ export const columns: ColumnDef<Invoice>[] = [
     ),
     cell: ({ row }) => (
       <div className="flex justify-end pr-2">
-        <Badge variant={getBadgeType(row.original.status)}>
-          {row.original.status}
+        <Badge variant={getBadgeType(row.original.flag || "PENDING")}>
+          {toTitleCase(row.original.flag || "PENDING")}
         </Badge>
       </div>
     ),

@@ -1,22 +1,24 @@
-export interface Invoice {
-  file_name: string;
-  file?: File;
-  sender: string;
-  status: string;
-  data: {
-    invoice_number: string;
-    date_invoiced: string;
-    date_due: string;
-    date_uploaded: string;
-    balance: number;
-    vendor_name: string;
-    project_code: string;
-    line_items: {
-      name: string;
-      description: string;
-      quantity: number;
-      unit_price: number;
-      amount: number;
-    }[];
-  };
+export interface InvoiceData {
+  date: string;
+  dueDate: string;
+  invoiceNumber: string;
+  supplierName: string;
+  supplierAddress: string;
+  supplierEmail: string;
+  supplierPhoneNumber: string;
+  totalNet: number;
+  totalAmount: number;
+  totalTax: number;
+  lineItems: LineItem[];
+  notes: string;
+}
+
+interface LineItem {
+  confidence: number;
+  description: string;
+  productCode: string;
+  quantity: number;
+  totalAmount: number;
+  unitPrice: number;
+  pageId: number;
 }

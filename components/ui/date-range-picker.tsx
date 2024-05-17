@@ -12,25 +12,40 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { useEffect, useState } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 
-export function DatePickerWithRange({
-  placeholder,
-  className,
-  onDateChange,
-}: {
-  placeholder?: string;
-  onDateChange?: (date: any) => void;
-  className?: string;
-}) {
+export const DatePickerWithRange = forwardRef(function DatePickerWithRange(
+  {
+    placeholder,
+    className,
+    onDateChange,
+  }: {
+    placeholder?: string;
+    onDateChange?: (date: any) => void;
+    className?: string;
+  },
+  ref,
+) {
   const [date, setDate] = useState<DateRange | undefined>({
     from: undefined,
     to: undefined,
   });
 
+  useImperativeHandle(
+    ref,
+    () => {
+      return {
+        clearDate() {
+          console.log("clearing date");
+          setDate({ from: undefined, to: undefined });
+        },
+      };
+    },
+    [],
+  );
+
   useEffect(() => {
     if (!date?.from || !onDateChange) return;
-
     onDateChange(date);
   }, [date]);
 
@@ -75,4 +90,4 @@ export function DatePickerWithRange({
       </Popover>
     </div>
   );
-}
+});

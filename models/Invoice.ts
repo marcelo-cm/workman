@@ -1,3 +1,4 @@
+import { InvoiceData } from "@/interfaces/common.interfaces";
 import { createClient } from "@/utils/supabase/client";
 import { UUID } from "crypto";
 import * as mindee from "mindee";
@@ -7,24 +8,27 @@ const supabase = createClient();
 export type InvoiceObject = {
   id: UUID;
   created_at: string;
-  data: mindee.PredictResponse<mindee.product.InvoiceV4>;
+  data: InvoiceData;
   fileUrl: string;
   status: string;
+  flag: string | null;
 };
 
 class Invoice {
   id: UUID;
   created_at: string;
-  data: mindee.PredictResponse<mindee.product.InvoiceV4>;
+  data: InvoiceData;
   fileUrl: string;
   status: string;
+  flag: string;
 
-  constructor({ id, created_at, data, status, fileUrl }: InvoiceObject) {
+  constructor({ id, created_at, data, status, fileUrl, flag }: InvoiceObject) {
     this.id = id;
     this.created_at = created_at;
     this.data = data;
     this.status = status;
     this.fileUrl = fileUrl;
+    this.flag = flag;
   }
 
   static async create(data: any, fileUrl: string) {

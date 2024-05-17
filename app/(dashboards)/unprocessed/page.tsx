@@ -3,7 +3,6 @@
 import PDFViewer from "@/components/dashboard/PDFViewer";
 import ExtractionReview from "@/components/extraction/ExtractionReview";
 import { Button } from "@/components/ui/button";
-import { mindeeScan } from "@/lib/actions/actions";
 import { createClient } from "@/utils/supabase/client";
 import { useEffect, useState } from "react";
 

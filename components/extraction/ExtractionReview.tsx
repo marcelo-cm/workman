@@ -23,11 +23,7 @@ import {
 import { useState } from "react";
 import ExtractionTabs from "./ExtractionTabs";
 
-interface ExtractionReviewProps {
-  fileUrls: string[];
-}
-
-const ExtractionReview = ({ fileUrls }: ExtractionReviewProps) => {
+const ExtractionReview = ({ fileUrls }: { fileUrls: string[] }) => {
   const [activeFile, setActiveFile] = useState(0);
 
   const handleSetActiveFile = (increment: 1 | -1) => {
