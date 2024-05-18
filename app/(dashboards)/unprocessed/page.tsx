@@ -66,20 +66,14 @@ const Unprocessed = () => {
 
   return (
     <>
-      {step == 1 ? (
-        <ExtractionReview fileUrls={invoices.map((inv) => inv.publicUrl)} />
-      ) : (
-        <div>
-          {invoices[0].publicUrl}
-          <div className="h-96 w-fit border ">
-            <PDFViewer fileUrl={invoices[0].publicUrl} />
-          </div>
-
-          <Button onClick={() => setStep(1)}>
-            Process Invoice with Mindee
-          </Button>
+      <div>
+        {invoices[0].publicUrl}
+        <div className="h-96 w-fit border ">
+          <PDFViewer fileUrl={invoices[0].publicUrl} />
         </div>
-      )}
+
+        <Button onClick={() => setStep(1)}>Process Invoice with Mindee</Button>
+      </div>
     </>
   );
 };

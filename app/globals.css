@@ -26,3 +26,8 @@
     "Helvetica Neue",
     sans-serif;
 }
+
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}

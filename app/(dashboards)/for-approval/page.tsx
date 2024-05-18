@@ -21,6 +21,8 @@ const supabase = createClient();
 export default function ForApproval() {
   const [invoices, setInvoices] = useState<InvoiceObject[]>([]);
   const fileInputRef = useRef<null | HTMLInputElement>(null);
+  const [selectedFiles, setSelectedFiles] = useState<InvoiceObject[]>([]);
+  const [review, setReview] = useState<boolean>(false);
 
   useEffect(() => {
     getInvoices();
@@ -82,18 +84,15 @@ export default function ForApproval() {
     }
   };
 
-  const [selectedFilesUrls, setSelectedFilesUrls] = useState<string[]>([]);
-  const [review, setReview] = useState<boolean>(false);
-
-  const handleReviewSelected = async (fileUrls: string[]) => {
-    setSelectedFilesUrls(fileUrls);
+  const handleReviewSelected = async (files: InvoiceObject[]) => {
+    setSelectedFiles(files);
     setReview(true);
   };
 
   return (
     <>
       {review ? (
-        <ExtractionReview fileUrls={selectedFilesUrls} />
+        <ExtractionReview files={selectedFiles} />
       ) : (
         <div className="flex h-full w-full flex-col gap-4 px-4 py-8">
           <BreadcrumbList className="text-wm-white-400">

@@ -32,7 +32,7 @@ import ExtractionReview from "../extraction/ExtractionReview";
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
-  onReviewSelected: (selectedFiles: string[]) => void;
+  onReviewSelected: (selectedFiles: InvoiceObject[]) => void;
 }
 
 export function DataTable<TData, TValue>({
@@ -76,7 +76,7 @@ export function DataTable<TData, TValue>({
   const searchFilterInputRef = useRef<HTMLInputElement>(null);
   const dateRangeRef = useRef<any>(null);
   const selectedFilesUrls = Object.keys(rowSelection).map(
-    (key) => (filteredData[parseInt(key)] as InvoiceObject).fileUrl,
+    (key) => filteredData[parseInt(key)] as InvoiceObject,
   );
 
   useEffect(() => {

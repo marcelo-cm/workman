@@ -22,15 +22,16 @@ import {
 } from "@radix-ui/react-icons";
 import { useState } from "react";
 import ExtractionTabs from "./ExtractionTabs";
+import { InvoiceObject } from "@/models/Invoice";
 
-const ExtractionReview = ({ fileUrls }: { fileUrls: string[] }) => {
-  const [activeFile, setActiveFile] = useState(0);
+const ExtractionReview = ({ files }: { files: InvoiceObject[] }) => {
+  const [activeIndex, setActiveIndex] = useState(0);
 
   const handleSetActiveFile = (increment: 1 | -1) => {
-    setActiveFile((prev: number) => {
+    setActiveIndex((prev: number) => {
       const nextValue = prev + increment;
       if (nextValue < 0) return 0;
-      if (nextValue >= fileUrls.length) return fileUrls.length - 1;
+      if (nextValue >= files.length) return files.length - 1;
       return nextValue;
     });
   };
@@ -45,32 +46,30 @@ const ExtractionReview = ({ fileUrls }: { fileUrls: string[] }) => {
           <BreadcrumbSeparator />
           <BreadcrumbItem className="text-black">Review</BreadcrumbItem>
         </BreadcrumbList>
-        <div className="relative flex h-[calc(100%-3px-3rem)] rounded-tl border-l border-t">
+        <div className="relative flex h-[calc(100%-3px-3rem)] overflow-hidden rounded-tl border-l border-t">
           <div className="flex h-full w-fit flex-col border-r">
             <div className="flex h-10 min-h-10 items-center justify-between border-b bg-wm-white-50 px-2 text-sm">
               <p className="min-w-24 break-keep font-medium">Current File</p>
               <DropdownMenu>
                 <DropdownMenuTrigger className="ellipsis flex items-center gap-1">
                   <CaretDownIcon />
-                  {fileUrls[activeFile].split("/")[8].split("?")[0]}
+                  {files[activeIndex].fileUrl.split("/")[8].split("?")[0]}
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="bg-white">
-                  {fileUrls.map((file, index) => (
+                  {files.map((file, index) => (
                     <DropdownMenuItem
                       key={index}
-                      onClick={() => setActiveFile(index)}
+                      onClick={() => setActiveIndex(index)}
                       className="cursor-pointer"
                     >
-                      {file.split("/")[8].split("?")[0]}
+                      {file.fileUrl.split("/")[8].split("?")[0]}
                     </DropdownMenuItem>
                   ))}
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
-            <div className="h-full w-full overflow-scroll bg-wm-white-50">
-              <div className=" p-4">
-                <PDFViewer fileUrl={fileUrls[activeFile]} />
-              </div>
+            <div className="no-scrollbar h-full w-full overflow-y-scroll bg-wm-white-50 p-4">
+              <PDFViewer fileUrl={files[activeIndex].fileUrl} />
             </div>
             <div className="sticky bottom-0 flex h-14 min-h-14 items-center gap-2 border-t bg-white px-2">
               <Button
@@ -89,7 +88,7 @@ const ExtractionReview = ({ fileUrls }: { fileUrls: string[] }) => {
               </Button>
             </div>
           </div>
-          <ExtractionTabs fileUrl={fileUrls[activeFile]} />
+          <ExtractionTabs files={files} activeIndex={activeIndex} />
         </div>
       </div>
     </>

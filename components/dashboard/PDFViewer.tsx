@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
 
 pdfjs.GlobalWorkerOptions.workerSrc =
@@ -16,7 +16,7 @@ const PDFViewer = ({ fileUrl }: { fileUrl: string }) => {
     <Document
       file={fileUrl}
       onLoadSuccess={onDocumentLoadSuccess}
-      className="relative flex h-full w-fit flex-col gap-2 overflow-auto"
+      className="relative flex h-full w-full flex-col gap-2"
     >
       {Array.from({ length: numPages }, (_, index) => (
         <Page
@@ -32,7 +32,7 @@ const PDFViewer = ({ fileUrl }: { fileUrl: string }) => {
           </div>
         </Page>
       ))}
-      <div className="flex w-full items-center gap-2 text-xs text-wm-white-300">
+      <div className="flex w-full items-center gap-2 pb-4 text-xs text-wm-white-300">
         <hr className="grow" />
         End of Document
         <hr className="grow" />

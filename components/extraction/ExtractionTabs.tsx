@@ -17,7 +17,9 @@ import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 import ExtractionFormComponent from "./ExtractionFormComponent";
 import { mindeeScan } from "@/lib/actions/actions";
-import Invoice from "@/models/Invoice";
+import Invoice, { InvoiceObject } from "@/models/Invoice";
+import { InvoiceData } from "@/interfaces/common.interfaces";
+import { Table, TableHead, TableHeader, TableRow } from "../ui/table";
 
 const formSchema = z.object({
   date: z.string().min(1, "Date is required"),
@@ -28,8 +30,7 @@ const formSchema = z.object({
   supplierEmail: z
     .string()
     .min(1, "Supplier email is required")
-    .email("Invalid email")
-    .optional(),
+    .email("Invalid email"),
   supplierPhoneNumber: z.string().min(1, "Supplier phone number is required"),
   totalNet: z.number().min(0, "Total net should be a positive number"),
   totalAmount: z.number().min(0, "Total amount should be a positive number"),
@@ -49,25 +50,32 @@ const formSchema = z.object({
       }),
     )
     .min(1, "At least one line item is required"),
-  notes: z.string().optional(),
+  notes: z.string(),
 });
 
-const ExtractionTabs = ({ fileUrl }: { fileUrl: string }) => {
+const ExtractionTabs = ({
+  files,
+  activeIndex,
+}: {
+  files: InvoiceObject[];
+  activeIndex: number;
+}) => {
+  const file = files[activeIndex];
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      date: "",
-      dueDate: "",
-      invoiceNumber: "",
-      supplierName: "",
-      supplierAddress: "",
-      supplierEmail: "",
-      supplierPhoneNumber: "",
-      totalNet: 0,
-      totalAmount: 0,
-      totalTax: 0, // Needs to read total tax from the data, but may not exist.
-      lineItems: [],
-      notes: "",
+      date: file?.data?.date || "",
+      dueDate: file?.data?.dueDate || "",
+      invoiceNumber: file?.data?.invoiceNumber || "",
+      supplierName: file?.data?.supplierName || "",
+      supplierAddress: file?.data?.supplierAddress || "",
+      supplierEmail: file?.data?.supplierEmail || "",
+      supplierPhoneNumber: file?.data?.supplierPhoneNumber || "",
+      totalNet: file?.data?.totalNet || 0,
+      totalAmount: file?.data?.totalAmount || 0,
+      totalTax: file?.data?.totalTax || 0,
+      lineItems: file?.data?.lineItems || [],
+      notes: file?.data?.notes || "",
     },
   });
 
@@ -88,17 +96,11 @@ const ExtractionTabs = ({ fileUrl }: { fileUrl: string }) => {
 
   useEffect(() => {
     handleFileChange();
-  }, [fileUrl]);
+  }, [file]);
 
   const handleFileChange = async () => {
     form.reset();
-    const invoice = await Invoice.getByUrl(fileUrl);
-    if (invoice) {
-      mapDataToForm(invoice.data);
-    } else {
-      console.log("No invoice found, processing...");
-      handleProcessInvoice(fileUrl);
-    }
+    mapDataToForm(file.data);
   };
 
   useEffect(() => {
@@ -131,6 +133,7 @@ const ExtractionTabs = ({ fileUrl }: { fileUrl: string }) => {
   };
 
   const mapDataToForm = async (data: any) => {
+    console.log("Mapping Data...");
     form.setValue("supplierName", data?.supplierName);
     form.setValue("supplierAddress", data?.supplierAddress);
     form.setValue("supplierEmail", data?.supplierEmail);
@@ -164,26 +167,20 @@ const ExtractionTabs = ({ fileUrl }: { fileUrl: string }) => {
       ),
     );
     form.setValue("notes", data.notes);
-
-    console.log("Mapped data to form", form.getValues());
-
-    const invoice = await Invoice.getByUrl(fileUrl);
-    if (!invoice) {
-      console.log("Creating invoice...");
-      Invoice.create(form.getValues(), fileUrl);
-    }
   };
 
-  const handleProcessInvoice = async (fileUrl: string) => {
-    const response = await mindeeScan(fileUrl);
+  const handleProcessInvoice = async (file: InvoiceObject) => {
+    const response = await mindeeScan(file.fileUrl);
     const parsedResponse = JSON.parse(response);
     const mappedReponse = await Invoice.parse(parsedResponse);
     mapDataToForm(mappedReponse);
   };
 
-  const handleUpdateInvoiceData = async (fileUrl: string) => {
-    const data = form.getValues();
-    const response = await Invoice.update(fileUrl, data);
+  const handleUpdateInvoiceData = async (file: InvoiceObject) => {
+    const data: InvoiceData = form.getValues();
+    files[activeIndex].data = data;
+    const response = await Invoice.update(file.fileUrl, data);
+    console.log(response);
   };
 
   return (
@@ -202,7 +199,7 @@ const ExtractionTabs = ({ fileUrl }: { fileUrl: string }) => {
           2. Upload to Quickbooks
         </TabsTrigger>
       </TabsList>
-      <div className="h-full overflow-scroll">
+      <div className="no-scrollbar h-full overflow-scroll">
         <TabsContent value="1" className="w-full">
           <Form {...form}>
             <form className="space-y-4 p-4">
@@ -417,18 +414,32 @@ const ExtractionTabs = ({ fileUrl }: { fileUrl: string }) => {
             </form>
           </Form>
         </TabsContent>
-        <TabsContent value="2">Step 2</TabsContent>
+        <TabsContent value="2" className="p-4">
+          <div>Invoices to Upload</div>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Invoice #</TableHead>
+                <TableHead>Vendor</TableHead>
+                <TableHead>Amount</TableHead>
+                <TableHead>Date</TableHead>
+                <TableHead>Due Date</TableHead>
+                <TableHead>Status</TableHead>
+              </TableRow>
+            </TableHeader>
+          </Table>
+        </TabsContent>
       </div>
       <div className="sticky bottom-0 flex h-14 min-h-14 w-full items-center justify-end gap-2 border-t bg-white pl-2 pr-8">
         <Button
           variant={"secondary"}
-          onClick={() => handleProcessInvoice(fileUrl)}
+          onClick={() => handleProcessInvoice(file)}
         >
-          Scan
+          Re-Scan
         </Button>
         <Button
           variant={"secondary"}
-          onClick={() => handleUpdateInvoiceData(fileUrl)}
+          onClick={() => handleUpdateInvoiceData(file)}
         >
           Approve
         </Button>
