@@ -10,7 +10,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
-import { InvoiceObject } from "@/models/Invoice";
+import Invoice, { InvoiceObject } from "@/models/Invoice";
 import { createClient } from "@/utils/supabase/client";
 import { UploadIcon } from "@radix-ui/react-icons";
 import { UserResponse } from "@supabase/supabase-js";
@@ -56,7 +56,7 @@ export default function ForApproval() {
     }
   };
 
-  const handleFileChange = async (event: any) => {
+  const handleUpload = async (event: any) => {
     const filesList = event.target.files;
     if (!filesList) {
       console.log("No files selected!");
@@ -65,20 +65,19 @@ export default function ForApproval() {
 
     const files = Array.from(filesList) as File[];
 
-    const uploadPromises = Array.from(files).map((file: File) => {
-      const filePath = `/${file.name}_${new Date().getTime()}`;
-      return supabase.storage.from("invoices").upload(filePath, file);
-    });
-
     try {
-      const results = await Promise.all(uploadPromises);
-      results.forEach(({ data, error }, index) => {
-        if (error) {
-          console.error(`Error uploading file ${files[index].name}:`, error);
-        } else {
-          console.log(`File uploaded successfully ${files[index].name}:`, data);
-        }
+      const allFileUrlPromises = files.map(
+        async (file) => await Invoice.upload(file),
+      );
+      const fileUrls = await Promise.all(allFileUrlPromises);
+
+      const scanAllFilePromises = fileUrls.map(async (fileUrl) => {
+        await Invoice.scanAndUpdate(fileUrl);
       });
+
+      await Promise.all(scanAllFilePromises);
+
+      window.location.reload();
     } catch (error) {
       console.error("Error uploading files:", error);
     }
@@ -110,7 +109,7 @@ export default function ForApproval() {
                 ref={fileInputRef}
                 multiple
                 accept="application/pdf"
-                onChange={handleFileChange}
+                onChange={handleUpload}
                 style={{ display: "none" }}
               />
               <UploadIcon /> Upload Document

@@ -170,10 +170,8 @@ const ExtractionTabs = ({
   };
 
   const handleProcessInvoice = async (file: InvoiceObject) => {
-    const response = await mindeeScan(file.fileUrl);
-    const parsedResponse = JSON.parse(response);
-    const mappedReponse = await Invoice.parse(parsedResponse);
-    mapDataToForm(mappedReponse);
+    const mappedResponse = await Invoice.scanAndUpdate(file.fileUrl);
+    mapDataToForm(mappedResponse);
   };
 
   const handleUpdateInvoiceData = async (file: InvoiceObject) => {
