@@ -1,6 +1,6 @@
 "use client";
 
-import { columns } from "@/components/dashboard/columns";
+import { columns } from "@/components/dashboard/columns-for-review";
 import { DataTable } from "@/components/dashboard/data-table";
 import ExtractionReview from "@/components/extraction/ExtractionReview";
 import {
@@ -14,7 +14,7 @@ import Invoice, { InvoiceObject } from "@/models/Invoice";
 import { createClient } from "@/utils/supabase/client";
 import { UploadIcon } from "@radix-ui/react-icons";
 import { UserResponse } from "@supabase/supabase-js";
-import { Suspense, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const supabase = createClient();
 
@@ -122,7 +122,7 @@ export default function ForApproval() {
           <DataTable
             columns={columns}
             data={invoices}
-            onReviewSelected={handleReviewSelected}
+            onSelected={handleReviewSelected}
           />
         </div>
       )}

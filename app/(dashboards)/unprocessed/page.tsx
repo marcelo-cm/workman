@@ -1,7 +1,13 @@
 "use client";
 
-import PDFViewer from "@/components/dashboard/PDFViewer";
-import ExtractionReview from "@/components/extraction/ExtractionReview";
+import { columns } from "@/components/dashboard/columns-unprocessed";
+import { DataTable } from "@/components/dashboard/data-table";
+import {
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -13,6 +19,7 @@ import {
 } from "@/components/ui/table";
 import { InvoiceObject } from "@/models/Invoice";
 import { createClient } from "@/utils/supabase/client";
+import { ExternalLinkIcon } from "@radix-ui/react-icons";
 import { useEffect, useState } from "react";
 
 const getInvoices = async () => {
@@ -38,7 +45,8 @@ const getInvoices = async () => {
 };
 
 const Unprocessed = () => {
-  const [invoices, setInvoices] = useState<InvoiceObject[]>();
+  const [invoices, setInvoices] = useState<InvoiceObject[]>([]);
+  const [selectedFiles, setSelectedFiles] = useState<InvoiceObject[]>([]);
 
   async function fetchInvoices() {
     const incomingInvoices = await getInvoices();
@@ -51,38 +59,26 @@ const Unprocessed = () => {
   }, []);
 
   return (
-    <div className="flex h-dvh w-full p-4">
-      <div className="h-fit rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>File Name</TableHead>
-              <TableHead>Created At</TableHead>
-              <TableHead>View File</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {invoices?.map((invoice) => (
-              <TableRow key={invoice.id}>
-                <TableCell>
-                  {invoice.fileUrl.split("/")[8]?.split(".pdf")[0]}
-                </TableCell>
-                <TableCell>{invoice.created_at}</TableCell>
-                <TableCell>
-                  <Button
-                    variant={"outline"}
-                    onClick={() => {
-                      window.open(invoice.fileUrl, "_blank");
-                    }}
-                  >
-                    View File
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+    <div className="flex h-full w-full flex-col gap-4 px-4 py-8">
+      <BreadcrumbList className="text-wm-white-400">
+        <BreadcrumbItem>Bills</BreadcrumbItem>
+        <BreadcrumbSeparator />
+        <BreadcrumbLink className="text-black" href="/unprocessed">
+          Unprocessed
+        </BreadcrumbLink>
+      </BreadcrumbList>
+      <div className="flex w-full flex-row justify-between font-poppins text-4xl">
+        Unprocessed Invoices
       </div>
+      <p>
+        Any invoices that have not been processed will be displayed here. Please
+        select and process them as needed.
+      </p>
+      <DataTable
+        data={invoices}
+        columns={columns}
+        onSelected={setSelectedFiles}
+      />
     </div>
   );
 };

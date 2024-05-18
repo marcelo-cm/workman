@@ -13,6 +13,7 @@ export async function middleware(request: NextRequest) {
     "/forgot-password",
     "/reset-password",
     "/error",
+    "/test-page",
   ];
 
   const url = request.nextUrl.clone();

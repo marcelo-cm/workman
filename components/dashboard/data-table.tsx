@@ -32,13 +32,13 @@ import ExtractionReview from "../extraction/ExtractionReview";
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
-  onReviewSelected: (selectedFiles: InvoiceObject[]) => void;
+  onSelected: (selectedFiles: InvoiceObject[]) => void;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
-  onReviewSelected,
+  onSelected,
 }: DataTableProps<TData, TValue>) {
   if (!columns || !data.length) {
     return (
@@ -85,12 +85,10 @@ export function DataTable<TData, TValue>({
 
   const updateFilteredData = () => {
     if (!dateRange.from && !dateRange.to) {
-      console.log("No date range selected");
-      setFilteredData(data); // No filtering if no date range is selected
+      setFilteredData(data);
       return;
     }
 
-    console.log("Filtering data by date range", dateRange);
     const filtered = data.filter((item) => {
       const invoiceDate = new Date((item as InvoiceObject).data.date).getTime();
       const fromTime = dateRange.from && new Date(dateRange.from).getTime();
@@ -137,7 +135,7 @@ export function DataTable<TData, TValue>({
         <Button
           variant="secondary"
           disabled={selectedFilesUrls.length === 0}
-          onClick={() => onReviewSelected(selectedFilesUrls)}
+          onClick={() => onSelected(selectedFilesUrls)}
         >
           <Pencil2Icon /> Review Selected
         </Button>

@@ -1,9 +1,8 @@
+import { toast } from "@/components/ui/use-toast";
 import { InvoiceData } from "@/interfaces/common.interfaces";
 import { mindeeScan } from "@/lib/actions/actions";
-import { createMindeeClient } from "@/utils/mindee/client";
 import { createClient } from "@/utils/supabase/client";
 import { UUID } from "crypto";
-import * as mindee from "mindee";
 
 const supabase = createClient();
 
@@ -34,17 +33,23 @@ class Invoice {
   }
 
   static async upload(file: File) {
-    console.log("Uploading file: ", file);
     const filePath = `/${file.name}_${new Date().getTime()}`;
     const { data, error } = await supabase.storage
       .from("invoices")
       .upload(filePath, file);
 
     if (error) {
+      toast({
+        title: `Failed to upload file ${file.name}`,
+        description: "Please try to upload this document again",
+        variant: "destructive",
+      });
       throw new Error(`Failed to upload file: ${error.message}`);
     }
 
-    console.log("File uploaded to storage: ", data);
+    toast({
+      title: `${file.name} uploaded to storage successfully`,
+    });
 
     const user = await supabase.auth.getUser();
     const id = user.data.user?.id;
@@ -52,8 +57,6 @@ class Invoice {
     const {
       data: { publicUrl },
     } = await supabase.storage.from("invoices").getPublicUrl(data.path);
-
-    // we could handle the scan on upload or on demand
 
     const { error: invoiceError } = await supabase.from("invoices").insert([
       {
@@ -64,10 +67,18 @@ class Invoice {
     ]);
 
     if (invoiceError) {
+      toast({
+        title: `Failed to upload invoice ${file.name} to database`,
+        description: "Please try to upload this document again",
+        variant: "destructive",
+      });
       throw new Error(`Failed to create invoice: ${invoiceError.message}`);
     }
 
-    console.log("Invoice created in database");
+    toast({
+      title: `${file.name} uploaded to database`,
+    });
+
     return publicUrl;
   }
 
@@ -79,23 +90,26 @@ class Invoice {
       .select("*");
 
     if (error) {
+      toast({
+        title: `Failed to updating or scanning ${fileUrl.split("/")[8].split(".pdf")[0]}`,
+        description: "Please scan this document again unprocessed",
+        variant: "destructive",
+      });
       throw new Error(`Failed to update invoice: ${error.message}`);
     }
 
-    console.log("Invoice updated: ", updatedData);
+    toast({
+      title: `Invoice ${fileUrl.split("/")[8].split(".pdf")[0]} has been updated`,
+    });
 
     return updatedData;
   }
 
   static async scanAndUpdate(fileUrl: string) {
-    console.log("Scanning file: ", fileUrl);
     const apiResponse = await mindeeScan(fileUrl);
     const parsedResponse = JSON.parse(apiResponse);
-    console.log("Parsed response: ", parsedResponse);
     const parsedData = await Invoice.parse(parsedResponse);
-    console.log("Parsed data: ", parsedData);
     const updatedData = await Invoice.update(fileUrl, parsedData);
-    console.log("Updated data: ", updatedData);
     return parsedData;
   }
 
@@ -106,6 +120,11 @@ class Invoice {
       .eq("fileUrl", url);
 
     if (error) {
+      toast({
+        title: `Failed to fetch invoice`,
+        description: "Please try again later",
+        variant: "destructive",
+      });
       throw new Error(`Failed to get invoice: ${error.message}`);
     }
 

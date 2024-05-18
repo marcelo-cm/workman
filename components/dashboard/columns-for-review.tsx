@@ -59,7 +59,11 @@ export const columns: ColumnDef<InvoiceObject>[] = [
   {
     accessorKey: "file_name&sender",
     accessorFn: (row) =>
-      row.fileUrl.split("/")[8]?.split(".pdf")[0] + " " + row.data.supplierName,
+      decodeURI(
+        row.fileUrl.split("/")[8]?.split(".pdf")[0] +
+          " " +
+          row.data.supplierName,
+      ),
     header: ({ column }) => {
       return <div>Invoice Name & Company</div>;
     },
@@ -67,7 +71,7 @@ export const columns: ColumnDef<InvoiceObject>[] = [
       return (
         <div className="flex flex-col">
           <div className="flex items-center gap-1">
-            {row.original.fileUrl.split("/")[8].split(".pdf")[0]}
+            {decodeURI(row.original.fileUrl.split("/")[8].split(".pdf")[0])}
             <p className="text-xs text-wm-white-200">({row.original.id})</p>
           </div>
           <div className="text-xs">{row.original.data.supplierName}</div>
