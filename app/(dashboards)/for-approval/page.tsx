@@ -12,7 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import Invoice, { InvoiceObject } from "@/models/Invoice";
 import { createClient } from "@/utils/supabase/client";
-import { UploadIcon } from "@radix-ui/react-icons";
+import { Pencil2Icon, UploadIcon } from "@radix-ui/react-icons";
 import { UserResponse } from "@supabase/supabase-js";
 import { useEffect, useRef, useState } from "react";
 
@@ -122,7 +122,9 @@ export default function ForApproval() {
           <DataTable
             columns={columns}
             data={invoices}
-            onSelected={handleReviewSelected}
+            onAction={handleReviewSelected}
+            actionIcon={<Pencil2Icon />}
+            actionOnSelectText="Review Selected"
           />
         </div>
       )}

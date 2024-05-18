@@ -32,36 +32,46 @@ import ExtractionReview from "../extraction/ExtractionReview";
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
-  onSelected: (selectedFiles: InvoiceObject[]) => void;
+  onAction: (selectedFiles: InvoiceObject[]) => void;
+  actionOnSelectText: string;
+  actionIcon: React.ReactNode;
+  filters?: boolean;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
-  onSelected,
+  onAction,
+  actionOnSelectText,
+  actionIcon,
+  filters = true,
 }: DataTableProps<TData, TValue>) {
   if (!columns || !data.length) {
     return (
-      <div className="flex flex-row gap-4">
-        <Button variant="secondary" disabled>
-          <Pencil2Icon /> Review Selected
-        </Button>
-        <div className="flex flex h-full w-[300px] flex-row items-center gap-2 rounded-md border bg-transparent px-3 py-1 text-sm text-wm-white-500 transition-colors">
-          <MagnifyingGlassIcon
-            className="h-5 w-5 cursor-pointer"
-            onClick={() => searchFilterInputRef.current?.focus()}
-          />
-          <input
-            disabled
-            placeholder="Filter by invoice name or sender"
-            className="h-full w-full appearance-none bg-transparent text-black outline-none placeholder:text-wm-white-500 disabled:cursor-not-allowed disabled:opacity-50"
-          />
+      <>
+        <div className="flex flex-row gap-4">
+          <Button variant="secondary" disabled>
+            {actionIcon}
+            {actionOnSelectText}
+          </Button>
+          <div className="flex flex h-full w-[300px] flex-row items-center gap-2 rounded-md border bg-transparent px-3 py-1 text-sm text-wm-white-500 transition-colors">
+            <MagnifyingGlassIcon
+              className="h-5 w-5 cursor-pointer"
+              onClick={() => searchFilterInputRef.current?.focus()}
+            />
+            <input
+              disabled
+              placeholder="Filter by invoice name or sender"
+              className="h-full w-full appearance-none bg-transparent text-black outline-none placeholder:text-wm-white-500 disabled:cursor-not-allowed disabled:opacity-50"
+            />
+          </div>
+          <DatePickerWithRange placeholder="Filter by Date Invoiced" />
+          <Button variant="outline" disabled>
+            Clear Filters
+          </Button>
         </div>
-        <DatePickerWithRange placeholder="Filter by Date Invoiced" />
-        <Button variant="outline" disabled>
-          Clear Filters
-        </Button>
-      </div>
+        <div>There are no invoices to show!</div>
+      </>
     );
   }
 
@@ -135,43 +145,48 @@ export function DataTable<TData, TValue>({
         <Button
           variant="secondary"
           disabled={selectedFilesUrls.length === 0}
-          onClick={() => onSelected(selectedFilesUrls)}
+          onClick={() => onAction(selectedFilesUrls)}
         >
-          <Pencil2Icon /> Review Selected
+          {actionIcon}
+          {actionOnSelectText}
         </Button>
-        <div className="flex flex h-full w-[300px] flex-row items-center gap-2 rounded-md border bg-transparent px-3 py-1 text-sm text-wm-white-500 transition-colors">
-          <MagnifyingGlassIcon
-            className="h-5 w-5 cursor-pointer"
-            onClick={() => searchFilterInputRef.current?.focus()}
-          />
-          <input
-            ref={searchFilterInputRef}
-            value={
-              (table
-                .getColumn("file_name&sender")
-                ?.getFilterValue() as string) ?? ""
-            }
-            onChange={(event) =>
-              table
-                .getColumn("file_name&sender")
-                ?.setFilterValue(event.target.value)
-            }
-            placeholder="Filter by invoice name or sender"
-            className="h-full w-full appearance-none bg-transparent text-black outline-none placeholder:text-wm-white-500 disabled:cursor-not-allowed disabled:opacity-50"
-          />
-        </div>
-        <DatePickerWithRange
-          placeholder="Filter by Date Invoiced"
-          onDateChange={setDateRange}
-          ref={dateRangeRef}
-        />
-        <Button
-          variant="outline"
-          disabled={columnFilters.length === 0 && !dateRange.from}
-          onClick={handleClearFilters}
-        >
-          Clear Filters
-        </Button>
+        {filters ? (
+          <>
+            <div className="flex flex h-full w-[300px] flex-row items-center gap-2 rounded-md border bg-transparent px-3 py-1 text-sm text-wm-white-500 transition-colors">
+              <MagnifyingGlassIcon
+                className="h-5 w-5 cursor-pointer"
+                onClick={() => searchFilterInputRef.current?.focus()}
+              />
+              <input
+                ref={searchFilterInputRef}
+                value={
+                  (table
+                    .getColumn("file_name&sender")
+                    ?.getFilterValue() as string) ?? ""
+                }
+                onChange={(event) =>
+                  table
+                    .getColumn("file_name&sender")
+                    ?.setFilterValue(event.target.value)
+                }
+                placeholder="Filter by invoice name or sender"
+                className="h-full w-full appearance-none bg-transparent text-black outline-none placeholder:text-wm-white-500 disabled:cursor-not-allowed disabled:opacity-50"
+              />
+            </div>
+            <DatePickerWithRange
+              placeholder="Filter by Date Invoiced"
+              onDateChange={setDateRange}
+              ref={dateRangeRef}
+            />
+            <Button
+              variant="outline"
+              disabled={columnFilters.length === 0 && !dateRange.from}
+              onClick={handleClearFilters}
+            >
+              Clear Filters
+            </Button>
+          </>
+        ) : null}
       </div>
       <div className="rounded-md border">
         <Table>

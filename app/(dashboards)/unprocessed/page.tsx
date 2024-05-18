@@ -17,9 +17,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { InvoiceObject } from "@/models/Invoice";
+import Invoice, { InvoiceObject } from "@/models/Invoice";
 import { createClient } from "@/utils/supabase/client";
-import { ExternalLinkIcon } from "@radix-ui/react-icons";
+import { ExternalLinkIcon, MagicWandIcon } from "@radix-ui/react-icons";
 import { useEffect, useState } from "react";
 
 const getInvoices = async () => {
@@ -46,7 +46,6 @@ const getInvoices = async () => {
 
 const Unprocessed = () => {
   const [invoices, setInvoices] = useState<InvoiceObject[]>([]);
-  const [selectedFiles, setSelectedFiles] = useState<InvoiceObject[]>([]);
 
   async function fetchInvoices() {
     const incomingInvoices = await getInvoices();
@@ -57,6 +56,20 @@ const Unprocessed = () => {
   useEffect(() => {
     fetchInvoices();
   }, []);
+
+  async function handleProcessSelected(selectedRows: InvoiceObject[]) {
+    try {
+      const scanAndUpdatePromises = selectedRows.map(async (row) => {
+        await Invoice.scanAndUpdate(row.fileUrl);
+      });
+
+      const scanAndUpdateResolved = await Promise.all(scanAndUpdatePromises);
+
+      window.location.reload();
+    } catch (error) {
+      console.error("Error processing invoices:", error);
+    }
+  }
 
   return (
     <div className="flex h-full w-full flex-col gap-4 px-4 py-8">
@@ -77,7 +90,10 @@ const Unprocessed = () => {
       <DataTable
         data={invoices}
         columns={columns}
-        onSelected={setSelectedFiles}
+        onAction={handleProcessSelected}
+        actionIcon={<MagicWandIcon />}
+        actionOnSelectText="Process Selected"
+        filters={false}
       />
     </div>
   );
