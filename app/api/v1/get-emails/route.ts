@@ -1,7 +1,7 @@
 import { StatusCodes } from "http-status-codes";
 import { Nango } from "@nangohq/node";
 import { NextRequest, NextResponse } from "next/server";
-import { NextApiRequest } from "next";
+import fs from "fs";
 
 const nango = new Nango({
   secretKey: process.env.NANGO_SECRET_KEY!,
@@ -11,7 +11,7 @@ type Email = {
   subject: string;
   date: string;
   from: string;
-  attachments: string[];
+  attachments: any[];
 };
 
 export async function GET(req: NextRequest): Promise<NextResponse> {
@@ -109,11 +109,16 @@ const parseEmailHeaders = (
   return { subject, date, from };
 };
 
+const base64Decode = (base64String: string, filename: string) => {
+  const buffer = Buffer.from(base64String, "base64");
+  return { filename, data: buffer };
+};
+
 const getPdfAttachmentIds = async (
   parts: any[],
   token: string,
 ): Promise<string[]> => {
-  const attachmentIds: any[] = [];
+  const attachments: any[] = [];
 
   const extractAttachmentIds = async (parts: any[], token: string) => {
     for (const part of parts) {
@@ -133,7 +138,14 @@ const getPdfAttachmentIds = async (
         }
 
         const data = await response.json();
-        attachmentIds.push(data);
+
+        const decodedBase64 = base64Decode(data.data, part.filename);
+
+        attachments.push({
+          data: data.data,
+          fileDecoded: decodedBase64,
+          filename: part.filename,
+        });
       }
       if (part.parts) {
         extractAttachmentIds(part.parts, token);
@@ -142,5 +154,5 @@ const getPdfAttachmentIds = async (
   };
 
   await extractAttachmentIds(parts, token);
-  return attachmentIds;
+  return attachments;
 };
