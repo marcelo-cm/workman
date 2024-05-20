@@ -24,10 +24,11 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  if (data.user && validPath) {
-    url.pathname = "/for-approval";
-    return NextResponse.redirect(url);
-  }
+  // if (data.user && !validPath) {
+  //   console.log("User is authenticated");
+  //   url.pathname = "/for-approval";
+  //   return NextResponse.redirect(url);
+  // }
 
   return await updateSession(request);
 }

@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/text-area";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { PlusIcon, TrashIcon } from "@radix-ui/react-icons";
+import { BookmarkIcon, PlusIcon, TrashIcon } from "@radix-ui/react-icons";
 import React, { useEffect } from "react";
 import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
@@ -19,7 +19,16 @@ import ExtractionFormComponent from "./ExtractionFormComponent";
 import { mindeeScan } from "@/lib/actions/actions";
 import Invoice, { InvoiceObject } from "@/models/Invoice";
 import { InvoiceData } from "@/interfaces/common.interfaces";
-import { Table, TableHead, TableHeader, TableRow } from "../ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "../ui/table";
+import { Checkbox } from "../ui/checkbox";
+import { HammerIcon, Scan } from "lucide-react";
 
 const formSchema = z.object({
   date: z.string().min(1, "Date is required"),
@@ -32,6 +41,9 @@ const formSchema = z.object({
     .min(1, "Supplier email is required")
     .email("Invalid email"),
   supplierPhoneNumber: z.string().min(1, "Supplier phone number is required"),
+  customerAddress: z.string().min(1, "Customer address is required"),
+  customerName: z.string().min(1, "Customer name is required"),
+  shippingAddress: z.string().min(1, "Shipping address is required"),
   totalNet: z.number().min(0, "Total net should be a positive number"),
   totalAmount: z.number().min(0, "Total amount should be a positive number"),
   totalTax: z.number().min(0, "Total tax should be a positive number"),
@@ -56,9 +68,11 @@ const formSchema = z.object({
 const ExtractionTabs = ({
   files,
   activeIndex,
+  handleSetActiveIndex,
 }: {
   files: InvoiceObject[];
   activeIndex: number;
+  handleSetActiveIndex: (index: 1 | -1) => void;
 }) => {
   const file = files[activeIndex];
   const form = useForm<z.infer<typeof formSchema>>({
@@ -71,6 +85,9 @@ const ExtractionTabs = ({
       supplierAddress: file?.data?.supplierAddress || "",
       supplierEmail: file?.data?.supplierEmail || "",
       supplierPhoneNumber: file?.data?.supplierPhoneNumber || "",
+      customerAddress: file?.data?.customerAddress || "",
+      customerName: file?.data?.customerName || "",
+      shippingAddress: file?.data?.shippingAddress || "",
       totalNet: file?.data?.totalNet || 0,
       totalAmount: file?.data?.totalAmount || 0,
       totalTax: file?.data?.totalTax || 0,
@@ -138,6 +155,9 @@ const ExtractionTabs = ({
     form.setValue("supplierAddress", data?.supplierAddress);
     form.setValue("supplierEmail", data?.supplierEmail);
     form.setValue("supplierPhoneNumber", data?.supplierPhoneNumber);
+    form.setValue("customerAddress", data?.customerAddress);
+    form.setValue("customerName", data?.customerName);
+    form.setValue("shippingAddress", data?.shippingAddress);
     form.setValue("date", data?.date);
     form.setValue("dueDate", data?.dueDate);
     form.setValue("invoiceNumber", data?.invoiceNumber);
@@ -167,6 +187,8 @@ const ExtractionTabs = ({
       ),
     );
     form.setValue("notes", data.notes);
+
+    files[activeIndex].data = form.getValues();
   };
 
   const handleProcessInvoice = async (file: InvoiceObject) => {
@@ -178,7 +200,6 @@ const ExtractionTabs = ({
     const data: InvoiceData = form.getValues();
     files[activeIndex].data = data;
     const response = await Invoice.update(file.fileUrl, data);
-    console.log(response);
   };
 
   return (
@@ -289,6 +310,19 @@ const ExtractionTabs = ({
                       <FormLabel>Date Issued</FormLabel>
                       <FormControl>
                         <Input placeholder="Workman Concrete" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="customerAddress"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Customer/Project</FormLabel>
+                      <FormControl>
+                        <Input placeholder="123 Cedergate Court" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -411,36 +445,58 @@ const ExtractionTabs = ({
               </ExtractionFormComponent>
             </form>
           </Form>
+          <div className="sticky bottom-0 flex h-14 min-h-14 w-full items-center gap-2 border-t bg-white pl-2 pr-8">
+            <Button
+              variant={"secondary"}
+              onClick={() => handleProcessInvoice(file)}
+            >
+              <Scan className="h-4 w-4" />
+              Re-Scan
+            </Button>
+            <Button
+              onClick={() => {
+                handleUpdateInvoiceData(file);
+                handleSetActiveIndex(1);
+              }}
+            >
+              <BookmarkIcon /> Approve & Save
+            </Button>
+          </div>
         </TabsContent>
-        <TabsContent value="2" className="p-4">
-          <div>Invoices to Upload</div>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Invoice #</TableHead>
-                <TableHead>Vendor</TableHead>
-                <TableHead>Amount</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead>Due Date</TableHead>
-                <TableHead>Status</TableHead>
-              </TableRow>
-            </TableHeader>
-          </Table>
+        <TabsContent value="2">
+          <div className="p-4">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Category</TableHead>
+                  <TableHead>Description</TableHead>
+                  <TableHead>Billable</TableHead>
+                  <TableHead>Customer/Project</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {files.map((file) =>
+                  file.data.lineItems.map((lineItem) => (
+                    <TableRow>
+                      <TableCell>Construction</TableCell>
+                      <TableCell>{lineItem.description}</TableCell>
+                      <TableCell>
+                        <Checkbox checked />
+                      </TableCell>
+                      <TableCell>{file.data.customerAddress}</TableCell>
+                    </TableRow>
+                  )),
+                )}
+              </TableBody>
+            </Table>
+          </div>
+          <div className="sticky bottom-0 flex h-14 min-h-14 w-full items-center justify-end gap-2 border-t bg-white pl-2 pr-8">
+            <Button variant={"secondary"}>Go Back to Review</Button>
+            <Button onClick={() => handleProcessInvoice(file)}>
+              <HammerIcon className="h-4 w-4" /> Upload
+            </Button>
+          </div>
         </TabsContent>
-      </div>
-      <div className="sticky bottom-0 flex h-14 min-h-14 w-full items-center justify-end gap-2 border-t bg-white pl-2 pr-8">
-        <Button
-          variant={"secondary"}
-          onClick={() => handleProcessInvoice(file)}
-        >
-          Re-Scan
-        </Button>
-        <Button
-          variant={"secondary"}
-          onClick={() => handleUpdateInvoiceData(file)}
-        >
-          Approve
-        </Button>
       </div>
     </Tabs>
   );

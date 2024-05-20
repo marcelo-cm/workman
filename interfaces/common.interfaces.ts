@@ -6,6 +6,9 @@ export interface InvoiceData {
   supplierAddress: string;
   supplierEmail: string;
   supplierPhoneNumber: string;
+  customerAddress: string;
+  customerName: string;
+  shippingAddress: string;
   totalNet: number;
   totalAmount: number;
   totalTax: number;

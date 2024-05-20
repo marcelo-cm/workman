@@ -27,11 +27,11 @@ import { InvoiceObject } from "@/models/Invoice";
 const ExtractionReview = ({ files }: { files: InvoiceObject[] }) => {
   const [activeIndex, setActiveIndex] = useState(0);
 
-  const handleSetActiveFile = (increment: 1 | -1) => {
+  const handleSetActiveIndex = (increment: 1 | -1) => {
     setActiveIndex((prev: number) => {
       const nextValue = prev + increment;
-      if (nextValue < 0) return 0;
-      if (nextValue >= files.length) return files.length - 1;
+      if (nextValue < 0) return files.length - 1;
+      if (nextValue >= files.length) return 0;
       return nextValue;
     });
   };
@@ -75,20 +75,24 @@ const ExtractionReview = ({ files }: { files: InvoiceObject[] }) => {
               <Button
                 variant="outline"
                 className="py-2"
-                onClick={() => handleSetActiveFile(-1)}
+                onClick={() => handleSetActiveIndex(-1)}
               >
                 <CaretLeftIcon />
               </Button>
               <Button
                 variant="outline"
                 className="py-2"
-                onClick={() => handleSetActiveFile(1)}
+                onClick={() => handleSetActiveIndex(1)}
               >
                 <CaretRightIcon /> Next File
               </Button>
             </div>
           </div>
-          <ExtractionTabs files={files} activeIndex={activeIndex} />
+          <ExtractionTabs
+            files={files}
+            activeIndex={activeIndex}
+            handleSetActiveIndex={handleSetActiveIndex}
+          />
         </div>
       </div>
     </>
