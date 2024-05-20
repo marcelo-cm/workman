@@ -35,7 +35,6 @@ const SignUp = () => {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setErrorMessage(null);
-    console.log(values);
 
     const supabase = createClient();
     const { error } = await supabase.auth.signUp(values);
@@ -47,7 +46,6 @@ const SignUp = () => {
       return;
     }
 
-    console.log("Sign up successful!");
     window.location.href = "/for-approval";
   }
 

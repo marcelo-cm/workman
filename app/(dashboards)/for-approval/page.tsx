@@ -59,7 +59,6 @@ export default function ForApproval() {
   const handleUpload = async (event: any) => {
     const filesList = event.target.files;
     if (!filesList) {
-      console.log("No files selected!");
       return;
     }
 

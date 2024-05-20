@@ -50,7 +50,6 @@ const Unprocessed = () => {
   async function fetchInvoices() {
     const incomingInvoices = await getInvoices();
     setInvoices(incomingInvoices);
-    console.log(incomingInvoices);
   }
 
   useEffect(() => {

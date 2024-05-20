@@ -150,7 +150,6 @@ const ExtractionTabs = ({
   };
 
   const mapDataToForm = async (data: any) => {
-    console.log("Mapping Data...");
     form.setValue("supplierName", data?.supplierName);
     form.setValue("supplierAddress", data?.supplierAddress);
     form.setValue("supplierEmail", data?.supplierEmail);
@@ -393,10 +392,7 @@ const ExtractionTabs = ({
                         {Number(lineItem.confidence.toFixed(2)) * 100}%
                         <Button
                           type="button"
-                          onClick={() => {
-                            console.log(index);
-                            remove(index);
-                          }}
+                          onClick={() => remove(index)}
                           variant={"ghost"}
                           className="h-8 w-8 p-0 hover:bg-wm-white-50 hover:text-red-500"
                         >

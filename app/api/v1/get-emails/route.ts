@@ -11,7 +11,7 @@ type Email = {
   subject: string;
   date: string;
   from: string;
-  attachments: any[]; // Consider defining a more specific type for attachments if possible
+  attachments: string[];
 };
 
 export async function GET(req: NextRequest): Promise<NextResponse> {
@@ -48,7 +48,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     });
   } catch (e: unknown) {
     console.error(e);
-    return new NextResponse("Internal Server Error", {
+    return new NextResponse(JSON.stringify("Internal Server Error"), {
       status: StatusCodes.INTERNAL_SERVER_ERROR,
     });
   }
@@ -65,11 +65,6 @@ const getMail = async (token: string) => {
   });
 
   if (!response.ok) {
-    console.log(
-      "Failed to fetch emails:",
-      response.status,
-      response.statusText,
-    );
     throw new Error(
       `Failed to fetch emails: ${response.status} ${response.statusText}`,
     );
@@ -91,7 +86,6 @@ const getPDFAndSubject = async (emailId: string, token: string) => {
   });
 
   if (!response.ok) {
-    console.log("Failed to fetch email:", response.status, response.statusText);
     throw new Error(
       `Failed to fetch email: ${response.status} ${response.statusText}`,
     );
@@ -99,31 +93,54 @@ const getPDFAndSubject = async (emailId: string, token: string) => {
 
   const data = await response.json();
 
-  const getPdfAttachmentIds = (
-    parts: any[],
-    attachmentIds: string[] = [],
-  ): string[] => {
-    for (const part of parts) {
-      if (part.mimeType === "application/pdf") {
-        attachmentIds.push(part.body.attachmentId);
-      }
-      if (part.parts) {
-        getPdfAttachmentIds(part.parts, attachmentIds);
-      }
-    }
-    return attachmentIds;
-  };
-
-  const subject = data.payload.headers.find(
-    (header: { name: string; value: string }) => header.name === "Subject",
-  ).value;
-  const date = data.payload.headers.find(
-    (header: { name: string; value: string }) => header.name === "Date",
-  ).value;
-  const from = data.payload.headers.find(
-    (header: { name: string; value: string }) => header.name === "From",
-  ).value;
-  const attachments = await getPdfAttachmentIds(data.payload.parts);
+  const { subject, date, from } = parseEmailHeaders(data.payload.headers);
+  const attachments = await getPdfAttachmentIds(data.payload.parts, token);
 
   return { subject, date, from, attachments };
+};
+
+const parseEmailHeaders = (
+  headers: { name: string; value: string }[],
+): { subject: string; date: string; from: string } => {
+  const subject =
+    headers.find((header) => header.name === "Subject")?.value || "";
+  const date = headers.find((header) => header.name === "Date")?.value || "";
+  const from = headers.find((header) => header.name === "From")?.value || "";
+  return { subject, date, from };
+};
+
+const getPdfAttachmentIds = async (
+  parts: any[],
+  token: string,
+): Promise<string[]> => {
+  const attachmentIds: any[] = [];
+
+  const extractAttachmentIds = async (parts: any[], token: string) => {
+    for (const part of parts) {
+      if (part.mimeType === "application/pdf" && part.body?.attachmentId) {
+        const url = `https://gmail.googleapis.com/gmail/v1/users/me/messages/{messageId}/attachments/${part.body.attachmentId}`;
+        const response = await fetch(url, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(
+            `Failed to fetch attachment: ${response.status} ${response.statusText}`,
+          );
+        }
+
+        const data = await response.json();
+        attachmentIds.push(data);
+      }
+      if (part.parts) {
+        extractAttachmentIds(part.parts, token);
+      }
+    }
+  };
+
+  await extractAttachmentIds(parts, token);
+  return attachmentIds;
 };

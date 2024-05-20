@@ -36,7 +36,6 @@ export const DatePickerWithRange = forwardRef(function DatePickerWithRange(
     () => {
       return {
         clearDate() {
-          console.log("clearing date");
           setDate({ from: undefined, to: undefined });
         },
       };
