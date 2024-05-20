@@ -470,6 +470,7 @@ const ExtractionTabs = ({
                 <TableRow>
                   <TableHead>Category</TableHead>
                   <TableHead>Description</TableHead>
+                  <TableHead>Amount</TableHead>
                   <TableHead>Billable</TableHead>
                   <TableHead>Customer/Project</TableHead>
                 </TableRow>
@@ -480,6 +481,7 @@ const ExtractionTabs = ({
                     <TableRow>
                       <TableCell>Construction</TableCell>
                       <TableCell>{lineItem.description}</TableCell>
+                      <TableCell>${lineItem.totalAmount.toFixed(2)}</TableCell>
                       <TableCell>
                         <Checkbox checked />
                       </TableCell>
@@ -491,7 +493,11 @@ const ExtractionTabs = ({
             </Table>
           </div>
           <div className="sticky bottom-0 flex h-14 min-h-14 w-full items-center justify-end gap-2 border-t bg-white pl-2 pr-8">
-            <Button variant={"secondary"}>Go Back to Review</Button>
+            <TabsList>
+              <TabsTrigger value="1" asChild>
+                <Button variant={"secondary"}>Go Back to Review</Button>
+              </TabsTrigger>
+            </TabsList>
             <Button onClick={() => handleProcessInvoice(file)}>
               <HammerIcon className="h-4 w-4" /> Upload
             </Button>

@@ -7,38 +7,43 @@ const nango = new Nango({
   secretKey: process.env.NANGO_SECRET_KEY!,
 });
 
+type Email = {
+  subject: string;
+  date: string;
+  from: string;
+  attachments: any[]; // Consider defining a more specific type for attachments if possible
+};
+
 export async function GET(req: NextRequest): Promise<NextResponse> {
   try {
     const userId = await req.nextUrl.searchParams.get("userId");
-    // const userId = req.query;
 
-    console.log("User ID:", userId);
+    if (!userId) {
+      return new NextResponse(JSON.stringify("User ID is required"), {
+        status: StatusCodes.BAD_REQUEST,
+      });
+    }
 
-    // if (!userId) {
-    //   console.log("User ID is missing");
-    //   return new NextResponse("User ID is required", {
-    //     status: StatusCodes.BAD_REQUEST,
-    //   });
-    // }
+    const googleMailToken = await nango.getToken("google-mail", userId);
 
-    // const googleMailToken = await nango.getToken("google-mail", userId);
+    if (!googleMailToken) {
+      return new NextResponse(JSON.stringify("Unauthorized"), {
+        status: StatusCodes.UNAUTHORIZED,
+      });
+    }
 
-    // if (!googleMailToken) {
-    //   console.log("No token found");
-    //   return new NextResponse("Unauthorized", {
-    //     status: StatusCodes.UNAUTHORIZED,
-    //   });
-    // }
+    const emailsFetched = await getMail(String(googleMailToken));
 
-    // console.log("Token retrieved:", googleMailToken);
-    // const emails = await getMail(String(googleMailToken));
-    // console.log("Emails retrieved:", emails);
+    const emails: Email[] = [];
+    for (const email of emailsFetched) {
+      const { subject, date, from, attachments } = await getPDFAndSubject(
+        email.id,
+        String(googleMailToken),
+      );
+      emails.push({ subject, date, from, attachments });
+    }
 
-    // return new NextResponse(JSON.stringify(emails), {
-    //   status: StatusCodes.OK,
-    // });
-
-    return new NextResponse("OK", {
+    return new NextResponse(JSON.stringify(emails), {
       status: StatusCodes.OK,
     });
   } catch (e: unknown) {
@@ -51,7 +56,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
 
 const getMail = async (token: string) => {
   const url =
-    "https://www.googleapis.com/gmail/v1/users/me/messages?q=has:attachment";
+    "https://gmail.googleapis.com/gmail/v1/users/me/messages?q=has:attachment";
   const response = await fetch(url, {
     headers: {
       Authorization: `Bearer ${token}`,
@@ -71,7 +76,54 @@ const getMail = async (token: string) => {
   }
 
   const data = await response.json();
-  console.log(data);
 
   return data.messages;
+};
+
+const getPDFAndSubject = async (emailId: string, token: string) => {
+  const url = `https://gmail.googleapis.com/gmail/v1/users/me/messages/${emailId}`;
+
+  const response = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!response.ok) {
+    console.log("Failed to fetch email:", response.status, response.statusText);
+    throw new Error(
+      `Failed to fetch email: ${response.status} ${response.statusText}`,
+    );
+  }
+
+  const data = await response.json();
+
+  const getPdfAttachmentIds = (
+    parts: any[],
+    attachmentIds: string[] = [],
+  ): string[] => {
+    for (const part of parts) {
+      if (part.mimeType === "application/pdf") {
+        attachmentIds.push(part.body.attachmentId);
+      }
+      if (part.parts) {
+        getPdfAttachmentIds(part.parts, attachmentIds);
+      }
+    }
+    return attachmentIds;
+  };
+
+  const subject = data.payload.headers.find(
+    (header: { name: string; value: string }) => header.name === "Subject",
+  ).value;
+  const date = data.payload.headers.find(
+    (header: { name: string; value: string }) => header.name === "Date",
+  ).value;
+  const from = data.payload.headers.find(
+    (header: { name: string; value: string }) => header.name === "From",
+  ).value;
+  const attachments = await getPdfAttachmentIds(data.payload.parts);
+
+  return { subject, date, from, attachments };
 };
