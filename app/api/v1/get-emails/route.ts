@@ -16,7 +16,7 @@ type Email = {
 
 export async function GET(req: NextRequest): Promise<NextResponse> {
   try {
-    const userId = await req.nextUrl.searchParams.get("userId");
+    const userId = req.nextUrl.searchParams.get("userId");
 
     if (!userId) {
       return new NextResponse(JSON.stringify("User ID is required"), {

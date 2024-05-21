@@ -69,9 +69,49 @@ const Account = () => {
   };
 
   const getVendorList = async () => {
-    const response = await fetch("/api/v1/get-vendor-list");
-    const data = await response.json();
-    console.log(data);
+    try {
+      const { data, error } = await supabase.auth.getUser();
+
+      if (error) {
+        console.error("Failed to get user:", error);
+        return;
+      }
+
+      const userId = data?.user?.id;
+
+      if (!userId) {
+        console.error("User not found");
+        return;
+      }
+
+      const response = await fetch(`/api/v1/get-vendor-list?userId=${userId}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(
+          "Failed to fetch vendors:",
+          response.status,
+          response.statusText,
+          errorText,
+        );
+        return;
+      }
+
+      const vendors = await response.json();
+      console.log("Vendors:", vendors);
+
+      toast({
+        title: "Vendors",
+        description: "Vendors fetched successfully",
+      });
+    } catch (error) {
+      console.error("Error fetching vendors:", error);
+    }
   };
 
   return (
@@ -106,7 +146,7 @@ const Account = () => {
         <div className="text-xl">Test Functionality</div>
         <div className="flex w-fit flex-row items-center justify-between gap-4">
           QuickBook Vendor List
-          <Button onClick={getVendorList}>Get Vendor List</Button>
+          <Button onClick={() => getVendorList()}>Get Vendor List</Button>
         </div>
       </div>
     </div>

@@ -126,30 +126,7 @@ const TestPage = () => {
 
   return (
     <div className="flex h-dvh w-full flex-col  gap-4 overflow-scroll">
-      <div>
-        <Button
-          onClick={() =>
-            toast({
-              title: "Default Toast",
-              description: "This is a default toast",
-              action: <ToastAction altText="Action">Action</ToastAction>,
-            })
-          }
-        >
-          Default
-        </Button>
-        <Button
-          onClick={() =>
-            toast({
-              title: "Destructive Toast",
-              description: "This is a destructive toast",
-              variant: "destructive",
-              action: <ToastAction altText="Action">Action</ToastAction>,
-            })
-          }
-        >
-          Destructive
-        </Button>
+      <div className="flex gap-2">
         <Button onClick={() => handleGoogleMailIntegration()}>
           Nango Auth
         </Button>
