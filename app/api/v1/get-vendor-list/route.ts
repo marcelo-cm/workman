@@ -10,11 +10,15 @@ const nango = new Nango({
 export async function GET(req: NextRequest) {
   try {
     const userId = req.nextUrl.searchParams.get("userId");
+    const select = req.nextUrl.searchParams.get("select");
 
-    if (!userId) {
-      return new NextResponse(JSON.stringify("User ID is required"), {
-        status: StatusCodes.BAD_REQUEST,
-      });
+    if (!userId || !select) {
+      return new NextResponse(
+        JSON.stringify("User ID and Select are both required"),
+        {
+          status: StatusCodes.BAD_REQUEST,
+        },
+      );
     }
 
     const quickbooksToken = await nango.getToken("quickbooks", userId);
@@ -25,9 +29,6 @@ export async function GET(req: NextRequest) {
 
     const quickbooksRealmId = quickbooksConnection?.connection_config.realmId;
 
-    console.log("QuickBooks Realm ID:", quickbooksRealmId);
-    console.log("QuickBooks Token:", quickbooksToken);
-
     if (!quickbooksRealmId) {
       return new NextResponse(JSON.stringify("QuickBooks not authorized"), {
         status: StatusCodes.UNAUTHORIZED,
@@ -37,6 +38,7 @@ export async function GET(req: NextRequest) {
     const vendorList = await getVendorList(
       quickbooksRealmId,
       String(quickbooksToken),
+      select,
     );
 
     return new NextResponse(JSON.stringify(vendorList), {
@@ -50,8 +52,12 @@ export async function GET(req: NextRequest) {
   }
 }
 
-const getVendorList = async (realmId: string, token: string) => {
-  const url = `https://sandbox-quickbooks.api.intuit.com/v3/company/9341452341740458/query?query=select * from vendor`;
+const getVendorList = async (
+  realmId: string,
+  token: string,
+  columns: string,
+) => {
+  const url = `https://sandbox-quickbooks.api.intuit.com/v3/company/${realmId}/query?query=select ${columns} from vendor`;
 
   const response = await fetch(url, {
     headers: {
@@ -60,8 +66,6 @@ const getVendorList = async (realmId: string, token: string) => {
       Accept: "application/json",
     },
   });
-
-  console.log("Response:", response);
 
   if (!response.ok) {
     const errorText = await response.text();
@@ -75,7 +79,6 @@ const getVendorList = async (realmId: string, token: string) => {
   }
 
   const data = await response.json();
-  console.log("Vendor List:", data);
 
   return data;
 };
