@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Nango, Connection } from "@nangohq/node";
-import { createClient } from "@/utils/supabase/server";
 import { StatusCodes } from "http-status-codes";
 
 const nango = new Nango({

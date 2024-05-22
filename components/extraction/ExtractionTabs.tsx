@@ -10,15 +10,15 @@ import {
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/text-area";
+import { InvoiceData } from "@/interfaces/common.interfaces";
+import Invoice, { InvoiceObject } from "@/models/Invoice";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { BookmarkIcon, PlusIcon, TrashIcon } from "@radix-ui/react-icons";
+import { HammerIcon, Scan } from "lucide-react";
 import React, { useEffect } from "react";
 import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
-import ExtractionFormComponent from "./ExtractionFormComponent";
-import { mindeeScan } from "@/lib/actions/actions";
-import Invoice, { InvoiceObject } from "@/models/Invoice";
-import { InvoiceData } from "@/interfaces/common.interfaces";
+import { Checkbox } from "../ui/checkbox";
 import {
   Table,
   TableBody,
@@ -27,8 +27,8 @@ import {
   TableHeader,
   TableRow,
 } from "../ui/table";
-import { Checkbox } from "../ui/checkbox";
-import { HammerIcon, Scan } from "lucide-react";
+import ExtractionFormComponent from "./ExtractionFormComponent";
+import UploadToQuickBooks from "./UploadToQuickBooks";
 
 const formSchema = z.object({
   date: z.string().min(1, "Date is required"),
@@ -460,44 +460,7 @@ const ExtractionTabs = ({
           </div>
         </TabsContent>
         <TabsContent value="2">
-          <div className="p-4">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Category</TableHead>
-                  <TableHead>Description</TableHead>
-                  <TableHead>Amount</TableHead>
-                  <TableHead>Billable</TableHead>
-                  <TableHead>Customer/Project</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {files.map((file) =>
-                  file.data.lineItems.map((lineItem) => (
-                    <TableRow>
-                      <TableCell>Construction</TableCell>
-                      <TableCell>{lineItem.description}</TableCell>
-                      <TableCell>${lineItem.totalAmount.toFixed(2)}</TableCell>
-                      <TableCell>
-                        <Checkbox checked />
-                      </TableCell>
-                      <TableCell>{file.data.customerAddress}</TableCell>
-                    </TableRow>
-                  )),
-                )}
-              </TableBody>
-            </Table>
-          </div>
-          <div className="sticky bottom-0 flex h-14 min-h-14 w-full items-center justify-end gap-2 border-t bg-white pl-2 pr-8">
-            <TabsList>
-              <TabsTrigger value="1" asChild>
-                <Button variant={"secondary"}>Go Back to Review</Button>
-              </TabsTrigger>
-            </TabsList>
-            <Button onClick={() => handleProcessInvoice(file)}>
-              <HammerIcon className="h-4 w-4" /> Upload
-            </Button>
-          </div>
+          <UploadToQuickBooks files={files} />
         </TabsContent>
       </div>
     </Tabs>

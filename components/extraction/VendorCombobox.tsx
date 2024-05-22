@@ -35,7 +35,7 @@ export function VendorComboBox({ options }: { options: Vendor[] }) {
           className="w-[200px] justify-between"
         >
           {value
-            ? options.find((option) => option.Id === value)?.CompanyName
+            ? options.find((option) => option.Id === value)?.DisplayName
             : "Select Vendor..."}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
@@ -60,7 +60,7 @@ export function VendorComboBox({ options }: { options: Vendor[] }) {
                     value === option.Id ? "opacity-100" : "opacity-0",
                   )}
                 />
-                {option.CompanyName}
+                {option.DisplayName}
               </CommandItem>
             ))}
           </CommandList>

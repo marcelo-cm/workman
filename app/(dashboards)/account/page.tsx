@@ -135,7 +135,7 @@ const Account = () => {
         return;
       }
 
-      const columnsToSelect = "Id,CompanyName";
+      const columnsToSelect = "Id,DisplayName";
 
       const response = await fetch(
         `/api/v1/get-vendor-list?userId=${userId}&select=${columnsToSelect}`,
@@ -162,7 +162,7 @@ const Account = () => {
       setVendors(
         vendors.QueryResponse.Vendor.slice(
           vendors.QueryResponse.startPosition,
-        ).filter((vendor: Vendor) => vendor.CompanyName),
+        ).filter((vendor: Vendor) => vendor.DisplayName),
       );
 
       toast({
