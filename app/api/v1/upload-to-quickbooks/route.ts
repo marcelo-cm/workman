@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Nango, Connection } from "@nangohq/node";
 import { StatusCodes } from "http-status-codes";
+import { InvoiceObject } from "@/models/Invoice";
 
 const nango = new Nango({
   secretKey: process.env.NANGO_SECRET_KEY!,
@@ -15,7 +16,7 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  const { userId, file } = body;
+  const { userId, file }: { userId: string; file: InvoiceObject } = body;
 
   const quickbooksToken = await nango.getToken("quickbooks", userId);
   const quickbooksConnection: Connection = await nango.getConnection(
@@ -35,6 +36,7 @@ export async function POST(req: NextRequest) {
   const response = await createBillInQuickBooks(
     quickbooksRealmId,
     String(quickbooksToken),
+    file,
   );
 
   return new NextResponse(JSON.stringify(response), {
@@ -42,8 +44,41 @@ export async function POST(req: NextRequest) {
   });
 }
 
-const createBillInQuickBooks = async (realmId: string, token: string) => {
+const createBillInQuickBooks = async (
+  realmId: string,
+  token: string,
+  file: InvoiceObject,
+) => {
   const url = `https://sandbox-quickbooks.api.intuit.com/v3/company/${realmId}/bill`;
+
+  const lineItems = file.data.lineItems.map((item) => ({
+    DetailType: "AccountBasedExpenseLineDetail",
+    Amount: item.totalAmount,
+    AccountBasedExpenseLineDetail: {
+      AccountRef: {
+        value: "7", // Assuming "7" is the expense account ID; replace with actual account ID
+      },
+      BillableStatus: "NotBillable",
+      TaxCodeRef: {
+        value: "NON", // Assuming "NON" is the tax code; replace with actual tax code if needed
+      },
+    },
+    Description: item.description, // Optional: Description for the line item
+  }));
+
+  const vendorRef = {
+    value: "58",
+    name: "Workman Construction Group", // Optional: Adding name for better clarity
+  };
+
+  const bill = {
+    Line: lineItems,
+    VendorRef: vendorRef,
+    DueDate: file.data.dueDate, // Optional: Adding due date if available
+    CurrencyRef: {
+      value: "USD", // Assuming the currency is USD; replace if needed
+    },
+  };
 
   const response = await fetch(url, {
     method: "POST",
@@ -52,26 +87,7 @@ const createBillInQuickBooks = async (realmId: string, token: string) => {
       Authorization: `Bearer ${token}`,
       Accept: "application/json",
     },
-    body: JSON.stringify({
-      Line: [
-        {
-          Amount: 100,
-          DetailType: "AccountBasedExpenseLineDetail",
-          AccountBasedExpenseLineDetail: {
-            AccountRef: {
-              value: "7",
-            },
-            BillableStatus: "NotBillable",
-            TaxCodeRef: {
-              value: "NON",
-            },
-          },
-        },
-      ],
-      VendorRef: {
-        value: "30",
-      },
-    }),
+    body: JSON.stringify(bill),
   });
 
   if (!response.ok) {

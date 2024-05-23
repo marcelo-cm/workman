@@ -53,7 +53,9 @@ const ExtractionReview = ({ files }: { files: InvoiceObject[] }) => {
               <DropdownMenu>
                 <DropdownMenuTrigger className="ellipsis flex items-center gap-1">
                   <CaretDownIcon />
-                  {files[activeIndex].fileUrl.split("/")[8].split("?")[0]}
+                  {decodeURI(
+                    files[activeIndex].fileUrl.split("/")[8].split("?")[0],
+                  )}
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="bg-white">
                   {files.map((file, index) => (

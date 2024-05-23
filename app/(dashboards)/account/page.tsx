@@ -165,6 +165,8 @@ const Account = () => {
         ).filter((vendor: Vendor) => vendor.DisplayName),
       );
 
+      console.log("Vendors", vendors);
+
       toast({
         title: "Vendors",
         description: "Vendors fetched successfully",
