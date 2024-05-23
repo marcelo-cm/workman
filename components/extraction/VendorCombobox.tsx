@@ -96,7 +96,9 @@ export function VendorComboBox({
                 <Check
                   className={cn(
                     "mr-2 h-4 min-h-4 w-4 min-w-4",
-                    value === option ? "opacity-100" : "opacity-0",
+                    value?.DisplayName == option?.DisplayName
+                      ? "opacity-100"
+                      : "opacity-0",
                   )}
                 />
                 <p className="w-[155px] overflow-hidden text-ellipsis text-nowrap break-keep">
