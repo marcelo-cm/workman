@@ -15,14 +15,15 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { InvoiceObject } from "@/interfaces/common.interfaces";
 import {
   CaretDownIcon,
   CaretLeftIcon,
   CaretRightIcon,
 } from "@radix-ui/react-icons";
 import { useState } from "react";
+import { Badge } from "../ui/badge";
 import ExtractionTabs from "./ExtractionTabs";
-import { InvoiceObject } from "@/interfaces/common.interfaces";
 
 const ExtractionReview = ({ files }: { files: InvoiceObject[] }) => {
   const [activeIndex, setActiveIndex] = useState(0);
@@ -54,7 +55,7 @@ const ExtractionReview = ({ files }: { files: InvoiceObject[] }) => {
                 <DropdownMenuTrigger className="ellipsis flex items-center gap-1">
                   <CaretDownIcon />
                   {decodeURI(
-                    files[activeIndex].fileUrl.split("/")[8].split("?")[0],
+                    files[activeIndex].fileUrl.split("/")[8].split(".pdf")[0],
                   )}
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="bg-white">
@@ -62,9 +63,12 @@ const ExtractionReview = ({ files }: { files: InvoiceObject[] }) => {
                     <DropdownMenuItem
                       key={index}
                       onClick={() => setActiveIndex(index)}
-                      className="cursor-pointer"
+                      className="hover flex cursor-pointer items-center justify-between gap-4 rounded-md hover:bg-wm-white-50"
                     >
-                      {file.fileUrl.split("/")[8].split("?")[0]}
+                      {decodeURI(file.fileUrl.split("/")[8].split(".pdf")[0])}
+                      {activeIndex === index ? (
+                        <Badge variant="success">Active</Badge>
+                      ) : null}
                     </DropdownMenuItem>
                   ))}
                 </DropdownMenuContent>

@@ -1,6 +1,7 @@
 "use client";
 
 import { Checkbox } from "@/components/ui/checkbox";
+import { InvoiceObject } from "@/interfaces/common.interfaces";
 import { formatDate, toTitleCase } from "@/lib/utils";
 import {
   CaretDownIcon,
@@ -17,7 +18,6 @@ import {
   DropdownMenuRadioItem,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
-import { InvoiceObject } from "@/interfaces/common.interfaces";
 
 // define badge type by status type
 type BadgeType = "success" | "destructive" | "warning" | "info";

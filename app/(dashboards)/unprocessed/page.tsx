@@ -8,19 +8,10 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { InvoiceObject } from "@/interfaces/common.interfaces";
 import Invoice from "@/models/Invoice";
 import { createClient } from "@/utils/supabase/client";
-import { ExternalLinkIcon, MagicWandIcon } from "@radix-ui/react-icons";
+import { MagicWandIcon } from "@radix-ui/react-icons";
 import { useEffect, useState } from "react";
 
 const getInvoices = async () => {

@@ -2,12 +2,11 @@
 
 import PDFViewer from "@/components/dashboard/PDFViewer";
 import { Button } from "@/components/ui/button";
-import { ToastAction } from "@/components/ui/toast";
 import { toast } from "@/components/ui/use-toast";
 import { createClient as createNangoClient } from "@/utils/nango/client";
 import { createClient as createSupabaseClient } from "@/utils/supabase/client";
-import React, { useState } from "react";
 import { decode } from "base64-arraybuffer";
+import { useState } from "react";
 
 const nango = createNangoClient();
 const supabase = createSupabaseClient();

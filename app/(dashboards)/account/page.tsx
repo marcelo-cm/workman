@@ -12,7 +12,7 @@ import { Vendor } from "@/interfaces/quickbooks.interfaces";
 import { useVendor } from "@/lib/hooks/quickbooks/useVendor";
 import { handleGoogleMailIntegration } from "@/utils/nango/google";
 import { handleQuickBooksIntegration } from "@/utils/nango/quickbooks";
-import React, { useState } from "react";
+import { useState } from "react";
 
 const Account = () => {
   const { getVendorList } = useVendor();
@@ -56,7 +56,12 @@ const Account = () => {
         <div className="flex w-fit flex-row items-center justify-between gap-4">
           QuickBook Vendor List
           <Button onClick={() => fetchVendors()}>Get Vendor List</Button>
-          {vendors?.length > 0 && <ComboBox options={vendors} />}
+          {vendors?.length > 0 && (
+            <ComboBox
+              options={vendors}
+              getOptionLabel={(options) => options.DisplayName}
+            />
+          )}
         </div>
       </div>
     </div>

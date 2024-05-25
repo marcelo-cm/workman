@@ -14,19 +14,10 @@ import { InvoiceData, InvoiceObject } from "@/interfaces/common.interfaces";
 import Invoice from "@/models/Invoice";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { BookmarkIcon, PlusIcon, TrashIcon } from "@radix-ui/react-icons";
-import { HammerIcon, Scan } from "lucide-react";
+import { Scan } from "lucide-react";
 import React, { SetStateAction, useEffect } from "react";
 import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
-import { Checkbox } from "../ui/checkbox";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "../ui/table";
 import ExtractionFormComponent from "./ExtractionFormComponent";
 import UploadToQuickBooks from "./UploadToQuickBooks";
 

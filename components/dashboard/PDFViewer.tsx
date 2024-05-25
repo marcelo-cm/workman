@@ -1,5 +1,5 @@
 import { Loader2Icon } from "lucide-react";
-import { Suspense, useState } from "react";
+import { useState } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
 
 pdfjs.GlobalWorkerOptions.workerSrc =

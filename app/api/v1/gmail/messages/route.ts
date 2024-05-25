@@ -1,7 +1,6 @@
-import { StatusCodes } from "http-status-codes";
 import { Nango } from "@nangohq/node";
+import { StatusCodes } from "http-status-codes";
 import { NextRequest, NextResponse } from "next/server";
-import fs from "fs";
 
 const nango = new Nango({
   secretKey: process.env.NANGO_SECRET_KEY!,

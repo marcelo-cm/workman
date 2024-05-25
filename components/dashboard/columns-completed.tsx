@@ -1,24 +1,14 @@
 "use client";
 
-import { Checkbox } from "@/components/ui/checkbox";
-import { formatDate, toTitleCase } from "@/lib/utils";
+import { InvoiceObject } from "@/interfaces/common.interfaces";
+import { formatDate } from "@/lib/utils";
 import {
   CaretDownIcon,
   CaretUpIcon,
   ExternalLinkIcon,
-  MixerHorizontalIcon,
 } from "@radix-ui/react-icons";
 import { ColumnDef } from "@tanstack/react-table";
-import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
-import { InvoiceObject } from "@/interfaces/common.interfaces";
 
 // define badge type by status type
 type BadgeType = "success" | "destructive" | "warning" | "info";
