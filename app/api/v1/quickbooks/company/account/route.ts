@@ -35,14 +35,14 @@ export async function GET(req: NextRequest) {
       });
     }
 
-    const vendorList = await getCustomerList(
+    const accountList = await getAccountList(
       quickbooksRealmId,
       String(quickbooksToken),
       select,
       where,
     );
 
-    return new NextResponse(JSON.stringify(vendorList), {
+    return new NextResponse(JSON.stringify(accountList), {
       status: StatusCodes.OK,
     });
   } catch (e: unknown) {
@@ -53,13 +53,13 @@ export async function GET(req: NextRequest) {
   }
 }
 
-const getCustomerList = async (
+const getAccountList = async (
   realmId: string,
   token: string,
   columns: string,
   where: string | null,
 ) => {
-  const url = `https://sandbox-quickbooks.api.intuit.com/v3/company/${realmId}/query?query=select ${columns} from Customer ${where ? `where ${where}` : ""}`;
+  const url = `https://sandbox-quickbooks.api.intuit.com/v3/company/${realmId}/query?query=select ${columns} from Account ${where ? `where ${where}` : ""}`;
 
   const response = await fetch(url, {
     headers: {
@@ -72,7 +72,7 @@ const getCustomerList = async (
   if (!response.ok) {
     const errorText = await response.text();
     console.error(
-      "Failed to fetch customer list:",
+      "Failed to fetch account list:",
       response.status,
       response.statusText,
       errorText,

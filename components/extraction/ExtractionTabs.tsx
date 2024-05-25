@@ -15,7 +15,7 @@ import Invoice from "@/models/Invoice";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { BookmarkIcon, PlusIcon, TrashIcon } from "@radix-ui/react-icons";
 import { HammerIcon, Scan } from "lucide-react";
-import React, { useEffect } from "react";
+import React, { SetStateAction, useEffect } from "react";
 import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 import { Checkbox } from "../ui/checkbox";
@@ -69,10 +69,12 @@ const ExtractionTabs = ({
   files,
   activeIndex,
   handleSetActiveIndex,
+  setActiveIndex,
 }: {
   files: InvoiceObject[];
   activeIndex: number;
   handleSetActiveIndex: (index: 1 | -1) => void;
+  setActiveIndex: React.Dispatch<SetStateAction<number>>;
 }) => {
   const file = files[activeIndex];
   const form = useForm<z.infer<typeof formSchema>>({
@@ -460,7 +462,7 @@ const ExtractionTabs = ({
           </div>
         </TabsContent>
         <TabsContent value="2">
-          <UploadToQuickBooks files={files} />
+          <UploadToQuickBooks files={files} setActiveIndex={setActiveIndex} />
         </TabsContent>
       </div>
     </Tabs>

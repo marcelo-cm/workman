@@ -1,3 +1,4 @@
+import { Loader2Icon } from "lucide-react";
 import { Suspense, useState } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
 
@@ -16,6 +17,11 @@ const PDFViewer = ({ fileUrl }: { fileUrl: string }) => {
     <Document
       file={fileUrl}
       onLoadSuccess={onDocumentLoadSuccess}
+      loading={
+        <div className="flex w-[575px] min-w-[575px] animate-pulse items-center self-center">
+          Loading PDF <Loader2Icon className="ml-2 h-4 w-4 animate-spin" />
+        </div>
+      }
       className="relative flex h-full w-fit flex-col gap-2"
     >
       {Array.from({ length: numPages }, (_, index) => (
@@ -25,7 +31,7 @@ const PDFViewer = ({ fileUrl }: { fileUrl: string }) => {
           renderTextLayer={false}
           renderAnnotationLayer={false}
           width={575}
-          className={"w-fit border  border-wm-white-200 "}
+          className="w-fit border border-wm-white-200 "
         >
           <div className="absolute left-1 top-1 rounded-sm border border-wm-white-200 bg-white p-1 text-xs leading-none text-wm-orange">
             {index + 1} of {numPages}

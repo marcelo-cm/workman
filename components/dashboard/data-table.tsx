@@ -30,9 +30,10 @@ import { useEffect, useRef, useState } from "react";
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
-  onAction: (selectedFiles: InvoiceObject[]) => void;
+  onAction: ((selectedFiles: InvoiceObject[]) => void) | (() => void);
   actionOnSelectText: string;
   actionIcon: React.ReactNode;
+  canActionBeDisabled?: boolean;
   filters?: boolean;
 }
 
@@ -42,6 +43,7 @@ export function DataTable<TData, TValue>({
   onAction,
   actionOnSelectText,
   actionIcon,
+  canActionBeDisabled = true,
   filters = true,
 }: DataTableProps<TData, TValue>) {
   if (!columns || !data.length) {
@@ -147,7 +149,7 @@ export function DataTable<TData, TValue>({
       <div className="flex flex-row gap-4">
         <Button
           variant="secondary"
-          disabled={selectedFilesUrls.length === 0}
+          disabled={canActionBeDisabled && selectedFilesUrls.length === 0}
           onClick={() => onAction(selectedFilesUrls)}
         >
           {actionIcon}

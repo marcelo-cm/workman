@@ -117,7 +117,7 @@ const createBillInQuickBooks = async (
     Amount: item.totalAmount,
     AccountBasedExpenseLineDetail: {
       AccountRef: {
-        value: "63", // 63 is hardcoded for, Job Expenses:Job Materials
+        value: item.accountId, // 63 is hardcoded for, Job Expenses:Job Materials
       },
       BillableStatus: item.billable ? "Billable" : "NotBillable",
       CustomerRef: {

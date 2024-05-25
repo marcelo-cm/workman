@@ -10,6 +10,7 @@ export async function GET(req: NextRequest) {
   try {
     const userId = req.nextUrl.searchParams.get("userId");
     const select = req.nextUrl.searchParams.get("select");
+    const where = req.nextUrl.searchParams.get("where");
 
     if (!userId || !select) {
       return new NextResponse(
@@ -38,6 +39,7 @@ export async function GET(req: NextRequest) {
       quickbooksRealmId,
       String(quickbooksToken),
       select,
+      where,
     );
 
     return new NextResponse(JSON.stringify(vendorList), {
@@ -55,8 +57,9 @@ const getVendorList = async (
   realmId: string,
   token: string,
   columns: string,
+  where: string | null,
 ) => {
-  const url = `https://sandbox-quickbooks.api.intuit.com/v3/company/${realmId}/query?query=select ${columns} from vendor`;
+  const url = `https://sandbox-quickbooks.api.intuit.com/v3/company/${realmId}/query?query=select ${columns} from vendor ${where ? `where ${where}` : ""}`;
 
   const response = await fetch(url, {
     headers: {

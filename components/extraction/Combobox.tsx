@@ -17,7 +17,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Vendor } from "@/app/(dashboards)/account/page";
 import { useEffect, useState } from "react";
 
 function levenshtein(a: string, b: string): number {
@@ -61,38 +60,40 @@ export function ComboBox({
   options,
   valueToMatch,
   callBackFunction,
+  getOptionLabel,
 }: {
-  options: Vendor[];
+  options: any[];
   valueToMatch?: string;
   callBackFunction?: (value: any) => void;
+  getOptionLabel: (option: any) => string;
 }) {
   const [open, setOpen] = useState(false);
-  const [value, setValue] = useState<Vendor | null>(null);
+  const [value, setValue] = useState<any | null>(null);
 
   useEffect(() => {
     if (valueToMatch) {
       const bestMatch = options.reduce((prev, curr) => {
         const prevSimilarity = stringSimilarity(
-          prev?.DisplayName || "",
+          getOptionLabel(prev) || "",
           valueToMatch,
         );
         const currSimilarity = stringSimilarity(
-          curr?.DisplayName || "",
+          getOptionLabel(curr) || "",
           valueToMatch,
         );
         return currSimilarity > prevSimilarity ? curr : prev;
       }, options[0]);
 
-      if (bestMatch && bestMatch.DisplayName) setValue(bestMatch);
+      if (bestMatch && getOptionLabel(bestMatch)) setValue(bestMatch);
 
       callBackFunction && callBackFunction(bestMatch);
     }
   }, [valueToMatch]);
 
   const handleSelect = (currentValue: string) => {
-    if (currentValue !== value?.DisplayName) {
+    if (currentValue !== getOptionLabel(value)) {
       const newValue = options.find(
-        (option) => option.DisplayName === currentValue,
+        (option) => getOptionLabel(option) === currentValue,
       );
 
       if (!newValue) return;
@@ -113,7 +114,7 @@ export function ComboBox({
           className="w-fit min-w-[200px] justify-between"
         >
           <p className="w-fit min-w-[155px] overflow-hidden text-ellipsis text-nowrap break-keep text-left">
-            {value ? value.DisplayName : "Select Vendor..."}
+            {value ? getOptionLabel(value) : "Select Vendor..."}
           </p>
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
@@ -126,10 +127,9 @@ export function ComboBox({
             {options.map((option) => (
               <CommandItem
                 key={option.Id}
-                value={option.DisplayName}
+                value={getOptionLabel(option)}
                 onSelect={(currentValue) => {
                   handleSelect(currentValue);
-
                   setOpen(false);
                 }}
                 className="w-[200px] "
@@ -137,13 +137,13 @@ export function ComboBox({
                 <Check
                   className={cn(
                     "mr-2 h-4 min-h-4 w-4 min-w-4",
-                    value?.DisplayName == option?.DisplayName
+                    getOptionLabel(value) == getOptionLabel(option)
                       ? "opacity-100"
                       : "opacity-0",
                   )}
                 />
                 <p className="w-[155px] overflow-hidden text-ellipsis text-nowrap break-keep">
-                  {option.DisplayName}
+                  {getOptionLabel(option)}
                 </p>
               </CommandItem>
             ))}

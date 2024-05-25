@@ -94,6 +94,7 @@ const ExtractionReview = ({ files }: { files: InvoiceObject[] }) => {
             files={files}
             activeIndex={activeIndex}
             handleSetActiveIndex={handleSetActiveIndex}
+            setActiveIndex={setActiveIndex}
           />
         </div>
       </div>
