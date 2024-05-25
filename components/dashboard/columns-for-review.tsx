@@ -17,7 +17,7 @@ import {
   DropdownMenuRadioItem,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
-import { InvoiceObject } from "@/models/Invoice";
+import { InvoiceObject } from "@/interfaces/common.interfaces";
 
 // define badge type by status type
 type BadgeType = "success" | "destructive" | "warning" | "info";
@@ -72,7 +72,7 @@ export const columns: ColumnDef<InvoiceObject>[] = [
         <div className="flex flex-col">
           <div className="flex items-center gap-1">
             {decodeURI(row.original.fileUrl.split("/")[8].split(".pdf")[0])}
-            <p className="text-xs text-wm-white-200">({row.original.id})</p>
+            <p className="text-xs text-wm-white-200">[{row.original.id}]</p>
           </div>
           <div className="text-xs">{row.original.data.supplierName}</div>
         </div>
@@ -83,11 +83,11 @@ export const columns: ColumnDef<InvoiceObject>[] = [
   //   accessorKey: "project_code",
   //   header: () => <div>Project</div>,
   //   cell: ({ row }) => (
-  //     <Badge variant="info">{row.original.data.project_code}</Badge>
+  //     <Badge variant="info">{row.original.data.shippingAddress}</Badge>
   //   ),
   // },
   {
-    accessorKey: "date_due", // Unique accessor key for date due
+    accessorKey: "date_due",
     accessorFn: (row) => new Date(row.data.dueDate),
     header: ({ column }) => (
       <Button
@@ -108,7 +108,7 @@ export const columns: ColumnDef<InvoiceObject>[] = [
     ),
   },
   {
-    accessorKey: "date_invoiced", // Unique accessor key for date invoiced
+    accessorKey: "date_invoiced",
     accessorFn: (row) => new Date(row.data.date),
     header: ({ column }) => (
       <Button
@@ -128,29 +128,8 @@ export const columns: ColumnDef<InvoiceObject>[] = [
       <div>{formatDate(new Date(row.original.data.date))}</div>
     ),
   },
-  // {
-  //   accessorKey: "date_uploaded", // Unique accessor key for date uploaded
-  //   accessorFn: (row) => new Date(row.data.date_uploaded),
-  //   header: ({ column }) => (
-  //     <Button
-  //       variant="ghost"
-  //       onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-  //       className="p-0"
-  //     >
-  //       Date Uploaded
-  //       {column.getIsSorted() === "asc" ? (
-  //         <CaretUpIcon className="h-4 w-4" />
-  //       ) : (
-  //         <CaretDownIcon className="h-4 w-4" />
-  //       )}
-  //     </Button>
-  //   ),
-  //   cell: ({ row }) => (
-  //     <div>{formatDate(new Date(row.original.data.date_uploaded))}</div>
-  //   ),
-  // },
   {
-    accessorKey: "balance", // Unique accessor key for balance
+    accessorKey: "balance",
     accessorFn: (row) => row.data.totalNet,
     header: ({ column }) => (
       <Button
@@ -220,8 +199,18 @@ export const columns: ColumnDef<InvoiceObject>[] = [
     ),
     cell: ({ row }) => (
       <div className="flex justify-end pr-2">
-        <Badge variant={getBadgeType(row.original.flag || "PENDING")}>
-          {toTitleCase(row.original.flag || "PENDING")}
+        <Badge
+          variant={getBadgeType(
+            row.original.data.lineItems.some((item) => item.confidence < 0.95)
+              ? "MANUAL_REVIEW"
+              : "SUCCESS",
+          )}
+        >
+          {toTitleCase(
+            row.original.data.lineItems.some((item) => item.confidence < 0.9)
+              ? "MANUAL_REVIEW"
+              : "SUCCESS",
+          )}
         </Badge>
       </div>
     ),

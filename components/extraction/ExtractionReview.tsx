@@ -22,7 +22,7 @@ import {
 } from "@radix-ui/react-icons";
 import { useState } from "react";
 import ExtractionTabs from "./ExtractionTabs";
-import { InvoiceObject } from "@/models/Invoice";
+import { InvoiceObject } from "@/interfaces/common.interfaces";
 
 const ExtractionReview = ({ files }: { files: InvoiceObject[] }) => {
   const [activeIndex, setActiveIndex] = useState(0);

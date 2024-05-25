@@ -5,8 +5,8 @@ import { formatDate } from "@/lib/utils";
 import { CaretDownIcon, CaretUpIcon } from "@radix-ui/react-icons";
 import { ColumnDef } from "@tanstack/react-table";
 import { Button } from "../ui/button";
-import { InvoiceObject } from "@/models/Invoice";
 import { ExternalLinkIcon } from "lucide-react";
+import { InvoiceObject } from "@/interfaces/common.interfaces";
 
 export const columns: ColumnDef<InvoiceObject>[] = [
   {

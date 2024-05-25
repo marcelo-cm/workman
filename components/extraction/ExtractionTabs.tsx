@@ -10,8 +10,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/text-area";
-import { InvoiceData } from "@/interfaces/common.interfaces";
-import Invoice, { InvoiceObject } from "@/models/Invoice";
+import { InvoiceData, InvoiceObject } from "@/interfaces/common.interfaces";
+import Invoice from "@/models/Invoice";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { BookmarkIcon, PlusIcon, TrashIcon } from "@radix-ui/react-icons";
 import { HammerIcon, Scan } from "lucide-react";

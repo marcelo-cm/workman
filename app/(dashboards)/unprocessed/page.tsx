@@ -17,7 +17,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import Invoice, { InvoiceObject } from "@/models/Invoice";
+import { InvoiceObject } from "@/interfaces/common.interfaces";
+import Invoice from "@/models/Invoice";
 import { createClient } from "@/utils/supabase/client";
 import { ExternalLinkIcon, MagicWandIcon } from "@radix-ui/react-icons";
 import { useEffect, useState } from "react";

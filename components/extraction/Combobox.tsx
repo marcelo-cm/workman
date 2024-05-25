@@ -20,21 +20,51 @@ import {
 import { Vendor } from "@/app/(dashboards)/account/page";
 import { useEffect, useState } from "react";
 
-function stringSimilarity(str1: string, str2: string) {
-  // Simple similarity function based on common character count
-  const commonChars = str1
-    .toLowerCase()
-    .split("")
-    .filter((char) => str2.toLowerCase().includes(char)).length;
-  return commonChars / Math.max(str1.length, str2.length);
+function levenshtein(a: string, b: string): number {
+  const an = a ? a.length : 0;
+  const bn = b ? b.length : 0;
+  if (an === 0) {
+    return bn;
+  }
+  if (bn === 0) {
+    return an;
+  }
+  const matrix = Array(an + 1);
+  for (let i = 0; i <= an; i++) {
+    matrix[i] = Array(bn + 1).fill(0);
+    matrix[i][0] = i;
+  }
+  for (let j = 1; j <= bn; j++) {
+    matrix[0][j] = j;
+  }
+  for (let i = 1; i <= an; i++) {
+    for (let j = 1; j <= bn; j++) {
+      if (a[i - 1] === b[j - 1]) {
+        matrix[i][j] = matrix[i - 1][j - 1];
+      } else {
+        matrix[i][j] = Math.min(
+          matrix[i - 1][j - 1] + 1,
+          Math.min(matrix[i][j - 1] + 1, matrix[i - 1][j] + 1),
+        );
+      }
+    }
+  }
+  return matrix[an][bn];
 }
 
-export function VendorComboBox({
+function stringSimilarity(str1: string, str2: string): number {
+  const distance = levenshtein(str1, str2);
+  return 1 - distance / Math.max(str1.length, str2.length);
+}
+
+export function ComboBox({
   options,
   valueToMatch,
+  callBackFunction,
 }: {
   options: Vendor[];
   valueToMatch?: string;
+  callBackFunction?: (value: any) => void;
 }) {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState<Vendor | null>(null);
@@ -54,8 +84,24 @@ export function VendorComboBox({
       }, options[0]);
 
       if (bestMatch && bestMatch.DisplayName) setValue(bestMatch);
+
+      callBackFunction && callBackFunction(bestMatch);
     }
   }, [valueToMatch]);
+
+  const handleSelect = (currentValue: string) => {
+    if (currentValue !== value?.DisplayName) {
+      const newValue = options.find(
+        (option) => option.DisplayName === currentValue,
+      );
+
+      if (!newValue) return;
+
+      setValue(newValue);
+
+      callBackFunction && callBackFunction(newValue);
+    }
+  };
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -82,13 +128,8 @@ export function VendorComboBox({
                 key={option.Id}
                 value={option.DisplayName}
                 onSelect={(currentValue) => {
-                  setValue(
-                    currentValue === value?.DisplayName
-                      ? null
-                      : options?.find(
-                          (option) => option.DisplayName === currentValue,
-                        ) || null,
-                  );
+                  handleSelect(currentValue);
+
                   setOpen(false);
                 }}
                 className="w-[200px] "

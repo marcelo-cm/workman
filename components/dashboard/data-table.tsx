@@ -21,13 +21,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { InvoiceData } from "@/interfaces/common.interfaces";
+import { InvoiceData, InvoiceObject } from "@/interfaces/common.interfaces";
 import { MagnifyingGlassIcon, Pencil2Icon } from "@radix-ui/react-icons";
 import { Button } from "../ui/button";
 import { DatePickerWithRange } from "../ui/date-range-picker";
 import { useEffect, useRef, useState } from "react";
-import { InvoiceObject } from "@/models/Invoice";
-import ExtractionReview from "../extraction/ExtractionReview";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];

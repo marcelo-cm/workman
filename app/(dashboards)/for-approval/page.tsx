@@ -10,7 +10,8 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
-import Invoice, { InvoiceObject } from "@/models/Invoice";
+import { InvoiceObject } from "@/interfaces/common.interfaces";
+import Invoice from "@/models/Invoice";
 import { createClient } from "@/utils/supabase/client";
 import { Pencil2Icon, UploadIcon } from "@radix-ui/react-icons";
 import { UserResponse } from "@supabase/supabase-js";

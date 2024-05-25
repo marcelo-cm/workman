@@ -64,7 +64,7 @@ const TestPage = () => {
         return;
       }
 
-      const response = await fetch(`/api/v1/get-emails?userId=${userId}`, {
+      const response = await fetch(`/api/v1/gmail/messages?userId=${userId}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",

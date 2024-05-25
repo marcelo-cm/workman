@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Nango, Connection } from "@nangohq/node";
 import { StatusCodes } from "http-status-codes";
-import { InvoiceObject } from "@/models/Invoice";
+import { TransformedInvoiceObject } from "@/components/extraction/UploadToQuickBooks";
 
 const nango = new Nango({
   secretKey: process.env.NANGO_SECRET_KEY!,
@@ -76,7 +76,8 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  const { userId, file }: { userId: string; file: InvoiceObject } = body;
+  const { userId, file }: { userId: string; file: TransformedInvoiceObject } =
+    body;
 
   const quickbooksToken = await nango.getToken("quickbooks", userId);
   const quickbooksConnection: Connection = await nango.getConnection(
@@ -107,7 +108,7 @@ export async function POST(req: NextRequest) {
 const createBillInQuickBooks = async (
   realmId: string,
   token: string,
-  file: InvoiceObject,
+  file: TransformedInvoiceObject,
 ) => {
   const url = `https://sandbox-quickbooks.api.intuit.com/v3/company/${realmId}/bill`;
 
@@ -118,34 +119,29 @@ const createBillInQuickBooks = async (
       AccountRef: {
         value: "63", // 63 is hardcoded for, Job Expenses:Job Materials
       },
-      BillableStatus: "Billable",
+      BillableStatus: item.billable ? "Billable" : "NotBillable",
       CustomerRef: {
-        value: "59", // 59 is hardcoded for now as a customer ID, Marlin Hill as per demo data
-      },
-      TaxCodeRef: {
-        value: "NON", // Assuming "NON" is the tax code; replace with actual tax code if needed
+        value: item.customerId,
       },
     },
-    Description: item.description, // Optional: Description for the line item
+    Description: item.description,
   }));
 
   const vendorRef = {
-    value: "58",
-    name: "Workman Construction Group", // Optional: Adding name for better clarity
+    value: file.data.vendorId,
   };
 
   const bill = {
     Line: lineItems,
     VendorRef: vendorRef,
-    DueDate: file.data.dueDate, // Optional: Adding due date if available
+    TxnDate: file.data.date,
+    DueDate: file.data.dueDate,
     CurrencyRef: {
       value: "USD", // Assuming the currency is USD; replace if needed
     },
-    PrivateNote: file.data.notes + "\n" + file.fileUrl + "\n Filed by Workman",
-    // SalesTermRef: {
-    //   value: "2", // 2 is hardcoded for now as Net 15
-    // },
-    DocNumber: file.data.invoiceNumber, // Optional: Adding invoice number if available
+    PrivateNote:
+      file.data.notes + "\n\n" + file.fileUrl + "\n\n Filed by Workman",
+    DocNumber: file.data.invoiceNumber,
   };
 
   const response = await fetch(url, {

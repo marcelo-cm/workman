@@ -11,7 +11,7 @@ import { createClient as createNangoClient } from "@/utils/nango/client";
 import { createClient as createSupabaseClient } from "@/utils/supabase/client";
 import { toast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
-import { VendorComboBox } from "@/components/extraction/VendorCombobox";
+import { ComboBox } from "@/components/extraction/Combobox";
 
 const nango = createNangoClient();
 const supabase = createSupabaseClient();
@@ -209,7 +209,7 @@ const Account = () => {
         <div className="flex w-fit flex-row items-center justify-between gap-4">
           QuickBook Vendor List
           <Button onClick={() => getVendorList?.()}>Get Vendor List</Button>
-          {vendors?.length > 0 && <VendorComboBox options={vendors} />}
+          {vendors?.length > 0 && <ComboBox options={vendors} />}
         </div>
       </div>
     </div>

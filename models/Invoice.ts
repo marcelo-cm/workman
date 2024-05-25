@@ -1,19 +1,11 @@
+import { TransformedInvoiceObject } from "@/components/extraction/UploadToQuickBooks";
 import { toast } from "@/components/ui/use-toast";
-import { InvoiceData } from "@/interfaces/common.interfaces";
+import { InvoiceData, InvoiceObject } from "@/interfaces/common.interfaces";
 import { mindeeScan } from "@/lib/actions/actions";
 import { createClient } from "@/utils/supabase/client";
 import { UUID } from "crypto";
 
 const supabase = createClient();
-
-export type InvoiceObject = {
-  id: UUID;
-  created_at: string;
-  data: InvoiceData;
-  fileUrl: string;
-  status: string;
-  flag: string;
-};
 
 class Invoice {
   id: UUID;
@@ -175,6 +167,55 @@ class Invoice {
     };
 
     return mappedData;
+  }
+
+  static async uploadToQuickbooks(file: TransformedInvoiceObject) {
+    const { data, error } = await supabase.auth.getUser();
+
+    if (error) {
+      throw new Error("User not found");
+    }
+
+    const userId = data.user.id;
+
+    const body = {
+      file: file,
+      userId: userId,
+    };
+
+    const response = await fetch(`/api/v1/quickbooks/company/bill`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
+
+    const responseData = await response.json();
+
+    toast({
+      title: "Invoice uploaded to QuickBooks",
+      description: responseData.message,
+    });
+
+    const { data: updatedData, error: updateError } = await supabase
+      .from("invoices")
+      .update({ status: "PROCESSED" })
+      .eq("id", file.id)
+      .select("*");
+
+    if (updateError) {
+      toast({
+        title: `Failed to update invoice status`,
+        description: "Please try again later",
+        variant: "destructive",
+      });
+      throw new Error(`Failed to update invoice: ${updateError.message}`);
+    }
+
+    toast({
+      title: `Invoice status updated to PROCESSED`,
+    });
   }
 }
 

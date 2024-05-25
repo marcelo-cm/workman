@@ -1,3 +1,14 @@
+import { UUID } from "crypto";
+
+export type InvoiceObject = {
+  id: UUID;
+  created_at: string;
+  data: InvoiceData;
+  fileUrl: string;
+  status: string;
+  flag: string;
+};
+
 export interface InvoiceData {
   date: string;
   dueDate: string;
@@ -16,7 +27,7 @@ export interface InvoiceData {
   notes: string;
 }
 
-interface LineItem {
+export interface LineItem {
   confidence: number;
   description: string;
   productCode: string;
