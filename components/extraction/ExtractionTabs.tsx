@@ -105,13 +105,8 @@ const ExtractionTabs = ({
   });
 
   useEffect(() => {
-    handleFileChange();
+    mapDataToForm(file?.data);
   }, [file]);
-
-  const handleFileChange = async () => {
-    form.reset();
-    mapDataToForm(file.data);
-  };
 
   useEffect(() => {
     const totalAmount = watchLineItems.reduce(
@@ -143,42 +138,23 @@ const ExtractionTabs = ({
   };
 
   const mapDataToForm = async (data: any) => {
-    form.setValue("supplierName", data?.supplierName);
-    form.setValue("supplierAddress", data?.supplierAddress);
-    form.setValue("supplierEmail", data?.supplierEmail);
-    form.setValue("supplierPhoneNumber", data?.supplierPhoneNumber);
-    form.setValue("customerAddress", data?.customerAddress);
-    form.setValue("customerName", data?.customerName);
-    form.setValue("shippingAddress", data?.shippingAddress);
-    form.setValue("date", data?.date);
-    form.setValue("dueDate", data?.dueDate);
-    form.setValue("invoiceNumber", data?.invoiceNumber);
-    form.setValue("totalNet", data?.totalNet);
-    form.setValue("totalAmount", data?.totalNet);
-    form.setValue("totalTax", data?.totalTax);
-    form.setValue(
-      "lineItems",
-      data?.lineItems.map(
-        (lineItem: {
-          confidence: number;
-          description: string;
-          productCode: string;
-          quantity: number;
-          totalAmount: number;
-          unitPrice: number;
-          pageId: number;
-        }) => ({
-          confidence: lineItem.confidence,
-          description: lineItem.description,
-          productCode: lineItem.productCode,
-          quantity: lineItem.quantity,
-          totalAmount: lineItem.totalAmount,
-          unitPrice: lineItem.unitPrice,
-          pageId: lineItem.pageId,
-        }),
-      ),
-    );
-    form.setValue("notes", data.notes);
+    form.reset({
+      date: data?.date || "",
+      dueDate: data?.dueDate || "",
+      invoiceNumber: data?.invoiceNumber || "",
+      supplierName: data?.supplierName || "",
+      supplierAddress: data?.supplierAddress || "",
+      supplierEmail: data?.supplierEmail || "",
+      supplierPhoneNumber: data?.supplierPhoneNumber || "",
+      customerAddress: data?.customerAddress || "",
+      customerName: data?.customerName || "",
+      shippingAddress: data?.shippingAddress || "",
+      totalNet: data?.totalNet || 0,
+      totalAmount: data?.totalAmount || 0,
+      totalTax: data?.totalTax || 0,
+      lineItems: data?.lineItems || [],
+      notes: data?.notes || "",
+    });
 
     files[activeIndex].data = form.getValues();
   };
@@ -191,7 +167,8 @@ const ExtractionTabs = ({
   const handleUpdateInvoiceData = async (file: InvoiceObject) => {
     const data: InvoiceData = form.getValues();
     files[activeIndex].data = data;
-    const response = await Invoice.update(file.fileUrl, data);
+    await Invoice.update(file.fileUrl, data);
+    mapDataToForm(data);
   };
 
   return (
@@ -381,8 +358,7 @@ const ExtractionTabs = ({
                         )}
                       />
                       <div className="flex items-center justify-end gap-4 self-end text-xs">
-                        Confidence:{" "}
-                        {Number(lineItem.confidence.toFixed(2)) * 100}%
+                        {/* Confidence: {Number(lineItem.confidence) * 100}% */}
                         <Button
                           type="button"
                           onClick={() => remove(index)}
@@ -447,6 +423,7 @@ const ExtractionTabs = ({
                 handleUpdateInvoiceData(file);
                 handleSetActiveIndex(1);
               }}
+              disabled={!form.formState.isDirty}
             >
               <BookmarkIcon /> Approve & Save
             </Button>

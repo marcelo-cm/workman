@@ -283,7 +283,16 @@ const UploadToQuickBooks = ({
                           disabled={isLoading}
                           variant={"secondary"}
                         >
-                          <HammerIcon className="h-4 w-4" /> Upload Invoice
+                          {isLoading ? (
+                            <>
+                              <Loader2Icon className="h-4 w-4 animate-spin" />{" "}
+                              Uploading...
+                            </>
+                          ) : (
+                            <>
+                              <HammerIcon className="h-4 w-4" /> Upload Invoice
+                            </>
+                          )}
                         </Button>
                       </TableCell>
                     </TableRow>
