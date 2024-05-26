@@ -1,3 +1,5 @@
+import { Header, Message, MessagePart } from "@/interfaces/gmail.interfaces";
+import { base64Decode } from "@/lib/utils";
 import { Nango } from "@nangohq/node";
 import { StatusCodes } from "http-status-codes";
 import { NextRequest, NextResponse } from "next/server";
@@ -6,12 +8,18 @@ const nango = new Nango({
   secretKey: process.env.NANGO_SECRET_KEY!,
 });
 
-type Email = {
+export type Email = {
   subject: string;
   date: string;
   from: string;
-  attachments: any[];
+  attachments: PDFData[];
 };
+
+export interface PDFData {
+  base64: string;
+  filename: string;
+  bufferData: Buffer;
+}
 
 export async function GET(req: NextRequest): Promise<NextResponse> {
   try {
@@ -31,15 +39,15 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       });
     }
 
-    const emailsFetched = await getMail(String(googleMailToken));
+    const emailsFetched = await getMailIds(String(googleMailToken));
 
     const emails: Email[] = [];
     for (const email of emailsFetched) {
-      const { subject, date, from, attachments } = await getPDFAndSubject(
+      const newEmail = await getPDFAndSubject(
         email.id,
         String(googleMailToken),
       );
-      emails.push({ subject, date, from, attachments });
+      emails.push(newEmail);
     }
 
     return new NextResponse(JSON.stringify(emails), {
@@ -53,7 +61,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
   }
 }
 
-const getMail = async (token: string) => {
+const getMailIds = async (token: string) => {
   const url =
     "https://gmail.googleapis.com/gmail/v1/users/me/messages?q=has:attachment";
   const response = await fetch(url, {
@@ -69,12 +77,18 @@ const getMail = async (token: string) => {
     );
   }
 
-  const data = await response.json();
+  const data: {
+    messages: { id: string; threadId: string }[];
+    resultSizeEstimate: number;
+  } = await response.json();
 
   return data.messages;
 };
 
-const getPDFAndSubject = async (emailId: string, token: string) => {
+const getPDFAndSubject = async (
+  emailId: string,
+  token: string,
+): Promise<Email> => {
   const url = `https://gmail.googleapis.com/gmail/v1/users/me/messages/${emailId}`;
 
   const response = await fetch(url, {
@@ -90,36 +104,32 @@ const getPDFAndSubject = async (emailId: string, token: string) => {
     );
   }
 
-  const data = await response.json();
+  const data: Message = await response.json();
 
   const { subject, date, from } = parseEmailHeaders(data.payload.headers);
-  const attachments = await getPdfAttachmentIds(data.payload.parts, token);
+  const attachments = await getPdfAttachmentData(data.payload.parts, token);
 
   return { subject, date, from, attachments };
 };
 
 const parseEmailHeaders = (
-  headers: { name: string; value: string }[],
+  headers: Header[],
 ): { subject: string; date: string; from: string } => {
   const subject =
     headers.find((header) => header.name === "Subject")?.value || "";
   const date = headers.find((header) => header.name === "Date")?.value || "";
   const from = headers.find((header) => header.name === "From")?.value || "";
+
   return { subject, date, from };
 };
 
-const base64Decode = (base64String: string, filename: string) => {
-  const buffer = Buffer.from(base64String, "base64");
-  return { filename, data: buffer };
-};
-
-const getPdfAttachmentIds = async (
-  parts: any[],
+const getPdfAttachmentData = async (
+  parts: MessagePart[],
   token: string,
-): Promise<string[]> => {
-  const attachments: any[] = [];
+): Promise<PDFData[]> => {
+  const attachments: PDFData[] = [];
 
-  const extractAttachmentIds = async (parts: any[], token: string) => {
+  const extractAttachmentData = async (parts: MessagePart[], token: string) => {
     for (const part of parts) {
       if (part.mimeType === "application/pdf" && part.body?.attachmentId) {
         const url = `https://gmail.googleapis.com/gmail/v1/users/me/messages/{messageId}/attachments/${part.body.attachmentId}`;
@@ -140,18 +150,21 @@ const getPdfAttachmentIds = async (
 
         const decodedBase64 = base64Decode(data.data, part.filename);
 
+        const rawBase64 = data.data;
+        const base64repaired = rawBase64.replace(/-/g, "+").replace(/_/g, "/");
+
         attachments.push({
-          data: data.data,
-          fileDecoded: decodedBase64,
-          filename: part.filename,
+          base64: base64repaired,
+          filename: decodedBase64.filename,
+          bufferData: decodedBase64.bufferData,
         });
       }
       if (part.parts) {
-        extractAttachmentIds(part.parts, token);
+        extractAttachmentData(part.parts, token);
       }
     }
   };
 
-  await extractAttachmentIds(parts, token);
+  await extractAttachmentData(parts, token);
   return attachments;
 };

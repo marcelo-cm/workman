@@ -9,7 +9,7 @@ export const useCustomer = () => {
   const getCustomerList = async (
     columns: (keyof Customer)[] | ["*"] = ["*"],
     where: string | null = null,
-    setCustomerCallback?: React.Dispatch<SetStateAction<any[]>>,
+    setCustomerCallback?: React.Dispatch<SetStateAction<Customer[]>>,
   ) => {
     try {
       const { data, error } = await supabase.auth.getUser();

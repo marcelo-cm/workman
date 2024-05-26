@@ -20,3 +20,8 @@ export function toTitleCase(str: string) {
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" ");
 }
+
+export const base64Decode = (base64String: string, filename: string) => {
+  const buffer = Buffer.from(base64String, "base64");
+  return { filename, bufferData: buffer };
+};
