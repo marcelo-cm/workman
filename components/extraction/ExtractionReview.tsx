@@ -49,14 +49,13 @@ const ExtractionReview = ({ files }: { files: InvoiceObject[] }) => {
         </BreadcrumbList>
         <div className="relative flex h-[calc(100%-3px-3rem)] overflow-hidden rounded-tl border-l border-t">
           <div className="flex h-full w-fit flex-col border-r">
-            <div className="flex h-10 min-h-10 items-center justify-between border-b bg-wm-white-50 px-2 text-sm">
-              <p className="min-w-24 break-keep font-medium">Current File</p>
+            <div className="flex h-10 min-h-10 items-center justify-between border-b bg-wm-white-50 px-1 text-sm">
               <DropdownMenu>
-                <DropdownMenuTrigger className="ellipsis flex items-center gap-1">
-                  <CaretDownIcon />
+                <DropdownMenuTrigger className="ellipsis flex items-center gap-1 rounded-md px-1 ring-wm-white-200 hover:opacity-50 hover:ring-1">
                   {decodeURI(
                     files[activeIndex].fileUrl.split("/")[8].split(".pdf")[0],
                   )}
+                  <CaretDownIcon />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="bg-white">
                   {files.map((file, index) => (
@@ -90,7 +89,8 @@ const ExtractionReview = ({ files }: { files: InvoiceObject[] }) => {
                 className="py-2"
                 onClick={() => handleSetActiveIndex(1)}
               >
-                <CaretRightIcon /> Next File
+                Next File
+                <CaretRightIcon />
               </Button>
             </div>
           </div>

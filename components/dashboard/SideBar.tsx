@@ -2,14 +2,13 @@
 
 import useLocalStorage from "@/lib/hooks/useLocalStorage";
 import { createClient } from "@/utils/supabase/client";
-import { ExitIcon, FileTextIcon, PersonIcon } from "@radix-ui/react-icons";
 import {
-  ArrowLeftToLine,
-  ArrowRightToLine,
-  Check,
-  FileText,
-  LogOut,
-} from "lucide-react";
+  ExitIcon,
+  FileIcon,
+  Pencil2Icon,
+  PersonIcon,
+} from "@radix-ui/react-icons";
+import { ArrowLeftToLine, ArrowRightToLine, Check, LogOut } from "lucide-react";
 import React, { useContext, useEffect, useState } from "react";
 import WorkmanLogo from "../molecules/WorkmanLogo";
 import MenuItem from "./MenuItem";
@@ -101,18 +100,11 @@ const SideBarCollapsed = () => {
             </MenuItem>
           </div>
           <div className="w-full rounded-r-lg bg-wm-white-50 py-1 pr-2">
-            <MenuItem disabled>
-              <FileText className="h-4 w-4" />
-            </MenuItem>
             <MenuItem href="/unprocessed">
-              <div className="flex min-h-5 min-w-5 items-center justify-center rounded-full bg-gray-800 text-xs text-white">
-                3
-              </div>
+              <FileIcon className="h-4 w-4" />
             </MenuItem>
             <MenuItem href="/for-approval">
-              <div className="flex min-h-5 min-w-5 items-center justify-center rounded-full bg-wm-orange text-xs text-white">
-                5
-              </div>
+              <Pencil2Icon className="h-4 w-4 text-wm-orange" />
             </MenuItem>
             <MenuItem href="/completed">
               <Check className="h-4 w-4" />
@@ -165,23 +157,17 @@ const SideBarExpanded = () => {
           </div>
           <div className="w-full rounded-r-lg bg-wm-white-50 py-1 pr-2">
             <MenuItem icon disabled>
-              <FileTextIcon className="h-4 w-4" />
               Bills
             </MenuItem>
             <MenuItem href="/unprocessed">
               <div className="flex w-full items-center justify-between">
                 Unprocessed
-                <div className="flex h-5 w-5 items-center justify-center rounded-full bg-wm-white-800 text-xs text-white">
-                  3
-                </div>
+                <FileIcon className="h-4 w-4" />
               </div>
             </MenuItem>
             <MenuItem href="/for-approval">
               <div className="flex w-full items-center justify-between">
-                For Approval{" "}
-                <div className="flex h-5 w-5 items-center justify-center rounded-full bg-wm-orange text-xs text-white">
-                  5
-                </div>
+                For Approval <Pencil2Icon className="h-4 w-4 text-wm-orange" />
               </div>
             </MenuItem>
             <MenuItem href="/completed">

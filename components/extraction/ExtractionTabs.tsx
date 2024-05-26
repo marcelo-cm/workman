@@ -13,7 +13,12 @@ import { Textarea } from "@/components/ui/text-area";
 import { InvoiceData, InvoiceObject } from "@/interfaces/common.interfaces";
 import Invoice from "@/models/Invoice";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { BookmarkIcon, PlusIcon, TrashIcon } from "@radix-ui/react-icons";
+import {
+  BookmarkIcon,
+  PlusIcon,
+  ResetIcon,
+  TrashIcon,
+} from "@radix-ui/react-icons";
 import { Scan } from "lucide-react";
 import React, { SetStateAction, useEffect } from "react";
 import { useFieldArray, useForm, useWatch } from "react-hook-form";
@@ -176,56 +181,56 @@ const ExtractionTabs = ({
       <TabsList className="sticky top-0 flex h-fit w-full rounded-none bg-white">
         <TabsTrigger
           value="1"
-          className="flex h-10 grow justify-start border-b data-[state=active]:border-wm-orange data-[state=active]:text-wm-orange"
+          className="flex h-10 w-1/2 grow justify-start border-b data-[state=active]:border-wm-orange data-[state=active]:text-wm-orange"
         >
           1. Review & Edit Details
         </TabsTrigger>
         <TabsTrigger
           value="2"
-          className="flex h-10 grow justify-start border-b data-[state=active]:border-wm-orange data-[state=active]:text-wm-orange"
+          className="flex h-10 w-1/2 grow justify-start border-b data-[state=active]:border-wm-orange data-[state=active]:text-wm-orange"
+          disabled={form.formState.isDirty}
         >
-          2. Upload to Quickbooks
+          2. Upload to Quickbooks {form.formState.isDirty && "(Save Changes)"}
         </TabsTrigger>
       </TabsList>
       <div className="no-scrollbar h-full overflow-scroll">
         <TabsContent value="1" className="w-full">
           <Form {...form}>
             <form className="space-y-4 p-4">
-              <div className="flex w-full items-center justify-between">
+              <div className="text-xs">
+                <div>
+                  <p className="mr-2 inline font-medium">Sub-Total:</p> $
+                  {form.getValues("totalAmount")?.toFixed(2) || 0}
+                </div>
+                <FormField
+                  control={form.control}
+                  name="totalTax"
+                  render={({ field }) => (
+                    <FormItem>
+                      <div className="flex gap-2">
+                        <p className="w-12 break-keep">Tax: $</p>
+                        <Input
+                          type="number"
+                          {...form.register("totalTax", {
+                            setValueAs: (value) => parseFloat(value) || 0,
+                            onChange: (e) =>
+                              form.setValue(
+                                "totalTax",
+                                parseFloat(e.target.value) || 0,
+                                { shouldValidate: true, shouldDirty: true },
+                              ),
+                          })}
+                          className="h-fit w-16 px-1 py-0 text-right text-xs"
+                          {...field}
+                        />
+                      </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                 <p className="text-2xl">
                   Total: ${form.getValues("totalNet")?.toFixed(2) || 0}
                 </p>
-                <div className=" text-xs">
-                  <p className="text-right">
-                    Sub-Total: ${form.getValues("totalAmount")?.toFixed(2) || 0}
-                  </p>
-                  <FormField
-                    control={form.control}
-                    name="totalTax"
-                    render={({ field }) => (
-                      <FormItem>
-                        <div className="flex items-center justify-end">
-                          <p className="w-12 break-keep">Tax: $</p>
-                          <Input
-                            type="number"
-                            {...form.register("totalTax", {
-                              setValueAs: (value) => parseFloat(value) || 0,
-                              onChange: (e) =>
-                                form.setValue(
-                                  "totalTax",
-                                  parseFloat(e.target.value) || 0,
-                                  { shouldValidate: true, shouldDirty: true },
-                                ),
-                            })}
-                            className="h-fit w-16 px-1 py-0 text-right text-xs"
-                            {...field}
-                          />
-                        </div>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
               </div>
               <ExtractionFormComponent
                 label="Bill Details"
@@ -427,6 +432,14 @@ const ExtractionTabs = ({
             >
               <BookmarkIcon /> Approve & Save
             </Button>
+            {form.formState.isDirty ? (
+              <Button
+                onClick={() => mapDataToForm(file?.data)}
+                variant={"outline"}
+              >
+                <ResetIcon /> Discard Changes
+              </Button>
+            ) : null}
           </div>
         </TabsContent>
         <TabsContent value="2">

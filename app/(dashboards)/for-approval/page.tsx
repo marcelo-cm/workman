@@ -3,6 +3,14 @@
 import { columns } from "@/components/dashboard/columns-for-review";
 import { DataTable } from "@/components/dashboard/data-table";
 import ExtractionReview from "@/components/extraction/ExtractionReview";
+import WorkmanLogo from "@/components/molecules/WorkmanLogo";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import {
   BreadcrumbItem,
   BreadcrumbLink,
@@ -20,10 +28,11 @@ import { useEffect, useRef, useState } from "react";
 const supabase = createClient();
 
 export default function ForApproval() {
-  const [invoices, setInvoices] = useState<InvoiceObject[]>([]);
   const fileInputRef = useRef<null | HTMLInputElement>(null);
+  const [invoices, setInvoices] = useState<InvoiceObject[]>([]);
   const [selectedFiles, setSelectedFiles] = useState<InvoiceObject[]>([]);
   const [review, setReview] = useState<boolean>(false);
+  const [isUploading, setIsUploading] = useState<boolean>(false);
 
   useEffect(() => {
     getInvoices();
@@ -58,6 +67,7 @@ export default function ForApproval() {
   };
 
   const handleUpload = async (event: any) => {
+    setIsUploading(true);
     const filesList = event.target.files;
     if (!filesList) {
       return;
@@ -78,6 +88,7 @@ export default function ForApproval() {
       await Promise.all(scanAllFilePromises);
 
       window.location.reload();
+      setIsUploading(false);
     } catch (error) {
       console.error("Error uploading files:", error);
     }
@@ -128,6 +139,18 @@ export default function ForApproval() {
           />
         </div>
       )}
+      <AlertDialog open={isUploading}>
+        <AlertDialogContent className="justify-center">
+          <AlertDialogHeader className="items-center">
+            <WorkmanLogo className="w-32 animate-pulse" />
+            <AlertDialogTitle>Uploading your Data Now!</AlertDialogTitle>
+          </AlertDialogHeader>
+          <AlertDialogDescription className="text-center">
+            It's important that you don't close this window while we're
+            uploading your data.
+          </AlertDialogDescription>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }
