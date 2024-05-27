@@ -1,7 +1,7 @@
 "use client";
 
 import { columns } from "@/components/dashboard/columns-for-review";
-import { DataTable } from "@/components/dashboard/data-table";
+import { DataTable } from "@/components/dashboard/data-table-invoice";
 import ExtractionReview from "@/components/extraction/ExtractionReview";
 import WorkmanLogo from "@/components/molecules/WorkmanLogo";
 import {

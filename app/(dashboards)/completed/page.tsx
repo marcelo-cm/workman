@@ -1,7 +1,7 @@
 "use client";
 
 import { columns } from "@/components/dashboard/columns-completed";
-import { DataTable } from "@/components/dashboard/data-table";
+import { DataTable } from "@/components/dashboard/data-table-invoice";
 import {
   BreadcrumbItem,
   BreadcrumbLink,
