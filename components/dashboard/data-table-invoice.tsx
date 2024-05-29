@@ -12,6 +12,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 
+import { Email } from "@/app/api/v1/gmail/messages/route";
 import {
   Table,
   TableBody,

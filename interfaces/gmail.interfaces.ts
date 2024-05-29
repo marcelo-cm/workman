@@ -52,3 +52,11 @@ export interface Header {
   name: string;
   value: string;
 }
+
+export interface Label_Basic {
+  id: string;
+  name: string;
+  messageListVisibility: string;
+  labelListVisibility: string;
+  type: string;
+}

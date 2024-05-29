@@ -9,6 +9,7 @@ import {
   PersonIcon,
 } from "@radix-ui/react-icons";
 import { ArrowLeftToLine, ArrowRightToLine, Check, LogOut } from "lucide-react";
+import { usePathname } from "next/navigation";
 import React, { useContext, useEffect, useState } from "react";
 import WorkmanLogo from "../molecules/WorkmanLogo";
 import MenuItem from "./MenuItem";
@@ -38,10 +39,9 @@ async function handleSignOut() {
 const SideBar = () => {
   const { getItem, setItem } = useLocalStorage();
   const [expanded, setExpanded] = useState(false);
-  const [activePath, setActivePath] = useState("");
+  const activePath = usePathname();
 
   useEffect(() => {
-    setActivePath(window.location.pathname);
     checkExpandedState();
   }, []);
 

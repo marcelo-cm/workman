@@ -90,12 +90,12 @@ export default function ForApproval() {
       await Promise.all(scanAllFilePromises);
 
       setTimeout(() => {
-        router.refresh();
+        window.location.reload();
       }, 1000);
-      setIsUploading(false);
     } catch (error) {
       console.error("Error uploading files:", error);
     }
+    setIsUploading(false);
   };
 
   const handleReviewSelected = async (files: InvoiceObject[]) => {

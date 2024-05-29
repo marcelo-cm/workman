@@ -9,6 +9,7 @@ const nango = new Nango({
 });
 
 export type Email = {
+  id: string;
   subject: string;
   date: string;
   from: string;
@@ -109,7 +110,7 @@ const getPDFAndSubject = async (
   const { subject, date, from } = parseEmailHeaders(data.payload.headers);
   const attachments = await getPdfAttachmentData(data.payload.parts, token);
 
-  return { subject, date, from, attachments };
+  return { id: emailId, subject, date, from, attachments };
 };
 
 const parseEmailHeaders = (

@@ -1,8 +1,10 @@
+import { PDFData } from "@/app/api/v1/gmail/messages/route";
 import { TransformedInvoiceObject } from "@/components/extraction/UploadToQuickBooks";
 import { toast } from "@/components/ui/use-toast";
 import { InvoiceData, InvoiceObject } from "@/interfaces/common.interfaces";
 import { mindeeScan } from "@/lib/actions/actions";
 import { createClient } from "@/utils/supabase/client";
+import { decode } from "base64-arraybuffer";
 import { UUID } from "crypto";
 
 const supabase = createClient();
@@ -24,24 +26,52 @@ class Invoice {
     this.flag = flag;
   }
 
-  static async upload(file: File) {
-    const filePath = `/${file.name}_${new Date().getTime()}`;
-    const { data, error } = await supabase.storage
-      .from("invoices")
-      .upload(filePath, file);
+  static async upload(file: File | PDFData) {
+    let data, error;
+    if (file instanceof File) {
+      const filePath = `/${file.name}_${new Date().getTime()}`;
+      ({ data, error } = await supabase.storage
+        .from("invoices")
+        .upload(filePath, file));
 
-    if (error) {
+      if (error) {
+        toast({
+          title: `Failed to upload file ${file.name}`,
+          description: "Please try to upload this document again",
+          variant: "destructive",
+        });
+        throw new Error(`Failed to upload file: ${error.message}`);
+      }
+
       toast({
-        title: `Failed to upload file ${file.name}`,
+        title: `${file.name} uploaded to storage successfully`,
+      });
+    } else {
+      const filePath = `/${file.filename}_${new Date().getTime()}`;
+      ({ data, error } = await supabase.storage
+        .from("invoices")
+        .upload(filePath, decode(file.base64), {
+          contentType: "application/pdf",
+        }));
+
+      if (error) {
+        toast({
+          title: `Failed to upload file ${file.filename}`,
+          description: "Please try to upload this document again",
+          variant: "destructive",
+        });
+        throw new Error(`Failed to upload file: ${error.message}`);
+      }
+    }
+
+    if (!data) {
+      toast({
+        title: `Failed to upload file`,
         description: "Please try to upload this document again",
         variant: "destructive",
       });
-      throw new Error(`Failed to upload file: ${error.message}`);
+      throw new Error(`Failed to upload file`);
     }
-
-    toast({
-      title: `${file.name} uploaded to storage successfully`,
-    });
 
     const user = await supabase.auth.getUser();
     const id = user.data.user?.id;
@@ -60,7 +90,7 @@ class Invoice {
 
     if (invoiceError) {
       toast({
-        title: `Failed to upload invoice ${file.name} to database`,
+        title: `Failed to upload invoice ${file instanceof File ? file.name : file.filename} to database`,
         description: "Please try to upload this document again",
         variant: "destructive",
       });
@@ -68,10 +98,59 @@ class Invoice {
     }
 
     toast({
-      title: `${file.name} uploaded to database`,
+      title: `${file instanceof File ? file.name : file.filename} uploaded to database`,
     });
 
     return publicUrl;
+  }
+
+  static async uploadToQuickbooks(file: TransformedInvoiceObject) {
+    const { data, error } = await supabase.auth.getUser();
+
+    if (error) {
+      throw new Error("User not found");
+    }
+
+    const userId = data.user.id;
+
+    const body = {
+      file: file,
+      userId: userId,
+    };
+
+    const response = await fetch(`/api/v1/quickbooks/company/bill`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
+
+    const responseData = await response.json();
+
+    toast({
+      title: "Invoice uploaded to QuickBooks",
+      description: responseData.message,
+    });
+
+    const { data: updatedData, error: updateError } = await supabase
+      .from("invoices")
+      .update({ status: "PROCESSED" })
+      .eq("id", file.id)
+      .select("*");
+
+    if (updateError) {
+      toast({
+        title: `Failed to update invoice status`,
+        description: "Please try again later",
+        variant: "destructive",
+      });
+      throw new Error(`Failed to update invoice: ${updateError.message}`);
+    }
+
+    toast({
+      title: `Invoice status updated to PROCESSED`,
+    });
   }
 
   static async update(fileUrl: string, data: any) {
@@ -167,55 +246,6 @@ class Invoice {
     };
 
     return mappedData;
-  }
-
-  static async uploadToQuickbooks(file: TransformedInvoiceObject) {
-    const { data, error } = await supabase.auth.getUser();
-
-    if (error) {
-      throw new Error("User not found");
-    }
-
-    const userId = data.user.id;
-
-    const body = {
-      file: file,
-      userId: userId,
-    };
-
-    const response = await fetch(`/api/v1/quickbooks/company/bill`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(body),
-    });
-
-    const responseData = await response.json();
-
-    toast({
-      title: "Invoice uploaded to QuickBooks",
-      description: responseData.message,
-    });
-
-    const { data: updatedData, error: updateError } = await supabase
-      .from("invoices")
-      .update({ status: "PROCESSED" })
-      .eq("id", file.id)
-      .select("*");
-
-    if (updateError) {
-      toast({
-        title: `Failed to update invoice status`,
-        description: "Please try again later",
-        variant: "destructive",
-      });
-      throw new Error(`Failed to update invoice: ${updateError.message}`);
-    }
-
-    toast({
-      title: `Invoice status updated to PROCESSED`,
-    });
   }
 }
 

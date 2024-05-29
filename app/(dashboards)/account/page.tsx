@@ -8,20 +8,32 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
+import { Label_Basic } from "@/interfaces/gmail.interfaces";
 import { Vendor } from "@/interfaces/quickbooks.interfaces";
+import { useGmail } from "@/lib/hooks/gmail/useGmail";
 import { useVendor } from "@/lib/hooks/quickbooks/useVendor";
 import { handleGoogleMailIntegration } from "@/utils/nango/google";
 import { handleQuickBooksIntegration } from "@/utils/nango/quickbooks";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const Account = () => {
   const { getVendorList } = useVendor();
+  const { getLabels } = useGmail();
   const [vendors, setVendors] = useState<Vendor[]>([]);
+  const [labels, setLabels] = useState<Label_Basic[]>([]);
 
   const fetchVendors = async () => {
     const columns: (keyof Vendor)[] = ["DisplayName", "Id"];
     await getVendorList(columns, null, setVendors);
   };
+
+  const fetchLabels = async () => {
+    await getLabels(setLabels);
+  };
+
+  useEffect(() => {
+    console.log(labels);
+  }, [labels]);
 
   return (
     <div className="flex h-full w-full flex-col gap-4 px-4 py-8">
@@ -59,7 +71,17 @@ const Account = () => {
           {vendors?.length > 0 && (
             <ComboBox
               options={vendors}
-              getOptionLabel={(options) => options.DisplayName}
+              getOptionLabel={(option) => option?.DisplayName}
+            />
+          )}
+        </div>
+        <div className="flex w-fit flex-row items-center justify-between gap-4">
+          Google Mail Labels
+          <Button onClick={() => fetchLabels()}>Get Labels</Button>
+          {labels?.length > 0 && (
+            <ComboBox
+              options={labels}
+              getOptionLabel={(options) => options?.name}
             />
           )}
         </div>
