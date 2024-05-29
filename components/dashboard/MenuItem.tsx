@@ -1,5 +1,6 @@
 import { ReactNode, useContext } from "react";
 import { SideBarContext } from "./SideBar";
+import { useRouter } from "next/navigation";
 
 const MenuItem = ({
   children,
@@ -15,6 +16,7 @@ const MenuItem = ({
   onClick?: () => void;
 }) => {
   const { activePath } = useContext(SideBarContext);
+  const router = useRouter();
   return (
     <div
       className={`
@@ -29,9 +31,7 @@ const MenuItem = ({
         ? "border-r-2 border-orange-500 bg-white"
         : "bg-wm-white-50"
     }`}
-      onClick={
-        onClick ? onClick : () => (href ? (window.location.href = href) : null)
-      }
+      onClick={onClick ? onClick : () => (href ? router.push(href) : null)}
     >
       {children}
     </div>

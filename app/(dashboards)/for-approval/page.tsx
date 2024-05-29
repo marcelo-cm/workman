@@ -23,6 +23,7 @@ import Invoice from "@/models/Invoice";
 import { createClient } from "@/utils/supabase/client";
 import { Pencil2Icon, UploadIcon } from "@radix-ui/react-icons";
 import { UserResponse } from "@supabase/supabase-js";
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 const supabase = createClient();
@@ -33,6 +34,7 @@ export default function ForApproval() {
   const [selectedFiles, setSelectedFiles] = useState<InvoiceObject[]>([]);
   const [review, setReview] = useState<boolean>(false);
   const [isUploading, setIsUploading] = useState<boolean>(false);
+  const router = useRouter();
 
   useEffect(() => {
     getInvoices();
@@ -87,7 +89,9 @@ export default function ForApproval() {
 
       await Promise.all(scanAllFilePromises);
 
-      window.location.reload();
+      setTimeout(() => {
+        router.refresh();
+      }, 1000);
       setIsUploading(false);
     } catch (error) {
       console.error("Error uploading files:", error);

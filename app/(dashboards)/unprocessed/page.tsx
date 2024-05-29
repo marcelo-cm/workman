@@ -17,6 +17,7 @@ import Invoice from "@/models/Invoice";
 import { createClient } from "@/utils/supabase/client";
 import { MagicWandIcon } from "@radix-ui/react-icons";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 const getInvoices = async () => {
   const supabase = createClient();
@@ -44,6 +45,7 @@ const Unprocessed = () => {
   const { getEmails } = useGmail();
   const [invoices, setInvoices] = useState<InvoiceObject[]>([]);
   const [emails, setEmails] = useState<Email[]>([]);
+  const router = useRouter();
 
   async function fetchInvoices() {
     const incomingInvoices = await getInvoices();
@@ -67,7 +69,9 @@ const Unprocessed = () => {
 
       const scanAndUpdateResolved = await Promise.all(scanAndUpdatePromises);
 
-      window.location.reload();
+      setTimeout(() => {
+        router.refresh();
+      }, 1000);
     } catch (error) {
       console.error("Error processing invoices:", error);
     }

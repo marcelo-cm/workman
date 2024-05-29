@@ -11,10 +11,12 @@ import {
 import { InvoiceObject } from "@/interfaces/common.interfaces";
 import { createClient } from "@/utils/supabase/client";
 import { EnvelopeClosedIcon } from "@radix-ui/react-icons";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 const getInvoices = async () => {
   const supabase = createClient();
+
   const { data: userDataRes, error: userDataError } =
     await supabase.auth.getUser();
 
@@ -37,6 +39,7 @@ const getInvoices = async () => {
 
 const CompletedBills = () => {
   const [invoices, setInvoices] = useState<InvoiceObject[]>([]);
+  const router = useRouter();
 
   async function fetchInvoices() {
     const incomingInvoices = await getInvoices();
@@ -65,7 +68,7 @@ const CompletedBills = () => {
       <DataTable
         data={invoices}
         columns={columns}
-        onAction={() => (window.location.href = "mailto:admin@workman.so")}
+        onAction={() => router.push("mailto:admin@workman.so")}
         actionIcon={<EnvelopeClosedIcon />}
         actionOnSelectText="Email Founders"
         canActionBeDisabled={false}
