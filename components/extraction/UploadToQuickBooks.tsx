@@ -4,7 +4,7 @@ import { Account, Customer, Vendor } from "@/interfaces/quickbooks.interfaces";
 import { useAccount } from "@/lib/hooks/quickbooks/useAccount";
 import { useCustomer } from "@/lib/hooks/quickbooks/useCustomer";
 import { useVendor } from "@/lib/hooks/quickbooks/useVendor";
-import Invoice from "@/models/Invoice";
+import Invoice from "@/classes/Invoice";
 import { createClient } from "@/utils/supabase/client";
 import { EyeOpenIcon } from "@radix-ui/react-icons";
 import { HammerIcon, Loader2Icon } from "lucide-react";

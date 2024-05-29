@@ -1,11 +1,52 @@
 import { Email } from "@/app/api/v1/gmail/messages/route";
 import { toast } from "@/components/ui/use-toast";
-import { Label_Basic } from "@/interfaces/gmail.interfaces";
+import { Label, Label_Basic } from "@/interfaces/gmail.interfaces";
 import { createClient as createSupabaseClient } from "@/utils/supabase/client";
 import { SetStateAction } from "react";
 
 export const useGmail = () => {
   const supabase = createSupabaseClient();
+
+  const getLabelbyID = async (labelId: string) => {
+    try {
+      const { data, error } = await supabase.auth.getUser();
+
+      if (error) {
+        throw new Error("Failed to get user");
+      }
+
+      const userId = data?.user?.id;
+
+      if (!userId) {
+        throw new Error("User ID not found");
+      }
+
+      const response = await fetch(
+        `/api/v1/gmail/labels/${labelId}?userId=${userId}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        },
+      );
+
+      if (!response.ok) {
+        toast({
+          title: "Error fetching label",
+          description: response.statusText,
+          variant: "destructive",
+        });
+        throw new Error("Failed to fetch label");
+      }
+
+      const label = await response.json();
+
+      return label;
+    } catch (error) {
+      throw new Error(`Failed to get label, ${error}`);
+    }
+  };
 
   const getEmails = async (
     setMailCallback?: React.Dispatch<SetStateAction<Email[]>>,
@@ -100,10 +141,54 @@ export const useGmail = () => {
     }
   };
 
-  const updateLabels = async (messages: string[], addLabel: string) => {};
+  const createLabel = async (label: Omit<Label_Basic, "id">) => {
+    try {
+      const { data, error } = await supabase.auth.getUser();
+
+      if (error) {
+        throw new Error("Failed to get user");
+      }
+
+      const userId = data?.user?.id;
+
+      if (!userId) {
+        throw new Error("User ID not found");
+      }
+
+      const response = await fetch(`/api/v1/gmail/labels`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ label, userId }),
+      });
+
+      if (!response.ok) {
+        toast({
+          title: "Error creating label",
+          description: response.statusText,
+          variant: "destructive",
+        });
+        throw new Error("Failed to create label");
+      }
+
+      const newLabel = await response.json();
+
+      toast({
+        title: "Label created successfully",
+        description: `Label ${label.name} created successfully`,
+      });
+
+      return newLabel;
+    } catch (error) {
+      throw new Error(`Failed to create label, ${error}`);
+    }
+  };
 
   return {
     getEmails,
     getLabels,
+    getLabelbyID,
+    createLabel,
   };
 };

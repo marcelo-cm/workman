@@ -8,7 +8,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
-import { Label_Basic } from "@/interfaces/gmail.interfaces";
+import { Label, Label_Basic } from "@/interfaces/gmail.interfaces";
 import { Vendor } from "@/interfaces/quickbooks.interfaces";
 import { useGmail } from "@/lib/hooks/gmail/useGmail";
 import { useVendor } from "@/lib/hooks/quickbooks/useVendor";
@@ -18,7 +18,7 @@ import { useEffect, useState } from "react";
 
 const Account = () => {
   const { getVendorList } = useVendor();
-  const { getLabels } = useGmail();
+  const { getLabels, getLabelbyID, createLabel } = useGmail();
   const [vendors, setVendors] = useState<Vendor[]>([]);
   const [labels, setLabels] = useState<Label_Basic[]>([]);
 
@@ -29,6 +29,28 @@ const Account = () => {
 
   const fetchLabels = async () => {
     await getLabels(setLabels);
+  };
+
+  const handleUpsertLabel = async () => {
+    const labels = await getLabels();
+
+    const workmanLabelExists = labels.find(
+      (label: Label_Basic) => label.name === "WORKMAN_SCANNED",
+    );
+    // @todo search for the ignore label, create it if not there, and update the user configs with the new label if successful
+
+    if (!workmanLabelExists) {
+      const WORKMAN_SCANNED_LABEL: Omit<Label_Basic, "id"> = {
+        name: "WORKMAN_SCANNED",
+        messageListVisibility: "show",
+        labelListVisibility: "labelShow",
+        type: "user",
+      };
+      const newLabel = await createLabel(WORKMAN_SCANNED_LABEL);
+      // @todo handle error, and update user configs with the new label if successful
+    } else {
+      console.log("Label fetched", workmanLabelExists);
+    }
   };
 
   useEffect(() => {
@@ -84,6 +106,10 @@ const Account = () => {
               getOptionLabel={(options) => options?.name}
             />
           )}
+        </div>
+        <div className="flex w-fit flex-row items-center justify-between gap-4">
+          Upsert Workman Label
+          <Button onClick={() => handleUpsertLabel()}>Action!</Button>
         </div>
       </div>
     </div>

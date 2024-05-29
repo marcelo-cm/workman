@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/text-area";
 import { InvoiceData, InvoiceObject } from "@/interfaces/common.interfaces";
-import Invoice from "@/models/Invoice";
+import Invoice from "@/classes/Invoice";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   BookmarkIcon,

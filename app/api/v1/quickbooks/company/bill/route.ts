@@ -68,16 +68,17 @@ interface LineItem {
 }
 
 export async function POST(req: NextRequest) {
-  const body = await req.json();
-
-  if (!body) {
-    return new NextResponse(JSON.stringify({ message: "Body is required" }), {
-      status: 400,
-    });
-  }
-
   const { userId, file }: { userId: string; file: TransformedInvoiceObject } =
-    body;
+    await req.json();
+
+  if (!userId || !file) {
+    return new NextResponse(
+      JSON.stringify({ message: "User ID and File are required" }),
+      {
+        status: 400,
+      },
+    );
+  }
 
   const quickbooksToken = await nango.getToken("quickbooks", userId);
   const quickbooksConnection: Connection = await nango.getConnection(

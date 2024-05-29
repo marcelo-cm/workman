@@ -22,7 +22,7 @@ import {
 import { toast } from "@/components/ui/use-toast";
 import { InvoiceObject } from "@/interfaces/common.interfaces";
 import { useGmail } from "@/lib/hooks/gmail/useGmail";
-import Invoice from "@/models/Invoice";
+import Invoice from "@/classes/Invoice";
 import { createClient } from "@/utils/supabase/client";
 import { MagicWandIcon } from "@radix-ui/react-icons";
 import { decode } from "base64-arraybuffer";

@@ -60,3 +60,13 @@ export interface Label_Basic {
   labelListVisibility: string;
   type: string;
 }
+
+export interface Label {
+  id: string;
+  name: string;
+  type: string;
+  messagesTotal: number;
+  messagesUnread: number;
+  threadsTotal: number;
+  threadsUnread: number;
+}
