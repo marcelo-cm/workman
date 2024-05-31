@@ -160,10 +160,15 @@ export const useGmail = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ label, userId }),
+        body: JSON.stringify({
+          label,
+          userId,
+        }),
       });
 
-      if (!response.ok) {
+      const newLabel = await response.json();
+
+      if (newLabel.error || !response.ok) {
         toast({
           title: "Error creating label",
           description: response.statusText,
@@ -171,8 +176,6 @@ export const useGmail = () => {
         });
         throw new Error("Failed to create label");
       }
-
-      const newLabel = await response.json();
 
       toast({
         title: "Label created successfully",

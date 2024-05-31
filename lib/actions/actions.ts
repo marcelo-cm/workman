@@ -12,6 +12,5 @@ export async function mindeeScan(fileUrl: string) {
     inputSource,
   );
 
-  console.log(respPromise.document.inference.prediction);
   return JSON.stringify(respPromise);
 }

@@ -34,7 +34,6 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     });
 
     const data = await response.json();
-    console.log(data);
 
     return new NextResponse(JSON.stringify(data.labels), {
       status: StatusCodes.OK,

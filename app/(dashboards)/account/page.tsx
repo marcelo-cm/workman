@@ -12,13 +12,15 @@ import { Label, Label_Basic } from "@/interfaces/gmail.interfaces";
 import { Vendor } from "@/interfaces/quickbooks.interfaces";
 import { useGmail } from "@/lib/hooks/gmail/useGmail";
 import { useVendor } from "@/lib/hooks/quickbooks/useVendor";
+import { useUser } from "@/lib/hooks/supabase/useUser";
 import { handleGoogleMailIntegration } from "@/utils/nango/google";
 import { handleQuickBooksIntegration } from "@/utils/nango/quickbooks";
 import { useEffect, useState } from "react";
 
 const Account = () => {
   const { getVendorList } = useVendor();
-  const { getLabels, getLabelbyID, createLabel } = useGmail();
+  const { getLabels, createLabel } = useGmail();
+  const { updateUser } = useUser();
   const [vendors, setVendors] = useState<Vendor[]>([]);
   const [labels, setLabels] = useState<Label_Basic[]>([]);
 
@@ -37,6 +39,10 @@ const Account = () => {
     const workmanLabelExists = labels.find(
       (label: Label_Basic) => label.name === "WORKMAN_SCANNED",
     );
+
+    const ignoreLabelExists = labels.find(
+      (label: Label_Basic) => label.name === "WORKMAN_IGNORE",
+    );
     // @todo search for the ignore label, create it if not there, and update the user configs with the new label if successful
 
     if (!workmanLabelExists) {
@@ -47,15 +53,34 @@ const Account = () => {
         type: "user",
       };
       const newLabel = await createLabel(WORKMAN_SCANNED_LABEL);
-      // @todo handle error, and update user configs with the new label if successful
-    } else {
-      console.log("Label fetched", workmanLabelExists);
+
+      if (newLabel) {
+        const valuesToUpdate = {
+          scanned_label_id: newLabel.id,
+        };
+
+        await updateUser(valuesToUpdate);
+      }
+    }
+
+    if (!ignoreLabelExists) {
+      const WORKMAN_IGNORE_LABEL: Omit<Label_Basic, "id"> = {
+        name: "WORKMAN_IGNORE",
+        messageListVisibility: "show",
+        labelListVisibility: "labelShow",
+        type: "user",
+      };
+      const newLabel = await createLabel(WORKMAN_IGNORE_LABEL);
+
+      if (newLabel) {
+        const valuesToUpdate = {
+          ignore_label_id: newLabel.id,
+        };
+
+        await updateUser(valuesToUpdate);
+      }
     }
   };
-
-  useEffect(() => {
-    console.log(labels);
-  }, [labels]);
 
   return (
     <div className="flex h-full w-full flex-col gap-4 px-4 py-8">

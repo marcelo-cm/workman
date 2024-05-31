@@ -1,5 +1,12 @@
 import { UUID } from "crypto";
 
+export interface UserConfig {
+  id: UUID;
+  created_at: string;
+  scanned_label_id: string;
+  ignore_label_id: string;
+}
+
 /**
  * Represents an invoice object retrieved from the database in Supabase.
  */
