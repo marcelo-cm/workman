@@ -7,6 +7,9 @@ import { ColumnDef } from "@tanstack/react-table";
 import { ExternalLinkIcon } from "lucide-react";
 import { Button } from "../ui/button";
 import { Email } from "@/app/api/v1/gmail/messages/route";
+import { useGmail } from "@/lib/hooks/gmail/useGmail";
+
+const { markAsIgnore, markAsScanned } = useGmail();
 
 export const columns: ColumnDef<Email>[] = [
   {
@@ -90,6 +93,26 @@ export const columns: ColumnDef<Email>[] = [
           </div>
         ))}
       </div>
+    ),
+  },
+  {
+    accessorKey: "ignore",
+    header: ({ column }) => <div />,
+    cell: ({ row }) => (
+      <>
+        <Button
+          variant="ghost"
+          onClick={async () => await markAsIgnore(row.original.id)}
+        >
+          Ignore
+        </Button>
+        <Button
+          variant="ghost"
+          onClick={async () => await markAsScanned(row.original.id)}
+        >
+          Scanned
+        </Button>
+      </>
     ),
   },
 ];

@@ -3,8 +3,11 @@ import { toast } from "@/components/ui/use-toast";
 import { Label, Label_Basic } from "@/interfaces/gmail.interfaces";
 import { createClient as createSupabaseClient } from "@/utils/supabase/client";
 import { SetStateAction } from "react";
+import { useUser } from "../supabase/useUser";
+import { UserConfig } from "@/interfaces/common.interfaces";
 
 export const useGmail = () => {
+  const { fetchUserData } = useUser();
   const supabase = createSupabaseClient();
 
   const getLabelbyID = async (labelId: string) => {
@@ -188,10 +191,112 @@ export const useGmail = () => {
     }
   };
 
+  const markAsIgnore = async (emailId: string) => {
+    try {
+      const { data: userData, error } = await supabase.auth.getUser();
+
+      if (error) {
+        throw new Error("Failed to get user");
+      }
+
+      const userId = userData?.user?.id;
+
+      if (!userId) {
+        throw new Error("User ID not found");
+      }
+
+      const { ignore_label_id } = await fetchUserData({
+        columns: ["ignore_label_id"],
+      });
+
+      const response = await fetch(`/api/v1/gmail/messages/batchModify`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId,
+          emailIds: [emailId],
+          addLabelIds: [ignore_label_id],
+          removeLabelIds: [],
+        }),
+      });
+
+      if (!response.ok) {
+        toast({
+          title: "Error marking email as ignore",
+          description: response.statusText,
+          variant: "destructive",
+        });
+      }
+
+      toast({
+        title: "Email marked as ignore",
+      });
+
+      return response;
+    } catch (error) {
+      throw new Error(`Failed to mark email as ignore, ${error}`);
+    }
+  };
+
+  const markAsScanned = async (emailId: string) => {
+    try {
+      const { data: userData, error } = await supabase.auth.getUser();
+
+      if (error) {
+        throw new Error("Failed to get user");
+      }
+
+      const userId = userData?.user?.id;
+
+      if (!userId) {
+        throw new Error("User ID not found");
+      }
+
+      const { scanned_label_id } = await fetchUserData({
+        columns: ["scanned_label_id"],
+      });
+
+      const response = await fetch(`/api/v1/gmail/messages/batchModify`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId,
+          emailIds: [emailId],
+          addLabelIds: [scanned_label_id],
+          removeLabelIds: [],
+        }),
+      });
+
+      if (!response.ok) {
+        toast({
+          title: "Error marking email as scanned",
+          description: response.statusText,
+          variant: "destructive",
+        });
+      }
+
+      console.log(response, "response");
+
+      toast({
+        title: "Email marked as scanned",
+      });
+
+      return response;
+    } catch (error) {
+      throw new Error(`Failed to mark email as scanned, ${error}`);
+    }
+  };
+
   return {
     getEmails,
     getLabels,
     getLabelbyID,
     createLabel,
+    markAsIgnore,
+    markAsScanned,
   };
 };
