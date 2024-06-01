@@ -106,12 +106,6 @@ export const columns: ColumnDef<Email>[] = [
         >
           Ignore
         </Button>
-        <Button
-          variant="ghost"
-          onClick={async () => await markAsScanned(row.original.id)}
-        >
-          Scanned
-        </Button>
       </>
     ),
   },

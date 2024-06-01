@@ -54,7 +54,7 @@ const getInvoices = async () => {
 const supabase = createClient();
 
 const Unprocessed = () => {
-  const { getEmails } = useGmail();
+  const { getEmails, markAsScanned } = useGmail();
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [invoices, setInvoices] = useState<InvoiceObject[]>([]);
   const [emails, setEmails] = useState<Email[]>([]);
@@ -66,8 +66,7 @@ const Unprocessed = () => {
   }
 
   async function fetchEmails() {
-    const response = await getEmails(setEmails);
-    console.log(response);
+    await getEmails(setEmails);
   }
 
   useEffect(() => {
@@ -109,6 +108,8 @@ const Unprocessed = () => {
         });
 
         await Promise.all(scanAllFilePromises);
+
+        await markAsScanned(email.id);
 
         setTimeout(() => {
           window.location.reload();

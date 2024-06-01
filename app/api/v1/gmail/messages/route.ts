@@ -14,6 +14,7 @@ export type Email = {
   date: string;
   from: string;
   attachments: PDFData[];
+  labelIds: string[];
 };
 
 export interface PDFData {
@@ -42,6 +43,13 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
 
     const emailsFetched = await getMailIds(String(googleMailToken));
 
+    if (!emailsFetched) {
+      // No emails found — so cannot iterate over them
+      return new NextResponse(JSON.stringify([]), {
+        status: StatusCodes.OK,
+      });
+    }
+
     const emails: Email[] = [];
     for (const email of emailsFetched) {
       const newEmail = await getPDFAndSubject(
@@ -64,7 +72,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
 
 const getMailIds = async (token: string) => {
   const url =
-    "https://gmail.googleapis.com/gmail/v1/users/me/messages?q=has:attachment";
+    "https://gmail.googleapis.com/gmail/v1/users/me/messages?q=has:attachment AND NOT in:WORKMAN SCANNED AND NOT in:WORKMAN IGNORE";
   const response = await fetch(url, {
     headers: {
       Authorization: `Bearer ${token}`,
@@ -78,8 +86,12 @@ const getMailIds = async (token: string) => {
     );
   }
 
+  if (response.status === 204) {
+    return;
+  }
+
   const data: {
-    messages: { id: string; threadId: string }[];
+    messages: { id: string; threadId: string; labelIds: string[] }[];
     resultSizeEstimate: number;
   } = await response.json();
 
@@ -110,7 +122,14 @@ const getPDFAndSubject = async (
   const { subject, date, from } = parseEmailHeaders(data.payload.headers);
   const attachments = await getPdfAttachmentData(data.payload.parts, token);
 
-  return { id: emailId, subject, date, from, attachments };
+  return {
+    id: emailId,
+    subject,
+    date,
+    from,
+    attachments,
+    labelIds: data.labelIds,
+  };
 };
 
 const parseEmailHeaders = (

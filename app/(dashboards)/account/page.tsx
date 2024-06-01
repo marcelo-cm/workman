@@ -37,17 +37,17 @@ const Account = () => {
     const labels = await getLabels();
 
     const workmanLabelExists = labels.find(
-      (label: Label_Basic) => label.name === "WORKMAN_SCANNED",
+      (label: Label_Basic) => label.name === "WORKMAN SCANNED",
     );
 
     const ignoreLabelExists = labels.find(
-      (label: Label_Basic) => label.name === "WORKMAN_IGNORE",
+      (label: Label_Basic) => label.name === "WORKMAN IGNORE",
     );
     // @todo search for the ignore label, create it if not there, and update the user configs with the new label if successful
 
     if (!workmanLabelExists) {
       const WORKMAN_SCANNED_LABEL: Omit<Label_Basic, "id"> = {
-        name: "WORKMAN_SCANNED",
+        name: "WORKMAN SCANNED",
         messageListVisibility: "show",
         labelListVisibility: "labelShow",
         type: "user",
@@ -65,7 +65,7 @@ const Account = () => {
 
     if (!ignoreLabelExists) {
       const WORKMAN_IGNORE_LABEL: Omit<Label_Basic, "id"> = {
-        name: "WORKMAN_IGNORE",
+        name: "WORKMAN IGNORE",
         messageListVisibility: "show",
         labelListVisibility: "labelShow",
         type: "user",

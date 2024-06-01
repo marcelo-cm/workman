@@ -32,8 +32,6 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       removeLabelIds,
     };
 
-    console.log(body);
-
     const response = await fetch(url, {
       method: "POST",
       headers: {
