@@ -15,7 +15,7 @@ import { useVendor } from "@/lib/hooks/quickbooks/useVendor";
 import { useUser } from "@/lib/hooks/supabase/useUser";
 import { handleGoogleMailIntegration } from "@/utils/nango/google";
 import { handleQuickBooksIntegration } from "@/utils/nango/quickbooks";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 const Account = () => {
   const { getVendorList } = useVendor();
