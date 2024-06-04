@@ -31,17 +31,13 @@ export const DatePickerWithRange = forwardRef(function DatePickerWithRange(
     to: undefined,
   });
 
-  useImperativeHandle(
-    ref,
-    () => {
-      return {
-        clearDate() {
-          setDate({ from: undefined, to: undefined });
-        },
-      };
-    },
-    [],
-  );
+  useImperativeHandle(ref, () => {
+    return {
+      clearDate() {
+        setDate({ from: undefined, to: undefined });
+      },
+    };
+  }, []);
 
   useEffect(() => {
     if (!date?.from || !onDateChange) return;

@@ -27,7 +27,8 @@ export async function getGoogleMailToken() {
   const { data } = await supabase.auth.getUser();
 
   if (!data.user) {
-    throw new Error("User not found");
+    console.error("User not found");
+    return;
   }
 
   const token = await nango.getToken("google-mail", data.user?.id);
@@ -39,7 +40,8 @@ export async function getQuickBooksToken() {
   const { data } = await supabase.auth.getUser();
 
   if (!data.user) {
-    throw new Error("User not found");
+    console.error("User not found");
+    return;
   }
   const token = await nango.getToken("quickbooks", data.user.id);
 

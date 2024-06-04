@@ -14,7 +14,10 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Label_Basic } from "@/interfaces/gmail.interfaces";
 import { getGoogleMailToken, getQuickBooksToken } from "@/lib/actions/actions";
+import { useGmail } from "@/lib/hooks/gmail/useGmail";
+import { useUser } from "@/lib/hooks/supabase/useUser";
 import { createClient as createNangoClient } from "@/utils/nango/client";
 import { createClient as createSupabaseClient } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -33,11 +36,14 @@ const signUpSchema = z.object({
 
 const Onboarding = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState({
     gmail: false,
     quickbooks: false,
   });
+  const { getLabels, createLabel } = useGmail();
+  const { updateUser } = useUser();
   const router = useRouter();
   const form = useForm<z.infer<typeof signUpSchema>>({
     resolver: zodResolver(signUpSchema),
@@ -60,6 +66,7 @@ const Onboarding = () => {
   }, []);
 
   async function onSubmit(values: z.infer<typeof signUpSchema>) {
+    setIsLoading(true);
     const { error } = await supabase.auth.signUp(values);
 
     if (error) {
@@ -69,11 +76,65 @@ const Onboarding = () => {
       return;
     }
 
+    await upsertWorkmanLabels();
+
     router.refresh();
   }
 
+  const upsertWorkmanLabels = async () => {
+    const labels = await getLabels();
+
+    const workmanLabelExists = labels.find(
+      (label: Label_Basic) => label.name === "WORKMAN SCANNED",
+    );
+
+    const ignoreLabelExists = labels.find(
+      (label: Label_Basic) => label.name === "WORKMAN IGNORE",
+    );
+    // @todo search for the ignore label, create it if not there, and update the user configs with the new label if successful
+
+    if (!workmanLabelExists) {
+      const WORKMAN_SCANNED_LABEL: Omit<Label_Basic, "id"> = {
+        name: "WORKMAN SCANNED",
+        messageListVisibility: "show",
+        labelListVisibility: "labelShow",
+        type: "user",
+      };
+      const newLabel = await createLabel(WORKMAN_SCANNED_LABEL);
+
+      if (newLabel) {
+        const valuesToUpdate = {
+          scanned_label_id: newLabel.id,
+        };
+
+        await updateUser(valuesToUpdate);
+      }
+    }
+
+    if (!ignoreLabelExists) {
+      const WORKMAN_IGNORE_LABEL: Omit<Label_Basic, "id"> = {
+        name: "WORKMAN IGNORE",
+        messageListVisibility: "show",
+        labelListVisibility: "labelShow",
+        type: "user",
+      };
+      const newLabel = await createLabel(WORKMAN_IGNORE_LABEL);
+
+      if (newLabel) {
+        const valuesToUpdate = {
+          ignore_label_id: newLabel.id,
+        };
+
+        await updateUser(valuesToUpdate);
+      }
+    }
+  };
+
   async function getUser() {
-    const user = supabase.auth.getUser();
+    const user = await supabase.auth.getUser();
+    if (!user.data.user) {
+      return null;
+    }
     return user;
   }
 
@@ -128,7 +189,11 @@ const Onboarding = () => {
                 )}
               />
               <div className="flex w-full justify-end">
-                <Button type="submit" className="ml-auto" disabled={isLoggedIn}>
+                <Button
+                  type="submit"
+                  className="ml-auto"
+                  disabled={isLoggedIn || isLoading}
+                >
                   Sign Up
                 </Button>
                 {errorMessage && (
@@ -149,7 +214,7 @@ const Onboarding = () => {
           <Button
             className="w-fit self-end"
             variant={"secondary"}
-            disabled={!isLoggedIn || isAuthenticated.gmail}
+            disabled={!isLoggedIn || isAuthenticated.gmail || isLoading}
           >
             <Gmail />
             Authenticate Gmail
@@ -164,7 +229,7 @@ const Onboarding = () => {
           <Button
             className="w-fit self-end"
             variant={"secondary"}
-            disabled={!isLoggedIn || isAuthenticated.quickbooks}
+            disabled={!isLoggedIn || isAuthenticated.quickbooks || isLoading}
           >
             <QuickBooks />
             Authenticate QuickBooks
@@ -172,7 +237,9 @@ const Onboarding = () => {
         </div>
       </div>
       <Button
-        disabled={!isAuthenticated.gmail || !isAuthenticated.quickbooks}
+        disabled={
+          !isAuthenticated.gmail || !isAuthenticated.quickbooks || isLoading
+        }
         onClick={() => router.push("/demo")}
       >
         Launch Workman

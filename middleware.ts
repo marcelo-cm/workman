@@ -14,6 +14,8 @@ export async function middleware(request: NextRequest) {
     "/reset-password",
     "/error",
     "/test-page",
+    "/onboarding",
+    "/demo",
   ];
 
   const url = request.nextUrl.clone();
