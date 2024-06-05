@@ -162,7 +162,7 @@ class Invoice {
 
     if (error) {
       toast({
-        title: `Failed to updating or scanning ${fileUrl.split("/")[8].split(".pdf")[0]}`,
+        title: `Failed to updating or scanning ${decodeURI(fileUrl.split("/")[8].split(".pdf")[0])}`,
         description: "Please scan this document again unprocessed",
         variant: "destructive",
       });

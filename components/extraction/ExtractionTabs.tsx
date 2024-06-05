@@ -15,12 +15,19 @@ import Invoice from "@/classes/Invoice";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   BookmarkIcon,
+  ChevronRightIcon,
   PlusIcon,
   ResetIcon,
   TrashIcon,
 } from "@radix-ui/react-icons";
 import { Scan } from "lucide-react";
-import React, { SetStateAction, useEffect } from "react";
+import React, {
+  SetStateAction,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 import ExtractionFormComponent from "./ExtractionFormComponent";
@@ -72,6 +79,8 @@ const ExtractionTabs = ({
   handleSetActiveIndex: (index: 1 | -1) => void;
   setActiveIndex: React.Dispatch<SetStateAction<number>>;
 }) => {
+  const [approvedFiles, setApprovedFiles] = useState<InvoiceObject[]>([]);
+  const uploadToQuickBooksTabRef = useRef<HTMLButtonElement>(null);
   const file = files[activeIndex];
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -108,6 +117,21 @@ const ExtractionTabs = ({
     control: form.control,
     name: "totalTax",
   });
+
+  useEffect(() => {
+    console.log(
+      approvedFiles.length,
+      files.length,
+      approvedFiles,
+      uploadToQuickBooksTabRef,
+    );
+    if (
+      approvedFiles.length === files.length &&
+      uploadToQuickBooksTabRef.current
+    ) {
+      uploadToQuickBooksTabRef.current.focus();
+    }
+  }, [approvedFiles]);
 
   useEffect(() => {
     mapDataToForm(file?.data);
@@ -170,6 +194,12 @@ const ExtractionTabs = ({
   };
 
   const handleUpdateInvoiceData = async (file: InvoiceObject) => {
+    if (!approvedFiles.includes(file)) {
+      setApprovedFiles([...approvedFiles, file]);
+    }
+
+    if (!form.formState.isDirty) return;
+
     const data: InvoiceData = form.getValues();
     files[activeIndex].data = data;
     await Invoice.update(file.fileUrl, data);
@@ -189,6 +219,7 @@ const ExtractionTabs = ({
           value="2"
           className="flex h-10 w-1/2 grow justify-start border-b data-[state=active]:border-wm-orange data-[state=active]:text-wm-orange"
           disabled={form.formState.isDirty}
+          ref={uploadToQuickBooksTabRef}
         >
           2. Upload to Quickbooks {form.formState.isDirty && "(Save Changes)"}
         </TabsTrigger>
@@ -428,7 +459,6 @@ const ExtractionTabs = ({
                 handleUpdateInvoiceData(file);
                 handleSetActiveIndex(1);
               }}
-              disabled={!form.formState.isDirty}
             >
               <BookmarkIcon /> Approve & Save
             </Button>
@@ -440,6 +470,13 @@ const ExtractionTabs = ({
                 <ResetIcon /> Discard Changes
               </Button>
             ) : null}
+            <TabsList className="ml-auto">
+              <TabsTrigger asChild value="2">
+                <Button disabled={form.formState.isDirty} variant={"outline"}>
+                  Ready for Upload <ChevronRightIcon />
+                </Button>
+              </TabsTrigger>
+            </TabsList>
           </div>
         </TabsContent>
         <TabsContent value="2">

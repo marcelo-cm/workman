@@ -5,7 +5,17 @@ import { Document, Page, pdfjs } from "react-pdf";
 pdfjs.GlobalWorkerOptions.workerSrc =
   "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.js";
 
-const PDFViewer = ({ fileUrl }: { fileUrl: string }) => {
+const PDFViewer = ({
+  fileUrl,
+  width = 550,
+}: {
+  fileUrl: string;
+  width?: number;
+}) => {
+  if (width && width <= 100) {
+    throw new Error("Width must be greater than 100px");
+  }
+
   const [numPages, setNumPages] = useState<number>(0);
 
   function onDocumentLoadSuccess(document: any): void {
@@ -18,7 +28,9 @@ const PDFViewer = ({ fileUrl }: { fileUrl: string }) => {
       file={fileUrl}
       onLoadSuccess={onDocumentLoadSuccess}
       loading={
-        <div className="flex w-[575px] min-w-[575px] animate-pulse items-center self-center">
+        <div
+          className={`flex w-[${width}] min-w-[${width}] animate-pulse items-center self-center`}
+        >
           Loading PDF <Loader2Icon className="ml-2 h-4 w-4 animate-spin" />
         </div>
       }
@@ -30,7 +42,7 @@ const PDFViewer = ({ fileUrl }: { fileUrl: string }) => {
           pageNumber={index + 1}
           renderTextLayer={false}
           renderAnnotationLayer={false}
-          width={575}
+          width={width}
           className="w-fit border border-wm-white-200 "
         >
           <div className="absolute left-1 top-1 rounded-sm border border-wm-white-200 bg-white p-1 text-xs leading-none text-wm-orange">
