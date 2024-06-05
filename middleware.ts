@@ -7,22 +7,9 @@ export async function middleware(request: NextRequest) {
   const supabase = createClient();
   const { data }: UserResponse = await supabase.auth.getUser();
 
-  const nonAuthPaths = [
-    "/sign-in",
-    "/sign-up",
-    "/forgot-password",
-    "/reset-password",
-    "/error",
-    "/test-page",
-    "/onboarding",
-    "/demo",
-  ];
-
-  const url = request.nextUrl.clone();
-  const validPath = nonAuthPaths.includes(url.pathname);
-
-  if (!data.user && !validPath) {
-    url.pathname = "/sign-in";
+  if (!data.user) {
+    const url = new URL(request.url);
+    url.pathname = "/auth/sign-in";
     return NextResponse.redirect(url);
   }
 
@@ -38,6 +25,8 @@ export const config = {
      * - favicon.ico (favicon file)
      * Feel free to modify this pattern to include more paths.
      */
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/account(/.*)?",
+    "/completed(/.*)?",
+    "/for-approval(/.*)?",
   ],
 };

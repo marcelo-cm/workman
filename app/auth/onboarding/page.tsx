@@ -148,7 +148,7 @@ const Onboarding = () => {
   }
 
   return (
-    <div className="w-dvh flex h-dvh flex-col items-center justify-center gap-8 p-4">
+    <div className="w-dvh flex min-h-dvh flex-col items-center justify-center gap-8 px-4 py-12">
       <WorkmanLogo variant="COMBO" className="w-96" />
       <h3 className="text-lg ">
         Welcome to the Workman Pilot Program. We're so happy you're here.
