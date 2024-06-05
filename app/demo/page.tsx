@@ -17,12 +17,12 @@ const Demo = () => {
   }, [demoRef.current]);
 
   return (
-    <div className="w-dvh flex min-h-dvh flex-col items-center justify-center gap-8 px-4 py-12">
-      <WorkmanLogo variant="COMBO" className="w-96" />
-      <h3 className="text-lg ">
+    <div className="w-dvh flex min-h-dvh flex-col items-center justify-center gap-8 px-4 py-12 text-center">
+      <WorkmanLogo variant="COMBO" className="w-64 lg:w-96" />
+      <h3 className="text-lg">
         Welcome to the Workman Pilot Program. We're so happy you're here.
       </h3>
-      <div className="flex w-2/3 max-w-[900px] flex-col gap-4 rounded-md border p-4">
+      <div className="flex max-w-[900px] flex-col gap-4 rounded-md border p-2 md:w-2/3 md:p-4">
         <video
           src="WorkmanDemoJun1.mp4"
           className="w-full rounded-sm border"

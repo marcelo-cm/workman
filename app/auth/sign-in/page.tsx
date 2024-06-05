@@ -65,8 +65,8 @@ const SignIn = () => {
   }
 
   return (
-    <div className="flex h-dvh flex-col items-center justify-center gap-8 p-4">
-      <WorkmanLogo variant="COMBO" className="w-96" />
+    <div className="flex h-dvh flex-col items-center justify-center gap-8 p-4 text-center">
+      <WorkmanLogo variant="COMBO" className="w-64 lg:w-96" />
       <h3 className="text-lg ">
         Welcome to the Workman Pilot Program. We're so happy you're here.
       </h3>

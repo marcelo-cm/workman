@@ -9,9 +9,9 @@ import Image from "next/image";
 
 export default function Home() {
   return (
-    <div className="flex min-h-dvh w-full flex-col items-center">
+    <div className="flex min-h-dvh w-full flex-col items-center text-center">
       <nav className="sticky top-0 z-50 flex h-16 w-full justify-center border border-b bg-white">
-        <div className="flex w-full max-w-[1100px] items-center justify-between">
+        <div className="flex w-full max-w-[1100px] items-center justify-between px-4 md:p-0">
           <WorkmanLogo className="w-16" />
           <div className="flex items-center gap-4">
             <a href="https://www.linkedin.com/company/workmanai/">
@@ -31,9 +31,9 @@ export default function Home() {
           </div>
         </div>
       </nav>
-      <div className="flex w-full max-w-[1100px] flex-col items-center gap-8 px-4 py-16">
+      <div className="flex w-full max-w-[1100px] flex-col items-center gap-8 px-4 py-16 ">
         <div className="flex flex-col items-center gap-8">
-          <WorkmanLogo variant="COMBO" className="w-96" />
+          <WorkmanLogo variant="COMBO" className="w-64 lg:w-96" />
           <h1 className="text-2xl">
             Automated manual data entry from invoices into existing bookkeeping
             software
@@ -65,7 +65,7 @@ export default function Home() {
           height={450}
           className="h-auto w-full max-w-[1100px] rotate-[1deg] rounded-md border shadow-md"
         />
-        <div className="flex flex-row gap-4">
+        <div className="flex flex-col gap-4 lg:flex-row">
           <div className="flex items-center gap-2 rounded-md border p-2 pr-4 font-medium">
             <Button size={"icon"} className="rounded-full">
               1
@@ -85,7 +85,7 @@ export default function Home() {
             Approve and send to Quickbooks
           </div>
         </div>
-        <div className="rounded-md border p-4 ">
+        <div className="rounded-md border p-2 md:p-4 ">
           <video
             src="WorkmanDemoJun1.mp4"
             className="w-full max-w-[900px] rounded-sm border"
