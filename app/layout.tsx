@@ -48,6 +48,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <link rel="icon" type="image/jpg" sizes="32x32" href="/favicon.ico" />
       <body className={`${inter.className} h-dvh min-h-screen bg-white`}>
         {children}
         <Toaster />
