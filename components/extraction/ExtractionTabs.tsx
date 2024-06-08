@@ -1,3 +1,4 @@
+import Invoice from "@/classes/Invoice";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -11,7 +12,6 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/text-area";
 import { InvoiceData, InvoiceObject } from "@/interfaces/common.interfaces";
-import Invoice from "@/classes/Invoice";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   BookmarkIcon,
@@ -21,21 +21,21 @@ import {
   TrashIcon,
 } from "@radix-ui/react-icons";
 import { Scan } from "lucide-react";
-import React, {
-  SetStateAction,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { SetStateAction, useEffect, useRef, useState } from "react";
 import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 import ExtractionFormComponent from "./ExtractionFormComponent";
 import UploadToQuickBooks from "./UploadToQuickBooks";
 
 const formSchema = z.object({
-  date: z.string().min(1, "Date is required"),
-  dueDate: z.string().min(1, "Due date is required"),
+  date: z
+    .string()
+    .min(1, "Date is required")
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format (YYYY-MM-DD)"),
+  dueDate: z
+    .string()
+    .min(1, "Due date is required")
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format (YYYY-MM-DD)"),
   invoiceNumber: z.string().min(1, "Invoice number is required"),
   supplierName: z.string().min(1, "Supplier name is required"),
   supplierAddress: z.string().min(1, "Supplier address is required"),
@@ -58,8 +58,8 @@ const formSchema = z.object({
         productCode: z.string().min(1, "Product code is required"),
         quantity: z.number().min(0, "Quantity should be a positive number"),
         totalAmount: z
-          .number()
-          .min(0, "Total amount should be a positive number"),
+          .string()
+          .regex(/^\d+(\.\d+)?$/, "Number must be positive and decimal"),
         unitPrice: z.number().min(0, "Unit price should be a positive number"),
         pageId: z.number().min(0, "Page ID should be a positive number"),
       }),
@@ -119,12 +119,6 @@ const ExtractionTabs = ({
   });
 
   useEffect(() => {
-    console.log(
-      approvedFiles.length,
-      files.length,
-      approvedFiles,
-      uploadToQuickBooksTabRef,
-    );
     if (
       approvedFiles.length === files.length &&
       uploadToQuickBooksTabRef.current
@@ -139,20 +133,18 @@ const ExtractionTabs = ({
 
   useEffect(() => {
     const totalAmount = watchLineItems.reduce(
-      (acc, item) => acc + item.totalAmount,
+      (acc, item) => acc + Number(item.totalAmount),
       0,
     );
+
+    const totalNet = totalAmount + (form?.getValues("totalTax") || 0);
 
     form.setValue("totalAmount", totalAmount, {
       shouldValidate: true,
       shouldDirty: true,
     });
-    const totalNet = totalAmount + (form?.getValues("totalTax") || 0);
-    form.setValue("totalNet", totalNet, {
-      shouldValidate: true,
-      shouldDirty: true,
-    });
-  }, [watchLineItems, watchTotalTax, form]);
+    form.setValue("totalNet", totalNet);
+  }, [watchLineItems, watchTotalTax]);
 
   const addLineItem = () => {
     append({
@@ -206,6 +198,10 @@ const ExtractionTabs = ({
     mapDataToForm(data);
   };
 
+  const discardChanges = (file: InvoiceObject) => {
+    mapDataToForm(file.data);
+  };
+
   return (
     <Tabs defaultValue="1" className="relative flex h-full w-full flex-col">
       <TabsList className="sticky top-0 flex h-fit w-full rounded-none bg-white">
@@ -231,7 +227,7 @@ const ExtractionTabs = ({
               <div className="text-xs">
                 <div>
                   <p className="mr-2 inline font-medium">Sub-Total:</p> $
-                  {form.getValues("totalAmount")?.toFixed(2) || 0}
+                  {Number(form.getValues("totalAmount"))?.toFixed(2) || 0}
                 </div>
                 <FormField
                   control={form.control}
@@ -239,7 +235,7 @@ const ExtractionTabs = ({
                   render={({ field }) => (
                     <FormItem>
                       <div className="flex gap-2">
-                        <p className="w-12 break-keep">Tax: $</p>
+                        <p className="w-12 break-keep font-medium">Tax: $</p>
                         <Input
                           type="number"
                           {...form.register("totalTax", {
@@ -247,7 +243,7 @@ const ExtractionTabs = ({
                             onChange: (e) =>
                               form.setValue(
                                 "totalTax",
-                                parseFloat(e.target.value) || 0,
+                                parseFloat(e.target.value),
                                 { shouldValidate: true, shouldDirty: true },
                               ),
                           })}
@@ -260,7 +256,7 @@ const ExtractionTabs = ({
                   )}
                 />
                 <p className="text-2xl">
-                  Total: ${form.getValues("totalNet")?.toFixed(2) || 0}
+                  Total: ${Number(form.getValues("totalNet"))?.toFixed(2) || 0}
                 </p>
               </div>
               <ExtractionFormComponent
@@ -288,7 +284,10 @@ const ExtractionTabs = ({
                     <FormItem>
                       <FormLabel>Invoice #</FormLabel>
                       <FormControl>
-                        <Input placeholder="Workman Concrete" {...field} />
+                        <Input
+                          placeholder="Workman Construction Group"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -301,7 +300,18 @@ const ExtractionTabs = ({
                     <FormItem>
                       <FormLabel>Date Due</FormLabel>
                       <FormControl>
-                        <Input placeholder="Workman Concrete" {...field} />
+                        <Input
+                          placeholder="2024-04-25"
+                          {...field}
+                          {...form.register(field.name, {
+                            onChange(event) {
+                              form.setValue(field.name, event.target.value, {
+                                shouldValidate: true,
+                                shouldDirty: true,
+                              });
+                            },
+                          })}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -314,7 +324,18 @@ const ExtractionTabs = ({
                     <FormItem>
                       <FormLabel>Date Issued</FormLabel>
                       <FormControl>
-                        <Input placeholder="Workman Concrete" {...field} />
+                        <Input
+                          placeholder="2024-05-10"
+                          {...field}
+                          {...form.register(field.name, {
+                            onChange(event) {
+                              form.setValue(field.name, event.target.value, {
+                                shouldValidate: true,
+                                shouldDirty: true,
+                              });
+                            },
+                          })}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -327,7 +348,18 @@ const ExtractionTabs = ({
                     <FormItem>
                       <FormLabel>Customer/Project</FormLabel>
                       <FormControl>
-                        <Input placeholder="123 Cedergate Court" {...field} />
+                        <Input
+                          placeholder="123 Cedergate Court"
+                          {...field}
+                          {...form.register(field.name, {
+                            onChange(event) {
+                              form.setValue(field.name, event.target.value, {
+                                shouldValidate: true,
+                                shouldDirty: true,
+                              });
+                            },
+                          })}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -349,8 +381,20 @@ const ExtractionTabs = ({
                             <FormLabel>Description</FormLabel>
                             <FormControl>
                               <Input
-                                placeholder="Workman Concrete"
+                                placeholder="CONCRETE"
                                 {...field}
+                                {...form.register(field.name, {
+                                  onChange(event) {
+                                    form.setValue(
+                                      field.name,
+                                      event.target.value,
+                                      {
+                                        shouldValidate: true,
+                                        shouldDirty: true,
+                                      },
+                                    );
+                                  },
+                                })}
                               />
                             </FormControl>
                             <FormMessage />
@@ -365,12 +409,20 @@ const ExtractionTabs = ({
                             <FormLabel>Balance ($)</FormLabel>
                             <FormControl>
                               <Input
-                                type="number"
-                                placeholder="Workman Concrete"
+                                placeholder="$100.45"
                                 {...field}
-                                onChange={(e) =>
-                                  field.onChange(Number(e.target.value))
-                                }
+                                {...form.register(field.name, {
+                                  onChange(event) {
+                                    form.setValue(
+                                      field.name,
+                                      event.target.value,
+                                      {
+                                        shouldValidate: true,
+                                        shouldDirty: true,
+                                      },
+                                    );
+                                  },
+                                })}
                               />
                             </FormControl>
                             <FormMessage />
@@ -384,17 +436,14 @@ const ExtractionTabs = ({
                           <FormItem>
                             <FormLabel>Code</FormLabel>
                             <FormControl>
-                              <Input
-                                placeholder="Workman Concrete"
-                                {...field}
-                              />
+                              <Input placeholder="CONC-001" {...field} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
                         )}
                       />
                       <div className="flex items-center justify-end gap-4 self-end text-xs">
-                        {/* Confidence: {Number(lineItem.confidence) * 100}% */}
+                        Confidence: {Number(lineItem?.confidence) * 100}%
                         <Button
                           type="button"
                           onClick={() => remove(index)}
@@ -455,6 +504,7 @@ const ExtractionTabs = ({
               Re-Scan
             </Button>
             <Button
+              disabled={!form.formState.isValid}
               onClick={() => {
                 handleUpdateInvoiceData(file);
                 handleSetActiveIndex(1);
@@ -463,10 +513,7 @@ const ExtractionTabs = ({
               <BookmarkIcon /> Approve & Save
             </Button>
             {form.formState.isDirty ? (
-              <Button
-                onClick={() => mapDataToForm(file?.data)}
-                variant={"outline"}
-              >
+              <Button onClick={() => discardChanges(file)} variant={"outline"}>
                 <ResetIcon /> Discard Changes
               </Button>
             ) : null}

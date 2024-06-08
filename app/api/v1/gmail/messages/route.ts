@@ -98,8 +98,6 @@ const getMailIds = async (token: string) => {
     resultSizeEstimate: number;
   } = await response.json();
 
-  console.log(data, "data");
-
   return data.messages;
 };
 
@@ -159,7 +157,6 @@ const getPdfAttachmentData = async (
       return;
     }
     for (const part of parts) {
-      console.log(parts, "parts");
       if (part.mimeType === "application/pdf" && part.body?.attachmentId) {
         const url = `https://gmail.googleapis.com/gmail/v1/users/me/messages/{messageId}/attachments/${part.body.attachmentId}`;
         const response = await fetch(url, {

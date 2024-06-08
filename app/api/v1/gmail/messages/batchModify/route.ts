@@ -9,7 +9,6 @@ const nango = new Nango({
 export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
     const { userId, emailIds, addLabelIds, removeLabelIds } = await req.json();
-    console.log(userId, emailIds, addLabelIds, removeLabelIds);
 
     if (!userId) {
       return new NextResponse(JSON.stringify("User ID is required"), {
@@ -46,8 +45,6 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         `Failed to fetch emails: ${response.status} ${response.statusText}`,
       );
     }
-
-    console.log(response, "response");
 
     return new NextResponse(JSON.stringify(response), {
       status: StatusCodes.OK,

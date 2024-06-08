@@ -53,6 +53,7 @@ const UploadToQuickBooks = ({
   const { getVendorList } = useVendor();
   const { getCustomerList } = useCustomer();
   const { getAccountList } = useAccount();
+  const [uploadedFileIndexes, setUploadedFileIndexes] = useState<number[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [vendors, setVendors] = useState<Vendor[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
@@ -79,6 +80,7 @@ const UploadToQuickBooks = ({
   async function uploadToQuickBooks(fileIndex: number) {
     setIsLoading(true);
     await Invoice.uploadToQuickbooks(transformedFiles[fileIndex]);
+    setUploadedFileIndexes([...uploadedFileIndexes, fileIndex]);
     setIsLoading(false);
   }
 
@@ -153,10 +155,6 @@ const UploadToQuickBooks = ({
     updatedFiles[fileIndex].data.lineItems[lineItemIndex].accountId = value.Id;
     setTransformedFiles(updatedFiles);
   };
-
-  useEffect(() => {
-    console.log(transformedFiles);
-  }, [transformedFiles]);
 
   return (
     <>
@@ -266,7 +264,6 @@ const UploadToQuickBooks = ({
                       <TableCell colSpan={4}>
                         <Button
                           onClick={() => {
-                            console.log(fileIndex);
                             setActiveIndex(fileIndex);
                           }}
                           variant={"outline"}
@@ -280,7 +277,9 @@ const UploadToQuickBooks = ({
                       >
                         <Button
                           onClick={() => uploadToQuickBooks(fileIndex)}
-                          disabled={isLoading}
+                          disabled={
+                            isLoading || uploadedFileIndexes.includes(fileIndex)
+                          }
                           variant={"secondary"}
                         >
                           {isLoading ? (

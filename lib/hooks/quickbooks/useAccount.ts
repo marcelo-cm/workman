@@ -45,7 +45,6 @@ export const useAccount = () => {
       }
 
       const responseData = await response.json();
-      console.log(responseData);
       const customers = responseData.QueryResponse.Account.filter(
         (account: any) => account.Name,
       );

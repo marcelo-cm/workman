@@ -177,13 +177,10 @@ class Invoice {
   }
 
   static async scanAndUpdate(fileUrl: string) {
-    console.log("Scanning and updating", fileUrl);
     const apiResponse = await mindeeScan(fileUrl);
     const parsedResponse = JSON.parse(apiResponse);
     const parsedData = await Invoice.parse(parsedResponse);
-    console.log("Parsed data", parsedData);
     const updatedData = await Invoice.update(fileUrl, parsedData);
-    console.log("Updated data", updatedData);
     return parsedData;
   }
 

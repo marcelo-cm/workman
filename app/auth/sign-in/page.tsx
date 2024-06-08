@@ -24,7 +24,7 @@ const supabase = createClient();
 
 const formSchema = z.object({
   email: z.string().email(),
-  password: z.string().min(6),
+  current_password: z.string().min(6),
 });
 
 const SignIn = () => {
@@ -35,7 +35,7 @@ const SignIn = () => {
     resolver: zodResolver(formSchema),
     defaultValues: {
       email: "",
-      password: "",
+      current_password: "",
     },
     criteriaMode: "all",
   });
@@ -56,17 +56,12 @@ const SignIn = () => {
     setIsLoading(true);
     setErrorMessage(null);
 
-    const { error } = await supabase.auth.signInWithPassword(values);
+    const { error } = await supabase.auth.signInWithPassword({
+      email: values.email,
+      password: values.current_password,
+    });
 
     if (error) {
-      console.log(
-        error.code,
-        error.message,
-        error.status,
-        error.cause,
-        error.stack,
-        error.name,
-      );
       setErrorMessage(
         `[${error.status} ${error.message}] Please try again or contact support.`,
       );
@@ -104,7 +99,7 @@ const SignIn = () => {
             />
             <FormField
               control={form.control}
-              name="password"
+              name="current_password"
               render={({ field }) => (
                 <FormItem className="mb-4 flex w-full items-center gap-4">
                   <FormLabel className="w-[90px]">Password</FormLabel>

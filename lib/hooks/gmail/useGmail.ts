@@ -280,8 +280,6 @@ export const useGmail = () => {
         });
       }
 
-      console.log(response, "response");
-
       toast({
         title: "Email marked as scanned",
       });
