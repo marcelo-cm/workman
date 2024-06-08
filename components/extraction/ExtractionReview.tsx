@@ -13,6 +13,8 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { InvoiceObject } from "@/interfaces/common.interfaces";
@@ -24,6 +26,7 @@ import {
 import { useState } from "react";
 import { Badge } from "../ui/badge";
 import ExtractionTabs from "./ExtractionTabs";
+import { Separator } from "@radix-ui/react-dropdown-menu";
 
 const ExtractionReview = ({ files }: { files: InvoiceObject[] }) => {
   const [activeIndex, setActiveIndex] = useState(0);
@@ -58,6 +61,8 @@ const ExtractionReview = ({ files }: { files: InvoiceObject[] }) => {
                   <CaretDownIcon />
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="bg-white">
+                  <DropdownMenuLabel>Queue ({files.length})</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
                   {files.map((file, index) => (
                     <DropdownMenuItem
                       key={index}
