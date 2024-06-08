@@ -115,7 +115,7 @@ const createBillInQuickBooks = async (
 
   const lineItems: LineItem[] = file.data.lineItems.map((item) => ({
     DetailType: "AccountBasedExpenseLineDetail",
-    Amount: item.totalAmount,
+    Amount: parseFloat(item.totalAmount),
     AccountBasedExpenseLineDetail: {
       AccountRef: {
         value: item.accountId, // 63 is hardcoded for, Job Expenses:Job Materials

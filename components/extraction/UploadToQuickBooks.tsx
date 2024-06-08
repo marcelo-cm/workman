@@ -217,7 +217,7 @@ const UploadToQuickBooks = ({
                         <TableCell>
                           <ComboBox
                             options={accounts}
-                            valueToMatch={"Cost of Labor"}
+                            valueToMatch={lineItem.productCode || "General"}
                             callBackFunction={(value) =>
                               handleAccountSelect(
                                 value,
@@ -227,10 +227,13 @@ const UploadToQuickBooks = ({
                             }
                             getOptionLabel={(option) => option?.Name}
                           />
+                          <p className="ml-2 mt-1 text-xs font-medium text-wm-white-500">
+                            Product Code: {lineItem.productCode}
+                          </p>
                         </TableCell>
                         <TableCell>{lineItem.description}</TableCell>
                         <TableCell>
-                          ${lineItem.totalAmount?.toFixed(2)}
+                          ${parseFloat(lineItem.totalAmount)?.toFixed(2)}
                         </TableCell>
                         <TableCell>
                           <Checkbox

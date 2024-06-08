@@ -3,10 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next",
+    "dev": "next && prettier --check .",
     "build": "next build",
     "start": "next start",
     "lint": "tsc && prettier --check .",
+    "lint:fix": "tsc && prettier --write .",
     "format": "prettier --write .",
     "analyze": "ANALYZE=true next build",
     "clean": "rm -rf .next/ && next build"

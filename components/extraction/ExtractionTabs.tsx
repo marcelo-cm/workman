@@ -55,7 +55,7 @@ const formSchema = z.object({
       z.object({
         confidence: z.number().min(0, "Confidence should be a positive number"),
         description: z.string().min(1, "Description is required"),
-        productCode: z.string().min(1, "Product code is required"),
+        productCode: z.string().optional(),
         quantity: z.number().min(0, "Quantity should be a positive number"),
         totalAmount: z
           .string()
@@ -152,7 +152,7 @@ const ExtractionTabs = ({
       description: "",
       productCode: "",
       quantity: 0,
-      totalAmount: 0,
+      totalAmount: "",
       unitPrice: 0,
       pageId: 0,
     });
@@ -269,11 +269,24 @@ const ExtractionTabs = ({
                   name="supplierName"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Vendor Name</FormLabel>
+                      <div className="my-1 flex w-full justify-between">
+                        <FormLabel>Vendor Name</FormLabel>
+                        <FormMessage />
+                      </div>
                       <FormControl>
-                        <Input placeholder="Workman Concrete" {...field} />
+                        <Input
+                          placeholder="Workman Concrete"
+                          {...field}
+                          {...form.register(field.name, {
+                            onChange(event) {
+                              form.setValue(field.name, event.target.value, {
+                                shouldValidate: true,
+                                shouldDirty: true,
+                              });
+                            },
+                          })}
+                        />
                       </FormControl>
-                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -282,11 +295,23 @@ const ExtractionTabs = ({
                   name="invoiceNumber"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Invoice #</FormLabel>
+                      <div className="my-1 flex w-full justify-between">
+                        <FormLabel>Invoice #</FormLabel>
+                        <FormMessage />
+                      </div>
+
                       <FormControl>
                         <Input
                           placeholder="Workman Construction Group"
                           {...field}
+                          {...form.register(field.name, {
+                            onChange(event) {
+                              form.setValue(field.name, event.target.value, {
+                                shouldValidate: true,
+                                shouldDirty: true,
+                              });
+                            },
+                          })}
                         />
                       </FormControl>
                       <FormMessage />
@@ -298,7 +323,10 @@ const ExtractionTabs = ({
                   name="dueDate"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Date Due</FormLabel>
+                      <div className="my-1 flex w-full justify-between">
+                        <FormLabel>Date Due</FormLabel>
+                        <FormMessage />
+                      </div>
                       <FormControl>
                         <Input
                           placeholder="2024-04-25"
@@ -313,7 +341,6 @@ const ExtractionTabs = ({
                           })}
                         />
                       </FormControl>
-                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -322,7 +349,10 @@ const ExtractionTabs = ({
                   name="date"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Date Issued</FormLabel>
+                      <div className="my-1 flex w-full justify-between">
+                        <FormLabel>Date Issued</FormLabel>
+                        <FormMessage />
+                      </div>
                       <FormControl>
                         <Input
                           placeholder="2024-05-10"
@@ -337,7 +367,6 @@ const ExtractionTabs = ({
                           })}
                         />
                       </FormControl>
-                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -346,7 +375,10 @@ const ExtractionTabs = ({
                   name="customerAddress"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Customer/Project</FormLabel>
+                      <div className="my-1 flex w-full justify-between">
+                        <FormLabel>Customer/Project</FormLabel>
+                        <FormMessage />
+                      </div>
                       <FormControl>
                         <Input
                           placeholder="123 Cedergate Court"
@@ -361,7 +393,6 @@ const ExtractionTabs = ({
                           })}
                         />
                       </FormControl>
-                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -370,7 +401,7 @@ const ExtractionTabs = ({
                 {(fields.length &&
                   fields.map((lineItem, index) => (
                     <div
-                      className="grid grid-cols-2 gap-3 border-b p-4 pt-2 last:border-0"
+                      className="grid grid-cols-2 gap-3 border-b p-4 pt-2 first:pt-0 last:border-0"
                       key={lineItem.id}
                     >
                       <FormField
@@ -378,7 +409,10 @@ const ExtractionTabs = ({
                         name={`lineItems.${index}.description`}
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Description</FormLabel>
+                            <div className="my-1 flex w-full justify-between">
+                              <FormLabel>Description</FormLabel>
+                              <FormMessage />
+                            </div>
                             <FormControl>
                               <Input
                                 placeholder="CONCRETE"
@@ -397,7 +431,6 @@ const ExtractionTabs = ({
                                 })}
                               />
                             </FormControl>
-                            <FormMessage />
                           </FormItem>
                         )}
                       />
@@ -406,7 +439,10 @@ const ExtractionTabs = ({
                         name={`lineItems.${index}.totalAmount`}
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Balance ($)</FormLabel>
+                            <div className="my-1 flex w-full justify-between">
+                              <FormLabel>Balance ($)</FormLabel>
+                              <FormMessage />
+                            </div>
                             <FormControl>
                               <Input
                                 placeholder="$100.45"
@@ -425,7 +461,6 @@ const ExtractionTabs = ({
                                 })}
                               />
                             </FormControl>
-                            <FormMessage />
                           </FormItem>
                         )}
                       />
@@ -434,11 +469,27 @@ const ExtractionTabs = ({
                         name={`lineItems.${index}.productCode`}
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Code</FormLabel>
+                            <div className="mb-1 flex w-full justify-between">
+                              <FormLabel>Code</FormLabel> <FormMessage />
+                            </div>
                             <FormControl>
-                              <Input placeholder="CONC-001" {...field} />
+                              <Input
+                                placeholder="CONC-001"
+                                {...field}
+                                {...form.register(field.name, {
+                                  onChange(event) {
+                                    form.setValue(
+                                      field.name,
+                                      event.target.value,
+                                      {
+                                        shouldValidate: true,
+                                        shouldDirty: true,
+                                      },
+                                    );
+                                  },
+                                })}
+                              />
                             </FormControl>
-                            <FormMessage />
                           </FormItem>
                         )}
                       />
@@ -504,11 +555,11 @@ const ExtractionTabs = ({
               Re-Scan
             </Button>
             <Button
-              disabled={!form.formState.isValid}
               onClick={() => {
                 handleUpdateInvoiceData(file);
                 handleSetActiveIndex(1);
               }}
+              disabled={Object.keys(form.formState.errors).length !== 0}
             >
               <BookmarkIcon /> Approve & Save
             </Button>

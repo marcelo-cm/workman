@@ -46,9 +46,9 @@ export interface InvoiceData {
 export interface LineItem {
   confidence: number;
   description: string;
-  productCode: string;
+  productCode?: string;
   quantity: number;
-  totalAmount: number;
+  totalAmount: string;
   unitPrice: number;
   pageId: number;
 }
