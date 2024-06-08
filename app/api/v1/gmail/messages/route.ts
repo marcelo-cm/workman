@@ -71,8 +71,11 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
 }
 
 const getMailIds = async (token: string) => {
-  const url =
-    "https://gmail.googleapis.com/gmail/v1/users/me/messages?q=has:attachment AND NOT in:WORKMAN SCANNED AND NOT in:WORKMAN IGNORE";
+  const date = new Date();
+  date.setMonth(date.getMonth() - 6);
+  const after = date.toISOString().split("T")[0].replace(/-/g, "/");
+
+  const url = `https://gmail.googleapis.com/gmail/v1/users/me/messages?q=filename:pdf after:${after} has:attachment filename:pdf smaller:10M label:inbox -label:WORKMAN_SCANNED -label:WORKMAN_IGNORE`;
   const response = await fetch(url, {
     headers: {
       Authorization: `Bearer ${token}`,
@@ -86,7 +89,7 @@ const getMailIds = async (token: string) => {
     );
   }
 
-  if (response.status === 204) {
+  if (response.status === StatusCodes.NO_CONTENT) {
     return;
   }
 
@@ -94,6 +97,8 @@ const getMailIds = async (token: string) => {
     messages: { id: string; threadId: string; labelIds: string[] }[];
     resultSizeEstimate: number;
   } = await response.json();
+
+  console.log(data, "data");
 
   return data.messages;
 };
@@ -150,7 +155,11 @@ const getPdfAttachmentData = async (
   const attachments: PDFData[] = [];
 
   const extractAttachmentData = async (parts: MessagePart[], token: string) => {
+    if (!parts) {
+      return;
+    }
     for (const part of parts) {
+      console.log(parts, "parts");
       if (part.mimeType === "application/pdf" && part.body?.attachmentId) {
         const url = `https://gmail.googleapis.com/gmail/v1/users/me/messages/{messageId}/attachments/${part.body.attachmentId}`;
         const response = await fetch(url, {
@@ -158,6 +167,7 @@ const getPdfAttachmentData = async (
             Authorization: `Bearer ${token}`,
             "Content-Type": "application/json",
           },
+          cache: "no-cache",
         });
 
         if (!response.ok) {

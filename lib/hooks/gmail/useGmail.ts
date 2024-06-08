@@ -72,6 +72,7 @@ export const useGmail = () => {
         headers: {
           "Content-Type": "application/json",
         },
+        cache: "no-cache",
       });
 
       if (!response.ok) {

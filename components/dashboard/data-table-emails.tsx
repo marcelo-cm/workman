@@ -248,8 +248,7 @@ export function DataTable<TData, TValue>({
                 <div className="flex items-center justify-end space-x-2 ">
                   <div className="text-muted-foreground flex-1 items-center text-sm">
                     {table.getFilteredSelectedRowModel().rows.length} of{" "}
-                    {table.getFilteredRowModel().rows.length} invoice(s)
-                    selected.
+                    {table.getFilteredRowModel().rows.length} email(s) selected.
                   </div>
                   <Button
                     variant="outline"

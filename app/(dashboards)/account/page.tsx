@@ -8,7 +8,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
-import { Label, Label_Basic } from "@/interfaces/gmail.interfaces";
+import { Label_Basic } from "@/interfaces/gmail.interfaces";
 import { Vendor } from "@/interfaces/quickbooks.interfaces";
 import { useGmail } from "@/lib/hooks/gmail/useGmail";
 import { useVendor } from "@/lib/hooks/quickbooks/useVendor";
@@ -16,6 +16,8 @@ import { useUser } from "@/lib/hooks/supabase/useUser";
 import { handleGoogleMailIntegration } from "@/utils/nango/google";
 import { handleQuickBooksIntegration } from "@/utils/nango/quickbooks";
 import { useState } from "react";
+import Gmail from "@/components/molecules/Gmail";
+import QuickBooks from "@/components/molecules/QuickBooks";
 
 const Account = () => {
   const { getVendorList } = useVendor();
@@ -37,17 +39,17 @@ const Account = () => {
     const labels = await getLabels();
 
     const workmanLabelExists = labels.find(
-      (label: Label_Basic) => label.name === "WORKMAN SCANNED",
+      (label: Label_Basic) => label.name === "WORKMAN_SCANNED",
     );
 
     const ignoreLabelExists = labels.find(
-      (label: Label_Basic) => label.name === "WORKMAN IGNORE",
+      (label: Label_Basic) => label.name === "WORKMAN_IGNORE",
     );
     // @todo search for the ignore label, create it if not there, and update the user configs with the new label if successful
 
     if (!workmanLabelExists) {
       const WORKMAN_SCANNED_LABEL: Omit<Label_Basic, "id"> = {
-        name: "WORKMAN SCANNED",
+        name: "WORKMAN_SCANNED",
         messageListVisibility: "show",
         labelListVisibility: "labelShow",
         type: "user",
@@ -65,7 +67,7 @@ const Account = () => {
 
     if (!ignoreLabelExists) {
       const WORKMAN_IGNORE_LABEL: Omit<Label_Basic, "id"> = {
-        name: "WORKMAN IGNORE",
+        name: "WORKMAN_IGNORE",
         messageListVisibility: "show",
         labelListVisibility: "labelShow",
         type: "user",
@@ -100,13 +102,13 @@ const Account = () => {
       <div className="flex flex-col gap-2">
         <div className="text-xl">Integrations</div>
         <div className="flex w-fit flex-row items-center justify-between gap-4">
-          Google Mail Integration
+          Google Mail Integration <Gmail />
           <Button onClick={handleGoogleMailIntegration}>
             Connect Google Mail
           </Button>
         </div>
         <div className="flex w-fit flex-row items-center justify-between gap-4">
-          QuickBooks Integration
+          QuickBooks Integration <QuickBooks />
           <Button onClick={handleQuickBooksIntegration}>
             Connect Quickbooks
           </Button>
