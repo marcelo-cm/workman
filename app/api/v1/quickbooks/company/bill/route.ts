@@ -111,7 +111,7 @@ const createBillInQuickBooks = async (
   token: string,
   file: TransformedInvoiceObject,
 ) => {
-  const url = `https://sandbox-quickbooks.api.intuit.com/v3/company/${realmId}/bill`;
+  const url = `https://quickbooks.api.intuit.com/v3/company/${realmId}/bill`;
 
   const lineItems: LineItem[] = file.data.lineItems.map((item) => ({
     DetailType: "AccountBasedExpenseLineDetail",

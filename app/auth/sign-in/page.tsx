@@ -16,9 +16,11 @@ import { createClient } from "@/utils/supabase/client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { EnvelopeClosedIcon } from "@radix-ui/react-icons";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+
+const supabase = createClient();
 
 const formSchema = z.object({
   email: z.string().email(),
@@ -38,11 +40,22 @@ const SignIn = () => {
     criteriaMode: "all",
   });
 
+  useEffect(() => {
+    getUser();
+  }, []);
+
+  async function getUser() {
+    const { data } = await supabase.auth.getUser();
+
+    if (data.user) {
+      router.push("/for-approval");
+    }
+  }
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
     setErrorMessage(null);
 
-    const supabase = createClient();
     const { error } = await supabase.auth.signInWithPassword(values);
 
     if (error) {

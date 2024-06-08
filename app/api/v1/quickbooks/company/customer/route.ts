@@ -59,7 +59,7 @@ const getCustomerList = async (
   columns: string,
   where: string | null,
 ) => {
-  const url = `https://sandbox-quickbooks.api.intuit.com/v3/company/${realmId}/query?query=select ${columns} from Customer ${where ? `where ${where}` : ""}`;
+  const url = `https://quickbooks.api.intuit.com/v3/company/${realmId}/query?query=select ${columns} from Customer ${where ? `where ${where}` : ""}`;
 
   const response = await fetch(url, {
     headers: {
