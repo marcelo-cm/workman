@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import Gmail from "@/components/molecules/Gmail";
-import QuickBooks from "@/components/molecules/QuickBooks";
-import WorkmanLogo from "@/components/molecules/WorkmanLogo";
-import { Button } from "@/components/ui/button";
+import Gmail from '@/components/molecules/Gmail';
+import QuickBooks from '@/components/molecules/QuickBooks';
+import WorkmanLogo from '@/components/molecules/WorkmanLogo';
+import { Button } from '@/components/ui/button';
 import {
   Form,
   FormControl,
@@ -12,19 +12,19 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Label_Basic } from "@/interfaces/gmail.interfaces";
-import { getGoogleMailToken, getQuickBooksToken } from "@/lib/actions/actions";
-import { useGmail } from "@/lib/hooks/gmail/useGmail";
-import { useUser } from "@/lib/hooks/supabase/useUser";
-import { createClient as createNangoClient } from "@/utils/nango/client";
-import { createClient as createSupabaseClient } from "@/utils/supabase/client";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
-import React, { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Label_Basic } from '@/interfaces/gmail.interfaces';
+import { getGoogleMailToken, getQuickBooksToken } from '@/lib/actions/actions';
+import { useGmail } from '@/lib/hooks/gmail/useGmail';
+import { useUser } from '@/lib/hooks/supabase/useUser';
+import { createClient as createNangoClient } from '@/utils/nango/client';
+import { createClient as createSupabaseClient } from '@/utils/supabase/client';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useRouter } from 'next/navigation';
+import React, { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
 
 const supabase = createSupabaseClient();
 const nango = createNangoClient();
@@ -48,8 +48,8 @@ const Onboarding = () => {
   const form = useForm<z.infer<typeof signUpSchema>>({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
-      email: "",
-      password: "",
+      email: '',
+      password: '',
     },
   });
 
@@ -85,20 +85,20 @@ const Onboarding = () => {
     const labels = await getLabels();
 
     const workmanLabelExists = labels.find(
-      (label: Label_Basic) => label.name === "WORKMAN SCANNED",
+      (label: Label_Basic) => label.name === 'WORKMAN SCANNED',
     );
 
     const ignoreLabelExists = labels.find(
-      (label: Label_Basic) => label.name === "WORKMAN IGNORE",
+      (label: Label_Basic) => label.name === 'WORKMAN IGNORE',
     );
     // @todo search for the ignore label, create it if not there, and update the user configs with the new label if successful
 
     if (!workmanLabelExists) {
-      const WORKMAN_SCANNED_LABEL: Omit<Label_Basic, "id"> = {
-        name: "WORKMAN SCANNED",
-        messageListVisibility: "show",
-        labelListVisibility: "labelShow",
-        type: "user",
+      const WORKMAN_SCANNED_LABEL: Omit<Label_Basic, 'id'> = {
+        name: 'WORKMAN SCANNED',
+        messageListVisibility: 'show',
+        labelListVisibility: 'labelShow',
+        type: 'user',
       };
       const newLabel = await createLabel(WORKMAN_SCANNED_LABEL);
 
@@ -112,11 +112,11 @@ const Onboarding = () => {
     }
 
     if (!ignoreLabelExists) {
-      const WORKMAN_IGNORE_LABEL: Omit<Label_Basic, "id"> = {
-        name: "WORKMAN IGNORE",
-        messageListVisibility: "show",
-        labelListVisibility: "labelShow",
-        type: "user",
+      const WORKMAN_IGNORE_LABEL: Omit<Label_Basic, 'id'> = {
+        name: 'WORKMAN IGNORE',
+        messageListVisibility: 'show',
+        labelListVisibility: 'labelShow',
+        type: 'user',
       };
       const newLabel = await createLabel(WORKMAN_IGNORE_LABEL);
 
@@ -213,7 +213,7 @@ const Onboarding = () => {
           </p>
           <Button
             className="w-fit self-end"
-            variant={"secondary"}
+            variant={'secondary'}
             disabled={!isLoggedIn || isAuthenticated.gmail || isLoading}
           >
             <Gmail />
@@ -228,7 +228,7 @@ const Onboarding = () => {
           </p>
           <Button
             className="w-fit self-end"
-            variant={"secondary"}
+            variant={'secondary'}
             disabled={!isLoggedIn || isAuthenticated.quickbooks || isLoading}
           >
             <QuickBooks />
@@ -240,7 +240,7 @@ const Onboarding = () => {
         disabled={
           !isAuthenticated.gmail || !isAuthenticated.quickbooks || isLoading
         }
-        onClick={() => router.push("/demo")}
+        onClick={() => router.push('/demo')}
       >
         Launch Workman
       </Button>

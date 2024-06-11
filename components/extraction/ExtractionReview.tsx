@@ -1,13 +1,13 @@
-"use client";
+'use client';
 
-import PDFViewer from "@/components/dashboard/PDFViewer";
+import PDFViewer from '@/components/dashboards/PDFViewer';
 import {
   BreadcrumbEllipsis,
   BreadcrumbItem,
   BreadcrumbList,
   BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
-import { Button } from "@/components/ui/button";
+} from '@/components/ui/breadcrumb';
+import { Button } from '@/components/ui/button';
 
 import {
   DropdownMenu,
@@ -16,17 +16,17 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { InvoiceObject } from "@/interfaces/common.interfaces";
+} from '@/components/ui/dropdown-menu';
+import { InvoiceObject } from '@/interfaces/common.interfaces';
 import {
   CaretDownIcon,
   CaretLeftIcon,
   CaretRightIcon,
-} from "@radix-ui/react-icons";
-import { useState } from "react";
-import { Badge } from "../ui/badge";
-import ExtractionTabs from "./ExtractionTabs";
-import { Separator } from "@radix-ui/react-dropdown-menu";
+} from '@radix-ui/react-icons';
+import { useState } from 'react';
+import { Badge } from '../ui/badge';
+import ExtractionTabs from './ExtractionTabs';
+import { Separator } from '@radix-ui/react-dropdown-menu';
 
 const ExtractionReview = ({ files }: { files: InvoiceObject[] }) => {
   const [activeIndex, setActiveIndex] = useState(0);
@@ -56,7 +56,7 @@ const ExtractionReview = ({ files }: { files: InvoiceObject[] }) => {
               <DropdownMenu>
                 <DropdownMenuTrigger className="ellipsis flex items-center gap-1 rounded-md px-1 ring-wm-white-200 hover:opacity-50 hover:ring-1">
                   {decodeURI(
-                    files[activeIndex].fileUrl.split("/")[8].split(".pdf")[0],
+                    files[activeIndex].fileUrl.split('/')[8].split('.pdf')[0],
                   )}
                   <CaretDownIcon />
                 </DropdownMenuTrigger>
@@ -69,7 +69,7 @@ const ExtractionReview = ({ files }: { files: InvoiceObject[] }) => {
                       onClick={() => setActiveIndex(index)}
                       className="hover flex cursor-pointer items-center justify-between gap-4 rounded-md hover:bg-wm-white-50"
                     >
-                      {decodeURI(file.fileUrl.split("/")[8].split(".pdf")[0])}
+                      {decodeURI(file.fileUrl.split('/')[8].split('.pdf')[0])}
                       {activeIndex === index ? (
                         <Badge variant="success">Active</Badge>
                       ) : null}

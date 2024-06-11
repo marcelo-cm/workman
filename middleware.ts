@@ -1,7 +1,7 @@
-import { NextResponse, type NextRequest } from "next/server";
-import { updateSession } from "@/utils/supabase/middleware";
-import { createClient } from "@/utils/supabase/server";
-import { UserResponse } from "@supabase/supabase-js";
+import { NextResponse, type NextRequest } from 'next/server';
+import { updateSession } from '@/utils/supabase/middleware';
+import { createClient } from '@/utils/supabase/server';
+import { UserResponse } from '@supabase/supabase-js';
 
 export async function middleware(request: NextRequest) {
   const supabase = createClient();
@@ -9,7 +9,7 @@ export async function middleware(request: NextRequest) {
 
   if (!data.user) {
     const url = new URL(request.url);
-    url.pathname = "/auth/sign-in";
+    url.pathname = '/auth/sign-in';
     return NextResponse.redirect(url);
   }
 
@@ -25,8 +25,8 @@ export const config = {
      * - favicon.ico (favicon file)
      * Feel free to modify this pattern to include more paths.
      */
-    "/account(/.*)?",
-    "/completed(/.*)?",
-    "/for-approval(/.*)?",
+    '/account(/.*)?',
+    '/completed(/.*)?',
+    '/for-approval(/.*)?',
   ],
 };

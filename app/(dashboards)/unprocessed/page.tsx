@@ -1,33 +1,33 @@
-"use client";
+'use client';
 
-import { Email } from "@/app/api/v1/gmail/messages/route";
-import { columns as EmailColumns } from "@/components/dashboard/columns-email";
-import { columns as InvoiceColumns } from "@/components/dashboard/columns-unprocessed";
-import { DataTable as EmailTable } from "@/components/dashboard/data-table-emails";
-import { DataTable as InvoiceTable } from "@/components/dashboard/data-table-invoice";
-import WorkmanLogo from "@/components/molecules/WorkmanLogo";
+import { Email } from '@/app/api/v1/gmail/messages/route';
+import { columns as EmailColumns } from '@/components/data tables/columns-email';
+import { columns as InvoiceColumns } from '@/components/data tables/columns-unprocessed';
+import { DataTable as EmailTable } from '@/components/data tables/data-table-emails';
+import { DataTable as InvoiceTable } from '@/components/data tables/data-table-invoice';
+import WorkmanLogo from '@/components/molecules/WorkmanLogo';
 import {
   AlertDialog,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+} from '@/components/ui/alert-dialog';
 import {
   BreadcrumbItem,
   BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
-import { toast } from "@/components/ui/use-toast";
-import { InvoiceObject } from "@/interfaces/common.interfaces";
-import { useGmail } from "@/lib/hooks/gmail/useGmail";
-import Invoice from "@/classes/Invoice";
-import { createClient } from "@/utils/supabase/client";
-import { MagicWandIcon } from "@radix-ui/react-icons";
-import { decode } from "base64-arraybuffer";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+} from '@/components/ui/breadcrumb';
+import { toast } from '@/components/ui/use-toast';
+import { InvoiceObject } from '@/interfaces/common.interfaces';
+import { useGmail } from '@/lib/hooks/gmail/useGmail';
+import Invoice from '@/classes/Invoice';
+import { createClient } from '@/utils/supabase/client';
+import { MagicWandIcon } from '@radix-ui/react-icons';
+import { decode } from 'base64-arraybuffer';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 const getInvoices = async () => {
   const supabase = createClient();
@@ -39,10 +39,10 @@ const getInvoices = async () => {
   }
 
   const { data: invoices, error: invoicesError } = await supabase
-    .from("invoices")
-    .select("*")
-    .eq("owner", userDataRes.user.id)
-    .eq("status", "UNPROCESSED");
+    .from('invoices')
+    .select('*')
+    .eq('owner', userDataRes.user.id)
+    .eq('status', 'UNPROCESSED');
 
   if (invoicesError) {
     throw invoicesError;
@@ -87,7 +87,7 @@ const Unprocessed = () => {
         window.location.reload();
       }, 1000);
     } catch (error) {
-      console.error("Error uploading files:", error);
+      console.error('Error uploading files:', error);
     }
     setIsUploading(false);
   }
@@ -116,7 +116,7 @@ const Unprocessed = () => {
         }, 1000);
       }
     } catch (error) {
-      console.error("Error uploading files:", error);
+      console.error('Error uploading files:', error);
     }
     setIsUploading(false);
   }

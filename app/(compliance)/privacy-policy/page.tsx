@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 
 const PrivacyPolicy = () => {
   return (
@@ -10,7 +10,7 @@ const PrivacyPolicy = () => {
           </h1>
           <div className="rounded-md bg-white p-6 shadow-sm">
             <div className="space-y-6">
-              <h1 className="text-2xl font-semibold">Privacy Policy</h1>
+              <h1 className="text-2xl font-medium">Privacy Policy</h1>
               <p className="text-gray-700">Last updated: June 02, 2024</p>
               <p className="text-gray-700">
                 This Privacy Policy describes Our policies and procedures on the
@@ -22,7 +22,7 @@ const PrivacyPolicy = () => {
                 We use Your Personal data to provide and improve the Service. By
                 using the Service, You agree to the collection and use of
                 information in accordance with this Privacy Policy. This Privacy
-                Policy has been created with the help of the{" "}
+                Policy has been created with the help of the{' '}
                 <a
                   href="https://www.freeprivacypolicy.com/free-privacy-policy-generator/"
                   target="_blank"
@@ -32,17 +32,17 @@ const PrivacyPolicy = () => {
                 </a>
                 .
               </p>
-              <h2 className="text-xl font-semibold">
+              <h2 className="text-xl font-medium">
                 Interpretation and Definitions
               </h2>
-              <h3 className="text-lg font-semibold">Interpretation</h3>
+              <h3 className="text-lg font-medium">Interpretation</h3>
               <p className="text-gray-700">
                 The words of which the initial letter is capitalized have
                 meanings defined under the following conditions. The following
                 definitions shall have the same meaning regardless of whether
                 they appear in singular or in plural.
               </p>
-              <h3 className="text-lg font-semibold">Definitions</h3>
+              <h3 className="text-lg font-medium">Definitions</h3>
               <p className="text-gray-700">
                 For the purposes of this Privacy Policy:
               </p>
@@ -103,7 +103,7 @@ const PrivacyPolicy = () => {
                   duration of a page visit).
                 </li>
                 <li>
-                  <strong>Website</strong> refers to Workman AI, accessible from{" "}
+                  <strong>Website</strong> refers to Workman AI, accessible from{' '}
                   <a
                     href="https://www.workman.so/"
                     rel="external nofollow noopener"
@@ -120,11 +120,11 @@ const PrivacyPolicy = () => {
                   applicable.
                 </li>
               </ul>
-              <h2 className="text-xl font-semibold">
+              <h2 className="text-xl font-medium">
                 Collecting and Using Your Personal Data
               </h2>
-              <h3 className="text-lg font-semibold">Types of Data Collected</h3>
-              <h4 className="text-lg font-semibold">Personal Data</h4>
+              <h3 className="text-lg font-medium">Types of Data Collected</h3>
+              <h4 className="text-lg font-medium">Personal Data</h4>
               <p className="text-gray-700">
                 While using Our Service, We may ask You to provide Us with
                 certain personally identifiable information that can be used to
@@ -137,7 +137,7 @@ const PrivacyPolicy = () => {
                 <li>Phone number</li>
                 <li>Usage Data</li>
               </ul>
-              <h4 className="text-lg font-semibold">Usage Data</h4>
+              <h4 className="text-lg font-medium">Usage Data</h4>
               <p className="text-gray-700">
                 Usage Data is collected automatically when using the Service.
               </p>
@@ -161,7 +161,7 @@ const PrivacyPolicy = () => {
                 You visit our Service or when You access the Service by or
                 through a mobile device.
               </p>
-              <h4 className="text-lg font-semibold">
+              <h4 className="text-lg font-medium">
                 Tracking Technologies and Cookies
               </h4>
               <p className="text-gray-700">
@@ -196,14 +196,14 @@ const PrivacyPolicy = () => {
                 Cookies can be "Persistent" or "Session" Cookies. Persistent
                 Cookies remain on Your personal computer or mobile device when
                 You go offline, while Session Cookies are deleted as soon as You
-                close Your web browser. Learn more about cookies on the{" "}
+                close Your web browser. Learn more about cookies on the{' '}
                 <a
                   href="https://www.freeprivacypolicy.com/blog/sample-privacy-policy-template/#Use_Of_Cookies_And_Tracking"
                   target="_blank"
                   className="text-blue-500 underline"
                 >
                   Free Privacy Policy website
-                </a>{" "}
+                </a>{' '}
                 article.
               </p>
               <p className="text-gray-700">
@@ -253,9 +253,7 @@ const PrivacyPolicy = () => {
                 regarding cookies, please visit our Cookies Policy or the
                 Cookies section of our Privacy Policy.
               </p>
-              <h3 className="text-lg font-semibold">
-                Use of Your Personal Data
-              </h3>
+              <h3 className="text-lg font-medium">Use of Your Personal Data</h3>
               <p className="text-gray-700">
                 The Company may use Personal Data for the following purposes:
               </p>
@@ -355,7 +353,7 @@ const PrivacyPolicy = () => {
                   personal information for any other purpose with Your consent.
                 </li>
               </ul>
-              <h3 className="text-lg font-semibold">
+              <h3 className="text-lg font-medium">
                 Retention of Your Personal Data
               </h3>
               <p className="text-gray-700">
@@ -374,7 +372,7 @@ const PrivacyPolicy = () => {
                 are legally obligated to retain this data for longer time
                 periods.
               </p>
-              <h3 className="text-lg font-semibold">
+              <h3 className="text-lg font-medium">
                 Transfer of Your Personal Data
               </h3>
               <p className="text-gray-700">
@@ -398,9 +396,7 @@ const PrivacyPolicy = () => {
                 controls in place including the security of Your data and other
                 personal information.
               </p>
-              <h3 className="text-lg font-semibold">
-                Delete Your Personal Data
-              </h3>
+              <h3 className="text-lg font-medium">Delete Your Personal Data</h3>
               <p className="text-gray-700">
                 You have the right to delete or request that We assist in
                 deleting the Personal Data that We have collected about You.
@@ -422,26 +418,24 @@ const PrivacyPolicy = () => {
                 information when we have a legal obligation or lawful basis to
                 do so.
               </p>
-              <h3 className="text-lg font-semibold">
+              <h3 className="text-lg font-medium">
                 Disclosure of Your Personal Data
               </h3>
-              <h4 className="text-lg font-semibold">Business Transactions</h4>
+              <h4 className="text-lg font-medium">Business Transactions</h4>
               <p className="text-gray-700">
                 If the Company is involved in a merger, acquisition or asset
                 sale, Your Personal Data may be transferred. We will provide
                 notice before Your Personal Data is transferred and becomes
                 subject to a different Privacy Policy.
               </p>
-              <h4 className="text-lg font-semibold">Law enforcement</h4>
+              <h4 className="text-lg font-medium">Law enforcement</h4>
               <p className="text-gray-700">
                 Under certain circumstances, the Company may be required to
                 disclose Your Personal Data if required to do so by law or in
                 response to valid requests by public authorities (e.g. a court
                 or a government agency).
               </p>
-              <h4 className="text-lg font-semibold">
-                Other legal requirements
-              </h4>
+              <h4 className="text-lg font-medium">Other legal requirements</h4>
               <p className="text-gray-700">
                 The Company may disclose Your Personal Data in the good faith
                 belief that such action is necessary to:
@@ -461,7 +455,7 @@ const PrivacyPolicy = () => {
                 </li>
                 <li>Protect against legal liability</li>
               </ul>
-              <h3 className="text-lg font-semibold">
+              <h3 className="text-lg font-medium">
                 Security of Your Personal Data
               </h3>
               <p className="text-gray-700">
@@ -471,7 +465,7 @@ const PrivacyPolicy = () => {
                 use commercially acceptable means to protect Your Personal Data,
                 We cannot guarantee its absolute security.
               </p>
-              <h2 className="text-xl font-semibold">Children's Privacy</h2>
+              <h2 className="text-xl font-medium">Children's Privacy</h2>
               <p className="text-gray-700">
                 Our Service does not address anyone under the age of 13. We do
                 not knowingly collect personally identifiable information from
@@ -488,7 +482,7 @@ const PrivacyPolicy = () => {
                 parent, We may require Your parent's consent before We collect
                 and use that information.
               </p>
-              <h2 className="text-xl font-semibold">Links to Other Websites</h2>
+              <h2 className="text-xl font-medium">Links to Other Websites</h2>
               <p className="text-gray-700">
                 Our Service may contain links to other websites that are not
                 operated by Us. If You click on a third party link, You will be
@@ -500,7 +494,7 @@ const PrivacyPolicy = () => {
                 content, privacy policies or practices of any third party sites
                 or services.
               </p>
-              <h2 className="text-xl font-semibold">
+              <h2 className="text-xl font-medium">
                 Changes to this Privacy Policy
               </h2>
               <p className="text-gray-700">
@@ -518,7 +512,7 @@ const PrivacyPolicy = () => {
                 any changes. Changes to this Privacy Policy are effective when
                 they are posted on this page.
               </p>
-              <h2 className="text-xl font-semibold">Contact Us</h2>
+              <h2 className="text-xl font-medium">Contact Us</h2>
               <p className="text-gray-700">
                 If you have any questions about this Privacy Policy, You can
                 contact us:
@@ -534,7 +528,7 @@ const PrivacyPolicy = () => {
       <div className="mt-6 rounded-md bg-white p-6 shadow-md">
         <div className="container mx-auto text-center">
           <p className="text-gray-700">
-            Generated using{" "}
+            Generated using{' '}
             <a
               href="https://www.freeprivacypolicy.com/free-privacy-policy-generator/"
               target="_blank"

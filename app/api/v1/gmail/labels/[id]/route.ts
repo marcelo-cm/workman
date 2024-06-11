@@ -1,6 +1,6 @@
-import { Nango } from "@nangohq/node";
-import { StatusCodes } from "http-status-codes";
-import { NextRequest, NextResponse } from "next/server";
+import { Nango } from '@nangohq/node';
+import { StatusCodes } from 'http-status-codes';
+import { NextRequest, NextResponse } from 'next/server';
 
 const nango = new Nango({
   secretKey: process.env.NANGO_SECRET_KEY!,
@@ -11,19 +11,19 @@ export async function GET(
   { params }: { params: { id: string } },
 ): Promise<NextResponse> {
   try {
-    const userId = req.nextUrl.searchParams.get("userId");
+    const userId = req.nextUrl.searchParams.get('userId');
     const labelId = params.id;
 
     if (!userId) {
-      return new NextResponse(JSON.stringify("User ID is required"), {
+      return new NextResponse(JSON.stringify('User ID is required'), {
         status: StatusCodes.BAD_REQUEST,
       });
     }
 
-    const googleMailToken = await nango.getToken("google-mail", userId);
+    const googleMailToken = await nango.getToken('google-mail', userId);
 
     if (!googleMailToken) {
-      return new NextResponse(JSON.stringify("Unauthorized"), {
+      return new NextResponse(JSON.stringify('Unauthorized'), {
         status: StatusCodes.UNAUTHORIZED,
       });
     }
@@ -43,7 +43,7 @@ export async function GET(
     });
   } catch (e: unknown) {
     console.error(e);
-    return new NextResponse(JSON.stringify("Internal Server Error"), {
+    return new NextResponse(JSON.stringify('Internal Server Error'), {
       status: StatusCodes.INTERNAL_SERVER_ERROR,
     });
   }

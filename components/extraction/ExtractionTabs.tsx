@@ -1,5 +1,5 @@
-import Invoice from "@/classes/Invoice";
-import { Button } from "@/components/ui/button";
+import Invoice from '@/classes/Invoice';
+import { Button } from '@/components/ui/button';
 import {
   Form,
   FormControl,
@@ -7,64 +7,64 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Textarea } from "@/components/ui/text-area";
-import { InvoiceData, InvoiceObject } from "@/interfaces/common.interfaces";
-import { zodResolver } from "@hookform/resolvers/zod";
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Textarea } from '@/components/ui/text-area';
+import { InvoiceData, InvoiceObject } from '@/interfaces/common.interfaces';
+import { zodResolver } from '@hookform/resolvers/zod';
 import {
   BookmarkIcon,
   ChevronRightIcon,
   PlusIcon,
   ResetIcon,
   TrashIcon,
-} from "@radix-ui/react-icons";
-import { Scan } from "lucide-react";
-import React, { SetStateAction, useEffect, useRef, useState } from "react";
-import { useFieldArray, useForm, useWatch } from "react-hook-form";
-import { z } from "zod";
-import ExtractionFormComponent from "./ExtractionFormComponent";
-import UploadToQuickBooks from "./UploadToQuickBooks";
+} from '@radix-ui/react-icons';
+import { Scan } from 'lucide-react';
+import React, { SetStateAction, useEffect, useRef, useState } from 'react';
+import { useFieldArray, useForm, useWatch } from 'react-hook-form';
+import { z } from 'zod';
+import ExtractionFormComponent from './ExtractionFormComponent';
+import UploadToQuickBooks from './UploadToQuickBooks';
 
 const formSchema = z.object({
   date: z
     .string()
-    .min(1, "Date is required")
-    .regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format (YYYY-MM-DD)"),
+    .min(1, 'Date is required')
+    .regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format (YYYY-MM-DD)'),
   dueDate: z
     .string()
-    .min(1, "Due date is required")
-    .regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format (YYYY-MM-DD)"),
-  invoiceNumber: z.string().min(1, "Invoice number is required"),
-  supplierName: z.string().min(1, "Supplier name is required"),
-  supplierAddress: z.string().min(1, "Supplier address is required"),
+    .min(1, 'Due date is required')
+    .regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format (YYYY-MM-DD)'),
+  invoiceNumber: z.string().min(1, 'Invoice number is required'),
+  supplierName: z.string().min(1, 'Supplier name is required'),
+  supplierAddress: z.string().min(1, 'Supplier address is required'),
   supplierEmail: z
     .string()
-    .min(1, "Supplier email is required")
-    .email("Invalid email"),
-  supplierPhoneNumber: z.string().min(1, "Supplier phone number is required"),
-  customerAddress: z.string().min(1, "Customer address is required"),
-  customerName: z.string().min(1, "Customer name is required"),
-  shippingAddress: z.string().min(1, "Shipping address is required"),
-  totalNet: z.number().min(0, "Total net should be a positive number"),
-  totalAmount: z.number().min(0, "Total amount should be a positive number"),
-  totalTax: z.number().min(0, "Total tax should be a positive number"),
+    .min(1, 'Supplier email is required')
+    .email('Invalid email'),
+  supplierPhoneNumber: z.string().min(1, 'Supplier phone number is required'),
+  customerAddress: z.string().min(1, 'Customer address is required'),
+  customerName: z.string().min(1, 'Customer name is required'),
+  shippingAddress: z.string().min(1, 'Shipping address is required'),
+  totalNet: z.number().min(0, 'Total net should be a positive number'),
+  totalAmount: z.number().min(0, 'Total amount should be a positive number'),
+  totalTax: z.number().min(0, 'Total tax should be a positive number'),
   lineItems: z
     .array(
       z.object({
-        confidence: z.number().min(0, "Confidence should be a positive number"),
-        description: z.string().min(1, "Description is required"),
+        confidence: z.number().min(0, 'Confidence should be a positive number'),
+        description: z.string().min(1, 'Description is required'),
         productCode: z.string().optional(),
-        quantity: z.number().min(0, "Quantity should be a positive number"),
+        quantity: z.number().min(0, 'Quantity should be a positive number'),
         totalAmount: z
           .string()
-          .regex(/^\d+(\.\d+)?$/, "Number must be positive and decimal"),
-        unitPrice: z.number().min(0, "Unit price should be a positive number"),
-        pageId: z.number().min(0, "Page ID should be a positive number"),
+          .regex(/^\d+(\.\d+)?$/, 'Number must be positive and decimal'),
+        unitPrice: z.number().min(0, 'Unit price should be a positive number'),
+        pageId: z.number().min(0, 'Page ID should be a positive number'),
       }),
     )
-    .min(1, "At least one line item is required"),
+    .min(1, 'At least one line item is required'),
   notes: z.string(),
 });
 
@@ -85,37 +85,37 @@ const ExtractionTabs = ({
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      date: file?.data?.date || "",
-      dueDate: file?.data?.dueDate || "",
-      invoiceNumber: file?.data?.invoiceNumber || "",
-      supplierName: file?.data?.supplierName || "",
-      supplierAddress: file?.data?.supplierAddress || "",
-      supplierEmail: file?.data?.supplierEmail || "",
-      supplierPhoneNumber: file?.data?.supplierPhoneNumber || "",
-      customerAddress: file?.data?.customerAddress || "",
-      customerName: file?.data?.customerName || "",
-      shippingAddress: file?.data?.shippingAddress || "",
+      date: file?.data?.date || '',
+      dueDate: file?.data?.dueDate || '',
+      invoiceNumber: file?.data?.invoiceNumber || '',
+      supplierName: file?.data?.supplierName || '',
+      supplierAddress: file?.data?.supplierAddress || '',
+      supplierEmail: file?.data?.supplierEmail || '',
+      supplierPhoneNumber: file?.data?.supplierPhoneNumber || '',
+      customerAddress: file?.data?.customerAddress || '',
+      customerName: file?.data?.customerName || '',
+      shippingAddress: file?.data?.shippingAddress || '',
       totalNet: file?.data?.totalNet || 0,
       totalAmount: file?.data?.totalAmount || 0,
       totalTax: file?.data?.totalTax || 0,
       lineItems: file?.data?.lineItems || [],
-      notes: file?.data?.notes || "",
+      notes: file?.data?.notes || '',
     },
   });
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,
-    name: "lineItems",
+    name: 'lineItems',
   });
 
   const watchLineItems = useWatch({
     control: form.control,
-    name: "lineItems",
+    name: 'lineItems',
   });
 
   const watchTotalTax = useWatch({
     control: form.control,
-    name: "totalTax",
+    name: 'totalTax',
   });
 
   useEffect(() => {
@@ -137,22 +137,22 @@ const ExtractionTabs = ({
       0,
     );
 
-    const totalNet = totalAmount + (form?.getValues("totalTax") || 0);
+    const totalNet = totalAmount + (form?.getValues('totalTax') || 0);
 
-    form.setValue("totalAmount", totalAmount, {
+    form.setValue('totalAmount', totalAmount, {
       shouldValidate: true,
       shouldDirty: true,
     });
-    form.setValue("totalNet", totalNet);
+    form.setValue('totalNet', totalNet);
   }, [watchLineItems, watchTotalTax]);
 
   const addLineItem = () => {
     append({
       confidence: 1,
-      description: "",
-      productCode: "",
+      description: '',
+      productCode: '',
       quantity: 0,
-      totalAmount: "",
+      totalAmount: '',
       unitPrice: 0,
       pageId: 0,
     });
@@ -160,21 +160,21 @@ const ExtractionTabs = ({
 
   const mapDataToForm = async (data: any) => {
     form.reset({
-      date: data?.date || "",
-      dueDate: data?.dueDate || "",
-      invoiceNumber: data?.invoiceNumber || "",
-      supplierName: data?.supplierName || "",
-      supplierAddress: data?.supplierAddress || "",
-      supplierEmail: data?.supplierEmail || "",
-      supplierPhoneNumber: data?.supplierPhoneNumber || "",
-      customerAddress: data?.customerAddress || "",
-      customerName: data?.customerName || "",
-      shippingAddress: data?.shippingAddress || "",
+      date: data?.date || '',
+      dueDate: data?.dueDate || '',
+      invoiceNumber: data?.invoiceNumber || '',
+      supplierName: data?.supplierName || '',
+      supplierAddress: data?.supplierAddress || '',
+      supplierEmail: data?.supplierEmail || '',
+      supplierPhoneNumber: data?.supplierPhoneNumber || '',
+      customerAddress: data?.customerAddress || '',
+      customerName: data?.customerName || '',
+      shippingAddress: data?.shippingAddress || '',
       totalNet: data?.totalNet || 0,
       totalAmount: data?.totalAmount || 0,
       totalTax: data?.totalTax || 0,
       lineItems: data?.lineItems || [],
-      notes: data?.notes || "",
+      notes: data?.notes || '',
     });
 
     files[activeIndex].data = form.getValues();
@@ -217,7 +217,7 @@ const ExtractionTabs = ({
           disabled={form.formState.isDirty}
           ref={uploadToQuickBooksTabRef}
         >
-          2. Upload to Quickbooks {form.formState.isDirty && "(Save Changes)"}
+          2. Upload to Quickbooks {form.formState.isDirty && '(Save Changes)'}
         </TabsTrigger>
       </TabsList>
       <div className="no-scrollbar h-full overflow-scroll">
@@ -227,7 +227,7 @@ const ExtractionTabs = ({
               <div className="text-xs">
                 <div>
                   <p className="mr-2 inline font-medium">Sub-Total:</p> $
-                  {Number(form.getValues("totalAmount"))?.toFixed(2) || 0}
+                  {Number(form.getValues('totalAmount'))?.toFixed(2) || 0}
                 </div>
                 <FormField
                   control={form.control}
@@ -238,11 +238,11 @@ const ExtractionTabs = ({
                         <p className="w-12 break-keep font-medium">Tax: $</p>
                         <Input
                           type="number"
-                          {...form.register("totalTax", {
+                          {...form.register('totalTax', {
                             setValueAs: (value) => parseFloat(value) || 0,
                             onChange: (e) =>
                               form.setValue(
-                                "totalTax",
+                                'totalTax',
                                 parseFloat(e.target.value),
                                 { shouldValidate: true, shouldDirty: true },
                               ),
@@ -256,7 +256,7 @@ const ExtractionTabs = ({
                   )}
                 />
                 <p className="text-2xl">
-                  Total: ${Number(form.getValues("totalNet"))?.toFixed(2) || 0}
+                  Total: ${Number(form.getValues('totalNet'))?.toFixed(2) || 0}
                 </p>
               </div>
               <ExtractionFormComponent
@@ -498,7 +498,7 @@ const ExtractionTabs = ({
                         <Button
                           type="button"
                           onClick={() => remove(index)}
-                          variant={"ghost"}
+                          variant={'ghost'}
                           className="h-8 w-8 p-0 hover:bg-wm-white-50 hover:text-red-500"
                         >
                           <TrashIcon />
@@ -511,7 +511,7 @@ const ExtractionTabs = ({
                   </p>
                 )}
                 <Button
-                  variant={"ghost"}
+                  variant={'ghost'}
                   className="w-full justify-end"
                   type="button"
                   onClick={(e) => {
@@ -548,7 +548,7 @@ const ExtractionTabs = ({
           </Form>
           <div className="sticky bottom-0 flex h-14 min-h-14 w-full items-center gap-2 border-t bg-white pl-2 pr-8">
             <Button
-              variant={"secondary"}
+              variant={'secondary'}
               onClick={() => handleProcessInvoice(file)}
             >
               <Scan className="h-4 w-4" />
@@ -564,13 +564,13 @@ const ExtractionTabs = ({
               <BookmarkIcon /> Approve & Save
             </Button>
             {form.formState.isDirty ? (
-              <Button onClick={() => discardChanges(file)} variant={"outline"}>
+              <Button onClick={() => discardChanges(file)} variant={'outline'}>
                 <ResetIcon /> Discard Changes
               </Button>
             ) : null}
             <TabsList className="ml-auto">
               <TabsTrigger asChild value="2">
-                <Button disabled={form.formState.isDirty} variant={"outline"}>
+                <Button disabled={form.formState.isDirty} variant={'outline'}>
                   Ready for Upload <ChevronRightIcon />
                 </Button>
               </TabsTrigger>

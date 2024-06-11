@@ -1,5 +1,5 @@
-import SideBar from "@/components/dashboard/SideBar";
-import React from "react";
+import SideBar from '@/components/dashboards/layout/SideBar';
+import React from 'react';
 
 const AppLayout = ({ children }: Readonly<{ children: React.ReactNode }>) => {
   return (

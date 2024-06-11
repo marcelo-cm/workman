@@ -1,11 +1,11 @@
-import WorkmanLogo from "@/components/molecules/WorkmanLogo";
-import { Button } from "@/components/ui/button";
+import WorkmanLogo from '@/components/molecules/WorkmanLogo';
+import { Button } from '@/components/ui/button';
 import {
   EnvelopeClosedIcon,
   IdCardIcon,
   LinkedInLogoIcon,
-} from "@radix-ui/react-icons";
-import Image from "next/image";
+} from '@radix-ui/react-icons';
+import Image from 'next/image';
 
 export default function Home() {
   return (
@@ -23,7 +23,7 @@ export default function Home() {
                 Contact
               </a>
             </Button>
-            <Button variant={"secondary"} asChild>
+            <Button variant={'secondary'} asChild>
               <a href="/auth/sign-in" target="_self">
                 <IdCardIcon /> Sign In
               </a>
@@ -59,29 +59,29 @@ export default function Home() {
           </div>
         </div>
         <Image
-          src={"/WorkmanSneakPeek.png"}
+          src={'/WorkmanSneakPeek.png'}
           alt="Workman Platform 'For Approval' Dashboard"
           width={1100}
           height={450}
-          className="h-auto w-full max-w-[1100px] rotate-[1deg] rounded-md border shadow-md"
+          className="h-auto w-full max-w-[1100px] rounded-md border shadow-md"
         />
         <div className="flex flex-col gap-4 lg:flex-row">
           <div className="flex items-center gap-2 rounded-md border p-2 pr-4 font-medium">
-            <Button size={"icon"} className="rounded-full">
+            <Button size={'icon'} className="rounded-full">
               1
-            </Button>{" "}
+            </Button>{' '}
             Upload from Gmail or local files
           </div>
           <div className="flex items-center gap-2 rounded-md border p-2 pr-4 font-medium">
-            <Button size={"icon"} className="rounded-full">
+            <Button size={'icon'} className="rounded-full">
               2
-            </Button>{" "}
+            </Button>{' '}
             Review our AI's data extraction
           </div>
           <div className="flex items-center gap-2 rounded-md border p-2 pr-4 font-medium">
-            <Button size={"icon"} className="rounded-full">
+            <Button size={'icon'} className="rounded-full">
               3
-            </Button>{" "}
+            </Button>{' '}
             Approve and send to Quickbooks
           </div>
         </div>

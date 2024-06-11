@@ -1,23 +1,23 @@
-"use client";
+'use client';
 
-import { ComboBox } from "@/components/extraction/Combobox";
+import { ComboBox } from '@/components/extraction/Combobox';
 import {
   BreadcrumbItem,
   BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
-import { Button } from "@/components/ui/button";
-import { Label_Basic } from "@/interfaces/gmail.interfaces";
-import { Vendor } from "@/interfaces/quickbooks.interfaces";
-import { useGmail } from "@/lib/hooks/gmail/useGmail";
-import { useVendor } from "@/lib/hooks/quickbooks/useVendor";
-import { useUser } from "@/lib/hooks/supabase/useUser";
-import { handleGoogleMailIntegration } from "@/utils/nango/google";
-import { handleQuickBooksIntegration } from "@/utils/nango/quickbooks";
-import { useState } from "react";
-import Gmail from "@/components/molecules/Gmail";
-import QuickBooks from "@/components/molecules/QuickBooks";
+} from '@/components/ui/breadcrumb';
+import { Button } from '@/components/ui/button';
+import { Label_Basic } from '@/interfaces/gmail.interfaces';
+import { Vendor } from '@/interfaces/quickbooks.interfaces';
+import { useGmail } from '@/lib/hooks/gmail/useGmail';
+import { useVendor } from '@/lib/hooks/quickbooks/useVendor';
+import { useUser } from '@/lib/hooks/supabase/useUser';
+import { handleGoogleMailIntegration } from '@/utils/nango/google';
+import { handleQuickBooksIntegration } from '@/utils/nango/quickbooks';
+import { useState } from 'react';
+import Gmail from '@/components/molecules/Gmail';
+import QuickBooks from '@/components/molecules/QuickBooks';
 
 const Account = () => {
   const { getVendorList } = useVendor();
@@ -27,7 +27,7 @@ const Account = () => {
   const [labels, setLabels] = useState<Label_Basic[]>([]);
 
   const fetchVendors = async () => {
-    const columns: (keyof Vendor)[] = ["DisplayName", "Id"];
+    const columns: (keyof Vendor)[] = ['DisplayName', 'Id'];
     await getVendorList(columns, null, setVendors);
   };
 
@@ -39,20 +39,20 @@ const Account = () => {
     const labels = await getLabels();
 
     const workmanLabelExists = labels.find(
-      (label: Label_Basic) => label.name === "WORKMAN_SCANNED",
+      (label: Label_Basic) => label.name === 'WORKMAN_SCANNED',
     );
 
     const ignoreLabelExists = labels.find(
-      (label: Label_Basic) => label.name === "WORKMAN_IGNORE",
+      (label: Label_Basic) => label.name === 'WORKMAN_IGNORE',
     );
     // @todo search for the ignore label, create it if not there, and update the user configs with the new label if successful
 
     if (!workmanLabelExists) {
-      const WORKMAN_SCANNED_LABEL: Omit<Label_Basic, "id"> = {
-        name: "WORKMAN_SCANNED",
-        messageListVisibility: "show",
-        labelListVisibility: "labelShow",
-        type: "user",
+      const WORKMAN_SCANNED_LABEL: Omit<Label_Basic, 'id'> = {
+        name: 'WORKMAN_SCANNED',
+        messageListVisibility: 'show',
+        labelListVisibility: 'labelShow',
+        type: 'user',
       };
       const newLabel = await createLabel(WORKMAN_SCANNED_LABEL);
 
@@ -66,11 +66,11 @@ const Account = () => {
     }
 
     if (!ignoreLabelExists) {
-      const WORKMAN_IGNORE_LABEL: Omit<Label_Basic, "id"> = {
-        name: "WORKMAN_IGNORE",
-        messageListVisibility: "show",
-        labelListVisibility: "labelShow",
-        type: "user",
+      const WORKMAN_IGNORE_LABEL: Omit<Label_Basic, 'id'> = {
+        name: 'WORKMAN_IGNORE',
+        messageListVisibility: 'show',
+        labelListVisibility: 'labelShow',
+        type: 'user',
       };
       const newLabel = await createLabel(WORKMAN_IGNORE_LABEL);
 

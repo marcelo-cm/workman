@@ -1,6 +1,6 @@
-import { Connection, Nango } from "@nangohq/node";
-import { StatusCodes } from "http-status-codes";
-import { NextRequest, NextResponse } from "next/server";
+import { Connection, Nango } from '@nangohq/node';
+import { StatusCodes } from 'http-status-codes';
+import { NextRequest, NextResponse } from 'next/server';
 
 const nango = new Nango({
   secretKey: process.env.NANGO_SECRET_KEY!,
@@ -8,29 +8,29 @@ const nango = new Nango({
 
 export async function GET(req: NextRequest) {
   try {
-    const userId = req.nextUrl.searchParams.get("userId");
-    const select = req.nextUrl.searchParams.get("select");
-    const where = req.nextUrl.searchParams.get("where");
+    const userId = req.nextUrl.searchParams.get('userId');
+    const select = req.nextUrl.searchParams.get('select');
+    const where = req.nextUrl.searchParams.get('where');
 
     if (!userId || !select) {
       return new NextResponse(
-        JSON.stringify("User ID and Select are both required"),
+        JSON.stringify('User ID and Select are both required'),
         {
           status: StatusCodes.BAD_REQUEST,
         },
       );
     }
 
-    const quickbooksToken = await nango.getToken("quickbooks", userId);
+    const quickbooksToken = await nango.getToken('quickbooks', userId);
     const quickbooksConnection: Connection = await nango.getConnection(
-      "quickbooks",
+      'quickbooks',
       userId,
     );
 
     const quickbooksRealmId = quickbooksConnection?.connection_config.realmId;
 
     if (!quickbooksRealmId) {
-      return new NextResponse(JSON.stringify("QuickBooks not authorized"), {
+      return new NextResponse(JSON.stringify('QuickBooks not authorized'), {
         status: StatusCodes.UNAUTHORIZED,
       });
     }
@@ -47,7 +47,7 @@ export async function GET(req: NextRequest) {
     });
   } catch (e: unknown) {
     console.error(e);
-    return new NextResponse(JSON.stringify("Internal Server Error"), {
+    return new NextResponse(JSON.stringify('Internal Server Error'), {
       status: StatusCodes.INTERNAL_SERVER_ERROR,
     });
   }
@@ -59,20 +59,20 @@ const getAccountList = async (
   columns: string,
   where: string | null,
 ) => {
-  const url = `https://quickbooks.api.intuit.com/v3/company/${realmId}/query?query=select ${columns} from Account ${where ? `where ${where}` : ""}`;
+  const url = `https://quickbooks.api.intuit.com/v3/company/${realmId}/query?query=select ${columns} from Account ${where ? `where ${where}` : ''}`;
 
   const response = await fetch(url, {
     headers: {
       Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-      Accept: "application/json",
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
     },
   });
 
   if (!response.ok) {
     const errorText = await response.text();
     console.error(
-      "Failed to fetch account list:",
+      'Failed to fetch account list:',
       response.status,
       response.statusText,
       errorText,

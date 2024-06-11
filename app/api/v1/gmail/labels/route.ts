@@ -1,7 +1,7 @@
-import { Label_Basic } from "@/interfaces/gmail.interfaces";
-import { Nango } from "@nangohq/node";
-import { StatusCodes } from "http-status-codes";
-import { NextRequest, NextResponse } from "next/server";
+import { Label_Basic } from '@/interfaces/gmail.interfaces';
+import { Nango } from '@nangohq/node';
+import { StatusCodes } from 'http-status-codes';
+import { NextRequest, NextResponse } from 'next/server';
 
 const nango = new Nango({
   secretKey: process.env.NANGO_SECRET_KEY!,
@@ -9,18 +9,18 @@ const nango = new Nango({
 
 export async function GET(req: NextRequest): Promise<NextResponse> {
   try {
-    const userId = req.nextUrl.searchParams.get("userId");
+    const userId = req.nextUrl.searchParams.get('userId');
 
     if (!userId) {
-      return new NextResponse(JSON.stringify("User ID is required"), {
+      return new NextResponse(JSON.stringify('User ID is required'), {
         status: StatusCodes.BAD_REQUEST,
       });
     }
 
-    const googleMailToken = await nango.getToken("google-mail", userId);
+    const googleMailToken = await nango.getToken('google-mail', userId);
 
     if (!googleMailToken) {
-      return new NextResponse(JSON.stringify("Unauthorized"), {
+      return new NextResponse(JSON.stringify('Unauthorized'), {
         status: StatusCodes.UNAUTHORIZED,
       });
     }
@@ -40,7 +40,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     });
   } catch (e: unknown) {
     console.error(e);
-    return new NextResponse(JSON.stringify("Internal Server Error"), {
+    return new NextResponse(JSON.stringify('Internal Server Error'), {
       status: StatusCodes.INTERNAL_SERVER_ERROR,
     });
   }
@@ -51,31 +51,31 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     const {
       userId,
       label,
-    }: { userId: string; label: Omit<Label_Basic, "id"> } = await req.json();
+    }: { userId: string; label: Omit<Label_Basic, 'id'> } = await req.json();
 
     if (!userId || !label) {
       return new NextResponse(
-        JSON.stringify("User ID and Label are required"),
+        JSON.stringify('User ID and Label are required'),
         {
           status: StatusCodes.BAD_REQUEST,
         },
       );
     }
 
-    const googleMailToken = await nango.getToken("google-mail", userId);
+    const googleMailToken = await nango.getToken('google-mail', userId);
 
     if (!googleMailToken) {
-      return new NextResponse(JSON.stringify("Unauthorized"), {
+      return new NextResponse(JSON.stringify('Unauthorized'), {
         status: StatusCodes.UNAUTHORIZED,
       });
     }
 
     const url = `https://gmail.googleapis.com/gmail/v1/users/me/labels`;
     const response = await fetch(url, {
-      method: "POST",
+      method: 'POST',
       headers: {
         Authorization: `Bearer ${googleMailToken}`,
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify(label),
     });
@@ -87,7 +87,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     });
   } catch (e: unknown) {
     console.error(e);
-    return new NextResponse(JSON.stringify("Internal Server Error"), {
+    return new NextResponse(JSON.stringify('Internal Server Error'), {
       status: StatusCodes.INTERNAL_SERVER_ERROR,
     });
   }
@@ -104,7 +104,7 @@ const batchModifyLabels = async (
   const response = await fetch(url, {
     headers: {
       Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
     },
     body: JSON.stringify(body),
   });

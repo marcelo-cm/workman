@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import WorkmanLogo from "@/components/molecules/WorkmanLogo";
-import { Button } from "@/components/ui/button";
+import WorkmanLogo from '@/components/molecules/WorkmanLogo';
+import { Button } from '@/components/ui/button';
 import {
   Form,
   FormControl,
@@ -10,15 +10,15 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { createClient } from "@/utils/supabase/client";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { EnvelopeClosedIcon } from "@radix-ui/react-icons";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { createClient } from '@/utils/supabase/client';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { EnvelopeClosedIcon } from '@radix-ui/react-icons';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
 
 const supabase = createClient();
 
@@ -34,10 +34,10 @@ const SignIn = () => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: "",
-      current_password: "",
+      email: '',
+      current_password: '',
     },
-    criteriaMode: "all",
+    criteriaMode: 'all',
   });
 
   useEffect(() => {
@@ -48,7 +48,7 @@ const SignIn = () => {
     const { data } = await supabase.auth.getUser();
 
     if (data.user) {
-      router.push("/for-approval");
+      router.push('/for-approval');
     }
   }
 
@@ -69,7 +69,7 @@ const SignIn = () => {
       return;
     }
 
-    router.push("/for-approval");
+    router.push('/for-approval');
   }
 
   return (

@@ -1,8 +1,8 @@
-import { Header, Message, MessagePart } from "@/interfaces/gmail.interfaces";
-import { base64Decode } from "@/lib/utils";
-import { Nango } from "@nangohq/node";
-import { StatusCodes } from "http-status-codes";
-import { NextRequest, NextResponse } from "next/server";
+import { Header, Message, MessagePart } from '@/interfaces/gmail.interfaces';
+import { base64Decode } from '@/lib/utils';
+import { Nango } from '@nangohq/node';
+import { StatusCodes } from 'http-status-codes';
+import { NextRequest, NextResponse } from 'next/server';
 
 const nango = new Nango({
   secretKey: process.env.NANGO_SECRET_KEY!,
@@ -25,18 +25,18 @@ export interface PDFData {
 
 export async function GET(req: NextRequest): Promise<NextResponse> {
   try {
-    const userId = req.nextUrl.searchParams.get("userId");
+    const userId = req.nextUrl.searchParams.get('userId');
 
     if (!userId) {
-      return new NextResponse(JSON.stringify("User ID is required"), {
+      return new NextResponse(JSON.stringify('User ID is required'), {
         status: StatusCodes.BAD_REQUEST,
       });
     }
 
-    const googleMailToken = await nango.getToken("google-mail", userId);
+    const googleMailToken = await nango.getToken('google-mail', userId);
 
     if (!googleMailToken) {
-      return new NextResponse(JSON.stringify("Unauthorized"), {
+      return new NextResponse(JSON.stringify('Unauthorized'), {
         status: StatusCodes.UNAUTHORIZED,
       });
     }
@@ -64,7 +64,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     });
   } catch (e: unknown) {
     console.error(e);
-    return new NextResponse(JSON.stringify("Internal Server Error"), {
+    return new NextResponse(JSON.stringify('Internal Server Error'), {
       status: StatusCodes.INTERNAL_SERVER_ERROR,
     });
   }
@@ -73,13 +73,13 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
 const getMailIds = async (token: string) => {
   const date = new Date();
   date.setMonth(date.getMonth() - 6);
-  const after = date.toISOString().split("T")[0].replace(/-/g, "/");
+  const after = date.toISOString().split('T')[0].replace(/-/g, '/');
 
   const url = `https://gmail.googleapis.com/gmail/v1/users/me/messages?q=filename:pdf after:${after} has:attachment filename:pdf smaller:10M label:inbox -label:WORKMAN_SCANNED -label:WORKMAN_IGNORE`;
   const response = await fetch(url, {
     headers: {
       Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
     },
   });
 
@@ -110,7 +110,7 @@ const getPDFAndSubject = async (
   const response = await fetch(url, {
     headers: {
       Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
     },
   });
 
@@ -139,9 +139,9 @@ const parseEmailHeaders = (
   headers: Header[],
 ): { subject: string; date: string; from: string } => {
   const subject =
-    headers.find((header) => header.name === "Subject")?.value || "";
-  const date = headers.find((header) => header.name === "Date")?.value || "";
-  const from = headers.find((header) => header.name === "From")?.value || "";
+    headers.find((header) => header.name === 'Subject')?.value || '';
+  const date = headers.find((header) => header.name === 'Date')?.value || '';
+  const from = headers.find((header) => header.name === 'From')?.value || '';
 
   return { subject, date, from };
 };
@@ -157,14 +157,14 @@ const getPdfAttachmentData = async (
       return;
     }
     for (const part of parts) {
-      if (part.mimeType === "application/pdf" && part.body?.attachmentId) {
+      if (part.mimeType === 'application/pdf' && part.body?.attachmentId) {
         const url = `https://gmail.googleapis.com/gmail/v1/users/me/messages/{messageId}/attachments/${part.body.attachmentId}`;
         const response = await fetch(url, {
           headers: {
             Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
           },
-          cache: "no-cache",
+          cache: 'no-cache',
         });
 
         if (!response.ok) {
@@ -178,7 +178,7 @@ const getPdfAttachmentData = async (
         const decodedBase64 = base64Decode(data.data, part.filename);
 
         const rawBase64 = data.data;
-        const base64repaired = rawBase64.replace(/-/g, "+").replace(/_/g, "/");
+        const base64repaired = rawBase64.replace(/-/g, '+').replace(/_/g, '/');
 
         attachments.push({
           base64: base64repaired,

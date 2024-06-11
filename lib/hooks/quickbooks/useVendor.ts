@@ -1,13 +1,13 @@
-import { toast } from "@/components/ui/use-toast";
-import { Vendor } from "@/interfaces/quickbooks.interfaces";
-import { createClient as createSupabaseClient } from "@/utils/supabase/client";
-import { SetStateAction } from "react";
+import { toast } from '@/components/ui/use-toast';
+import { Vendor } from '@/interfaces/quickbooks.interfaces';
+import { createClient as createSupabaseClient } from '@/utils/supabase/client';
+import { SetStateAction } from 'react';
 
 export const useVendor = () => {
   const supabase = createSupabaseClient();
 
   const getVendorList = async (
-    columns: (keyof Vendor)[] | ["*"] = ["*"],
+    columns: (keyof Vendor)[] | ['*'] = ['*'],
     where: string | null = null,
     setVendorCallback?: React.Dispatch<SetStateAction<Vendor[]>>,
   ): Promise<Vendor[]> => {
@@ -15,34 +15,34 @@ export const useVendor = () => {
       const { data, error } = await supabase.auth.getUser();
 
       if (error) {
-        throw new Error("Failed to get user");
+        throw new Error('Failed to get user');
       }
 
       const userId = data?.user?.id;
 
       if (!userId) {
-        throw new Error("User ID not found");
+        throw new Error('User ID not found');
       }
 
-      const columnsToSelect = columns.join(",");
+      const columnsToSelect = columns.join(',');
 
       const response = await fetch(
-        `/api/v1/quickbooks/company/vendor?userId=${userId}&select=${columnsToSelect}${where ? `&where=${where}` : ""}`,
+        `/api/v1/quickbooks/company/vendor?userId=${userId}&select=${columnsToSelect}${where ? `&where=${where}` : ''}`,
         {
-          method: "GET",
+          method: 'GET',
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
           },
         },
       );
 
       if (!response.ok) {
         toast({
-          title: "Error fetching vendors",
+          title: 'Error fetching vendors',
           description: response.statusText,
-          variant: "destructive",
+          variant: 'destructive',
         });
-        throw new Error("Failed to fetch vendors");
+        throw new Error('Failed to fetch vendors');
       }
 
       const responseData = await response.json();
@@ -53,7 +53,7 @@ export const useVendor = () => {
       if (setVendorCallback) {
         setVendorCallback(vendors);
         toast({
-          title: "Vendors fetched successfully",
+          title: 'Vendors fetched successfully',
         });
       }
       return vendors;

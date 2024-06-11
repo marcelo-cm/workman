@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import {
   ColumnDef,
@@ -10,9 +10,9 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
-} from "@tanstack/react-table";
+} from '@tanstack/react-table';
 
-import { Email } from "@/app/api/v1/gmail/messages/route";
+import { Email } from '@/app/api/v1/gmail/messages/route';
 import {
   Table,
   TableBody,
@@ -21,12 +21,12 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table";
-import { InvoiceObject } from "@/interfaces/common.interfaces";
-import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
-import { useEffect, useRef, useState } from "react";
-import { Button } from "../ui/button";
-import { DatePickerWithRange } from "../ui/date-range-picker";
+} from '@/components/ui/table';
+import { InvoiceObject } from '@/interfaces/common.interfaces';
+import { MagnifyingGlassIcon } from '@radix-ui/react-icons';
+import { useEffect, useRef, useState } from 'react';
+import { Button } from '../ui/button';
+import { DatePickerWithRange } from '../ui/date-range-picker';
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -57,7 +57,7 @@ export function DataTable<TData, TValue>({
           </Button>
           {filters ? (
             <>
-              {" "}
+              {' '}
               <div className="flex flex h-full w-[300px] flex-row items-center gap-2 rounded-md border bg-transparent px-3 py-1 text-sm text-wm-white-500 transition-colors">
                 <MagnifyingGlassIcon
                   className="h-5 w-5 cursor-pointer"
@@ -167,12 +167,12 @@ export function DataTable<TData, TValue>({
                 ref={searchFilterInputRef}
                 value={
                   (table
-                    .getColumn("file_name&sender")
-                    ?.getFilterValue() as string) ?? ""
+                    .getColumn('file_name&sender')
+                    ?.getFilterValue() as string) ?? ''
                 }
                 onChange={(event) =>
                   table
-                    .getColumn("file_name&sender")
+                    .getColumn('file_name&sender')
                     ?.setFilterValue(event.target.value)
                 }
                 placeholder="Filter by invoice name or sender"
@@ -220,7 +220,7 @@ export function DataTable<TData, TValue>({
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
+                  data-state={row.getIsSelected() && 'selected'}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
@@ -248,7 +248,7 @@ export function DataTable<TData, TValue>({
               <TableCell colSpan={columns.length}>
                 <div className="flex items-center justify-end space-x-2 ">
                   <div className="text-muted-foreground flex-1 items-center text-sm">
-                    {table.getFilteredSelectedRowModel().rows.length} of{" "}
+                    {table.getFilteredSelectedRowModel().rows.length} of{' '}
                     {table.getFilteredRowModel().rows.length} invoice(s)
                     selected.
                   </div>

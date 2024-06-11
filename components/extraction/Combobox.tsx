@@ -1,22 +1,22 @@
-"use client";
+'use client';
 
-import { Check, ChevronsUpDown } from "lucide-react";
+import { Check, ChevronsUpDown } from 'lucide-react';
 
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button';
 import {
   Command,
   CommandEmpty,
   CommandInput,
   CommandItem,
   CommandList,
-} from "@/components/ui/command";
+} from '@/components/ui/command';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
-import { useEffect, useState } from "react";
+} from '@/components/ui/popover';
+import { cn } from '@/lib/utils';
+import { useEffect, useState } from 'react';
 
 function levenshtein(a: string, b: string): number {
   const an = a ? a.length : 0;
@@ -73,11 +73,11 @@ export function ComboBox({
     if (valueToMatch) {
       const bestMatch = options.reduce((prev, curr) => {
         const prevSimilarity = stringSimilarity(
-          getOptionLabel(prev) || "",
+          getOptionLabel(prev) || '',
           valueToMatch,
         );
         const currSimilarity = stringSimilarity(
-          getOptionLabel(curr) || "",
+          getOptionLabel(curr) || '',
           valueToMatch,
         );
         return currSimilarity > prevSimilarity ? curr : prev;
@@ -113,7 +113,7 @@ export function ComboBox({
           className="w-fit min-w-[200px] justify-between"
         >
           <p className="w-fit min-w-[155px] overflow-hidden text-ellipsis text-nowrap break-keep text-left">
-            {value ? getOptionLabel(value) : "Select Vendor..."}
+            {value ? getOptionLabel(value) : 'Select Vendor...'}
           </p>
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
@@ -135,10 +135,10 @@ export function ComboBox({
               >
                 <Check
                   className={cn(
-                    "mr-2 h-4 min-h-4 w-4 min-w-4",
+                    'mr-2 h-4 min-h-4 w-4 min-w-4',
                     getOptionLabel(value) == getOptionLabel(option)
-                      ? "opacity-100"
-                      : "opacity-0",
+                      ? 'opacity-100'
+                      : 'opacity-0',
                   )}
                 />
                 <p className="w-[155px] overflow-hidden text-ellipsis text-nowrap break-keep">

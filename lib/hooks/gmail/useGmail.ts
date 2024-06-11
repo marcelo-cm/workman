@@ -1,10 +1,10 @@
-import { Email } from "@/app/api/v1/gmail/messages/route";
-import { toast } from "@/components/ui/use-toast";
-import { Label, Label_Basic } from "@/interfaces/gmail.interfaces";
-import { createClient as createSupabaseClient } from "@/utils/supabase/client";
-import { SetStateAction } from "react";
-import { useUser } from "../supabase/useUser";
-import { UserConfig } from "@/interfaces/common.interfaces";
+import { Email } from '@/app/api/v1/gmail/messages/route';
+import { toast } from '@/components/ui/use-toast';
+import { Label, Label_Basic } from '@/interfaces/gmail.interfaces';
+import { createClient as createSupabaseClient } from '@/utils/supabase/client';
+import { SetStateAction } from 'react';
+import { useUser } from '../supabase/useUser';
+import { UserConfig } from '@/interfaces/common.interfaces';
 
 export const useGmail = () => {
   const { fetchUserData } = useUser();
@@ -15,32 +15,32 @@ export const useGmail = () => {
       const { data, error } = await supabase.auth.getUser();
 
       if (error) {
-        throw new Error("Failed to get user");
+        throw new Error('Failed to get user');
       }
 
       const userId = data?.user?.id;
 
       if (!userId) {
-        throw new Error("User ID not found");
+        throw new Error('User ID not found');
       }
 
       const response = await fetch(
         `/api/v1/gmail/labels/${labelId}?userId=${userId}`,
         {
-          method: "GET",
+          method: 'GET',
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
           },
         },
       );
 
       if (!response.ok) {
         toast({
-          title: "Error fetching label",
+          title: 'Error fetching label',
           description: response.statusText,
-          variant: "destructive",
+          variant: 'destructive',
         });
-        throw new Error("Failed to fetch label");
+        throw new Error('Failed to fetch label');
       }
 
       const label = await response.json();
@@ -58,37 +58,37 @@ export const useGmail = () => {
       const { data, error } = await supabase.auth.getUser();
 
       if (error) {
-        throw new Error("Failed to get user");
+        throw new Error('Failed to get user');
       }
 
       const userId = data?.user?.id;
 
       if (!userId) {
-        throw new Error("User ID not found");
+        throw new Error('User ID not found');
       }
 
       const response = await fetch(`/api/v1/gmail/messages?userId=${userId}`, {
-        method: "GET",
+        method: 'GET',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
-        cache: "no-cache",
+        cache: 'no-cache',
       });
 
       if (!response.ok) {
         toast({
-          title: "Error fetching mail",
+          title: 'Error fetching mail',
           description: response.statusText,
-          variant: "destructive",
+          variant: 'destructive',
         });
-        throw new Error("Failed to fetch mail");
+        throw new Error('Failed to fetch mail');
       }
 
       const emails = await response.json();
       if (setMailCallback) {
         setMailCallback(emails);
         toast({
-          title: "Mail fetched successfully",
+          title: 'Mail fetched successfully',
         });
       }
 
@@ -105,29 +105,29 @@ export const useGmail = () => {
       const { data, error } = await supabase.auth.getUser();
 
       if (error) {
-        throw new Error("Failed to get user");
+        throw new Error('Failed to get user');
       }
 
       const userId = data?.user?.id;
 
       if (!userId) {
-        throw new Error("User ID not found");
+        throw new Error('User ID not found');
       }
 
       const response = await fetch(`/api/v1/gmail/labels?userId=${userId}`, {
-        method: "GET",
+        method: 'GET',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
       });
 
       if (!response.ok) {
         toast({
-          title: "Error fetching labels",
+          title: 'Error fetching labels',
           description: response.statusText,
-          variant: "destructive",
+          variant: 'destructive',
         });
-        throw new Error("Failed to fetch labels");
+        throw new Error('Failed to fetch labels');
       }
 
       const labels = await response.json();
@@ -135,7 +135,7 @@ export const useGmail = () => {
       if (setLabelsCallback) {
         setLabelsCallback(labels);
         toast({
-          title: "Labels fetched successfully",
+          title: 'Labels fetched successfully',
         });
       }
 
@@ -145,24 +145,24 @@ export const useGmail = () => {
     }
   };
 
-  const createLabel = async (label: Omit<Label_Basic, "id">) => {
+  const createLabel = async (label: Omit<Label_Basic, 'id'>) => {
     try {
       const { data, error } = await supabase.auth.getUser();
 
       if (error) {
-        throw new Error("Failed to get user");
+        throw new Error('Failed to get user');
       }
 
       const userId = data?.user?.id;
 
       if (!userId) {
-        throw new Error("User ID not found");
+        throw new Error('User ID not found');
       }
 
       const response = await fetch(`/api/v1/gmail/labels`, {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           label,
@@ -174,15 +174,15 @@ export const useGmail = () => {
 
       if (newLabel.error || !response.ok) {
         toast({
-          title: "Error creating label",
+          title: 'Error creating label',
           description: response.statusText,
-          variant: "destructive",
+          variant: 'destructive',
         });
-        throw new Error("Failed to create label");
+        throw new Error('Failed to create label');
       }
 
       toast({
-        title: "Label created successfully",
+        title: 'Label created successfully',
         description: `Label ${label.name} created successfully`,
       });
 
@@ -197,23 +197,23 @@ export const useGmail = () => {
       const { data: userData, error } = await supabase.auth.getUser();
 
       if (error) {
-        throw new Error("Failed to get user");
+        throw new Error('Failed to get user');
       }
 
       const userId = userData?.user?.id;
 
       if (!userId) {
-        throw new Error("User ID not found");
+        throw new Error('User ID not found');
       }
 
       const { ignore_label_id } = await fetchUserData({
-        columns: ["ignore_label_id"],
+        columns: ['ignore_label_id'],
       });
 
       const response = await fetch(`/api/v1/gmail/messages/batchModify`, {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           userId,
@@ -225,14 +225,14 @@ export const useGmail = () => {
 
       if (!response.ok) {
         toast({
-          title: "Error marking email as ignore",
+          title: 'Error marking email as ignore',
           description: response.statusText,
-          variant: "destructive",
+          variant: 'destructive',
         });
       }
 
       toast({
-        title: "Email marked as ignore",
+        title: 'Email marked as ignore',
       });
 
       return response;
@@ -246,23 +246,23 @@ export const useGmail = () => {
       const { data: userData, error } = await supabase.auth.getUser();
 
       if (error) {
-        throw new Error("Failed to get user");
+        throw new Error('Failed to get user');
       }
 
       const userId = userData?.user?.id;
 
       if (!userId) {
-        throw new Error("User ID not found");
+        throw new Error('User ID not found');
       }
 
       const { scanned_label_id } = await fetchUserData({
-        columns: ["scanned_label_id"],
+        columns: ['scanned_label_id'],
       });
 
       const response = await fetch(`/api/v1/gmail/messages/batchModify`, {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           userId,
@@ -274,14 +274,14 @@ export const useGmail = () => {
 
       if (!response.ok) {
         toast({
-          title: "Error marking email as scanned",
+          title: 'Error marking email as scanned',
           description: response.statusText,
-          variant: "destructive",
+          variant: 'destructive',
         });
       }
 
       toast({
-        title: "Email marked as scanned",
+        title: 'Email marked as scanned',
       });
 
       return response;

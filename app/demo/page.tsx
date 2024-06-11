@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import WorkmanLogo from "@/components/molecules/WorkmanLogo";
-import { Button } from "@/components/ui/button";
-import { Router } from "lucide-react";
-import { useRouter } from "next/navigation";
-import React, { useEffect, useRef } from "react";
+import WorkmanLogo from '@/components/molecules/WorkmanLogo';
+import { Button } from '@/components/ui/button';
+import { Router } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import React, { useEffect, useRef } from 'react';
 
 const Demo = () => {
   const router = useRouter();
@@ -32,7 +32,7 @@ const Demo = () => {
           ref={demoRef}
         />
       </div>
-      <Button onClick={() => router.push("/for-approval")}>
+      <Button onClick={() => router.push('/for-approval')}>
         Launch the Platform
       </Button>
     </div>

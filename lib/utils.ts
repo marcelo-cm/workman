@@ -1,27 +1,35 @@
-import { clsx, type ClassValue } from "clsx";
-import { twMerge } from "tailwind-merge";
+import { clsx, type ClassValue } from 'clsx';
+import { twMerge } from 'tailwind-merge';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
 export function formatDate(date: Date) {
-  return date.toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
+  return date.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
   });
 }
 
 export function toTitleCase(str: string) {
   return str
     .toLowerCase()
-    .split(" ")
+    .split(' ')
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
+    .join(' ');
 }
 
 export const base64Decode = (base64String: string, filename: string) => {
-  const buffer = Buffer.from(base64String, "base64");
+  const buffer = Buffer.from(base64String, 'base64');
   return { filename, bufferData: buffer };
+};
+
+export const sliceWithEllipsis = (
+  str: string,
+  length: number,
+  suffix?: string,
+) => {
+  return str.length > length ? str.slice(0, length) + '...' + suffix : str;
 };

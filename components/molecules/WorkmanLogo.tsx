@@ -1,27 +1,27 @@
 const WorkmanLogo = ({
-  variant = "EMBLEM",
+  variant = 'EMBLEM',
   href,
   className,
 }: {
-  variant?: "EMBLEM" | "WORDMARK" | "COMBO";
+  variant?: 'EMBLEM' | 'WORDMARK' | 'COMBO';
   href?: string;
   className?: string;
 }) => {
   return (
     <a href={href} className={className}>
-      {variant === "EMBLEM" ? (
+      {variant === 'EMBLEM' ? (
         <img
           src="/workman-emblem.svg"
           alt="Workman Emblem"
           className="w-full"
         />
-      ) : variant === "WORDMARK" ? (
+      ) : variant === 'WORDMARK' ? (
         <img
           src="/workman-wordmark.svg"
           alt="Workman Wordmark"
           className="w-full"
         />
-      ) : variant === "COMBO" ? (
+      ) : variant === 'COMBO' ? (
         <img src="/workman-combo.svg" alt="Workman Combo" className="w-full" />
       ) : null}
     </a>

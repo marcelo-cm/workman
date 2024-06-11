@@ -1,11 +1,11 @@
-import { PDFData } from "@/app/api/v1/gmail/messages/route";
-import { TransformedInvoiceObject } from "@/components/extraction/UploadToQuickBooks";
-import { toast } from "@/components/ui/use-toast";
-import { InvoiceData, InvoiceObject } from "@/interfaces/common.interfaces";
-import { mindeeScan } from "@/lib/actions/actions";
-import { createClient } from "@/utils/supabase/client";
-import { decode } from "base64-arraybuffer";
-import { UUID } from "crypto";
+import { PDFData } from '@/app/api/v1/gmail/messages/route';
+import { TransformedInvoiceObject } from '@/components/extraction/UploadToQuickBooks';
+import { toast } from '@/components/ui/use-toast';
+import { InvoiceData, InvoiceObject } from '@/interfaces/common.interfaces';
+import { mindeeScan } from '@/lib/actions/actions';
+import { createClient } from '@/utils/supabase/client';
+import { decode } from 'base64-arraybuffer';
+import { UUID } from 'crypto';
 
 const supabase = createClient();
 
@@ -31,14 +31,14 @@ class Invoice {
     if (file instanceof File) {
       const filePath = `/${file.name}_${new Date().getTime()}`;
       ({ data, error } = await supabase.storage
-        .from("invoices")
+        .from('invoices')
         .upload(filePath, file));
 
       if (error) {
         toast({
           title: `Failed to upload file ${file.name}`,
-          description: "Please try to upload this document again",
-          variant: "destructive",
+          description: 'Please try to upload this document again',
+          variant: 'destructive',
         });
         throw new Error(`Failed to upload file: ${error.message}`);
       }
@@ -49,16 +49,16 @@ class Invoice {
     } else {
       const filePath = `/${file.filename}_${new Date().getTime()}`;
       ({ data, error } = await supabase.storage
-        .from("invoices")
+        .from('invoices')
         .upload(filePath, decode(file.base64), {
-          contentType: "application/pdf",
+          contentType: 'application/pdf',
         }));
 
       if (error) {
         toast({
           title: `Failed to upload file ${file.filename}`,
-          description: "Please try to upload this document again",
-          variant: "destructive",
+          description: 'Please try to upload this document again',
+          variant: 'destructive',
         });
         throw new Error(`Failed to upload file: ${error.message}`);
       }
@@ -67,8 +67,8 @@ class Invoice {
     if (!data) {
       toast({
         title: `Failed to upload file`,
-        description: "Please try to upload this document again",
-        variant: "destructive",
+        description: 'Please try to upload this document again',
+        variant: 'destructive',
       });
       throw new Error(`Failed to upload file`);
     }
@@ -78,12 +78,12 @@ class Invoice {
 
     const {
       data: { publicUrl },
-    } = await supabase.storage.from("invoices").getPublicUrl(data.path);
+    } = await supabase.storage.from('invoices').getPublicUrl(data.path);
 
-    const { error: invoiceError } = await supabase.from("invoices").insert([
+    const { error: invoiceError } = await supabase.from('invoices').insert([
       {
         owner: id,
-        status: "UNPROCESSED",
+        status: 'UNPROCESSED',
         fileUrl: publicUrl,
       },
     ]);
@@ -91,8 +91,8 @@ class Invoice {
     if (invoiceError) {
       toast({
         title: `Failed to upload invoice ${file instanceof File ? file.name : file.filename} to database`,
-        description: "Please try to upload this document again",
-        variant: "destructive",
+        description: 'Please try to upload this document again',
+        variant: 'destructive',
       });
       throw new Error(`Failed to create invoice: ${invoiceError.message}`);
     }
@@ -108,7 +108,7 @@ class Invoice {
     const { data, error } = await supabase.auth.getUser();
 
     if (error) {
-      throw new Error("User not found");
+      throw new Error('User not found');
     }
 
     const userId = data.user.id;
@@ -119,9 +119,9 @@ class Invoice {
     };
 
     const response = await fetch(`/api/v1/quickbooks/company/bill`, {
-      method: "POST",
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify(body),
     });
@@ -129,21 +129,21 @@ class Invoice {
     const responseData = await response.json();
 
     toast({
-      title: "Invoice uploaded to QuickBooks",
+      title: 'Invoice uploaded to QuickBooks',
       description: responseData.message,
     });
 
     const { data: updatedData, error: updateError } = await supabase
-      .from("invoices")
-      .update({ status: "PROCESSED" })
-      .eq("id", file.id)
-      .select("*");
+      .from('invoices')
+      .update({ status: 'PROCESSED' })
+      .eq('id', file.id)
+      .select('*');
 
     if (updateError) {
       toast({
         title: `Failed to update invoice status`,
-        description: "Please try again later",
-        variant: "destructive",
+        description: 'Please try again later',
+        variant: 'destructive',
       });
       throw new Error(`Failed to update invoice: ${updateError.message}`);
     }
@@ -155,22 +155,22 @@ class Invoice {
 
   static async update(fileUrl: string, data: any) {
     const { data: updatedData, error } = await supabase
-      .from("invoices")
-      .update({ data, status: "FOR_REVIEW" })
-      .eq("fileUrl", fileUrl)
-      .select("*");
+      .from('invoices')
+      .update({ data, status: 'FOR_REVIEW' })
+      .eq('fileUrl', fileUrl)
+      .select('*');
 
     if (error) {
       toast({
-        title: `Failed to updating or scanning ${decodeURI(fileUrl.split("/")[8].split(".pdf")[0])}`,
-        description: "Please scan this document again unprocessed",
-        variant: "destructive",
+        title: `Failed to updating or scanning ${decodeURI(fileUrl.split('/')[8].split('.pdf')[0])}`,
+        description: 'Please scan this document again unprocessed',
+        variant: 'destructive',
       });
       throw new Error(`Failed to update invoice: ${error.message}`);
     }
 
     toast({
-      title: `Invoice ${fileUrl.split("/")[8].split(".pdf")[0]} has been updated`,
+      title: `Invoice ${fileUrl.split('/')[8].split('.pdf')[0]} has been updated`,
     });
 
     return updatedData;
@@ -186,15 +186,15 @@ class Invoice {
 
   static async getByUrl(url: string) {
     const { data, error } = await supabase
-      .from("invoices")
-      .select("*")
-      .eq("fileUrl", url);
+      .from('invoices')
+      .select('*')
+      .eq('fileUrl', url);
 
     if (error) {
       toast({
         title: `Failed to fetch invoice`,
-        description: "Please try again later",
-        variant: "destructive",
+        description: 'Please try again later',
+        variant: 'destructive',
       });
       throw new Error(`Failed to get invoice: ${error.message}`);
     }
@@ -206,16 +206,16 @@ class Invoice {
     const prediction = parsedApiResponse.document.inference.prediction;
 
     const mappedData = {
-      date: prediction.date?.value || "",
-      dueDate: prediction.dueDate?.value || "",
-      invoiceNumber: prediction.invoiceNumber?.value || "",
-      supplierName: prediction.supplierName?.value || "",
-      supplierAddress: prediction.supplierAddress?.value || "",
-      supplierEmail: prediction.supplierEmail?.value || "",
-      supplierPhoneNumber: prediction.supplierPhoneNumber?.value || "",
-      customerAddress: prediction.customerAddress?.value || "",
-      customerName: prediction.customerName?.value || "",
-      shippingAddress: prediction.shippingAddress?.value || "",
+      date: prediction.date?.value || '',
+      dueDate: prediction.dueDate?.value || '',
+      invoiceNumber: prediction.invoiceNumber?.value || '',
+      supplierName: prediction.supplierName?.value || '',
+      supplierAddress: prediction.supplierAddress?.value || '',
+      supplierEmail: prediction.supplierEmail?.value || '',
+      supplierPhoneNumber: prediction.supplierPhoneNumber?.value || '',
+      customerAddress: prediction.customerAddress?.value || '',
+      customerName: prediction.customerName?.value || '',
+      shippingAddress: prediction.shippingAddress?.value || '',
       totalNet: prediction.totalNet?.value || 0,
       totalAmount: prediction.totalAmount?.value || 0,
       totalTax: prediction.totalTax?.value || 0,
@@ -231,15 +231,15 @@ class Invoice {
             pageId: number;
           }) => ({
             confidence: item.confidence || 0,
-            description: item.description || "",
-            productCode: item.productCode || "",
+            description: item.description || '',
+            productCode: item.productCode || '',
             quantity: item.quantity || 0,
             totalAmount: item.totalAmount || 0,
             unitPrice: item.unitPrice || 0,
             pageId: item.pageId || 0,
           }),
         ) || [],
-      notes: "",
+      notes: '',
     };
 
     return mappedData;

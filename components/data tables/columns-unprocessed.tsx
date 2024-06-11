@@ -1,21 +1,21 @@
-"use client";
+'use client';
 
-import { Checkbox } from "@/components/ui/checkbox";
-import { InvoiceObject } from "@/interfaces/common.interfaces";
-import { formatDate } from "@/lib/utils";
-import { CaretDownIcon, CaretUpIcon } from "@radix-ui/react-icons";
-import { ColumnDef } from "@tanstack/react-table";
-import { ExternalLinkIcon } from "lucide-react";
-import { Button } from "../ui/button";
+import { Checkbox } from '@/components/ui/checkbox';
+import { InvoiceObject } from '@/interfaces/common.interfaces';
+import { formatDate } from '@/lib/utils';
+import { CaretDownIcon, CaretUpIcon } from '@radix-ui/react-icons';
+import { ColumnDef } from '@tanstack/react-table';
+import { ExternalLinkIcon } from 'lucide-react';
+import { Button } from '../ui/button';
 
 export const columns: ColumnDef<InvoiceObject>[] = [
   {
-    id: "select",
+    id: 'select',
     header: ({ table }) => (
       <Checkbox
         checked={
           table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
+          (table.getIsSomePageRowsSelected() && 'indeterminate')
         }
         onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
         aria-label="Select all"
@@ -31,11 +31,11 @@ export const columns: ColumnDef<InvoiceObject>[] = [
     enableSorting: false,
   },
   {
-    accessorKey: "file_name",
+    accessorKey: 'file_name',
     accessorFn: (row) =>
       decodeURI(
-        row.fileUrl.split("/")[8]?.split(".pdf")[0] +
-          " " +
+        row.fileUrl.split('/')[8]?.split('.pdf')[0] +
+          ' ' +
           row.data.supplierName,
       ),
     header: ({ column }) => {
@@ -44,23 +44,23 @@ export const columns: ColumnDef<InvoiceObject>[] = [
     cell: ({ row }) => {
       return (
         <div className="flex flex-row items-center gap-1">
-          {decodeURI(row.original.fileUrl.split("/")[8].split(".pdf")[0])}
+          {decodeURI(row.original.fileUrl.split('/')[8].split('.pdf')[0])}
           <p className="text-xs text-wm-white-200">({row.original.id})</p>
         </div>
       );
     },
   },
   {
-    accessorKey: "created_at",
+    accessorKey: 'created_at',
     accessorFn: (row) => new Date(row.created_at),
     header: ({ column }) => (
       <Button
         variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
         className="p-0"
       >
         Date Uploaded
-        {column.getIsSorted() === "asc" ? (
+        {column.getIsSorted() === 'asc' ? (
           <CaretUpIcon className="h-4 w-4" />
         ) : (
           <CaretDownIcon className="h-4 w-4" />
@@ -72,14 +72,14 @@ export const columns: ColumnDef<InvoiceObject>[] = [
     ),
   },
   {
-    accessorKey: "view",
+    accessorKey: 'view',
     header: ({ column }) => <div>View File</div>,
     cell: ({ row }) => (
       <Button
-        variant={"ghost"}
+        variant={'ghost'}
         className="p-0 hover:text-wm-orange-500"
         onClick={() => {
-          window.open(row.original.fileUrl, "_blank");
+          window.open(row.original.fileUrl, '_blank');
         }}
       >
         View File <ExternalLinkIcon className="h-4 w-4" />

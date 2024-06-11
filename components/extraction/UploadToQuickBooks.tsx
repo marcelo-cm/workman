@@ -1,17 +1,17 @@
-import { TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { InvoiceObject, LineItem } from "@/interfaces/common.interfaces";
-import { Account, Customer, Vendor } from "@/interfaces/quickbooks.interfaces";
-import { useAccount } from "@/lib/hooks/quickbooks/useAccount";
-import { useCustomer } from "@/lib/hooks/quickbooks/useCustomer";
-import { useVendor } from "@/lib/hooks/quickbooks/useVendor";
-import Invoice from "@/classes/Invoice";
-import { createClient } from "@/utils/supabase/client";
-import { EyeOpenIcon } from "@radix-ui/react-icons";
-import { HammerIcon, Loader2Icon } from "lucide-react";
-import React, { SetStateAction, useEffect, useState } from "react";
-import { Badge } from "../ui/badge";
-import { Button } from "../ui/button";
-import { Checkbox } from "../ui/checkbox";
+import { TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { InvoiceObject, LineItem } from '@/interfaces/common.interfaces';
+import { Account, Customer, Vendor } from '@/interfaces/quickbooks.interfaces';
+import { useAccount } from '@/lib/hooks/quickbooks/useAccount';
+import { useCustomer } from '@/lib/hooks/quickbooks/useCustomer';
+import { useVendor } from '@/lib/hooks/quickbooks/useVendor';
+import Invoice from '@/classes/Invoice';
+import { createClient } from '@/utils/supabase/client';
+import { EyeOpenIcon } from '@radix-ui/react-icons';
+import { HammerIcon, Loader2Icon } from 'lucide-react';
+import React, { SetStateAction, useEffect, useState } from 'react';
+import { Badge } from '../ui/badge';
+import { Button } from '../ui/button';
+import { Checkbox } from '../ui/checkbox';
 import {
   Table,
   TableBody,
@@ -19,12 +19,12 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "../ui/table";
-import { ComboBox } from "./Combobox";
+} from '../ui/table';
+import { ComboBox } from './Combobox';
 
 const supabase = createClient();
 
-export interface TransformedInvoiceObject extends Omit<InvoiceObject, "data"> {
+export interface TransformedInvoiceObject extends Omit<InvoiceObject, 'data'> {
   data: {
     supplierName: string;
     vendorId: string;
@@ -85,17 +85,17 @@ const UploadToQuickBooks = ({
   }
 
   const fetchVendors = async () => {
-    const columns: (keyof Vendor)[] = ["DisplayName", "Id"];
+    const columns: (keyof Vendor)[] = ['DisplayName', 'Id'];
     await getVendorList(columns, null, setVendors);
   };
 
   const fetchCustomers = async () => {
-    const columns: (keyof Customer)[] = ["DisplayName", "Id"];
+    const columns: (keyof Customer)[] = ['DisplayName', 'Id'];
     await getCustomerList(columns, null, setCustomers);
   };
 
   const fetchAccounts = async () => {
-    const columns: (keyof Account)[] = ["Name", "Id"];
+    const columns: (keyof Account)[] = ['Name', 'Id'];
     const where = "Classification = 'Expense'";
     await getAccountList(columns, where, setAccounts);
   };
@@ -110,7 +110,7 @@ const UploadToQuickBooks = ({
           ...lineItem,
           customerId: file.data.customerAddress, // Temporary mapping; to be updated on selection
           billable: true,
-          accountId: "63",
+          accountId: '63',
         })),
       },
     }));
@@ -176,7 +176,7 @@ const UploadToQuickBooks = ({
                       handleVendorSelect(value, fileIndex)
                     }
                     getOptionLabel={(option) => option?.DisplayName}
-                  />{" "}
+                  />{' '}
                   <p className="ml-2 mt-1 text-xs leading-none text-wm-white-500">
                     {file.data.supplierName}
                   </p>
@@ -217,7 +217,7 @@ const UploadToQuickBooks = ({
                         <TableCell>
                           <ComboBox
                             options={accounts}
-                            valueToMatch={lineItem.productCode || "General"}
+                            valueToMatch={lineItem.productCode || 'General'}
                             callBackFunction={(value) =>
                               handleAccountSelect(
                                 value,
@@ -269,7 +269,7 @@ const UploadToQuickBooks = ({
                           onClick={() => {
                             setActiveIndex(fileIndex);
                           }}
-                          variant={"outline"}
+                          variant={'outline'}
                         >
                           <EyeOpenIcon className="h-4 w-4" /> View Invoice
                         </Button>
@@ -283,11 +283,11 @@ const UploadToQuickBooks = ({
                           disabled={
                             isLoading || uploadedFileIndexes.includes(fileIndex)
                           }
-                          variant={"secondary"}
+                          variant={'secondary'}
                         >
                           {isLoading ? (
                             <>
-                              <Loader2Icon className="h-4 w-4 animate-spin" />{" "}
+                              <Loader2Icon className="h-4 w-4 animate-spin" />{' '}
                               Uploading...
                             </>
                           ) : (
@@ -312,7 +312,7 @@ const UploadToQuickBooks = ({
       <div className="sticky bottom-0 flex h-14 min-h-14 w-full items-center justify-end gap-2 border-t bg-white pl-2 pr-8 ">
         <TabsList>
           <TabsTrigger value="1" asChild>
-            <Button variant={"secondary"}>Go Back to Review</Button>
+            <Button variant={'secondary'}>Go Back to Review</Button>
           </TabsTrigger>
         </TabsList>
         <Button onClick={() => console.log(files[0])} disabled>

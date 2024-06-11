@@ -1,18 +1,18 @@
-"use client";
+'use client';
 
-import useLocalStorage from "@/lib/hooks/useLocalStorage";
-import { createClient } from "@/utils/supabase/client";
+import useLocalStorage from '@/lib/hooks/useLocalStorage';
+import { createClient } from '@/utils/supabase/client';
 import {
   ExitIcon,
   FileIcon,
   Pencil2Icon,
   PersonIcon,
-} from "@radix-ui/react-icons";
-import { ArrowLeftToLine, ArrowRightToLine, Check, LogOut } from "lucide-react";
-import { usePathname } from "next/navigation";
-import React, { useContext, useEffect, useState } from "react";
-import WorkmanLogo from "../molecules/WorkmanLogo";
-import MenuItem from "./MenuItem";
+} from '@radix-ui/react-icons';
+import { ArrowLeftToLine, ArrowRightToLine, Check, LogOut } from 'lucide-react';
+import { usePathname } from 'next/navigation';
+import React, { useContext, useEffect, useState } from 'react';
+import WorkmanLogo from '../../molecules/WorkmanLogo';
+import MenuItem from './MenuItem';
 
 interface SideBarProps {
   activePath: string;
@@ -21,7 +21,7 @@ interface SideBarProps {
 }
 
 const defaultContextValue: SideBarProps = {
-  activePath: "",
+  activePath: '',
   expanded: false,
   setExpanded: () => {},
 };
@@ -33,7 +33,7 @@ const supabase = createClient();
 
 async function handleSignOut() {
   await supabase.auth.signOut();
-  window.location.href = "/";
+  window.location.href = '/';
 }
 
 const SideBar = () => {
@@ -46,13 +46,13 @@ const SideBar = () => {
   }, []);
 
   function checkExpandedState() {
-    if (JSON.parse(getItem("sidebar-expanded")) !== expanded) {
-      setExpanded(JSON.parse(getItem("sidebar-expanded")));
+    if (JSON.parse(getItem('sidebar-expanded')) !== expanded) {
+      setExpanded(JSON.parse(getItem('sidebar-expanded')));
     }
   }
 
   useEffect(() => {
-    setItem("sidebar-expanded", expanded);
+    setItem('sidebar-expanded', expanded);
   }, [expanded]);
 
   const context = { activePath, expanded, setExpanded };
@@ -69,7 +69,7 @@ const SideBarCollapsed = () => {
 
   if (!context) {
     throw new Error(
-      "Cannot use SideBarCollapsed outside of SideBarCollapsed component",
+      'Cannot use SideBarCollapsed outside of SideBarCollapsed component',
     );
   }
 
@@ -126,7 +126,7 @@ const SideBarExpanded = () => {
 
   if (!context) {
     throw new Error(
-      "Cannot use SideBarCollapsed outside of SideBarExpanded component",
+      'Cannot use SideBarCollapsed outside of SideBarExpanded component',
     );
   }
 

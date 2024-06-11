@@ -1,24 +1,24 @@
-"use client";
+'use client';
 
-import { Checkbox } from "@/components/ui/checkbox";
-import { formatDate } from "@/lib/utils";
-import { CaretDownIcon, CaretUpIcon } from "@radix-ui/react-icons";
-import { ColumnDef } from "@tanstack/react-table";
-import { ExternalLinkIcon } from "lucide-react";
-import { Button } from "../ui/button";
-import { Email } from "@/app/api/v1/gmail/messages/route";
-import { useGmail } from "@/lib/hooks/gmail/useGmail";
+import { Checkbox } from '@/components/ui/checkbox';
+import { formatDate } from '@/lib/utils';
+import { CaretDownIcon, CaretUpIcon } from '@radix-ui/react-icons';
+import { ColumnDef } from '@tanstack/react-table';
+import { ExternalLinkIcon } from 'lucide-react';
+import { Button } from '../ui/button';
+import { Email } from '@/app/api/v1/gmail/messages/route';
+import { useGmail } from '@/lib/hooks/gmail/useGmail';
 
 const { markAsIgnore, markAsScanned } = useGmail();
 
 export const columns: ColumnDef<Email>[] = [
   {
-    id: "select",
+    id: 'select',
     header: ({ table }) => (
       <Checkbox
         checked={
           table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
+          (table.getIsSomePageRowsSelected() && 'indeterminate')
         }
         onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
         aria-label="Select all"
@@ -34,7 +34,7 @@ export const columns: ColumnDef<Email>[] = [
     enableSorting: false,
   },
   {
-    accessorKey: "subject",
+    accessorKey: 'subject',
     accessorFn: (row) => row.subject,
     header: ({ column }) => {
       return <div>Subject</div>;
@@ -48,7 +48,7 @@ export const columns: ColumnDef<Email>[] = [
     },
   },
   {
-    accessorKey: "from",
+    accessorKey: 'from',
     accessorFn: (row) => row.from,
     header: ({ column }) => {
       return <div>From</div>;
@@ -56,23 +56,23 @@ export const columns: ColumnDef<Email>[] = [
     cell: ({ row }) => {
       return (
         <div className="items-left flex flex-col gap-1 leading-none">
-          <p>{row.original.from.split("<")[0]}</p>
-          <p>{row.original.from.split("<")[1].split(">")[0]}</p>
+          <p>{row.original.from.split('<')[0]}</p>
+          <p>{row.original.from.split('<')[1].split('>')[0]}</p>
         </div>
       );
     },
   },
   {
-    accessorKey: "date",
+    accessorKey: 'date',
     accessorFn: (row) => new Date(row.date),
     header: ({ column }) => (
       <Button
         variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
         className="p-0"
       >
         Date Uploaded
-        {column.getIsSorted() === "asc" ? (
+        {column.getIsSorted() === 'asc' ? (
           <CaretUpIcon className="h-4 w-4" />
         ) : (
           <CaretDownIcon className="h-4 w-4" />
@@ -82,7 +82,7 @@ export const columns: ColumnDef<Email>[] = [
     cell: ({ row }) => <div>{formatDate(new Date(row.original.date))}</div>,
   },
   {
-    accessorKey: "attachments",
+    accessorKey: 'attachments',
     header: ({ column }) => <div>Attachments</div>,
     cell: ({ row }) => (
       <div>
@@ -96,7 +96,7 @@ export const columns: ColumnDef<Email>[] = [
     ),
   },
   {
-    accessorKey: "ignore",
+    accessorKey: 'ignore',
     header: ({ column }) => <div />,
     cell: ({ row }) => (
       <>

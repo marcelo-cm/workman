@@ -1,9 +1,9 @@
-import { Loader2Icon } from "lucide-react";
-import { useState } from "react";
-import { Document, Page, pdfjs } from "react-pdf";
+import { Loader2Icon } from 'lucide-react';
+import { useState } from 'react';
+import { Document, Page, pdfjs } from 'react-pdf';
 
 pdfjs.GlobalWorkerOptions.workerSrc =
-  "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.js";
+  'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.js';
 
 const PDFViewer = ({
   fileUrl,
@@ -13,7 +13,7 @@ const PDFViewer = ({
   width?: number;
 }) => {
   if (width && width <= 100) {
-    throw new Error("Width must be greater than 100px");
+    throw new Error('Width must be greater than 100px');
   }
 
   const [numPages, setNumPages] = useState<number>(0);

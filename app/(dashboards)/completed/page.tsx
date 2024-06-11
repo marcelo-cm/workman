@@ -1,18 +1,18 @@
-"use client";
+'use client';
 
-import { columns } from "@/components/dashboard/columns-completed";
-import { DataTable } from "@/components/dashboard/data-table-invoice";
+import { columns } from '@/components/data tables/columns-completed';
+import { DataTable } from '@/components/data tables/data-table-invoice';
 import {
   BreadcrumbItem,
   BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
-import { InvoiceObject } from "@/interfaces/common.interfaces";
-import { createClient } from "@/utils/supabase/client";
-import { EnvelopeClosedIcon } from "@radix-ui/react-icons";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+} from '@/components/ui/breadcrumb';
+import { InvoiceObject } from '@/interfaces/common.interfaces';
+import { createClient } from '@/utils/supabase/client';
+import { EnvelopeClosedIcon } from '@radix-ui/react-icons';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 const getInvoices = async () => {
   const supabase = createClient();
@@ -25,10 +25,10 @@ const getInvoices = async () => {
   }
 
   const { data: invoices, error: invoicesError } = await supabase
-    .from("invoices")
-    .select("*")
-    .eq("owner", userDataRes.user.id)
-    .eq("status", "PROCESSED");
+    .from('invoices')
+    .select('*')
+    .eq('owner', userDataRes.user.id)
+    .eq('status', 'PROCESSED');
 
   if (invoicesError) {
     throw invoicesError;
@@ -68,7 +68,7 @@ const CompletedBills = () => {
       <DataTable
         data={invoices}
         columns={columns}
-        onAction={() => router.push("mailto:admin@workman.so")}
+        onAction={() => router.push('mailto:admin@workman.so')}
         actionIcon={<EnvelopeClosedIcon />}
         actionOnSelectText="Email Founders"
         canActionBeDisabled={false}

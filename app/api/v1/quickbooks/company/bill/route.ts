@@ -1,7 +1,7 @@
-import { TransformedInvoiceObject } from "@/components/extraction/UploadToQuickBooks";
-import { Connection, Nango } from "@nangohq/node";
-import { StatusCodes } from "http-status-codes";
-import { NextRequest, NextResponse } from "next/server";
+import { TransformedInvoiceObject } from '@/components/extraction/UploadToQuickBooks';
+import { Connection, Nango } from '@nangohq/node';
+import { StatusCodes } from 'http-status-codes';
+import { NextRequest, NextResponse } from 'next/server';
 
 const nango = new Nango({
   secretKey: process.env.NANGO_SECRET_KEY!,
@@ -23,7 +23,7 @@ interface QuickBooksAPIRequest {
 
 interface LineItem {
   Id?: string; // Required only for updates, or if you specify an ID that doesn't exist then it'll create a line
-  DetailType: "AccountBasedExpenseLineDetail"; // Type of detail for the line item in bills
+  DetailType: 'AccountBasedExpenseLineDetail'; // Type of detail for the line item in bills
   Amount: number; // Max 15 digits in 10.5 format
   AccountBasedExpenseLineDetail: {
     AccountRef: {
@@ -56,7 +56,7 @@ interface LineItem {
         name?: string;
       };
     };
-    BillableStatus?: "Billable" | "NotBillable" | "HasBeenBilled"; // Whether the line item is billable or not
+    BillableStatus?: 'Billable' | 'NotBillable' | 'HasBeenBilled'; // Whether the line item is billable or not
     CustomerRef?: {
       // Reference to the customer (must query customer list for this)
       value: string; // ID of the customer
@@ -73,23 +73,23 @@ export async function POST(req: NextRequest) {
 
   if (!userId || !file) {
     return new NextResponse(
-      JSON.stringify({ message: "User ID and File are required" }),
+      JSON.stringify({ message: 'User ID and File are required' }),
       {
         status: 400,
       },
     );
   }
 
-  const quickbooksToken = await nango.getToken("quickbooks", userId);
+  const quickbooksToken = await nango.getToken('quickbooks', userId);
   const quickbooksConnection: Connection = await nango.getConnection(
-    "quickbooks",
+    'quickbooks',
     userId,
   );
 
   const quickbooksRealmId = quickbooksConnection?.connection_config.realmId;
 
   if (!quickbooksRealmId) {
-    return new NextResponse(JSON.stringify("QuickBooks not authorized"), {
+    return new NextResponse(JSON.stringify('QuickBooks not authorized'), {
       status: StatusCodes.UNAUTHORIZED,
     });
   }
@@ -114,13 +114,13 @@ const createBillInQuickBooks = async (
   const url = `https://quickbooks.api.intuit.com/v3/company/${realmId}/bill`;
 
   const lineItems: LineItem[] = file.data.lineItems.map((item) => ({
-    DetailType: "AccountBasedExpenseLineDetail",
+    DetailType: 'AccountBasedExpenseLineDetail',
     Amount: parseFloat(item.totalAmount),
     AccountBasedExpenseLineDetail: {
       AccountRef: {
         value: item.accountId, // 63 is hardcoded for, Job Expenses:Job Materials
       },
-      BillableStatus: item.billable ? "Billable" : "NotBillable",
+      BillableStatus: item.billable ? 'Billable' : 'NotBillable',
       CustomerRef: {
         value: item.customerId,
       },
@@ -138,19 +138,19 @@ const createBillInQuickBooks = async (
     TxnDate: file.data.date,
     DueDate: file.data.dueDate,
     CurrencyRef: {
-      value: "USD", // Assuming the currency is USD; replace if needed
+      value: 'USD', // Assuming the currency is USD; replace if needed
     },
     PrivateNote:
-      file.data.notes + "\n\n" + file.fileUrl + "\n\n Filed by Workman",
+      file.data.notes + '\n\n' + file.fileUrl + '\n\n Filed by Workman',
     DocNumber: file.data.invoiceNumber,
   };
 
   const response = await fetch(url, {
-    method: "POST",
+    method: 'POST',
     headers: {
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,
-      Accept: "application/json",
+      Accept: 'application/json',
     },
     body: JSON.stringify(bill),
   });
@@ -158,7 +158,7 @@ const createBillInQuickBooks = async (
   if (!response.ok) {
     const errorText = await response.text();
     console.error(
-      "Failed to create bill in QuickBooks:",
+      'Failed to create bill in QuickBooks:',
       response.status,
       response.statusText,
       errorText,

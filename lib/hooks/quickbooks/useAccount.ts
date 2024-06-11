@@ -1,12 +1,12 @@
-import { toast } from "@/components/ui/use-toast";
-import { createClient as createSupabaseClient } from "@/utils/supabase/client";
-import { SetStateAction } from "react";
+import { toast } from '@/components/ui/use-toast';
+import { createClient as createSupabaseClient } from '@/utils/supabase/client';
+import { SetStateAction } from 'react';
 
 export const useAccount = () => {
   const supabase = createSupabaseClient();
 
   const getAccountList = async (
-    columns: string[] | ["*"] = ["*"],
+    columns: string[] | ['*'] = ['*'],
     where: string | null = null,
     setAccountCallback?: React.Dispatch<SetStateAction<any[]>>,
   ) => {
@@ -14,34 +14,34 @@ export const useAccount = () => {
       const { data, error } = await supabase.auth.getUser();
 
       if (error) {
-        throw new Error("Failed to get user");
+        throw new Error('Failed to get user');
       }
 
       const userId = data?.user?.id;
 
       if (!userId) {
-        throw new Error("User ID not found");
+        throw new Error('User ID not found');
       }
 
-      const columnsToSelect = columns.join(",");
+      const columnsToSelect = columns.join(',');
 
       const response = await fetch(
-        `/api/v1/quickbooks/company/account?userId=${userId}&select=${columnsToSelect}${where ? `&where=${where}` : ""}`,
+        `/api/v1/quickbooks/company/account?userId=${userId}&select=${columnsToSelect}${where ? `&where=${where}` : ''}`,
         {
-          method: "GET",
+          method: 'GET',
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
           },
         },
       );
 
       if (!response.ok) {
         toast({
-          title: "Error fetching accounts",
+          title: 'Error fetching accounts',
           description: response.statusText,
-          variant: "destructive",
+          variant: 'destructive',
         });
-        throw new Error("Failed to fetch accounts");
+        throw new Error('Failed to fetch accounts');
       }
 
       const responseData = await response.json();
@@ -52,7 +52,7 @@ export const useAccount = () => {
       if (setAccountCallback) {
         setAccountCallback(customers);
         toast({
-          title: "Accounts fetched successfully",
+          title: 'Accounts fetched successfully',
         });
       }
 

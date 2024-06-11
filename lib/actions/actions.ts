@@ -1,10 +1,10 @@
-"use server";
+'use server';
 
-import { createMindeeClient } from "@/utils/mindee/client";
-import * as mindee from "mindee";
+import { createMindeeClient } from '@/utils/mindee/client';
+import * as mindee from 'mindee';
 
-import { createClient } from "@/utils/supabase/server";
-import { Nango } from "@nangohq/node";
+import { createClient } from '@/utils/supabase/server';
+import { Nango } from '@nangohq/node';
 
 const supabase = createClient();
 const nango = new Nango({
@@ -27,11 +27,11 @@ export async function getGoogleMailToken() {
   const { data } = await supabase.auth.getUser();
 
   if (!data.user) {
-    console.error("User not found");
+    console.error('User not found');
     return;
   }
 
-  const token = await nango.getToken("google-mail", data.user?.id);
+  const token = await nango.getToken('google-mail', data.user?.id);
 
   return token;
 }
@@ -40,10 +40,10 @@ export async function getQuickBooksToken() {
   const { data } = await supabase.auth.getUser();
 
   if (!data.user) {
-    console.error("User not found");
+    console.error('User not found');
     return;
   }
-  const token = await nango.getToken("quickbooks", data.user.id);
+  const token = await nango.getToken('quickbooks', data.user.id);
 
   return token;
 }

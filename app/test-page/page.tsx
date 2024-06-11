@@ -1,15 +1,15 @@
-"use client";
+'use client';
 
-import PDFViewer from "@/components/dashboard/PDFViewer";
-import { Button } from "@/components/ui/button";
-import { toast } from "@/components/ui/use-toast";
-import { createClient as createNangoClient } from "@/utils/nango/client";
-import { handleGoogleMailIntegration } from "@/utils/nango/google";
-import { createClient as createSupabaseClient } from "@/utils/supabase/client";
-import { decode } from "base64-arraybuffer";
-import { useState } from "react";
-import { Email, PDFData } from "../api/v1/gmail/messages/route";
-import { useGmail } from "@/lib/hooks/gmail/useGmail";
+import PDFViewer from '@/components/dashboards/PDFViewer';
+import { Button } from '@/components/ui/button';
+import { toast } from '@/components/ui/use-toast';
+import { createClient as createNangoClient } from '@/utils/nango/client';
+import { handleGoogleMailIntegration } from '@/utils/nango/google';
+import { createClient as createSupabaseClient } from '@/utils/supabase/client';
+import { decode } from 'base64-arraybuffer';
+import { useState } from 'react';
+import { Email, PDFData } from '../api/v1/gmail/messages/route';
+import { useGmail } from '@/lib/hooks/gmail/useGmail';
 
 const nango = createNangoClient();
 const supabase = createSupabaseClient();
@@ -26,23 +26,23 @@ const TestPage = () => {
     try {
       for (const attachment of attachments) {
         const { data, error } = await supabase.storage
-          .from("invoices")
-          .upload("TEST_FILE", decode(attachment.base64), {
-            contentType: "application/pdf",
+          .from('invoices')
+          .upload('TEST_FILE', decode(attachment.base64), {
+            contentType: 'application/pdf',
           });
 
         if (error) {
-          console.error("Error uploading file:", error);
+          console.error('Error uploading file:', error);
           throw error;
         }
       }
 
       toast({
-        title: "Files uploaded",
-        description: "Files uploaded successfully",
+        title: 'Files uploaded',
+        description: 'Files uploaded successfully',
       });
     } catch (error) {
-      console.error("Error uploading files:", error);
+      console.error('Error uploading files:', error);
     }
   };
 
