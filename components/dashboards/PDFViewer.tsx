@@ -6,10 +6,10 @@ pdfjs.GlobalWorkerOptions.workerSrc =
   'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.js';
 
 const PDFViewer = ({
-  fileUrl,
+  file,
   width = 550,
 }: {
-  fileUrl: string;
+  file: File | string;
   width?: number;
 }) => {
   if (width && width <= 100) {
@@ -25,7 +25,7 @@ const PDFViewer = ({
 
   return (
     <Document
-      file={fileUrl}
+      file={file}
       onLoadSuccess={onDocumentLoadSuccess}
       loading={
         <div

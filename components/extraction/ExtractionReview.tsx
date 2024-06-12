@@ -79,7 +79,7 @@ const ExtractionReview = ({ files }: { files: InvoiceObject[] }) => {
               </DropdownMenu>
             </div>
             <div className="no-scrollbar h-full w-full overflow-y-scroll bg-wm-white-50 p-4">
-              <PDFViewer fileUrl={files[activeIndex].fileUrl} />
+              <PDFViewer file={files[activeIndex].fileUrl} />
             </div>
             <div className="sticky bottom-0 flex h-14 min-h-14 items-center gap-2 border-t bg-white px-2">
               <Button
