@@ -1,6 +1,6 @@
 'use client';
 
-import PDFViewer from '@/components/dashboards/PDFViewer';
+import PDFViewer from '@/components/PDF/PDFViewer';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/components/ui/use-toast';
 import { createClient as createNangoClient } from '@/utils/nango/client';
