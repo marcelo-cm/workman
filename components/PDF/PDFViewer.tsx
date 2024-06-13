@@ -47,9 +47,9 @@ const PDFViewer = ({
           pageNumber={index + 1}
           pageIndex={index}
           renderTextLayer={false}
+          renderAnnotationLayer={false}
           height={width * (11 / 8.5)}
           width={width / gridColumns}
-          renderAnnotationLayer={false}
           className="w-fit border border-wm-white-200 "
         >
           <div className="absolute left-1 top-1 rounded-sm border border-wm-white-200 bg-white p-1 text-xs leading-none text-wm-orange">

@@ -315,7 +315,7 @@ const UploadToQuickBooks = ({
             <Button variant={'secondary'}>Go Back to Review</Button>
           </TabsTrigger>
         </TabsList>
-        <Button onClick={() => console.log(files[0])} disabled>
+        <Button disabled>
           <HammerIcon className="h-4 w-4" /> Upload All
         </Button>
       </div>

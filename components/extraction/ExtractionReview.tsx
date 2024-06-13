@@ -1,6 +1,6 @@
 'use client';
 
-import PDFViewer from '@/components/dashboards/PDFViewer';
+import PDFViewer from '@/components/PDF/PDFViewer';
 import {
   BreadcrumbEllipsis,
   BreadcrumbItem,
