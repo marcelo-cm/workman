@@ -72,7 +72,7 @@ const TestPage = () => {
             <div className="flex w-full flex-row gap-2">
               {email.attachments.map((attachment, index) => (
                 <PDFViewer
-                  fileUrl={attachment.bufferData as unknown as string}
+                  file={attachment.bufferData as unknown as string}
                   key={index}
                 />
               ))}
