@@ -9,10 +9,14 @@ const PDFViewer = ({
   file,
   width = 550,
   gridColumns = 1,
+  selectable = false,
+  onPageSelect,
 }: {
   file: File | string;
   width?: number;
   gridColumns?: 1 | 2 | 3;
+  selectable?: boolean;
+  onPageSelect?: (pageNumber: any) => void;
 }) => {
   const [numPages, setNumPages] = useState<number>(0);
 
@@ -50,7 +54,8 @@ const PDFViewer = ({
           renderAnnotationLayer={false}
           height={width * (11 / 8.5)}
           width={width / gridColumns}
-          className="w-fit border border-wm-white-200 "
+          className={`w-fit border border-wm-white-200 ${onPageSelect ? 'cursor-pointer' : ''}`}
+          onClick={() => onPageSelect && onPageSelect(file.slice(index))}
         >
           <div className="absolute left-1 top-1 rounded-sm border border-wm-white-200 bg-white p-1 text-xs leading-none text-wm-orange">
             {index + 1} of {numPages}
