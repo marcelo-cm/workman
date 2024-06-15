@@ -96,7 +96,9 @@ export default function Home() {
         </div>
       </div>
       <footer className="flex w-full justify-center gap-8 py-16 text-sm">
-        <a href="/privacy-policy">Privacy Policy</a>
+        <Button variant={'ghost'}>
+          <a href="/privacy-policy">Privacy Policy</a>
+        </Button>
       </footer>
     </div>
   );
