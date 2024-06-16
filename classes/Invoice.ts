@@ -1,5 +1,5 @@
 import { PDFData } from '@/app/api/v1/gmail/messages/route';
-import { TransformedInvoiceObject } from '@/components/extraction/UploadToQuickBooks';
+import { Invoice_Quickbooks } from '@/components/extraction/UploadToQuickBooks';
 import { toast } from '@/components/ui/use-toast';
 import { InvoiceData } from '@/interfaces/common.interfaces';
 import { mindeeScan } from '@/lib/actions/actions';
@@ -104,7 +104,7 @@ export class Invoice {
     return publicUrl;
   }
 
-  static async uploadToQuickbooks(file: TransformedInvoiceObject) {
+  static async uploadToQuickbooks(file: Invoice_Quickbooks) {
     const { data, error } = await supabase.auth.getUser();
 
     if (error) {

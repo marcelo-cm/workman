@@ -217,7 +217,7 @@ const ExtractionTabs = ({
           disabled={form.formState.isDirty}
           ref={uploadToQuickBooksTabRef}
         >
-          2. Upload to Quickbooks {form.formState.isDirty && '(Save Changes)'}
+          2. Upload to QuickBooks {form.formState.isDirty && '(Save Changes)'}
         </TabsTrigger>
       </TabsList>
       <div className="no-scrollbar h-full overflow-scroll">

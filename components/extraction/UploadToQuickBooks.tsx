@@ -24,7 +24,7 @@ import { ComboBox } from './Combobox';
 
 const supabase = createClient();
 
-export interface TransformedInvoiceObject extends Omit<Invoice, 'data'> {
+export interface Invoice_Quickbooks extends Omit<Invoice, 'data'> {
   data: {
     supplierName: string;
     vendorId: string;
@@ -33,11 +33,11 @@ export interface TransformedInvoiceObject extends Omit<Invoice, 'data'> {
     dueDate: string;
     customerAddress: string;
     notes: string;
-    lineItems: TransformedLineItem[];
+    lineItems: LineItem_QuickBooks[];
   };
 }
 
-export interface TransformedLineItem extends LineItem {
+export interface LineItem_QuickBooks extends LineItem {
   customerId: string;
   billable: boolean;
   accountId: string;
@@ -59,7 +59,7 @@ const UploadToQuickBooks = ({
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [transformedFiles, setTransformedFiles] = useState<
-    TransformedInvoiceObject[]
+    Invoice_Quickbooks[]
   >([]);
 
   const initialLoading = !(
@@ -101,7 +101,7 @@ const UploadToQuickBooks = ({
   };
 
   const transformData = () => {
-    const transformed: TransformedInvoiceObject[] = files.map((file) => ({
+    const transformed: Invoice_Quickbooks[] = files.map((file) => ({
       ...file,
       data: {
         ...file.data,

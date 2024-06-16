@@ -1,4 +1,4 @@
-import { TransformedInvoiceObject } from '@/components/extraction/UploadToQuickBooks';
+import { Invoice_Quickbooks } from '@/components/extraction/UploadToQuickBooks';
 import { Connection, Nango } from '@nangohq/node';
 import { StatusCodes } from 'http-status-codes';
 import { NextRequest, NextResponse } from 'next/server';
@@ -68,7 +68,7 @@ interface LineItem {
 }
 
 export async function POST(req: NextRequest) {
-  const { userId, file }: { userId: string; file: TransformedInvoiceObject } =
+  const { userId, file }: { userId: string; file: Invoice_Quickbooks } =
     await req.json();
 
   if (!userId || !file) {
@@ -109,7 +109,7 @@ export async function POST(req: NextRequest) {
 const createBillInQuickBooks = async (
   realmId: string,
   token: string,
-  file: TransformedInvoiceObject,
+  file: Invoice_Quickbooks,
 ) => {
   const url = `https://quickbooks.api.intuit.com/v3/company/${realmId}/bill`;
 
