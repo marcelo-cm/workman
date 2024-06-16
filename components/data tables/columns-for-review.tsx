@@ -1,7 +1,6 @@
 'use client';
 
 import { Checkbox } from '@/components/ui/checkbox';
-import { InvoiceObject } from '@/interfaces/common.interfaces';
 import { formatDate, toTitleCase } from '@/lib/utils';
 import {
   CaretDownIcon,
@@ -18,6 +17,7 @@ import {
   DropdownMenuRadioItem,
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu';
+import Invoice from '@/classes/Invoice';
 
 // define badge type by status type
 type BadgeType = 'success' | 'destructive' | 'warning' | 'info';
@@ -34,7 +34,7 @@ function getBadgeType(status: string): BadgeType {
   }
 }
 
-export const columns: ColumnDef<InvoiceObject>[] = [
+export const columns: ColumnDef<Invoice>[] = [
   {
     id: 'select',
     header: ({ table }) => (

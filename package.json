@@ -10,7 +10,8 @@
     "lint:fix": "tsc && prettier --write .",
     "format": "prettier --write .",
     "analyze": "ANALYZE=true next build",
-    "clean": "rm -rf .next/ && next build"
+    "clean": "rm -rf .next/ && next build",
+    "db:generate": "npx supabase gen types typescript --project-id nyihnifdeasiteiwlghu > lib/database.types.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.3.4",

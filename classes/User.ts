@@ -3,7 +3,7 @@ import { UUID } from 'crypto';
 
 const supabase = createClient();
 
-class User {
+export class User {
   id: UUID;
   created_at: string;
   ignore_label_id: string;

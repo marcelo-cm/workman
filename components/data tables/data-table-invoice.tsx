@@ -22,16 +22,16 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { InvoiceObject } from '@/interfaces/common.interfaces';
 import { MagnifyingGlassIcon } from '@radix-ui/react-icons';
 import { useEffect, useRef, useState } from 'react';
 import { Button } from '../ui/button';
 import { DatePickerWithRange } from '../ui/date-range-picker';
+import Invoice from '@/classes/Invoice';
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
-  onAction: ((selectedFiles: InvoiceObject[]) => void) | (() => void);
+  onAction: ((selectedFiles: Invoice[]) => void) | (() => void);
   actionOnSelectText: string;
   actionIcon: React.ReactNode;
   canActionBeDisabled?: boolean;
@@ -92,7 +92,7 @@ export function DataTable<TData, TValue>({
   const searchFilterInputRef = useRef<HTMLInputElement>(null);
   const dateRangeRef = useRef<any>(null);
   const selectedFilesUrls = Object.keys(rowSelection).map(
-    (key) => filteredData[parseInt(key)] as InvoiceObject,
+    (key) => filteredData[parseInt(key)] as Invoice,
   );
 
   useEffect(() => {
@@ -106,7 +106,7 @@ export function DataTable<TData, TValue>({
     }
 
     const filtered = data.filter((item) => {
-      const invoiceDate = new Date((item as InvoiceObject).data.date).getTime();
+      const invoiceDate = new Date((item as Invoice).data.date).getTime();
       const fromTime = dateRange.from && new Date(dateRange.from).getTime();
       const toTime = dateRange.to && new Date(dateRange.to).getTime();
       return (

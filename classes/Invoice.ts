@@ -1,7 +1,7 @@
 import { PDFData } from '@/app/api/v1/gmail/messages/route';
 import { TransformedInvoiceObject } from '@/components/extraction/UploadToQuickBooks';
 import { toast } from '@/components/ui/use-toast';
-import { InvoiceData, InvoiceObject } from '@/interfaces/common.interfaces';
+import { InvoiceData } from '@/interfaces/common.interfaces';
 import { mindeeScan } from '@/lib/actions/actions';
 import { createClient } from '@/utils/supabase/client';
 import { decode } from 'base64-arraybuffer';
@@ -9,7 +9,7 @@ import { UUID } from 'crypto';
 
 const supabase = createClient();
 
-class Invoice {
+export class Invoice {
   id: UUID;
   created_at: string;
   data: InvoiceData;
@@ -17,7 +17,7 @@ class Invoice {
   status: string;
   flag: string;
 
-  constructor({ id, created_at, data, status, fileUrl, flag }: InvoiceObject) {
+  constructor({ id, created_at, data, status, fileUrl, flag }: Invoice) {
     this.id = id;
     this.created_at = created_at;
     this.data = data;

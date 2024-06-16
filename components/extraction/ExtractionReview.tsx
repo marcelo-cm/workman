@@ -17,7 +17,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { InvoiceObject } from '@/interfaces/common.interfaces';
 import {
   CaretDownIcon,
   CaretLeftIcon,
@@ -27,8 +26,9 @@ import { useState } from 'react';
 import { Badge } from '../ui/badge';
 import ExtractionTabs from './ExtractionTabs';
 import { Separator } from '@radix-ui/react-dropdown-menu';
+import Invoice from '@/classes/Invoice';
 
-const ExtractionReview = ({ files }: { files: InvoiceObject[] }) => {
+const ExtractionReview = ({ files }: { files: Invoice[] }) => {
   const [activeIndex, setActiveIndex] = useState(0);
 
   const handleSetActiveIndex = (increment: 1 | -1) => {

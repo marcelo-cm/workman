@@ -20,7 +20,6 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
 import { toast } from '@/components/ui/use-toast';
-import { InvoiceObject } from '@/interfaces/common.interfaces';
 import { useGmail } from '@/lib/hooks/gmail/useGmail';
 import Invoice from '@/classes/Invoice';
 import { createClient } from '@/utils/supabase/client';
@@ -56,7 +55,7 @@ const supabase = createClient();
 const Unprocessed = () => {
   const { getEmails, markAsScanned } = useGmail();
   const [isUploading, setIsUploading] = useState<boolean>(false);
-  const [invoices, setInvoices] = useState<InvoiceObject[]>([]);
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [emails, setEmails] = useState<Email[]>([]);
   const router = useRouter();
 
@@ -74,7 +73,7 @@ const Unprocessed = () => {
     fetchEmails();
   }, []);
 
-  async function handleProcessSelected(selectedRows: InvoiceObject[]) {
+  async function handleProcessSelected(selectedRows: Invoice[]) {
     setIsUploading(true);
     try {
       const scanAndUpdatePromises = selectedRows.map(async (row) => {

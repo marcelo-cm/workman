@@ -11,7 +11,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/text-area';
-import { InvoiceData, InvoiceObject } from '@/interfaces/common.interfaces';
+import { InvoiceData } from '@/interfaces/common.interfaces';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   BookmarkIcon,
@@ -74,12 +74,12 @@ const ExtractionTabs = ({
   handleSetActiveIndex,
   setActiveIndex,
 }: {
-  files: InvoiceObject[];
+  files: Invoice[];
   activeIndex: number;
   handleSetActiveIndex: (index: 1 | -1) => void;
   setActiveIndex: React.Dispatch<SetStateAction<number>>;
 }) => {
-  const [approvedFiles, setApprovedFiles] = useState<InvoiceObject[]>([]);
+  const [approvedFiles, setApprovedFiles] = useState<Invoice[]>([]);
   const uploadToQuickBooksTabRef = useRef<HTMLButtonElement>(null);
   const file = files[activeIndex];
   const form = useForm<z.infer<typeof formSchema>>({
@@ -180,12 +180,12 @@ const ExtractionTabs = ({
     files[activeIndex].data = form.getValues();
   };
 
-  const handleProcessInvoice = async (file: InvoiceObject) => {
+  const handleProcessInvoice = async (file: Invoice) => {
     const mappedResponse = await Invoice.scanAndUpdate(file.fileUrl);
     mapDataToForm(mappedResponse);
   };
 
-  const handleUpdateInvoiceData = async (file: InvoiceObject) => {
+  const handleUpdateInvoiceData = async (file: Invoice) => {
     if (!approvedFiles.includes(file)) {
       setApprovedFiles([...approvedFiles, file]);
     }
@@ -198,7 +198,7 @@ const ExtractionTabs = ({
     mapDataToForm(data);
   };
 
-  const discardChanges = (file: InvoiceObject) => {
+  const discardChanges = (file: Invoice) => {
     mapDataToForm(file.data);
   };
 

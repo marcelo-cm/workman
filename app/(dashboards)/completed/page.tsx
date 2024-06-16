@@ -1,5 +1,6 @@
 'use client';
 
+import Invoice from '@/classes/Invoice';
 import { columns } from '@/components/data tables/columns-completed';
 import { DataTable } from '@/components/data tables/data-table-invoice';
 import {
@@ -8,7 +9,6 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
-import { InvoiceObject } from '@/interfaces/common.interfaces';
 import { createClient } from '@/utils/supabase/client';
 import { EnvelopeClosedIcon } from '@radix-ui/react-icons';
 import { useRouter } from 'next/navigation';
@@ -38,7 +38,7 @@ const getInvoices = async () => {
 };
 
 const CompletedBills = () => {
-  const [invoices, setInvoices] = useState<InvoiceObject[]>([]);
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
   const router = useRouter();
 
   async function fetchInvoices() {

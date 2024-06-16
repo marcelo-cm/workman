@@ -20,7 +20,6 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
 import { Button } from '@/components/ui/button';
-import { InvoiceObject } from '@/interfaces/common.interfaces';
 import { createClient } from '@/utils/supabase/client';
 import { Pencil2Icon, UploadIcon } from '@radix-ui/react-icons';
 import { UserResponse } from '@supabase/supabase-js';
@@ -31,8 +30,8 @@ const supabase = createClient();
 
 export default function ForApproval() {
   const fileInputRef = useRef<null | HTMLInputElement>(null);
-  const [selectedFiles, setSelectedFiles] = useState<InvoiceObject[]>([]); // Used for the Extraction Review component
-  const [invoices, setInvoices] = useState<InvoiceObject[]>([]);
+  const [selectedFiles, setSelectedFiles] = useState<Invoice[]>([]); // Used for the Extraction Review component
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [review, setReview] = useState<boolean>(false);
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const router = useRouter();
@@ -59,7 +58,7 @@ export default function ForApproval() {
     if (error) {
       console.error('Error fetching invoices:', error);
     } else {
-      setInvoices(data as InvoiceObject[]);
+      setInvoices(data as Invoice[]);
     }
   }
 
@@ -99,7 +98,7 @@ export default function ForApproval() {
     setIsUploading(false);
   };
 
-  const handleReviewSelected = async (files: InvoiceObject[]) => {
+  const handleReviewSelected = async (files: Invoice[]) => {
     setSelectedFiles(files);
     setReview(true);
   };

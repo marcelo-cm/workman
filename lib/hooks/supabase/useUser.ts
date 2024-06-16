@@ -1,4 +1,4 @@
-import { UserConfig } from '@/interfaces/common.interfaces';
+import { User } from '@/classes/User';
 import { createClient as createSupabaseClient } from '@/utils/supabase/client';
 import { PostgrestSingleResponse } from '@supabase/supabase-js';
 
@@ -33,8 +33,8 @@ export const useUser = () => {
   const fetchUserData = async ({
     columns = ['*'],
   }: {
-    columns: (keyof UserConfig)[] | ['*'];
-  }): Promise<Partial<UserConfig>> => {
+    columns: (keyof User)[] | ['*'];
+  }): Promise<Partial<User>> => {
     const { data: userData, error: userError } = await supabase.auth.getUser();
 
     if (userError) {

@@ -1,5 +1,5 @@
 import { TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { InvoiceObject, LineItem } from '@/interfaces/common.interfaces';
+import { LineItem } from '@/interfaces/common.interfaces';
 import { Account, Customer, Vendor } from '@/interfaces/quickbooks.interfaces';
 import { useAccount } from '@/lib/hooks/quickbooks/useAccount';
 import { useCustomer } from '@/lib/hooks/quickbooks/useCustomer';
@@ -24,7 +24,7 @@ import { ComboBox } from './Combobox';
 
 const supabase = createClient();
 
-export interface TransformedInvoiceObject extends Omit<InvoiceObject, 'data'> {
+export interface TransformedInvoiceObject extends Omit<Invoice, 'data'> {
   data: {
     supplierName: string;
     vendorId: string;
@@ -47,7 +47,7 @@ const UploadToQuickBooks = ({
   files,
   setActiveIndex,
 }: {
-  files: InvoiceObject[];
+  files: Invoice[];
   setActiveIndex: React.Dispatch<SetStateAction<number>>;
 }) => {
   const { getVendorList } = useVendor();

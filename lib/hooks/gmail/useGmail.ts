@@ -4,7 +4,6 @@ import { Label, Label_Basic } from '@/interfaces/gmail.interfaces';
 import { createClient as createSupabaseClient } from '@/utils/supabase/client';
 import { SetStateAction } from 'react';
 import { useUser } from '../supabase/useUser';
-import { UserConfig } from '@/interfaces/common.interfaces';
 
 export const useGmail = () => {
   const { fetchUserData } = useUser();
