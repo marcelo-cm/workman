@@ -1,24 +1,5 @@
 import { UUID } from 'crypto';
 
-export interface UserConfig {
-  id: UUID;
-  created_at: string;
-  scanned_label_id: string;
-  ignore_label_id: string;
-}
-
-/**
- * Represents an invoice object retrieved from the database in Supabase.
- */
-export type InvoiceObject = {
-  id: UUID;
-  created_at: string;
-  data: InvoiceData;
-  fileUrl: string;
-  status: string;
-  flag: string;
-};
-
 /**
  * This is the data we save from the API call to the OCR service. It's achieved by parsing the JSON response using Invoice.parse.
  */

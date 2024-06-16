@@ -16,12 +16,18 @@ export const handleGoogleMailIntegration = async () => {
 
   nango
     .auth('google-mail', userId)
-    .then((result: { providerConfigKey: string; connectionId: string }) => {
-      toast({
-        title: 'Authorization Successful',
-        description: 'You have successfully authorized Google Mail',
-      });
-    })
+    .then(
+      async (result: { providerConfigKey: string; connectionId: string }) => {
+        await supabase
+          .from('users')
+          .update({ gmail_integration_status: true })
+          .eq('id', userId);
+        toast({
+          title: 'Authorization Successful',
+          description: 'You have successfully authorized Google Mail',
+        });
+      },
+    )
     .catch((err: { message: string; type: string }) => {
       toast({
         title: 'Authorization Failed',

@@ -16,12 +16,18 @@ export const handleQuickBooksIntegration = async () => {
 
   nango
     .auth('quickbooks', userId)
-    .then((result: { providerConfigKey: string; connectionId: string }) => {
-      toast({
-        title: 'Authorization Successful',
-        description: 'You have successfully authorized QuickBooks',
-      });
-    })
+    .then(
+      async (result: { providerConfigKey: string; connectionId: string }) => {
+        await supabase
+          .from('users')
+          .update({ quickbooks_integration_status: true })
+          .eq('id', userId);
+        toast({
+          title: 'Authorization Successful',
+          description: 'You have successfully authorized QuickBooks',
+        });
+      },
+    )
     .catch((err: { message: string; type: string }) => {
       toast({
         title: 'Authorization Failed',

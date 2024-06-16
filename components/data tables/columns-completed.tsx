@@ -1,6 +1,5 @@
 'use client';
 
-import { InvoiceObject } from '@/interfaces/common.interfaces';
 import { formatDate } from '@/lib/utils';
 import {
   CaretDownIcon,
@@ -9,6 +8,7 @@ import {
 } from '@radix-ui/react-icons';
 import { ColumnDef } from '@tanstack/react-table';
 import { Button } from '../ui/button';
+import Invoice from '@/classes/Invoice';
 
 // define badge type by status type
 type BadgeType = 'success' | 'destructive' | 'warning' | 'info';
@@ -25,7 +25,7 @@ function getBadgeType(status: string): BadgeType {
   }
 }
 
-export const columns: ColumnDef<InvoiceObject>[] = [
+export const columns: ColumnDef<Invoice>[] = [
   {
     accessorKey: 'file_name&sender',
     accessorFn: (row) =>

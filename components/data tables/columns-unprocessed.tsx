@@ -1,14 +1,14 @@
 'use client';
 
 import { Checkbox } from '@/components/ui/checkbox';
-import { InvoiceObject } from '@/interfaces/common.interfaces';
 import { formatDate } from '@/lib/utils';
 import { CaretDownIcon, CaretUpIcon } from '@radix-ui/react-icons';
 import { ColumnDef } from '@tanstack/react-table';
 import { ExternalLinkIcon } from 'lucide-react';
 import { Button } from '../ui/button';
+import Invoice from '@/classes/Invoice';
 
-export const columns: ColumnDef<InvoiceObject>[] = [
+export const columns: ColumnDef<Invoice>[] = [
   {
     id: 'select',
     header: ({ table }) => (

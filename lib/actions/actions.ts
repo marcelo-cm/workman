@@ -23,12 +23,31 @@ export async function mindeeScan(fileUrl: string) {
   return JSON.stringify(respPromise);
 }
 
+/**
+ * Retrieves OAuth2 token from Nango for Google Mail
+ * @returns Token for Google Mail if found, otherwise false
+ */
 export async function getGoogleMailToken() {
   const { data } = await supabase.auth.getUser();
 
   if (!data.user) {
     console.error('User not found');
     return;
+  }
+
+  const gmailIntegrationStatus = await supabase
+    .from('users')
+    .select('gmail_integration_status')
+    .eq('id', data.user.id)
+    .single();
+
+  if (gmailIntegrationStatus.error) {
+    throw new Error(gmailIntegrationStatus.error.message);
+  }
+
+  if (!gmailIntegrationStatus.data.gmail_integration_status) {
+    console.error('Gmail integration not enabled');
+    return false;
   }
 
   const token = await nango.getToken('google-mail', data.user?.id);
@@ -43,6 +62,22 @@ export async function getQuickBooksToken() {
     console.error('User not found');
     return;
   }
+
+  const quickbooksIntegrationStatus = await supabase
+    .from('users')
+    .select('quickbooks_integration_status')
+    .eq('id', data.user.id)
+    .single();
+
+  if (quickbooksIntegrationStatus.error) {
+    throw new Error(quickbooksIntegrationStatus.error.message);
+  }
+
+  if (!quickbooksIntegrationStatus.data.quickbooks_integration_status) {
+    console.error('QuickBooks integration not enabled');
+    return false;
+  }
+
   const token = await nango.getToken('quickbooks', data.user.id);
 
   return token;

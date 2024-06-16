@@ -19,6 +19,8 @@ import { getGoogleMailToken, getQuickBooksToken } from '@/lib/actions/actions';
 import { useGmail } from '@/lib/hooks/gmail/useGmail';
 import { useUser } from '@/lib/hooks/supabase/useUser';
 import { createClient as createNangoClient } from '@/utils/nango/client';
+import { handleGoogleMailIntegration } from '@/utils/nango/google';
+import { handleQuickBooksIntegration } from '@/utils/nango/quickbooks';
 import { createClient as createSupabaseClient } from '@/utils/supabase/client';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
@@ -91,7 +93,6 @@ const Onboarding = () => {
     const ignoreLabelExists = labels.find(
       (label: Label_Basic) => label.name === 'WORKMAN IGNORE',
     );
-    // @todo search for the ignore label, create it if not there, and update the user configs with the new label if successful
 
     if (!workmanLabelExists) {
       const WORKMAN_SCANNED_LABEL: Omit<Label_Basic, 'id'> = {
@@ -189,6 +190,11 @@ const Onboarding = () => {
                 )}
               />
               <div className="flex w-full justify-end">
+                {errorMessage && (
+                  <FormDescription className="text-balance text-red-500">
+                    {errorMessage}
+                  </FormDescription>
+                )}
                 <Button
                   type="submit"
                   className="ml-auto"
@@ -196,11 +202,6 @@ const Onboarding = () => {
                 >
                   Sign Up
                 </Button>
-                {errorMessage && (
-                  <FormDescription className="text-red-500">
-                    {errorMessage}
-                  </FormDescription>
-                )}
               </div>
             </form>
           </Form>
@@ -215,6 +216,7 @@ const Onboarding = () => {
             className="w-fit self-end"
             variant={'secondary'}
             disabled={!isLoggedIn || isAuthenticated.gmail || isLoading}
+            onClick={handleGoogleMailIntegration}
           >
             <Gmail />
             Authenticate Gmail
@@ -230,6 +232,7 @@ const Onboarding = () => {
             className="w-fit self-end"
             variant={'secondary'}
             disabled={!isLoggedIn || isAuthenticated.quickbooks || isLoading}
+            onClick={handleQuickBooksIntegration}
           >
             <QuickBooks />
             Authenticate QuickBooks
