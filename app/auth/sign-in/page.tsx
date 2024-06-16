@@ -79,21 +79,23 @@ const SignIn = () => {
         Welcome to the Workman Pilot Program. We're so happy you're here.
       </h3>
       <div className="flex w-full max-w-[500px] flex-col gap-4 rounded-md border p-4">
-        <h3 className="text-lg font-medium">Create Account</h3>
+        <h3 className="text-lg font-medium">Welcome Back!</h3>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <FormField
               control={form.control}
               name="email"
               render={({ field }) => (
-                <FormItem className="mb-2 flex w-full items-center gap-4">
-                  <FormLabel className="w-[90px]">Email</FormLabel>
-                  <div className="w-full">
-                    <FormControl>
-                      <Input placeholder="Email" type="text" {...field} />
-                    </FormControl>
-                    <FormMessage className="text-red-500" />
+                <FormItem>
+                  <div className="mb-2 flex w-full items-center gap-4">
+                    <FormLabel className="w-[90px]">Email</FormLabel>
+                    <div className="w-full">
+                      <FormControl>
+                        <Input placeholder="Email" type="text" {...field} />
+                      </FormControl>
+                    </div>
                   </div>
+                  <FormMessage className="my-2  text-red-500" />
                 </FormItem>
               )}
             />
@@ -101,22 +103,24 @@ const SignIn = () => {
               control={form.control}
               name="current_password"
               render={({ field }) => (
-                <FormItem className="mb-4 flex w-full items-center gap-4">
-                  <FormLabel className="w-[90px]">Password</FormLabel>
-                  <div className="w-full">
-                    <FormControl>
-                      <Input
-                        placeholder="Password"
-                        type="password"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage className="text-red-500" />
+                <FormItem>
+                  <div className="mb-2 flex w-full items-center gap-4">
+                    <FormLabel className="w-[90px]">Password</FormLabel>
+                    <div className="w-full">
+                      <FormControl>
+                        <Input
+                          placeholder="Password"
+                          type="password"
+                          {...field}
+                        />
+                      </FormControl>
+                    </div>
                   </div>
+                  <FormMessage className="my-2 text-right text-red-500" />
                 </FormItem>
               )}
             />
-            <div className="flex w-full justify-end">
+            <div className="flex w-full items-center justify-end">
               <Button type="submit" className="ml-auto" disabled={isLoading}>
                 Sign In
               </Button>
@@ -129,6 +133,13 @@ const SignIn = () => {
           )}
         </Form>
       </div>
+      <p>
+        Don't have an account? Contact us{' '}
+        <a href="mailto:ethan@workman.so" className="underline">
+          ethan@workman.so
+        </a>
+        .
+      </p>
       <Button asChild>
         <a href="mailto:ethan@workman.so" target="_blank">
           <EnvelopeClosedIcon /> Contact
