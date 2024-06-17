@@ -1,3 +1,11 @@
+import WorkmanLogo from '@/components/molecules/WorkmanLogo';
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import {
   Dialog,
   DialogContent,
@@ -12,6 +20,7 @@ import PDFSplitter from '../PDF/PDFSplitter/PDFSplitter';
 const UploadFileButton = () => {
   const fileInputRef = useRef<null | HTMLInputElement>(null);
   const [filesToUpload, setFilesToUpload] = useState<File[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
 
   const handleButtonClick = () => {
     if (fileInputRef.current) {
@@ -31,39 +40,53 @@ const UploadFileButton = () => {
   };
 
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button>
-          <UploadIcon /> Upload Document
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="flex h-[90%] max-w-[90%] flex-col overflow-hidden p-0">
-        {filesToUpload.length ? (
-          <PDFSplitter
-            filesToUpload={filesToUpload}
-            setFilesToUpload={setFilesToUpload}
+    <>
+      <Dialog>
+        <DialogTrigger asChild>
+          <Button>
+            <UploadIcon /> Upload Document
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="flex h-[90%] max-w-[90%] flex-col overflow-hidden p-0">
+          {filesToUpload.length ? (
+            <PDFSplitter
+              filesToUpload={filesToUpload}
+              setFilesToUpload={setFilesToUpload}
+            />
+          ) : (
+            <div className="flex h-full flex-col gap-4  p-4">
+              <DialogTitle>Upload Documents</DialogTitle>
+              <button
+                className="flex h-full w-full items-center justify-center rounded-lg border border-dashed border-wm-white-500 bg-wm-white-50 text-wm-white-700 hover:border-wm-orange-500 hover:bg-wm-orange-50 hover:text-wm-orange-700"
+                onClick={handleButtonClick}
+              >
+                Drag Files or Click to Upload
+              </button>
+            </div>
+          )}
+          <input
+            type="file"
+            ref={fileInputRef}
+            multiple
+            accept="application/pdf"
+            onChange={addToUploadQueue}
+            style={{ display: 'none' }}
           />
-        ) : (
-          <div className="flex h-full flex-col gap-4  p-4">
-            <DialogTitle>Upload Documents</DialogTitle>
-            <button
-              className="flex h-full w-full items-center justify-center rounded-lg border border-dashed border-wm-white-500 bg-wm-white-50 text-wm-white-700 hover:border-wm-orange-500 hover:bg-wm-orange-50 hover:text-wm-orange-700"
-              onClick={handleButtonClick}
-            >
-              Drag Files or Click to Upload
-            </button>
-          </div>
-        )}
-        <input
-          type="file"
-          ref={fileInputRef}
-          multiple
-          accept="application/pdf"
-          onChange={addToUploadQueue}
-          style={{ display: 'none' }}
-        />
-      </DialogContent>
-    </Dialog>
+        </DialogContent>
+      </Dialog>
+      <AlertDialog open={isUploading}>
+        <AlertDialogContent className="justify-center">
+          <AlertDialogHeader className="items-center">
+            <WorkmanLogo className="w-32 animate-pulse" />
+            <AlertDialogTitle>Uploading your Data Now!</AlertDialogTitle>
+          </AlertDialogHeader>
+          <AlertDialogDescription className="text-center">
+            It's important that you don't close this window while we're
+            uploading your data.
+          </AlertDialogDescription>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 };
 

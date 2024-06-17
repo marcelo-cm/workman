@@ -1,9 +1,20 @@
 import { Checkbox } from '@/components/ui/checkbox';
+import Container from '@/components/ui/container';
 import {
   DialogDescription,
   DialogFooter,
   DialogTitle,
 } from '@/components/ui/dialog';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { zodResolver } from '@hookform/resolvers/zod';
 import {
   CaretRightIcon,
   PlusIcon,
@@ -11,23 +22,12 @@ import {
   ScissorsIcon,
   TrashIcon,
 } from '@radix-ui/react-icons';
-import { Button } from '../../ui/button';
-import PDFViewer from '../PDFViewer';
 import React, { useEffect, useRef, useState } from 'react';
-import { usePDFSplitter } from './PDFSplitter';
-import { Input } from '@/components/ui/input';
-import Container from '@/components/ui/container';
-import { Label } from '@/components/ui/label';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-} from '@/components/ui/form';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { Button } from '../../ui/button';
+import PDFViewer from '../PDFViewer';
+import { usePDFSplitter } from './PDFSplitter';
 
 const fileSpitSchema = z.object({
   fixedRanges: z.boolean(),
@@ -53,7 +53,7 @@ const PDFSplitterFileSplit = () => {
       splitPages: [
         {
           fileName: '',
-          pageIndices: [],
+          pageIndices: [1],
         },
       ],
     },
@@ -63,8 +63,8 @@ const PDFSplitterFileSplit = () => {
     name: 'splitPages',
   });
   const watchedFixedRanges = form.watch('fixedRanges');
-  const watchedSplitInterval = form.watch('splitInterval');
-  const [activeFile, setActiveFile] = useState<File>(filesToSplit[0]);
+  const watchedPages = form.watch('splitPages');
+  const [activeIndex, setActiveIndex] = useState<number>(0);
   const [PDFViewerWidth, setPDFViewerWidth] = useState<number>(500);
 
   useEffect(() => {
@@ -86,36 +86,74 @@ const PDFSplitterFileSplit = () => {
   }, []);
 
   useEffect(() => {
+    handleReset();
+  }, [activeIndex]);
+
+  useEffect(() => {
+    form.setValue('splitInterval', watchedFixedRanges ? 1 : null);
+  }, [watchedFixedRanges]);
+
+  function handleReset() {
     form.reset({
       fixedRanges: false,
       splitInterval: null,
-      splitPages: [],
+      splitPages: [
+        {
+          fileName: 'Test_1',
+          pageIndices: [1],
+        },
+        {
+          fileName: 'Test_2',
+          pageIndices: [2],
+        },
+      ],
     });
-  }, [activeFile]);
-
-  useEffect(() => {
-    if (!watchedFixedRanges) {
-      form.setValue('splitInterval', null);
-    } else {
-      form.setValue('splitInterval', 1);
-    }
-  }, [watchedFixedRanges]);
-
-  useEffect(() => {
-    console.log('fields', fields);
-  }, [fields]);
-
-  const watchedSplitPages = form.watch('splitPages.1.pageIndices');
-
-  useEffect(() => {
-    console.log('watched', watchedSplitPages);
-  }, [watchedSplitPages]);
+  }
 
   function addFile() {
     append({
       fileName: '',
       pageIndices: [],
     });
+  }
+
+  function handleSplitPDFs() {
+    console.log('Splitting PDFs');
+    if (!form.formState.isValid) {
+      form.trigger();
+    }
+
+    const file = filesToSplit[activeIndex];
+    // if (file) {
+    //   const formData = new FormData();
+    //   formData.append('file', file);
+    //   formData.append('splitInterval', form.getValues('splitInterval'));
+    //   formData.append(
+    //     'splitPages',
+    //     JSON.stringify(form.getValues('splitPages')),
+    //   );
+
+    //   fetch('http://localhost:3000/split', {
+    //     method: 'POST',
+    //     body: formData,
+    //   })
+    //     .then((res) => res.blob())
+    //     .then((blob) => {
+    //       const url = URL.createObjectURL(blob);
+    //       const a = document.createElement('a');
+    //       a.href = url;
+    //       a.download = 'split.pdf';
+    //       a.click();
+    //       URL.revokeObjectURL(url);
+    //     });
+    // }
+
+    const pdfBytes = file.arrayBuffer();
+    // const pdfDoc = PDFDocument.load(pdfBytes);
+  }
+
+  function handleSkipFile() {
+    setActiveIndex((prev) => prev + 1);
   }
 
   return (
@@ -177,19 +215,43 @@ const PDFSplitterFileSplit = () => {
                   name={`splitPages.${index}.fileName`}
                   render={({ field }) => (
                     <FormItem className="border-b p-4 last:border-0">
-                      <FormLabel className="ml-2">File Name</FormLabel>
+                      <div className="flex w-full items-center justify-between">
+                        <FormLabel className="ml-2">File Name</FormLabel>
+                        <FormMessage className="px-2" />
+                      </div>
                       <FormControl>
                         <Input
                           placeholder={`Invoice_File_${index}`}
                           {...field}
-                          {...form.register(field.name)}
+                          {...form.register(field.name, {
+                            onChange: (e) => {
+                              form.setValue(field.name, e.target.value, {
+                                shouldValidate: true,
+                                shouldDirty: true,
+                              });
+                            },
+                          })}
                         />
                       </FormControl>
+                      <div className="mt-1 flex flex-wrap">
+                        {watchedPages
+                          .find((page) => page.fileName === field.value)
+                          ?.pageIndices.map((page, index) => (
+                            <Button
+                              className="!h-7 p-3 text-xs"
+                              size={'sm'}
+                              type="button"
+                            >
+                              1
+                            </Button>
+                          ))}
+                      </div>
                       <div className="mt-2 flex items-center justify-between ">
                         <Button
                           variant={'ghost'}
                           size={'sm'}
                           disabled={watchedFixedRanges}
+                          type="button"
                         >
                           Select Pages
                         </Button>
@@ -214,17 +276,18 @@ const PDFSplitterFileSplit = () => {
           <div className="mr-auto flex items-center gap-2">
             <Button
               variant={'secondary'}
-              onClick={() => console.log('uploading documents')}
+              onClick={handleSkipFile}
+              type="button"
             >
               Skip File
               <CaretRightIcon />
             </Button>
-            <Button variant={'outline'}>
+            <Button variant={'outline'} onClick={handleReset} type="button">
               <ResetIcon />
               Reset
             </Button>
           </div>
-          <Button>
+          <Button type="button">
             <ScissorsIcon />
             Split PDFs
           </Button>
@@ -232,20 +295,47 @@ const PDFSplitterFileSplit = () => {
       </div>
       <div className="w-3/5 bg-wm-white-50">
         <div className="flex h-12 min-h-12 items-center justify-between border-b px-4 text-sm">
-          {activeFile?.name}
+          {filesToSplit[activeIndex]?.name}
         </div>
         <div
           className="no-scrollbar h-full w-full overflow-y-scroll p-4"
           ref={PDFViewerParentRef}
         >
           <PDFViewer
-            file={activeFile ? activeFile : ''}
+            file={filesToSplit[activeIndex] ? filesToSplit[activeIndex] : ''}
             width={PDFViewerWidth}
-            gridColumns={3}
+            gridColumns={2}
             selectable
+            selectedPages={watchedPages.map((page) => page.pageIndices).flat()}
             onPageSelect={(page: Blob) => {
               console.log(page);
               form.setValue('splitPages.1.pageIndices', [page]);
+            }}
+            customPageOverlay={(index: number, numPages: number) => (
+              <div className="h-full w-full">
+                <Button
+                  className="absolute left-0.5 top-0.5 !h-6 p-2 text-xs"
+                  size={'sm'}
+                  type="button"
+                >
+                  {index + 1}
+                </Button>
+              </div>
+            )}
+            customPageHeader={(index: number, numPages: number) => {
+              const file = watchedPages.find((field) =>
+                field.pageIndices.includes(index + 1),
+              );
+
+              return file ? (
+                <div className="mb-1 w-fit rounded border border-wm-orange bg-white p-1 text-xs leading-tight text-wm-orange">
+                  {file.fileName ? file.fileName : <i>No File Name</i>}
+                </div>
+              ) : (
+                <div className="mb-1 w-fit rounded border  bg-white p-1 text-xs leading-tight text-wm-white-500">
+                  Not Selected
+                </div>
+              );
             }}
           />
         </div>
