@@ -21,7 +21,7 @@ const PDFViewer = ({
   gridColumns?: 1 | 2 | 3;
   selectable?: boolean;
   selectedPages?: number[];
-  onPageSelect?: (pageNumber: any) => void;
+  onPageSelect?: (index: number) => void;
   customPageOverlay?: (index: number, numPages: number) => JSX.Element | null;
   customPageFooter?:
     | React.ReactNode
@@ -76,7 +76,9 @@ const PDFViewer = ({
             height={width * (11 / 8.5)}
             width={width / gridColumns}
             className={`w-fit border border-wm-white-200 ${selectedPages && selectedPages.includes(index + 1) ? 'border-wm-orange' : null} ${onPageSelect ? 'cursor-pointer' : ''}`}
-            onClick={() => selectable && onPageSelect && onPageSelect(file)}
+            onClick={() =>
+              selectable && onPageSelect && onPageSelect(index + 1)
+            }
           >
             {(customPageOverlay && customPageOverlay(index, numPages)) ?? (
               <div className="absolute left-1 top-1 rounded-sm border border-wm-white-200 bg-white p-1 text-xs leading-none text-wm-orange">

@@ -28,6 +28,7 @@ import { z } from 'zod';
 import { Button } from '../../ui/button';
 import PDFViewer from '../PDFViewer';
 import { usePDFSplitter } from './PDFSplitter';
+import { formatISO } from 'date-fns';
 
 const fileSpitSchema = z.object({
   fixedRanges: z.boolean(),
@@ -66,6 +67,9 @@ const PDFSplitterFileSplit = () => {
   const watchedPages = form.watch('splitPages');
   const [activeIndex, setActiveIndex] = useState<number>(0);
   const [PDFViewerWidth, setPDFViewerWidth] = useState<number>(500);
+  const [currentlySelectedPage, setCurrentlySelectedPage] = useState<
+    number | null
+  >(null);
 
   useEffect(() => {
     function updatePDFViewerWidth() {
@@ -118,42 +122,35 @@ const PDFSplitterFileSplit = () => {
   }
 
   function handleSplitPDFs() {
-    console.log('Splitting PDFs');
     if (!form.formState.isValid) {
       form.trigger();
     }
 
     const file = filesToSplit[activeIndex];
-    // if (file) {
-    //   const formData = new FormData();
-    //   formData.append('file', file);
-    //   formData.append('splitInterval', form.getValues('splitInterval'));
-    //   formData.append(
-    //     'splitPages',
-    //     JSON.stringify(form.getValues('splitPages')),
-    //   );
-
-    //   fetch('http://localhost:3000/split', {
-    //     method: 'POST',
-    //     body: formData,
-    //   })
-    //     .then((res) => res.blob())
-    //     .then((blob) => {
-    //       const url = URL.createObjectURL(blob);
-    //       const a = document.createElement('a');
-    //       a.href = url;
-    //       a.download = 'split.pdf';
-    //       a.click();
-    //       URL.revokeObjectURL(url);
-    //     });
-    // }
-
-    const pdfBytes = file.arrayBuffer();
-    // const pdfDoc = PDFDocument.load(pdfBytes);
   }
 
   function handleSkipFile() {
     setActiveIndex((prev) => prev + 1);
+  }
+
+  function handlePageSelect(index: number) {
+    if (currentlySelectedPage === null) return;
+
+    const oldPageIndices = form.getValues(
+      `splitPages.${currentlySelectedPage}.pageIndices`,
+    );
+
+    let newPageIndices;
+    if (oldPageIndices.includes(index)) {
+      newPageIndices = oldPageIndices.filter((number) => number !== index);
+    } else {
+      newPageIndices = [...oldPageIndices, index].sort();
+    }
+
+    form.setValue(
+      `splitPages.${currentlySelectedPage}.pageIndices`,
+      newPageIndices,
+    );
   }
 
   return (
@@ -233,7 +230,7 @@ const PDFSplitterFileSplit = () => {
                           })}
                         />
                       </FormControl>
-                      <div className="mt-1 flex flex-wrap">
+                      <div className="mt-2 flex flex-wrap">
                         {watchedPages
                           .find((page) => page.fileName === field.value)
                           ?.pageIndices.map((page, index) => (
@@ -242,14 +239,25 @@ const PDFSplitterFileSplit = () => {
                               size={'sm'}
                               type="button"
                             >
-                              1
+                              {page}
                             </Button>
                           ))}
                       </div>
                       <div className="mt-2 flex items-center justify-between ">
                         <Button
                           variant={'ghost'}
+                          className={
+                            index === currentlySelectedPage
+                              ? 'border border-wm-orange text-wm-orange'
+                              : ''
+                          }
                           size={'sm'}
+                          value={index}
+                          onClick={() =>
+                            setCurrentlySelectedPage((prev) =>
+                              prev ? null : index,
+                            )
+                          }
                           disabled={watchedFixedRanges}
                           type="button"
                         >
@@ -307,10 +315,7 @@ const PDFSplitterFileSplit = () => {
             gridColumns={2}
             selectable
             selectedPages={watchedPages.map((page) => page.pageIndices).flat()}
-            onPageSelect={(page: Blob) => {
-              console.log(page);
-              form.setValue('splitPages.1.pageIndices', [page]);
-            }}
+            onPageSelect={handlePageSelect}
             customPageOverlay={(index: number, numPages: number) => (
               <div className="h-full w-full">
                 <Button
