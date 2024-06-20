@@ -29,14 +29,16 @@ import { Button } from '../../ui/button';
 import PDFViewer from '../PDFViewer';
 import { usePDFSplitter } from './PDFSplitter';
 import { formatISO } from 'date-fns';
+import { toast } from '@/components/ui/use-toast';
+import { PDFDocument } from 'pdf-lib';
 
 const fileSpitSchema = z.object({
   fixedRanges: z.boolean(),
   splitInterval: z.number().nullable(),
   splitPages: z.array(
     z.object({
-      fileName: z.string().min(1, 'File name is required'),
-      pageIndices: z
+      fileName: z.string().trim().min(1, 'File name is required'),
+      pageNumbers: z
         .array(z.any())
         .min(1, 'At least one page index is required'),
     }),
@@ -54,7 +56,7 @@ const PDFSplitterFileSplit = () => {
       splitPages: [
         {
           fileName: '',
-          pageIndices: [1],
+          pageNumbers: [1],
         },
       ],
     },
@@ -70,6 +72,8 @@ const PDFSplitterFileSplit = () => {
   const [currentlySelectedPage, setCurrentlySelectedPage] = useState<
     number | null
   >(null);
+
+  const [newPDFs, setNewPDFs] = useState<any[]>([]);
 
   useEffect(() => {
     function updatePDFViewerWidth() {
@@ -104,11 +108,11 @@ const PDFSplitterFileSplit = () => {
       splitPages: [
         {
           fileName: 'Test_1',
-          pageIndices: [1],
+          pageNumbers: [1],
         },
         {
           fileName: 'Test_2',
-          pageIndices: [2],
+          pageNumbers: [2],
         },
       ],
     });
@@ -117,39 +121,97 @@ const PDFSplitterFileSplit = () => {
   function addFile() {
     append({
       fileName: '',
-      pageIndices: [],
+      pageNumbers: [],
     });
   }
 
-  function handleSplitPDFs() {
+  async function handleSplitPDFs() {
     if (!form.formState.isValid) {
       form.trigger();
+      return;
     }
 
-    const file = filesToSplit[activeIndex];
+    const file = await filesToSplit[activeIndex].arrayBuffer();
+
+    const splitPages = form.getValues('splitPages');
+
+    const splitPagesWithPageNumbers = splitPages.map((page) => ({
+      ...page,
+      pageNumbers: page.pageNumbers.map((pageNumber) => pageNumber - 1),
+    }));
+
+    const srcDoc = await PDFDocument.load(file);
+
+    for (const page of splitPagesWithPageNumbers) {
+      toast({
+        title: 'PDF Split',
+        description: `Splitting file ${page.fileName}`,
+      });
+
+      const pdfDoc = await PDFDocument.create();
+
+      const copiedPages = await pdfDoc.copyPages(srcDoc, page.pageNumbers);
+
+      copiedPages.forEach((copiedPage) => {
+        pdfDoc.addPage(copiedPage);
+      });
+
+      const pdfBytes = await pdfDoc.save();
+      const fileName = `${page.fileName}_${formatISO(new Date())}.pdf`;
+
+      setNewPDFs((prev) => [
+        ...prev,
+        new File([pdfBytes], fileName, { type: 'application/pdf' }),
+      ]);
+
+      toast({
+        title: 'PDF Split',
+        description: `File ${page.fileName} split successfully to form ${fileName}`,
+      });
+    }
+
+    toast({
+      title: 'PDF Split',
+      description: `Splitting file`,
+    });
   }
 
   function handleSkipFile() {
     setActiveIndex((prev) => prev + 1);
   }
 
-  function handlePageSelect(index: number) {
+  function handlePageSelect(pageNumber: number) {
     if (currentlySelectedPage === null) return;
 
-    const oldPageIndices = form.getValues(
-      `splitPages.${currentlySelectedPage}.pageIndices`,
+    const oldPageNumbers = form.getValues(
+      `splitPages.${currentlySelectedPage}.pageNumbers`,
     );
 
-    let newPageIndices;
-    if (oldPageIndices.includes(index)) {
-      newPageIndices = oldPageIndices.filter((number) => number !== index);
+    const inOtherFile = watchedPages.find(
+      (page) =>
+        page.pageNumbers.includes(pageNumber) &&
+        page.pageNumbers != oldPageNumbers,
+    );
+
+    if (inOtherFile) {
+      toast({
+        title: 'Page already in another file',
+        description: `Page ${pageNumber} is already in file ${inOtherFile.fileName}`,
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    let newPageNumbers;
+    if (oldPageNumbers.includes(pageNumber)) {
+      newPageNumbers = oldPageNumbers.filter((number) => number !== pageNumber);
     } else {
-      newPageIndices = [...oldPageIndices, index].sort();
+      newPageNumbers = [...oldPageNumbers, pageNumber].sort();
     }
 
     form.setValue(
-      `splitPages.${currentlySelectedPage}.pageIndices`,
-      newPageIndices,
+      `splitPages.${currentlySelectedPage}.pageNumbers`,
+      newPageNumbers,
     );
   }
 
@@ -222,7 +284,7 @@ const PDFSplitterFileSplit = () => {
                           {...field}
                           {...form.register(field.name, {
                             onChange: (e) => {
-                              form.setValue(field.name, e.target.value, {
+                              form.setValue(field.name, e.target.value.trim(), {
                                 shouldValidate: true,
                                 shouldDirty: true,
                               });
@@ -230,10 +292,10 @@ const PDFSplitterFileSplit = () => {
                           })}
                         />
                       </FormControl>
-                      <div className="mt-2 flex flex-wrap">
+                      <div className="mt-2 flex flex-wrap gap-1">
                         {watchedPages
                           .find((page) => page.fileName === field.value)
-                          ?.pageIndices.map((page, index) => (
+                          ?.pageNumbers.map((page, index) => (
                             <Button
                               className="!h-7 p-3 text-xs"
                               size={'sm'}
@@ -245,18 +307,23 @@ const PDFSplitterFileSplit = () => {
                       </div>
                       <div className="mt-2 flex items-center justify-between ">
                         <Button
-                          variant={'ghost'}
-                          className={
+                          variant={
                             index === currentlySelectedPage
-                              ? 'border border-wm-orange text-wm-orange'
-                              : ''
+                              ? 'default'
+                              : 'ghost'
                           }
                           size={'sm'}
                           value={index}
                           onClick={() =>
-                            setCurrentlySelectedPage((prev) =>
-                              prev ? null : index,
-                            )
+                            setCurrentlySelectedPage((prev) => {
+                              if (prev === null) {
+                                return index;
+                              } else if (prev === index) {
+                                return null;
+                              } else {
+                                return index;
+                              }
+                            })
                           }
                           disabled={watchedFixedRanges}
                           type="button"
@@ -280,6 +347,21 @@ const PDFSplitterFileSplit = () => {
             </Container>
           </form>
         </Form>
+        {newPDFs.length > 0 &&
+          newPDFs.map((pdf) => (
+            <a
+              key={pdf.name}
+              href={URL.createObjectURL(pdf)}
+              download={pdf.name}
+              className="flex items-center gap-2 border-t p-4"
+            >
+              <Button variant={'outline'} size={'sm'} type="button">
+                <ScissorsIcon />
+                Download
+              </Button>
+              <div>{pdf.name}</div>
+            </a>
+          ))}
         <DialogFooter className="flex h-16 w-full flex-row items-center border-t px-4">
           <div className="mr-auto flex items-center gap-2">
             <Button
@@ -295,7 +377,7 @@ const PDFSplitterFileSplit = () => {
               Reset
             </Button>
           </div>
-          <Button type="button">
+          <Button type="button" onClick={handleSplitPDFs}>
             <ScissorsIcon />
             Split PDFs
           </Button>
@@ -314,7 +396,7 @@ const PDFSplitterFileSplit = () => {
             width={PDFViewerWidth}
             gridColumns={2}
             selectable
-            selectedPages={watchedPages.map((page) => page.pageIndices).flat()}
+            selectedPages={watchedPages.map((page) => page.pageNumbers).flat()}
             onPageSelect={handlePageSelect}
             customPageOverlay={(index: number, numPages: number) => (
               <div className="h-full w-full">
@@ -329,12 +411,16 @@ const PDFSplitterFileSplit = () => {
             )}
             customPageHeader={(index: number, numPages: number) => {
               const file = watchedPages.find((field) =>
-                field.pageIndices.includes(index + 1),
+                field.pageNumbers.includes(index + 1),
               );
 
               return file ? (
                 <div className="mb-1 w-fit rounded border border-wm-orange bg-white p-1 text-xs leading-tight text-wm-orange">
-                  {file.fileName ? file.fileName : <i>No File Name</i>}
+                  {file.fileName.trim() ? (
+                    file.fileName.trim()
+                  ) : (
+                    <i>No File Name</i>
+                  )}
                 </div>
               ) : (
                 <div className="mb-1 w-fit rounded border  bg-white p-1 text-xs leading-tight text-wm-white-500">
