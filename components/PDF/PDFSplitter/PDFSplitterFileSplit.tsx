@@ -17,6 +17,7 @@ import { Input } from '@/components/ui/input';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   CaretRightIcon,
+  DownloadIcon,
   PlusIcon,
   ResetIcon,
   ScissorsIcon,
@@ -31,6 +32,10 @@ import { usePDFSplitter } from './PDFSplitter';
 import { formatISO } from 'date-fns';
 import { toast } from '@/components/ui/use-toast';
 import { PDFDocument } from 'pdf-lib';
+import { Document, Page, pdfjs } from 'react-pdf';
+
+pdfjs.GlobalWorkerOptions.workerSrc =
+  'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.js';
 
 const fileSpitSchema = z.object({
   fixedRanges: z.boolean(),
@@ -48,6 +53,7 @@ const fileSpitSchema = z.object({
 const PDFSplitterFileSplit = () => {
   const { filesToSplit, setFilesToSplit } = usePDFSplitter();
   const PDFViewerParentRef = useRef<null | HTMLDivElement>(null);
+  const PDFViewerRef = useRef<any>(null);
   const form = useForm<z.infer<typeof fileSpitSchema>>({
     resolver: zodResolver(fileSpitSchema),
     defaultValues: {
@@ -66,6 +72,7 @@ const PDFSplitterFileSplit = () => {
     name: 'splitPages',
   });
   const watchedFixedRanges = form.watch('fixedRanges');
+  const watchedSplitInterval = form.watch('splitInterval');
   const watchedPages = form.watch('splitPages');
   const [activeIndex, setActiveIndex] = useState<number>(0);
   const [PDFViewerWidth, setPDFViewerWidth] = useState<number>(500);
@@ -101,18 +108,51 @@ const PDFSplitterFileSplit = () => {
     form.setValue('splitInterval', watchedFixedRanges ? 1 : null);
   }, [watchedFixedRanges]);
 
+  useEffect(() => {
+    if (watchedFixedRanges && watchedSplitInterval) {
+      form.setValue('splitPages', []);
+
+      const numPages = PDFViewerRef.current?.getNumPages();
+      if (numPages) {
+        const splitPages = Array.from({ length: numPages }).reduce(
+          (
+            acc: {
+              fileName: string;
+              pageNumbers: number[];
+            }[],
+            _,
+            index,
+          ) => {
+            const page = Math.floor(index / watchedSplitInterval);
+            if (!acc[page]) {
+              acc[page] = {
+                fileName: `${filesToSplit[activeIndex].name.split('.pdf')[0]}_${page}`,
+                pageNumbers: [],
+              };
+            }
+            acc[page].pageNumbers.push(index + 1);
+            return acc;
+          },
+          [],
+        );
+
+        for (const page of splitPages) {
+          append(page);
+        }
+      }
+    } else {
+      handleReset();
+    }
+  }, [watchedSplitInterval]);
+
   function handleReset() {
     form.reset({
       fixedRanges: false,
       splitInterval: null,
       splitPages: [
         {
-          fileName: 'Test_1',
+          fileName: '',
           pageNumbers: [1],
-        },
-        {
-          fileName: 'Test_2',
-          pageNumbers: [2],
         },
       ],
     });
@@ -126,23 +166,14 @@ const PDFSplitterFileSplit = () => {
   }
 
   async function handleSplitPDFs() {
-    if (!form.formState.isValid) {
-      form.trigger();
-      return;
-    }
+    const file = await filesToSplit[activeIndex];
 
-    const file = await filesToSplit[activeIndex].arrayBuffer();
+    const arrayBuffer = await file.arrayBuffer();
+    const pdfjsDoc = await pdfjs.getDocument(arrayBuffer).promise;
 
     const splitPages = form.getValues('splitPages');
 
-    const splitPagesWithPageNumbers = splitPages.map((page) => ({
-      ...page,
-      pageNumbers: page.pageNumbers.map((pageNumber) => pageNumber - 1),
-    }));
-
-    const srcDoc = await PDFDocument.load(file);
-
-    for (const page of splitPagesWithPageNumbers) {
+    for (const page of splitPages) {
       toast({
         title: 'PDF Split',
         description: `Splitting file ${page.fileName}`,
@@ -150,12 +181,34 @@ const PDFSplitterFileSplit = () => {
 
       const pdfDoc = await PDFDocument.create();
 
-      const copiedPages = await pdfDoc.copyPages(srcDoc, page.pageNumbers);
+      //@todo, if the pdf is not encrypted just use PDFDocument.load and then split the pages
 
-      copiedPages.forEach((copiedPage) => {
-        pdfDoc.addPage(copiedPage);
-      });
+      for (const pageNumber of page.pageNumbers) {
+        const pdfjsPage = await pdfjsDoc.getPage(pageNumber);
+        const viewport = pdfjsPage.getViewport({ scale: 3.0 });
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
 
+        if (!context) {
+          throw new Error('Could not get canvas context');
+        }
+
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+
+        await pdfjsPage.render({ canvasContext: context, viewport }).promise;
+
+        const imgData = canvas.toDataURL('image/png');
+        const img = await pdfDoc.embedPng(imgData);
+        const page = pdfDoc.addPage([viewport.width, viewport.height]);
+
+        page.drawImage(img, {
+          x: 0,
+          y: 0,
+          width: viewport.width,
+          height: viewport.height,
+        });
+      }
       const pdfBytes = await pdfDoc.save();
       const fileName = `${page.fileName}_${formatISO(new Date())}.pdf`;
 
@@ -271,6 +324,7 @@ const PDFSplitterFileSplit = () => {
               {fields.map((field, index) => (
                 <FormField
                   control={form.control}
+                  key={index}
                   name={`splitPages.${index}.fileName`}
                   render={({ field }) => (
                     <FormItem className="border-b p-4 last:border-0">
@@ -280,7 +334,7 @@ const PDFSplitterFileSplit = () => {
                       </div>
                       <FormControl>
                         <Input
-                          placeholder={`Invoice_File_${index}`}
+                          placeholder={`${filesToSplit[activeIndex].name.split('.pdf')[0]}_${index}`}
                           {...field}
                           {...form.register(field.name, {
                             onChange: (e) => {
@@ -300,6 +354,7 @@ const PDFSplitterFileSplit = () => {
                               className="!h-7 p-3 text-xs"
                               size={'sm'}
                               type="button"
+                              key={index}
                             >
                               {page}
                             </Button>
@@ -356,7 +411,7 @@ const PDFSplitterFileSplit = () => {
               className="flex items-center gap-2 border-t p-4"
             >
               <Button variant={'outline'} size={'sm'} type="button">
-                <ScissorsIcon />
+                <DownloadIcon />
                 Download
               </Button>
               <div>{pdf.name}</div>
@@ -377,7 +432,11 @@ const PDFSplitterFileSplit = () => {
               Reset
             </Button>
           </div>
-          <Button type="button" onClick={handleSplitPDFs}>
+          <Button
+            type="button"
+            onClick={handleSplitPDFs}
+            disabled={Object.keys(form.formState.errors).length > 0}
+          >
             <ScissorsIcon />
             Split PDFs
           </Button>
@@ -392,6 +451,7 @@ const PDFSplitterFileSplit = () => {
           ref={PDFViewerParentRef}
         >
           <PDFViewer
+            ref={PDFViewerRef}
             file={filesToSplit[activeIndex] ? filesToSplit[activeIndex] : ''}
             width={PDFViewerWidth}
             gridColumns={2}
