@@ -41,8 +41,8 @@ const PDFViewer = forwardRef(
     }: PDFViewerProps,
     ref,
   ) => {
-    if (Boolean(selectable) !== Boolean(onPageSelect)) {
-      throw new Error('selectable and onPageSelect must be used together.');
+    if (selectable && !onPageSelect) {
+      throw new Error('onPageSelect is required when selectable is true');
     }
 
     useImperativeHandle(ref, () => {
@@ -94,7 +94,7 @@ const PDFViewer = forwardRef(
               renderAnnotationLayer={false}
               height={width * (11 / 8.5)}
               width={width / gridColumns}
-              className={`w-fit border border-wm-white-200 ${selectedPages && selectedPages.includes(index + 1) ? 'border-wm-orange' : null} ${onPageSelect ? 'cursor-pointer' : ''}`}
+              className={`w-fit border border-wm-white-200 ${selectedPages && selectedPages.includes(index + 1) ? 'border-wm-orange' : null} ${selectable && onPageSelect ? 'cursor-pointer hover:ring hover:ring-wm-orange-200' : ''}`}
               onClick={() =>
                 selectable && onPageSelect && onPageSelect(index + 1)
               }

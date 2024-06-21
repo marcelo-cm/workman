@@ -22,7 +22,6 @@ export default function ForApproval() {
   const [selectedFiles, setSelectedFiles] = useState<Invoice[]>([]); // Used for the Extraction Review component
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [review, setReview] = useState<boolean>(false);
-  const [isUploading, setIsUploading] = useState<boolean>(false);
 
   useEffect(() => {
     getInvoices();

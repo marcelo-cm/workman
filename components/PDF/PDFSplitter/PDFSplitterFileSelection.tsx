@@ -155,7 +155,7 @@ const PDFSplitterFileSelection = () => {
         </DialogFooter>
       </div>
       <div className="w-3/5 bg-wm-white-50">
-        <DialogHeader className="flex h-12 min-h-12 items-center justify-between border-b px-4 text-sm">
+        <DialogHeader className="flex h-12 min-h-12 flex-row items-center justify-between border-b px-4 text-sm">
           {activeFile?.name}
         </DialogHeader>
         <div
