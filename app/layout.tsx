@@ -48,7 +48,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <link rel="icon" type="image/jpg" sizes="32x32" href="/favicon.ico" />
+      <head>
+        <link rel="icon" type="image/jpg" sizes="32x32" href="/favicon.ico" />
+        <link
+          rel="apple-touch-icon"
+          sizes="180x180"
+          href="/apple-touch-icon.png"
+        />
+      </head>
       <body className={`${inter.className} h-dvh min-h-screen bg-white`}>
         {children}
         <Toaster />
