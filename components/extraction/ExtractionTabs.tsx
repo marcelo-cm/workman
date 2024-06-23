@@ -15,6 +15,7 @@ import { InvoiceData } from '@/interfaces/common.interfaces';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   BookmarkIcon,
+  CheckIcon,
   ChevronRightIcon,
   PlusIcon,
   ResetIcon,
@@ -211,7 +212,7 @@ const ExtractionTabs = ({
           value="1"
           className="flex h-10 w-1/2 grow justify-start border-b data-[state=active]:border-wm-orange data-[state=active]:text-wm-orange"
         >
-          1. Review & Edit Details
+          1. Edit Details
         </TabsTrigger>
         <TabsTrigger
           value="2"
@@ -219,7 +220,8 @@ const ExtractionTabs = ({
           disabled={form.formState.isDirty}
           ref={uploadToQuickBooksTabRef}
         >
-          2. Upload to Quickbooks {form.formState.isDirty && '(Save Changes)'}
+          2. Review & Upload to Quickbooks{' '}
+          {form.formState.isDirty && '(Save Changes)'}
         </TabsTrigger>
       </TabsList>
       <div className="no-scrollbar h-full overflow-scroll">
@@ -598,7 +600,7 @@ const ExtractionTabs = ({
             <TabsList className="ml-auto">
               <TabsTrigger asChild value="2">
                 <Button disabled={form.formState.isDirty} variant={'outline'}>
-                  Ready for Upload <ChevronRightIcon />
+                  Approval All <CheckIcon />
                 </Button>
               </TabsTrigger>
             </TabsList>

@@ -77,6 +77,12 @@ const UploadToQuickBooks = ({
     fetchAccounts();
   }, [files]);
 
+  useEffect(() => {
+    if (uploadedFileIndexes.length === files.length) {
+      window.location.reload();
+    }
+  }, [uploadedFileIndexes]);
+
   async function uploadToQuickBooks(fileIndex: number) {
     setIsLoading(true);
     await Invoice.uploadToQuickbooks(transformedFiles[fileIndex]);
@@ -315,8 +321,8 @@ const UploadToQuickBooks = ({
             <Button variant={'secondary'}>Go Back to Review</Button>
           </TabsTrigger>
         </TabsList>
-        <Button onClick={() => console.log(files[0])} disabled>
-          <HammerIcon className="h-4 w-4" /> Upload All
+        <Button onClick={() => window.location.reload()}>
+          <HammerIcon className="h-4 w-4" /> Done Uploading
         </Button>
       </div>
     </>
