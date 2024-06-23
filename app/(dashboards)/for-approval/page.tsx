@@ -53,7 +53,8 @@ export default function ForApproval() {
       .from('invoices')
       .select('*')
       .eq('status', 'FOR_REVIEW')
-      .eq('owner', `${id}`);
+      .eq('owner', `${id}`)
+      .order('created_at', { ascending: true });
 
     if (error) {
       console.error('Error fetching invoices:', error);

@@ -135,6 +135,7 @@ export function DataTable<TData, TValue>({
     initialState: {
       pagination: {
         pageSize: 10,
+        pageIndex: 0,
       },
     },
   });
@@ -144,6 +145,11 @@ export function DataTable<TData, TValue>({
     setDateRange({ from: undefined, to: undefined });
     dateRangeRef.current?.clearDate();
   };
+
+  const { pageSize, pageIndex } = table.getState().pagination;
+
+  const startIndex = pageSize * pageIndex;
+  const endIndex = Math.min(pageSize * (pageIndex + 1), data.length) - 1; // Ensure it doesn't exceed total rows
 
   return (
     <>
@@ -252,6 +258,9 @@ export function DataTable<TData, TValue>({
                     {table.getFilteredRowModel().rows.length} invoice(s)
                     selected.
                   </div>
+                  <div className="text-xs">
+                    Viewing Invoices {startIndex}-{endIndex}
+                  </div>
                   <Button
                     variant="outline"
                     size="sm"
@@ -260,6 +269,9 @@ export function DataTable<TData, TValue>({
                   >
                     Previous
                   </Button>
+                  <div className="w-4 text-center">
+                    {table.getState().pagination.pageIndex + 1}
+                  </div>
                   <Button
                     variant="outline"
                     size="sm"

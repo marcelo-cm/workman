@@ -40,10 +40,10 @@ export const columns: ColumnDef<Invoice>[] = [
     header: ({ table }) => (
       <Checkbox
         checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && 'indeterminate')
+          table.getIsAllRowsSelected() ||
+          (table.getIsSomeRowsSelected() && 'indeterminate')
         }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+        onCheckedChange={(value) => table.toggleAllRowsSelected(!!value)}
         aria-label="Select all"
       />
     ),
@@ -70,22 +70,25 @@ export const columns: ColumnDef<Invoice>[] = [
     cell: ({ row }) => {
       return (
         <div className="flex flex-col">
-          <div className="flex items-center gap-1">
+          {row.original.data.supplierName}
+          <div className="text-xs text-wm-white-300">
             {decodeURI(row.original.fileUrl.split('/')[8].split('.pdf')[0])}
-            <p className="text-xs text-wm-white-200">[{row.original.id}]</p>
           </div>
-          <div className="text-xs">{row.original.data.supplierName}</div>
         </div>
       );
     },
   },
-  // {
-  //   accessorKey: "project_code",
-  //   header: () => <div>Project</div>,
-  //   cell: ({ row }) => (
-  //     <Badge variant="info">{row.original.data.shippingAddress}</Badge>
-  //   ),
-  // },
+  {
+    accessorKey: 'data.invoiceNumber',
+    header: () => <div>Invoice No.</div>,
+    cell: ({ row }) => (
+      <Badge variant="info">
+        {row.original.data.invoiceNumber || (
+          <em className="text-wm-white-300">None</em>
+        )}
+      </Badge>
+    ),
+  },
   {
     accessorKey: 'date_due',
     accessorFn: (row) => new Date(row.data.dueDate),
@@ -153,66 +156,5 @@ export const columns: ColumnDef<Invoice>[] = [
 
       return <div>{formatted}</div>;
     },
-  },
-  {
-    accessorKey: 'flag',
-    header: ({ column }) => (
-      <DropdownMenu>
-        <div className="flex items-center justify-end gap-2">
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="p-0 px-2">
-              <p>Filter</p>{' '}
-              <MixerHorizontalIcon
-                className={`h-4 w-4 ${
-                  column.getFilterValue() ? ' text-wm-orange-500' : null
-                }`}
-              />
-            </Button>
-          </DropdownMenuTrigger>
-        </div>
-        <DropdownMenuContent className="w-fit bg-white text-wm-white-500">
-          <DropdownMenuRadioGroup
-            value={column.getFilterValue() as string}
-            onValueChange={(e) => {
-              column.setFilterValue((prev: string) => (prev === e ? null : e));
-            }}
-          >
-            <DropdownMenuRadioItem value="Success">
-              <Badge variant={'success'}>Success</Badge>
-            </DropdownMenuRadioItem>
-            <DropdownMenuRadioItem value="Manual Review">
-              <Badge variant={getBadgeType('MANUAL_REVIEW')}>
-                Manual Review
-              </Badge>
-            </DropdownMenuRadioItem>
-            <DropdownMenuRadioItem value="Missing Fields">
-              <Badge variant={getBadgeType('MISSING_FIELDS')}>
-                Missing Fields
-              </Badge>
-            </DropdownMenuRadioItem>
-            <DropdownMenuRadioItem value="Pending">
-              <Badge variant={getBadgeType('PENDING')}>Pending</Badge>
-            </DropdownMenuRadioItem>
-          </DropdownMenuRadioGroup>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    ),
-    cell: ({ row }) => (
-      <div className="flex justify-end pr-2">
-        <Badge
-          variant={getBadgeType(
-            row.original.data.lineItems.some((item) => item.confidence < 0.95)
-              ? 'MANUAL_REVIEW'
-              : 'SUCCESS',
-          )}
-        >
-          {toTitleCase(
-            row.original.data.lineItems.some((item) => item.confidence < 0.9)
-              ? 'MANUAL_REVIEW'
-              : 'SUCCESS',
-          )}
-        </Badge>
-      </div>
-    ),
   },
 ];
