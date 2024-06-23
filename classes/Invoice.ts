@@ -234,7 +234,7 @@ export class Invoice {
             description: item.description || '',
             productCode: item.productCode || '',
             quantity: item.quantity || 0,
-            totalAmount: item.totalAmount || 0,
+            totalAmount: parseFloat(item.totalAmount.toFixed(2)) || 0,
             unitPrice: item.unitPrice || 0,
             pageId: item.pageId || 0,
           }),

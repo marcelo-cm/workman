@@ -1,5 +1,3 @@
-import { UUID } from 'crypto';
-
 /**
  * This is the data we save from the API call to the OCR service. It's achieved by parsing the JSON response using Invoice.parse.
  */
@@ -16,7 +14,7 @@ export interface InvoiceData {
   shippingAddress: string;
   totalNet: number;
   totalAmount: number;
-  totalTax: number;
+  totalTax: string;
   lineItems: LineItem[];
   notes: string;
 }
