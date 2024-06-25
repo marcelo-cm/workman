@@ -193,7 +193,7 @@ const TermsOfService = () => {
               <p className="text-gray-700">
               This Agreement is the complete and exclusive statement of the mutual understanding of the parties and supersedes and cancels all previous written and oral agreements, communications, and other understandings relating to the subject matter of this Agreement, and all waivers and modifications must be in a writing signed by both parties, except as otherwise provided herein. Any term or provision of this Agreement held to be illegal or unenforceable shall be, to the fullest extent possible, interpreted so as to be construed as valid, but in any event the validity or enforceability of the remainder hereof shall not be affected. In the event of a conflict between this Agreement and the Service Order document, the terms of this Agreement shall control.
               </p>
-            </div>    
+            </div>
           </div>
         </div>
       </div>
