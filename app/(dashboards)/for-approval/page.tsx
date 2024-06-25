@@ -40,7 +40,8 @@ export default function ForApproval() {
       .from('invoices')
       .select('*')
       .eq('status', 'FOR_REVIEW')
-      .eq('owner', `${id}`);
+      .eq('owner', `${id}`)
+      .order('created_at', { ascending: false });
 
     if (error) {
       console.error('Error fetching invoices:', error);
@@ -71,8 +72,8 @@ export default function ForApproval() {
             Bills for Approval <UploadFileButton />
           </div>
           <p>
-            For us to process your bills, forward the bills you receive to
-            email@workman.so. We’ll process it for you right away!
+            Upload your file and we'll process it for you. Select multiple files
+            to below to review the scan and upload to QuickBooks.
           </p>
           <DataTable
             columns={columns}

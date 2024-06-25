@@ -15,6 +15,7 @@ import { InvoiceData } from '@/interfaces/common.interfaces';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   BookmarkIcon,
+  CheckIcon,
   ChevronRightIcon,
   PlusIcon,
   ResetIcon,
@@ -49,7 +50,9 @@ const formSchema = z.object({
   shippingAddress: z.string().min(1, 'Shipping address is required'),
   totalNet: z.number().min(0, 'Total net should be a positive number'),
   totalAmount: z.number().min(0, 'Total amount should be a positive number'),
-  totalTax: z.number().min(0, 'Total tax should be a positive number'),
+  totalTax: z
+    .string()
+    .regex(/^\d+(\.\d+)?$/, 'Number must be positive and decimal'),
   lineItems: z
     .array(
       z.object({
@@ -97,7 +100,7 @@ const ExtractionTabs = ({
       shippingAddress: file?.data?.shippingAddress || '',
       totalNet: file?.data?.totalNet || 0,
       totalAmount: file?.data?.totalAmount || 0,
-      totalTax: file?.data?.totalTax || 0,
+      totalTax: parseFloat(file?.data?.totalTax).toFixed(2) || '',
       lineItems: file?.data?.lineItems || [],
       notes: file?.data?.notes || '',
     },
@@ -137,7 +140,7 @@ const ExtractionTabs = ({
       0,
     );
 
-    const totalNet = totalAmount + (form?.getValues('totalTax') || 0);
+    const totalNet = totalAmount + (Number(form.getValues('totalTax')) || 0);
 
     form.setValue('totalAmount', totalAmount, {
       shouldValidate: true,
@@ -172,7 +175,7 @@ const ExtractionTabs = ({
       shippingAddress: data?.shippingAddress || '',
       totalNet: data?.totalNet || 0,
       totalAmount: data?.totalAmount || 0,
-      totalTax: data?.totalTax || 0,
+      totalTax: data?.totalTax || '0.00',
       lineItems: data?.lineItems || [],
       notes: data?.notes || '',
     });
@@ -209,7 +212,7 @@ const ExtractionTabs = ({
           value="1"
           className="flex h-10 w-1/2 grow justify-start border-b data-[state=active]:border-wm-orange data-[state=active]:text-wm-orange"
         >
-          1. Review & Edit Details
+          1. Edit Details
         </TabsTrigger>
         <TabsTrigger
           value="2"
@@ -217,7 +220,8 @@ const ExtractionTabs = ({
           disabled={form.formState.isDirty}
           ref={uploadToQuickBooksTabRef}
         >
-          2. Upload to QuickBooks {form.formState.isDirty && '(Save Changes)'}
+          2. Review & Upload to Quickbooks{' '}
+          {form.formState.isDirty && '(Save Changes)'}
         </TabsTrigger>
       </TabsList>
       <div className="no-scrollbar h-full overflow-scroll">
@@ -237,18 +241,31 @@ const ExtractionTabs = ({
                       <div className="flex gap-2">
                         <p className="w-12 break-keep font-medium">Tax: $</p>
                         <Input
-                          type="number"
-                          {...form.register('totalTax', {
-                            setValueAs: (value) => parseFloat(value) || 0,
-                            onChange: (e) =>
+                          placeholder="0.00"
+                          {...field}
+                          {...form.register(field.name, {
+                            onChange(event) {
                               form.setValue(
-                                'totalTax',
-                                parseFloat(e.target.value),
-                                { shouldValidate: true, shouldDirty: true },
-                              ),
+                                field.name,
+                                String(event.target.value),
+                                {
+                                  shouldValidate: true,
+                                  shouldDirty: true,
+                                },
+                              );
+                            },
+                            onBlur(event) {
+                              form.setValue(
+                                field.name,
+                                parseFloat(event.target.value || 0).toFixed(2),
+                                {
+                                  shouldValidate: true,
+                                  shouldDirty: true,
+                                },
+                              );
+                            },
                           })}
                           className="h-fit w-16 px-1 py-0 text-right text-xs"
-                          {...field}
                         />
                       </div>
                       <FormMessage />
@@ -458,6 +475,18 @@ const ExtractionTabs = ({
                                       },
                                     );
                                   },
+                                  onBlur(event) {
+                                    form.setValue(
+                                      field.name,
+                                      parseFloat(
+                                        event.target.value || 0,
+                                      ).toFixed(2),
+                                      {
+                                        shouldValidate: true,
+                                        shouldDirty: true,
+                                      },
+                                    );
+                                  },
                                 })}
                               />
                             </FormControl>
@@ -571,7 +600,7 @@ const ExtractionTabs = ({
             <TabsList className="ml-auto">
               <TabsTrigger asChild value="2">
                 <Button disabled={form.formState.isDirty} variant={'outline'}>
-                  Ready for Upload <ChevronRightIcon />
+                  Approval All <CheckIcon />
                 </Button>
               </TabsTrigger>
             </TabsList>

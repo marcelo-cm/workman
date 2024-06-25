@@ -512,6 +512,10 @@ const PrivacyPolicy = () => {
                 any changes. Changes to this Privacy Policy are effective when
                 they are posted on this page.
               </p>
+              <h2 className="text-xl font-medium">Training Data</h2>
+              <p className="text-gray-700">
+                Google Workspace API's will not be used to train, develop, or improve our generalized AI/ML models.
+              </p>
               <h2 className="text-xl font-medium">Contact Us</h2>
               <p className="text-gray-700">
                 If you have any questions about this Privacy Policy, You can

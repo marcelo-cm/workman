@@ -45,6 +45,7 @@ export class Invoice {
 
       toast({
         title: `${file.name} uploaded to storage successfully`,
+        variant: 'success',
       });
     } else {
       const filePath = `/${file.filename}_${new Date().getTime()}`;
@@ -131,6 +132,7 @@ export class Invoice {
     toast({
       title: 'Invoice uploaded to QuickBooks',
       description: responseData.message,
+      variant: 'success',
     });
 
     const { data: updatedData, error: updateError } = await supabase
@@ -171,6 +173,7 @@ export class Invoice {
 
     toast({
       title: `Invoice ${fileUrl.split('/')[8].split('.pdf')[0]} has been updated`,
+      variant: 'success',
     });
 
     return updatedData;
@@ -234,7 +237,7 @@ export class Invoice {
             description: item.description || '',
             productCode: item.productCode || '',
             quantity: item.quantity || 0,
-            totalAmount: item.totalAmount || 0,
+            totalAmount: parseFloat(item.totalAmount.toFixed(2)) || 0,
             unitPrice: item.unitPrice || 0,
             pageId: item.pageId || 0,
           }),

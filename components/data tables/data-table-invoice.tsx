@@ -135,6 +135,7 @@ export function DataTable<TData, TValue>({
     initialState: {
       pagination: {
         pageSize: 10,
+        pageIndex: 0,
       },
     },
   });
@@ -144,6 +145,11 @@ export function DataTable<TData, TValue>({
     setDateRange({ from: undefined, to: undefined });
     dateRangeRef.current?.clearDate();
   };
+
+  const { pageSize, pageIndex } = table.getState().pagination;
+
+  const startIndex = pageSize * pageIndex + 1; //adding 1 to start counting from 1 for the invoices user is seeing (not 0-9)
+  const endIndex = Math.min(pageSize * (pageIndex + 1), data.length); // Ensure it doesn't exceed total rows
 
   return (
     <>
@@ -247,10 +253,15 @@ export function DataTable<TData, TValue>({
             <TableRow>
               <TableCell colSpan={columns.length}>
                 <div className="flex items-center justify-end space-x-2 ">
-                  <div className="text-muted-foreground flex-1 items-center text-sm">
-                    {table.getFilteredSelectedRowModel().rows.length} of{' '}
-                    {table.getFilteredRowModel().rows.length} invoice(s)
-                    selected.
+                  <div className="flex-1">
+                    <div className="text-muted-foreground items-center text-sm">
+                      {table.getFilteredSelectedRowModel().rows.length} of{' '}
+                      {table.getFilteredRowModel().rows.length} invoice(s)
+                      selected.
+                    </div>
+                    <div className="text-xs font-normal">
+                      Viewing Invoices {startIndex}-{endIndex}
+                    </div>
                   </div>
                   <Button
                     variant="outline"
@@ -260,6 +271,9 @@ export function DataTable<TData, TValue>({
                   >
                     Previous
                   </Button>
+                  <div className="w-4 text-center">
+                    {table.getState().pagination.pageIndex + 1}
+                  </div>
                   <Button
                     variant="outline"
                     size="sm"

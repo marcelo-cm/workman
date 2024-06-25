@@ -28,7 +28,8 @@ const getInvoices = async () => {
     .from('invoices')
     .select('*')
     .eq('owner', userDataRes.user.id)
-    .eq('status', 'PROCESSED');
+    .eq('status', 'PROCESSED')
+    .order('created_at', { ascending: false });
 
   if (invoicesError) {
     throw invoicesError;
