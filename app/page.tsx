@@ -35,7 +35,7 @@ export default function Home() {
         <div className="flex flex-col items-center gap-8">
           <WorkmanLogo variant="COMBO" className="w-64 lg:w-96" />
           <h1 className="text-2xl">
-            Automated manual data entry from invoices into existing bookkeeping
+            Automated data entry from invoices into existing bookkeeping
             software
           </h1>
           <div className="flex flex-col items-center gap-4">
@@ -98,6 +98,9 @@ export default function Home() {
       <footer className="flex w-full justify-center gap-8 py-16 text-sm">
         <Button variant={'ghost'}>
           <a href="/privacy-policy">Privacy Policy</a>
+        </Button>
+        <Button variant={'ghost'}>
+          <a href="/terms-of-service">Terms of Service</a>
         </Button>
       </footer>
     </div>

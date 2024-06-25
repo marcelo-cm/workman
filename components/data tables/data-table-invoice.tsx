@@ -148,8 +148,8 @@ export function DataTable<TData, TValue>({
 
   const { pageSize, pageIndex } = table.getState().pagination;
 
-  const startIndex = pageSize * pageIndex;
-  const endIndex = Math.min(pageSize * (pageIndex + 1), data.length) - 1; // Ensure it doesn't exceed total rows
+  const startIndex = pageSize * pageIndex + 1; //adding 1 to start counting from 1 for the invoices user is seeing (not 0-9)
+  const endIndex = Math.min(pageSize * (pageIndex + 1), data.length); // Ensure it doesn't exceed total rows
 
   return (
     <>
@@ -259,7 +259,7 @@ export function DataTable<TData, TValue>({
                     selected.
                   </div>
                   <div className="text-xs">
-                    Viewing Invoices {startIndex}-{endIndex}
+                    Viewing Invoices {startIndex}-{endIndex} of {data.length}
                   </div>
                   <Button
                     variant="outline"
