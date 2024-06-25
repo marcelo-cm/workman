@@ -259,7 +259,7 @@ export function DataTable<TData, TValue>({
                     selected.
                   </div>
                   <div className="text-xs">
-                    Viewing Invoices {startIndex}-{endIndex}
+                    Viewing Invoices {startIndex}-{endIndex} of {data.length}
                   </div>
                   <Button
                     variant="outline"
