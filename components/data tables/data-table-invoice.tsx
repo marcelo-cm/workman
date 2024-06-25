@@ -253,13 +253,15 @@ export function DataTable<TData, TValue>({
             <TableRow>
               <TableCell colSpan={columns.length}>
                 <div className="flex items-center justify-end space-x-2 ">
-                  <div className="text-muted-foreground flex-1 items-center text-sm">
-                    {table.getFilteredSelectedRowModel().rows.length} of{' '}
-                    {table.getFilteredRowModel().rows.length} invoice(s)
-                    selected.
-                  </div>
-                  <div className="text-xs">
-                    Viewing Invoices {startIndex}-{endIndex} of {data.length}
+                  <div className="flex-1">
+                    <div className="text-muted-foreground items-center text-sm">
+                      {table.getFilteredSelectedRowModel().rows.length} of{' '}
+                      {table.getFilteredRowModel().rows.length} invoice(s)
+                      selected.
+                    </div>
+                    <div className="text-xs font-normal">
+                      Viewing Invoices {startIndex}-{endIndex}
+                    </div>
                   </div>
                   <Button
                     variant="outline"
