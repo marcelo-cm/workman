@@ -27,9 +27,6 @@ import { useFieldArray, useForm, useWatch } from 'react-hook-form';
 import { z } from 'zod';
 import ExtractionFormComponent from './ExtractionFormComponent';
 import UploadToQuickBooks from './UploadToQuickBooks';
-import { useAccount } from '@/lib/hooks/quickbooks/useAccount';
-import { Account } from '@/interfaces/quickbooks.interfaces';
-import { ComboBox } from './Combobox';
 
 const formSchema = z.object({
   date: z
@@ -88,20 +85,6 @@ const ExtractionTabs = ({
   const [approvedFiles, setApprovedFiles] = useState<Invoice[]>([]);
   const uploadToQuickBooksTabRef = useRef<HTMLButtonElement>(null);
   const file = files[activeIndex];
-
-  const { getAccountList } = useAccount();
-  const [accounts, setAccounts] = useState<Account[]>([]);
-
-  const fetchAccounts = async () => {
-    const columns: (keyof Account)[] = ['Name', 'Id'];
-    const where = "Classification = 'Expense'";
-    await getAccountList(columns, where, setAccounts);
-  };
-
-  useEffect(() => {
-    fetchAccounts();
-  }, []);
-
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -170,7 +153,7 @@ const ExtractionTabs = ({
     append({
       confidence: 1,
       description: '',
-      productCode: accounts.length > 0 ? accounts[0].Id : '',
+      productCode: '',
       quantity: 0,
       totalAmount: '',
       unitPrice: 0,
@@ -193,10 +176,7 @@ const ExtractionTabs = ({
       totalNet: data?.totalNet || 0,
       totalAmount: data?.totalAmount || 0,
       totalTax: data?.totalTax || '0.00',
-      lineItems: data?.lineItems.map((item: any) => ({
-        ...item,
-        productCode: item.productCode || (accounts.length > 0 ? accounts[0].Id : ''),
-      })) || [],
+      lineItems: data?.lineItems || [],
       notes: data?.notes || '',
     });
 
@@ -519,20 +499,24 @@ const ExtractionTabs = ({
                         render={({ field }) => (
                           <FormItem>
                             <div className="mb-1 flex w-full justify-between">
-                              <FormLabel>Category</FormLabel>
-                              <FormMessage />
+                              <FormLabel>Code</FormLabel> <FormMessage />
                             </div>
                             <FormControl>
-                              <ComboBox
-                                options={accounts}
-                                valueToMatch={field.value || ''}
-                                callBackFunction={(value) => {
-                                  form.setValue(`lineItems.${index}.productCode`, value.Id, {
-                                    shouldValidate: true,
-                                    shouldDirty: true,
-                                  });
-                                }}
-                                getOptionLabel={(option) => option?.Name}
+                              <Input
+                                placeholder="CONC-001"
+                                {...field}
+                                {...form.register(field.name, {
+                                  onChange(event) {
+                                    form.setValue(
+                                      field.name,
+                                      event.target.value,
+                                      {
+                                        shouldValidate: true,
+                                        shouldDirty: true,
+                                      },
+                                    );
+                                  },
+                                })}
                               />
                             </FormControl>
                           </FormItem>
