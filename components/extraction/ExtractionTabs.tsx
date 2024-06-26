@@ -527,12 +527,13 @@ const ExtractionTabs = ({
                                 options={accounts}
                                 valueToMatch={field.value || ''}
                                 callBackFunction={(value) => {
-                                  form.setValue(`lineItems.${index}.productCode`, value.Id, {
+                                  const newValue = typeof value === 'object' && value !== null && 'Id' in value ? value.Id : value;
+                                  form.setValue(`lineItems.${index}.productCode`, newValue, {
                                     shouldValidate: true,
                                     shouldDirty: true,
                                   });
                                 }}
-                                getOptionLabel={(option) => option?.Name}
+                                getOptionLabel={(option) => option?.Name || ''}
                               />
                             </FormControl>
                           </FormItem>
