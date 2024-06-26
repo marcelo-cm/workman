@@ -7,7 +7,7 @@ import { useVendor } from '@/lib/hooks/quickbooks/useVendor';
 import Invoice from '@/classes/Invoice';
 import { createClient } from '@/utils/supabase/client';
 import { EyeOpenIcon } from '@radix-ui/react-icons';
-import { HammerIcon, Loader2Icon } from 'lucide-react';
+import { HammerIcon, Loader2Icon, TableCellsSplit } from 'lucide-react';
 import React, { SetStateAction, useEffect, useState } from 'react';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
@@ -24,7 +24,7 @@ import { ComboBox } from './Combobox';
 
 const supabase = createClient();
 
-export interface TransformedInvoiceObject extends Omit<Invoice, 'data'> {
+export interface Invoice_Quickbooks extends Omit<Invoice, 'data'> {
   data: {
     supplierName: string;
     vendorId: string;
@@ -33,11 +33,11 @@ export interface TransformedInvoiceObject extends Omit<Invoice, 'data'> {
     dueDate: string;
     customerAddress: string;
     notes: string;
-    lineItems: TransformedLineItem[];
+    lineItems: LineItem_QuickBooks[];
   };
 }
 
-export interface TransformedLineItem extends LineItem {
+export interface LineItem_QuickBooks extends LineItem {
   customerId: string;
   billable: boolean;
   accountId: string;
@@ -59,7 +59,7 @@ const UploadToQuickBooks = ({
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [transformedFiles, setTransformedFiles] = useState<
-    TransformedInvoiceObject[]
+    Invoice_Quickbooks[]
   >([]);
 
   const initialLoading = !(
@@ -107,7 +107,7 @@ const UploadToQuickBooks = ({
   };
 
   const transformData = () => {
-    const transformed: TransformedInvoiceObject[] = files.map((file) => ({
+    const transformed: Invoice_Quickbooks[] = files.map((file) => ({
       ...file,
       data: {
         ...file.data,
@@ -238,7 +238,7 @@ const UploadToQuickBooks = ({
                           </p>
                         </TableCell>
                         <TableCell>{lineItem.description}</TableCell>
-                        <TableCell>
+                        <TableCell className="text-right">
                           ${parseFloat(lineItem.totalAmount)?.toFixed(2)}
                         </TableCell>
                         <TableCell>
@@ -270,38 +270,65 @@ const UploadToQuickBooks = ({
                       </TableRow>
                     ))}
                     <TableRow>
-                      <TableCell colSpan={4}>
-                        <Button
-                          onClick={() => {
-                            setActiveIndex(fileIndex);
-                          }}
-                          variant={'outline'}
-                        >
-                          <EyeOpenIcon className="h-4 w-4" /> View Invoice
-                        </Button>
+                      <TableCell colSpan={3}>
+                        <div className="flex flex-row">
+                          <div className="flex w-3/4 flex-col">
+                            <div className="py-0 text-right font-medium">
+                              Sub-Total:
+                            </div>
+                            <div className="py-0 text-right font-medium">
+                              Tax:
+                            </div>
+                            <div className="py-0 text-right font-medium">
+                              Net Total:
+                            </div>
+                          </div>
+                          <div className="flex w-1/4 min-w-[100px] flex-col text-right">
+                            <div className="py-0">
+                              ${file.data.totalAmount.toFixed(2)}
+                            </div>
+                            <div className="py-0">
+                              {Number(file.data.totalTax)?.toFixed(2)}
+                            </div>
+                            <div className="py-0">
+                              ${file.data.totalNet.toFixed(2)}
+                            </div>
+                          </div>
+                        </div>
                       </TableCell>
-                      <TableCell
-                        colSpan={1}
-                        className="flex w-full justify-end"
-                      >
-                        <Button
-                          onClick={() => uploadToQuickBooks(fileIndex)}
-                          disabled={
-                            isLoading || uploadedFileIndexes.includes(fileIndex)
-                          }
-                          variant={'secondary'}
-                        >
-                          {isLoading ? (
-                            <>
-                              <Loader2Icon className="h-4 w-4 animate-spin" />{' '}
-                              Uploading...
-                            </>
-                          ) : (
-                            <>
-                              <HammerIcon className="h-4 w-4" /> Upload Invoice
-                            </>
-                          )}
-                        </Button>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell colSpan={2}>
+                        <div className="flex w-full flex-row gap-2">
+                          <Button
+                            onClick={() => uploadToQuickBooks(fileIndex)}
+                            disabled={
+                              isLoading ||
+                              uploadedFileIndexes.includes(fileIndex)
+                            }
+                            variant={'secondary'}
+                          >
+                            {isLoading ? (
+                              <>
+                                <Loader2Icon className="h-4 w-4 animate-spin" />{' '}
+                                Uploading...
+                              </>
+                            ) : (
+                              <>
+                                <HammerIcon className="h-4 w-4" /> Upload
+                                Invoice
+                              </>
+                            )}
+                          </Button>
+                          <Button
+                            onClick={() => {
+                              setActiveIndex(fileIndex);
+                            }}
+                            variant={'outline'}
+                          >
+                            <EyeOpenIcon className="h-4 w-4" /> View Invoice
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   </TableBody>

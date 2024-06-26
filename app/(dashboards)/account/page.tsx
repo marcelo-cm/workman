@@ -110,7 +110,7 @@ const Account = () => {
         <div className="flex w-fit flex-row items-center justify-between gap-4">
           QuickBooks Integration <QuickBooks />
           <Button onClick={handleQuickBooksIntegration}>
-            Connect Quickbooks
+            Connect QuickBooks
           </Button>
         </div>
         <div className="text-xl">Test Functionality</div>

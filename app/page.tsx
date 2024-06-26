@@ -35,12 +35,12 @@ export default function Home() {
         <div className="flex flex-col items-center gap-8">
           <WorkmanLogo variant="COMBO" className="w-64 lg:w-96" />
           <h1 className="text-2xl">
-            Automated data entry from invoices into existing bookkeeping
+            Automated data entry from invoices your into existing bookkeeping
             software
           </h1>
           <div className="flex flex-col items-center gap-4">
             <h2 className="text-wm-white-400">
-              Fully Integrated with Gmail and Quickbooks
+              Fully Integrated with Gmail and QuickBooks
             </h2>
             <div className="flex gap-4">
               <Image
@@ -51,7 +51,7 @@ export default function Home() {
               />
               <Image
                 src="/icons/quickbooks.svg"
-                alt="Quickbooks Online"
+                alt="QuickBooks Online"
                 width={32}
                 height={32}
               />
@@ -82,7 +82,7 @@ export default function Home() {
             <Button size={'icon'} className="rounded-full">
               3
             </Button>{' '}
-            Approve and send to Quickbooks
+            Approve and send to QuickBooks
           </div>
         </div>
         <div className="rounded-md border p-2 md:p-4 ">

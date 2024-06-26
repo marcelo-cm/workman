@@ -1,6 +1,6 @@
 'use client';
 
-import PDFViewer from '@/components/dashboards/PDFViewer';
+import PDFViewer from '@/components/PDF/PDFViewer';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/components/ui/use-toast';
 import { createClient as createNangoClient } from '@/utils/nango/client';
@@ -72,7 +72,7 @@ const TestPage = () => {
             <div className="flex w-full flex-row gap-2">
               {email.attachments.map((attachment, index) => (
                 <PDFViewer
-                  fileUrl={attachment.bufferData as unknown as string}
+                  file={attachment.bufferData as unknown as string}
                   key={index}
                 />
               ))}

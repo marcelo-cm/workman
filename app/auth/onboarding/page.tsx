@@ -210,7 +210,7 @@ const Onboarding = () => {
           <h3 className="text-lg font-medium">Connect your Gmail</h3>
           <p className="text-sm">
             We integrate with Gmail so you process invoices straight from your
-            inbox to Quickbooks in minutes
+            inbox to QuickBooks in minutes
           </p>
           <Button
             className="w-fit self-end"

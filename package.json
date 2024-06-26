@@ -3,11 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next && prettier --check .",
+    "dev": "next && tsc && prettier --check .",
     "build": "next build",
     "start": "next start",
-    "lint": "tsc && prettier --check .",
-    "lint:fix": "tsc && prettier --write .",
+    "lint": "prettier --check .",
+    "lint:fix": "prettier --write .",
     "format": "prettier --write .",
     "analyze": "ANALYZE=true next build",
     "clean": "rm -rf .next/ && next build",
@@ -41,6 +41,7 @@
     "mindee": "^4.11.0",
     "next": "14.2.3",
     "node-quickbooks": "^2.0.45",
+    "pdf-lib": "^1.17.1",
     "react": "^18",
     "react-day-picker": "^8.10.1",
     "react-dom": "^18",
@@ -58,6 +59,6 @@
     "prettier-plugin-sort-imports": "^1.8.5",
     "prettier-plugin-tailwindcss": "^0.5.14",
     "tailwindcss": "^3.4.1",
-    "typescript": "^5"
+    "typescript": "^5.4.5"
   }
 }

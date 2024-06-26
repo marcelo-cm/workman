@@ -31,5 +31,7 @@ export const sliceWithEllipsis = (
   length: number,
   suffix?: string,
 ) => {
-  return str.length > length ? str.slice(0, length) + '...' + suffix : str;
+  return str.length > length
+    ? str.slice(0, length) + '...' + (suffix ? suffix : '')
+    : str;
 };

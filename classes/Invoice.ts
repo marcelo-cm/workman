@@ -1,5 +1,5 @@
 import { PDFData } from '@/app/api/v1/gmail/messages/route';
-import { TransformedInvoiceObject } from '@/components/extraction/UploadToQuickBooks';
+import { Invoice_Quickbooks } from '@/components/extraction/UploadToQuickBooks';
 import { toast } from '@/components/ui/use-toast';
 import { InvoiceData } from '@/interfaces/common.interfaces';
 import { mindeeScan } from '@/lib/actions/actions';
@@ -45,6 +45,7 @@ export class Invoice {
 
       toast({
         title: `${file.name} uploaded to storage successfully`,
+        variant: 'success',
       });
     } else {
       const filePath = `/${file.filename}_${new Date().getTime()}`;
@@ -104,7 +105,7 @@ export class Invoice {
     return publicUrl;
   }
 
-  static async uploadToQuickbooks(file: TransformedInvoiceObject) {
+  static async uploadToQuickbooks(file: Invoice_Quickbooks) {
     const { data, error } = await supabase.auth.getUser();
 
     if (error) {
@@ -131,6 +132,7 @@ export class Invoice {
     toast({
       title: 'Invoice uploaded to QuickBooks',
       description: responseData.message,
+      variant: 'success',
     });
 
     const { data: updatedData, error: updateError } = await supabase
@@ -171,6 +173,7 @@ export class Invoice {
 
     toast({
       title: `Invoice ${fileUrl.split('/')[8].split('.pdf')[0]} has been updated`,
+      variant: 'success',
     });
 
     return updatedData;
