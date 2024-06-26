@@ -1,12 +1,19 @@
 'use client';
 
 import { Checkbox } from '@/components/ui/checkbox';
-import { formatDate } from '@/lib/utils';
+import { formatDate, sliceWithEllipsis } from '@/lib/utils';
 import { CaretDownIcon, CaretUpIcon } from '@radix-ui/react-icons';
 import { ColumnDef } from '@tanstack/react-table';
 import { ExternalLinkIcon } from 'lucide-react';
 import { Button } from '../ui/button';
 import Invoice from '@/classes/Invoice';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '../ui/tooltip';
+import PDFViewer from '../PDF/PDFViewer';
 
 export const columns: ColumnDef<Invoice>[] = [
   {
@@ -43,10 +50,20 @@ export const columns: ColumnDef<Invoice>[] = [
     },
     cell: ({ row }) => {
       return (
-        <div className="flex flex-row items-center gap-1">
-          {decodeURI(row.original.fileUrl.split('/')[8].split('.pdf')[0])}
-          <p className="text-xs text-wm-white-200">({row.original.id})</p>
-        </div>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipContent side="right">
+              <div className="max-h-[600px] overflow-scroll">
+                <PDFViewer file={row.original.fileUrl} width={400} />
+              </div>
+            </TooltipContent>
+            <TooltipTrigger asChild>
+              <div className="flex w-fit flex-col">
+                {decodeURI(row.original.fileUrl.split('/')[8].split('.pdf')[0])}
+              </div>
+            </TooltipTrigger>
+          </Tooltip>
+        </TooltipProvider>
       );
     },
   },

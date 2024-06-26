@@ -1,7 +1,7 @@
 'use client';
 
 import { Checkbox } from '@/components/ui/checkbox';
-import { formatDate, toTitleCase } from '@/lib/utils';
+import { formatDate, sliceWithEllipsis, toTitleCase } from '@/lib/utils';
 import {
   CaretDownIcon,
   CaretUpIcon,
@@ -18,6 +18,13 @@ import {
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu';
 import Invoice from '@/classes/Invoice';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '../ui/tooltip';
+import PDFViewer from '../PDF/PDFViewer';
 
 // define badge type by status type
 type BadgeType = 'success' | 'destructive' | 'warning' | 'info';
@@ -69,12 +76,28 @@ export const columns: ColumnDef<Invoice>[] = [
     },
     cell: ({ row }) => {
       return (
-        <div className="flex flex-col">
-          {row.original.data.supplierName}
-          <div className="text-xs text-wm-white-300">
-            {decodeURI(row.original.fileUrl.split('/')[8].split('.pdf')[0])}
-          </div>
-        </div>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipContent side="right">
+              <div className="max-h-[600px] overflow-scroll">
+                <PDFViewer file={row.original.fileUrl} width={400} />
+              </div>
+            </TooltipContent>
+            <TooltipTrigger asChild>
+              <div className="flex w-fit flex-col">
+                <div className="w-fit">{row.original.data.supplierName}</div>
+                <div className="text-xs text-wm-white-300">
+                  {sliceWithEllipsis(
+                    decodeURI(
+                      row.original.fileUrl.split('/')[8].split('.pdf')[0],
+                    ),
+                    35,
+                  )}
+                </div>
+              </div>
+            </TooltipTrigger>
+          </Tooltip>
+        </TooltipProvider>
       );
     },
   },
