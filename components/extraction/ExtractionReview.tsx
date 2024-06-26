@@ -43,43 +43,52 @@ const ExtractionReview = ({ files }: { files: Invoice[] }) => {
   return (
     <>
       <div className="flex h-dvh w-full flex-col gap-4 pl-4 pt-8">
-        <BreadcrumbList className="text-wm-white-400">
-          <BreadcrumbItem>Bills</BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbEllipsis />
-          <BreadcrumbSeparator />
-          <BreadcrumbItem className="text-black">Review</BreadcrumbItem>
-        </BreadcrumbList>
+        <Button
+          variant={'ghost'}
+          size={'sm'}
+          className="w-fit text-sm font-normal"
+          onClick={() => window.location.reload()}
+        >
+          <CaretLeftIcon className="h-4 w-4" />
+          Go Back
+        </Button>
+
         <div className="relative flex h-[calc(100%-3px-3rem)] overflow-hidden rounded-tl border-l border-t">
           <div className="flex h-full w-fit flex-col border-r">
-            <div className="flex h-10 min-h-10 items-center justify-between border-b bg-wm-white-50 px-1 text-sm">
-              <DropdownMenu>
-                <DropdownMenuTrigger className="ellipsis flex items-center gap-1 rounded-md px-1 ring-wm-white-200 hover:opacity-50 hover:ring-1">
-                  {decodeURI(
-                    files[activeIndex].fileUrl.split('/')[8].split('.pdf')[0],
-                  )}
-                  <CaretDownIcon />
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="bg-white">
-                  <DropdownMenuLabel>Queue ({files.length})</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  {files.map((file, index) => (
-                    <DropdownMenuItem
-                      key={index}
-                      onClick={() => setActiveIndex(index)}
-                      className="hover flex cursor-pointer items-center justify-between gap-4 rounded-md hover:bg-wm-white-50"
-                    >
-                      {decodeURI(file.fileUrl.split('/')[8].split('.pdf')[0])}
-                      {activeIndex === index ? (
-                        <Badge variant="success">Active</Badge>
-                      ) : null}
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
+            <DropdownMenu defaultOpen>
+              <DropdownMenuTrigger asChild>
+                <div className="flex h-10 min-h-10 cursor-pointer items-center justify-between border-b bg-wm-white-50 px-1 text-sm hover:bg-wm-white-100">
+                  <div className="ellipsis flex items-center gap-1 ">
+                    {decodeURI(
+                      files[activeIndex].fileUrl.split('/')[8].split('.pdf')[0],
+                    )}
+                    <CaretDownIcon />
+                  </div>
+                  <div>
+                    {activeIndex} of {files.length}
+                  </div>
+                </div>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="bg-white">
+                <DropdownMenuLabel>Queue ({files.length})</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                {files.map((file, index) => (
+                  <DropdownMenuItem
+                    key={index}
+                    onClick={() => setActiveIndex(index)}
+                    className="hover flex cursor-pointer items-center justify-between gap-4 rounded-md hover:bg-wm-white-50"
+                  >
+                    {decodeURI(file.fileUrl.split('/')[8].split('.pdf')[0])}
+                    {activeIndex === index ? (
+                      <Badge variant="success">Active</Badge>
+                    ) : null}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+
             <div className="no-scrollbar h-full w-full overflow-y-scroll bg-wm-white-50 p-4">
-              <PDFViewer file={files[activeIndex].fileUrl} />
+              <PDFViewer file={files[activeIndex].fileUrl} zoomable />
             </div>
             <div className="sticky bottom-0 flex h-14 min-h-14 items-center gap-2 border-t bg-white px-2">
               <Button

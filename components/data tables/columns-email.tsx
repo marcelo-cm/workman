@@ -69,7 +69,7 @@ export const columns: ColumnDef<Email>[] = [
       <Button
         variant="ghost"
         onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        className="p-0"
+        className="px-2 py-0"
       >
         Date Uploaded
         {column.getIsSorted() === 'asc' ? (

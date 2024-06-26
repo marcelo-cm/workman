@@ -119,7 +119,7 @@ export const columns: ColumnDef<Invoice>[] = [
       <Button
         variant="ghost"
         onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        className="p-0"
+        className="-translate-x-2 px-2 py-0"
       >
         Date Due
         {column.getIsSorted() === 'asc' ? (
@@ -140,7 +140,7 @@ export const columns: ColumnDef<Invoice>[] = [
       <Button
         variant="ghost"
         onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        className="p-0"
+        className="-translate-x-2 px-2 py-0"
       >
         Date Invoiced
         {column.getIsSorted() === 'asc' ? (
@@ -161,7 +161,7 @@ export const columns: ColumnDef<Invoice>[] = [
       <Button
         variant="ghost"
         onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        className="p-0"
+        className="-translate-x-2 px-2 py-0"
       >
         Balance
         {column.getIsSorted() === 'asc' ? (

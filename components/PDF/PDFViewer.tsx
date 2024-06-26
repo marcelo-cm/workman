@@ -6,14 +6,21 @@ import React, {
   useState,
 } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
+import Container from '../ui/container';
+import { Button } from '../ui/button';
+import { MinusIcon, PlusIcon } from '@radix-ui/react-icons';
 
 pdfjs.GlobalWorkerOptions.workerSrc =
   'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.js';
+
+const MIN_ZOOM = 1;
+const MAX_ZOOM = 2;
 
 interface PDFViewerProps {
   file: File | string;
   width?: number;
   gridColumns?: 1 | 2 | 3;
+  zoomable?: boolean;
   selectable?: boolean;
   selectedPages?: number[];
   onPageSelect?: (index: number) => void;
@@ -32,6 +39,7 @@ const PDFViewer = forwardRef(
       file,
       width = 550,
       gridColumns = 1,
+      zoomable = false,
       selectable = false,
       selectedPages,
       onPageSelect,
@@ -45,6 +53,8 @@ const PDFViewer = forwardRef(
       throw new Error('onPageSelect is required when selectable is true');
     }
 
+    const [zoom, setZoom] = useState<number>(1);
+
     useImperativeHandle(ref, () => {
       return {
         getNumPages() {
@@ -54,6 +64,14 @@ const PDFViewer = forwardRef(
     });
 
     const [numPages, setNumPages] = useState<number>(0);
+
+    const increaseZoom = () => {
+      setZoom((prev) => Math.min(prev + 0.25, MAX_ZOOM));
+    };
+
+    const decreaseZoom = () => {
+      setZoom((prev) => Math.max(prev - 0.25, MIN_ZOOM));
+    };
 
     function onDocumentLoadSuccess(document: any): void {
       const { numPages: nextNumPages } = document;
@@ -78,7 +96,7 @@ const PDFViewer = forwardRef(
             Loading PDF <Loader2Icon className="ml-2 h-4 w-4 animate-spin" />
           </div>
         }
-        className={`grid w-fit gap-2 ${gridColumnsClass}`}
+        className={`grid w-fit gap-2 ${gridColumnsClass} relative overflow-x-scroll`}
       >
         {Array.from({ length: numPages }, (_, index) => (
           <div>
@@ -92,8 +110,8 @@ const PDFViewer = forwardRef(
               pageIndex={index}
               renderTextLayer={false}
               renderAnnotationLayer={false}
-              height={width * (11 / 8.5)}
-              width={width / gridColumns}
+              height={width * (11 / 8.5) * zoom}
+              width={(width / gridColumns) * zoom}
               className={`w-fit border border-wm-white-200 ${selectedPages && selectedPages.includes(index + 1) ? 'border-wm-orange' : null} ${selectable && onPageSelect ? 'cursor-pointer hover:ring hover:ring-wm-orange-200' : ''}`}
               onClick={() =>
                 selectable && onPageSelect && onPageSelect(index + 1)
@@ -111,7 +129,25 @@ const PDFViewer = forwardRef(
                 : customPageFooter)}
           </div>
         ))}
-        <div className="flex w-full items-center gap-2 pb-4 text-xs text-wm-white-300">
+        {zoomable && (
+          <Container
+            className="absolute right-2 top-2 z-50 bg-white text-xs"
+            innerClassName="flex flex-row gap-2 items-center justify-center"
+          >
+            <button onClick={decreaseZoom} disabled={zoom <= MIN_ZOOM}>
+              <Container className="cursor-pointer rounded-none border-0 border-r px-2 py-1 hover:bg-wm-white-50">
+                <MinusIcon />
+              </Container>
+            </button>
+            <div>{zoom}</div>
+            <button onClick={increaseZoom} disabled={zoom >= MAX_ZOOM}>
+              <Container className="cursor-pointer rounded-none border-0 border-l px-2 py-1 hover:bg-wm-white-50">
+                <PlusIcon />
+              </Container>
+            </button>
+          </Container>
+        )}
+        <div className="flex w-full items-center gap-2 pb-2 text-xs text-wm-white-300">
           <hr className="grow" />
           End of Document
           <hr className="grow" />
