@@ -111,6 +111,7 @@ export function ComboBox({
           role="combobox"
           aria-expanded={open}
           className="w-fit min-w-[200px] justify-between"
+          type="button"
         >
           <p className="w-fit min-w-[155px] overflow-hidden text-ellipsis text-nowrap break-keep text-left">
             {value ? getOptionLabel(value) : 'Select Vendor...'}

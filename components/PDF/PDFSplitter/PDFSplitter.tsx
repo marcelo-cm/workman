@@ -31,6 +31,7 @@ interface PDFSplitterContext {
   filesToSplit: File[];
   setFilesToSplit: Dispatch<SetStateAction<File[]>>;
   setStage: Dispatch<SetStateAction<keyof typeof STAGES>>;
+  handleUpload: () => void;
 }
 
 const defaultPDFSplitterContext: PDFSplitterContext = {
@@ -39,6 +40,7 @@ const defaultPDFSplitterContext: PDFSplitterContext = {
   filesToSplit: [],
   setFilesToSplit: () => {},
   setStage: () => {},
+  handleUpload: async () => {},
 };
 
 const PDFSplitterContext = createContext<PDFSplitterContext>(
@@ -106,6 +108,7 @@ const PDFSplitter = ({
               filesToSplit,
               setFilesToSplit,
               setStage,
+              handleUpload,
             }}
           >
             <>{STAGES[stage]}</>

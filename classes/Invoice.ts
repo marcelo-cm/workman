@@ -15,15 +15,13 @@ export class Invoice {
   data: InvoiceData;
   fileUrl: string;
   status: string;
-  flag: string;
 
-  constructor({ id, created_at, data, status, fileUrl, flag }: Invoice) {
+  constructor({ id, created_at, data, status, fileUrl }: Invoice) {
     this.id = id;
     this.created_at = created_at;
     this.data = data;
     this.status = status;
     this.fileUrl = fileUrl;
-    this.flag = flag;
   }
 
   static async upload(file: File | PDFData) {

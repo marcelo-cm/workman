@@ -437,7 +437,11 @@ const PDFSplitterFileSplit = () => {
       </div>
       <div className="w-3/5 bg-wm-white-50">
         <div className="flex h-12 min-h-12 items-center justify-between border-b px-4 text-sm">
-          {filesToSplit[activeIndex]?.name} {filesToUpload.length}
+          <div>{filesToSplit[activeIndex]?.name}</div>
+          <div className="mr-8">
+            {filesToSplit.length} file{filesToSplit.length > 1 ? 's' : ''}{' '}
+            remaining
+          </div>
         </div>
         <div
           className="no-scrollbar h-full w-full overflow-y-scroll p-4"
