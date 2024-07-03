@@ -1,8 +1,11 @@
-import { Email } from '@/app/api/v1/gmail/messages/route';
+import { SetStateAction } from 'react';
+
 import { toast } from '@/components/ui/use-toast';
+
+import { Email } from '@/app/api/v1/gmail/messages/route';
 import { Label, Label_Basic } from '@/interfaces/gmail.interfaces';
 import { createClient as createSupabaseClient } from '@/utils/supabase/client';
-import { SetStateAction } from 'react';
+
 import { useUser } from '../supabase/useUser';
 
 export const useGmail = () => {

@@ -1,14 +1,8 @@
-import { TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { LineItem } from '@/interfaces/common.interfaces';
-import { Account, Customer, Vendor } from '@/interfaces/quickbooks.interfaces';
-import { useAccount } from '@/lib/hooks/quickbooks/useAccount';
-import { useCustomer } from '@/lib/hooks/quickbooks/useCustomer';
-import { useVendor } from '@/lib/hooks/quickbooks/useVendor';
-import Invoice from '@/classes/Invoice';
-import { createClient } from '@/utils/supabase/client';
+import React, { SetStateAction, useEffect, useState } from 'react';
+
 import { EyeOpenIcon } from '@radix-ui/react-icons';
 import { HammerIcon, Loader2Icon, TableCellsSplit } from 'lucide-react';
-import React, { SetStateAction, useEffect, useState } from 'react';
+
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
 import { Checkbox } from '../ui/checkbox';
@@ -20,6 +14,17 @@ import {
   TableHeader,
   TableRow,
 } from '../ui/table';
+import { TabsList, TabsTrigger } from '@/components/ui/tabs';
+
+import { useAccount } from '@/lib/hooks/quickbooks/useAccount';
+import { useCustomer } from '@/lib/hooks/quickbooks/useCustomer';
+import { useVendor } from '@/lib/hooks/quickbooks/useVendor';
+
+import Invoice from '@/classes/Invoice';
+import { LineItem } from '@/interfaces/common.interfaces';
+import { Account, Customer, Vendor } from '@/interfaces/quickbooks.interfaces';
+import { createClient } from '@/utils/supabase/client';
+
 import { ComboBox } from './Combobox';
 
 const supabase = createClient();

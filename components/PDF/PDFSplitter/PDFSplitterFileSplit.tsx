@@ -1,3 +1,22 @@
+import React, { useEffect, useRef, useState } from 'react';
+
+import {
+  CaretRightIcon,
+  DownloadIcon,
+  PlusIcon,
+  ResetIcon,
+  ScissorsIcon,
+  TrashIcon,
+} from '@radix-ui/react-icons';
+
+import { zodResolver } from '@hookform/resolvers/zod';
+import { formatISO } from 'date-fns';
+import { PDFDocument } from 'pdf-lib';
+import { useFieldArray, useForm } from 'react-hook-form';
+import { pdfjs } from 'react-pdf';
+import { z } from 'zod';
+
+import { Button } from '../../ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import Container from '@/components/ui/container';
 import {
@@ -14,27 +33,12 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { zodResolver } from '@hookform/resolvers/zod';
-import {
-  CaretRightIcon,
-  DownloadIcon,
-  PlusIcon,
-  ResetIcon,
-  ScissorsIcon,
-  TrashIcon,
-} from '@radix-ui/react-icons';
-import React, { useEffect, useRef, useState } from 'react';
-import { useFieldArray, useForm } from 'react-hook-form';
-import { z } from 'zod';
-import { Button } from '../../ui/button';
+import { toast } from '@/components/ui/use-toast';
+
 import PDFViewer from '../PDFViewer';
 import { usePDFSplitter } from './PDFSplitter';
-import { formatISO } from 'date-fns';
-import { toast } from '@/components/ui/use-toast';
-import { PDFDocument } from 'pdf-lib';
-import { pdfjs } from 'react-pdf';
-import { defaultFormValues, fileSpitSchema } from './constants';
 import PDFSplitterCustomHeader from './PDFSplitterCustomHeader';
+import { defaultFormValues, fileSpitSchema } from './constants';
 
 pdfjs.GlobalWorkerOptions.workerSrc =
   'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.js';

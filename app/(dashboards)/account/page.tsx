@@ -1,6 +1,10 @@
 'use client';
 
+import { useState } from 'react';
+
 import { ComboBox } from '@/components/extraction/Combobox';
+import Gmail from '@/components/molecules/Gmail';
+import QuickBooks from '@/components/molecules/QuickBooks';
 import {
   BreadcrumbItem,
   BreadcrumbLink,
@@ -8,16 +12,15 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
 import { Button } from '@/components/ui/button';
-import { Label_Basic } from '@/interfaces/gmail.interfaces';
-import { Vendor } from '@/interfaces/quickbooks.interfaces';
+
 import { useGmail } from '@/lib/hooks/gmail/useGmail';
 import { useVendor } from '@/lib/hooks/quickbooks/useVendor';
 import { useUser } from '@/lib/hooks/supabase/useUser';
+
+import { Label_Basic } from '@/interfaces/gmail.interfaces';
+import { Vendor } from '@/interfaces/quickbooks.interfaces';
 import { handleGoogleMailIntegration } from '@/utils/nango/google';
 import { handleQuickBooksIntegration } from '@/utils/nango/quickbooks';
-import { useState } from 'react';
-import Gmail from '@/components/molecules/Gmail';
-import QuickBooks from '@/components/molecules/QuickBooks';
 
 const Account = () => {
   const { getVendorList } = useVendor();

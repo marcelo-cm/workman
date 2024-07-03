@@ -1,5 +1,6 @@
-import { createClient } from '@/utils/supabase/client';
 import { UUID } from 'crypto';
+
+import { createClient } from '@/utils/supabase/client';
 
 const supabase = createClient();
 

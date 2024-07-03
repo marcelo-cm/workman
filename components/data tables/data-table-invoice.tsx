@@ -1,5 +1,9 @@
 'use client';
 
+import { useEffect, useRef, useState } from 'react';
+
+import { MagnifyingGlassIcon } from '@radix-ui/react-icons';
+
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -12,7 +16,8 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 
-import { Email } from '@/app/api/v1/gmail/messages/route';
+import { Button } from '../ui/button';
+import { DatePickerWithRange } from '../ui/date-range-picker';
 import {
   Table,
   TableBody,
@@ -22,10 +27,8 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { MagnifyingGlassIcon } from '@radix-ui/react-icons';
-import { useEffect, useRef, useState } from 'react';
-import { Button } from '../ui/button';
-import { DatePickerWithRange } from '../ui/date-range-picker';
+
+import { Email } from '@/app/api/v1/gmail/messages/route';
 import Invoice from '@/classes/Invoice';
 
 interface DataTableProps<TData, TValue> {

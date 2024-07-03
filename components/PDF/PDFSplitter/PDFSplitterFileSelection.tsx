@@ -1,3 +1,21 @@
+import { useEffect, useRef, useState } from 'react';
+import React from 'react';
+
+import {
+  CaretRightIcon,
+  EyeOpenIcon,
+  PlusIcon,
+  ScissorsIcon,
+  TrashIcon,
+} from '@radix-ui/react-icons';
+
+import { Button } from '../../ui/button';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '../../ui/tooltip';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
   DialogContent,
@@ -6,23 +24,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import {
-  CaretRightIcon,
-  EyeOpenIcon,
-  PlusIcon,
-  ScissorsIcon,
-  TrashIcon,
-} from '@radix-ui/react-icons';
-import { Button } from '../../ui/button';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '../../ui/tooltip';
+
 import PDFViewer from '../PDFViewer';
-import { useEffect, useRef, useState } from 'react';
-import React from 'react';
 import { usePDFSplitter } from './PDFSplitter';
 
 const PDFSplitterFileSelection = () => {

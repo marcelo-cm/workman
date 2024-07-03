@@ -1,5 +1,16 @@
 'use client';
 
+import { useState } from 'react';
+
+import {
+  CaretDownIcon,
+  CaretLeftIcon,
+  CaretRightIcon,
+} from '@radix-ui/react-icons';
+
+import { Separator } from '@radix-ui/react-dropdown-menu';
+
+import { Badge } from '../ui/badge';
 import PDFViewer from '@/components/PDF/PDFViewer';
 import {
   BreadcrumbEllipsis,
@@ -8,7 +19,6 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
 import { Button } from '@/components/ui/button';
-
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,16 +27,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import {
-  CaretDownIcon,
-  CaretLeftIcon,
-  CaretRightIcon,
-} from '@radix-ui/react-icons';
-import { useState } from 'react';
-import { Badge } from '../ui/badge';
-import ExtractionTabs from './ExtractionTabs';
-import { Separator } from '@radix-ui/react-dropdown-menu';
+
 import Invoice from '@/classes/Invoice';
+
+import ExtractionTabs from './ExtractionTabs';
 
 const ExtractionReview = ({ files }: { files: Invoice[] }) => {
   const [activeIndex, setActiveIndex] = useState(0);

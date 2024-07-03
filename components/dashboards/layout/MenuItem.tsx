@@ -1,6 +1,8 @@
 import { ReactNode, useContext } from 'react';
-import { SideBarContext } from './SideBar';
+
 import { useRouter } from 'next/navigation';
+
+import { SideBarContext } from './SideBar';
 
 const MenuItem = ({
   children,

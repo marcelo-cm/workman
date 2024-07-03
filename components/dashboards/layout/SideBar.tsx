@@ -1,7 +1,7 @@
 'use client';
 
-import useLocalStorage from '@/lib/hooks/useLocalStorage';
-import { createClient } from '@/utils/supabase/client';
+import React, { useContext, useEffect, useState } from 'react';
+
 import {
   ExitIcon,
   FileIcon,
@@ -9,8 +9,13 @@ import {
   PersonIcon,
 } from '@radix-ui/react-icons';
 import { ArrowLeftToLine, ArrowRightToLine, Check, LogOut } from 'lucide-react';
+
 import { usePathname } from 'next/navigation';
-import React, { useContext, useEffect, useState } from 'react';
+
+import useLocalStorage from '@/lib/hooks/useLocalStorage';
+
+import { createClient } from '@/utils/supabase/client';
+
 import WorkmanLogo from '../../molecules/WorkmanLogo';
 import MenuItem from './MenuItem';
 

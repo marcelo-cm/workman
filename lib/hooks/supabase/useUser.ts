@@ -1,6 +1,7 @@
+import { PostgrestSingleResponse } from '@supabase/supabase-js';
+
 import { User } from '@/classes/User';
 import { createClient as createSupabaseClient } from '@/utils/supabase/client';
-import { PostgrestSingleResponse } from '@supabase/supabase-js';
 
 export const useUser = () => {
   const supabase = createSupabaseClient();

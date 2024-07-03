@@ -1,8 +1,9 @@
-import { Header, Message, MessagePart } from '@/interfaces/gmail.interfaces';
-import { base64Decode } from '@/lib/utils';
 import { Nango } from '@nangohq/node';
 import { StatusCodes } from 'http-status-codes';
 import { NextRequest, NextResponse } from 'next/server';
+
+import { Header, Message, MessagePart } from '@/interfaces/gmail.interfaces';
+import { base64Decode } from '@/lib/utils';
 
 const nango = new Nango({
   secretKey: process.env.NANGO_SECRET_KEY!,

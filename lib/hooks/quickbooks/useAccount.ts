@@ -1,6 +1,8 @@
-import { toast } from '@/components/ui/use-toast';
-import { createClient as createSupabaseClient } from '@/utils/supabase/client';
 import { SetStateAction } from 'react';
+
+import { toast } from '@/components/ui/use-toast';
+
+import { createClient as createSupabaseClient } from '@/utils/supabase/client';
 
 export const useAccount = () => {
   const supabase = createSupabaseClient();

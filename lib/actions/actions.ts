@@ -1,10 +1,10 @@
 'use server';
 
-import { createMindeeClient } from '@/utils/mindee/client';
 import * as mindee from 'mindee';
-
-import { createClient } from '@/utils/supabase/server';
 import { Nango } from '@nangohq/node';
+
+import { createMindeeClient } from '@/utils/mindee/client';
+import { createClient } from '@/utils/supabase/server';
 
 const supabase = createClient();
 const nango = new Nango({

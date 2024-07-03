@@ -1,6 +1,11 @@
 'use client';
 
-import { Email } from '@/app/api/v1/gmail/messages/route';
+import { useEffect, useState } from 'react';
+
+import { MagicWandIcon } from '@radix-ui/react-icons';
+
+import { useRouter } from 'next/navigation';
+
 import { columns as EmailColumns } from '@/components/data tables/columns-email';
 import { columns as InvoiceColumns } from '@/components/data tables/columns-unprocessed';
 import { DataTable as EmailTable } from '@/components/data tables/data-table-emails';
@@ -19,14 +24,12 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
-import { toast } from '@/components/ui/use-toast';
+
 import { useGmail } from '@/lib/hooks/gmail/useGmail';
+
+import { Email } from '@/app/api/v1/gmail/messages/route';
 import Invoice from '@/classes/Invoice';
 import { createClient } from '@/utils/supabase/client';
-import { MagicWandIcon } from '@radix-ui/react-icons';
-import { decode } from 'base64-arraybuffer';
-import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
 
 const getInvoices = async () => {
   const supabase = createClient();

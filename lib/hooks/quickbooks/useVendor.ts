@@ -1,7 +1,9 @@
+import { SetStateAction } from 'react';
+
 import { toast } from '@/components/ui/use-toast';
+
 import { Vendor } from '@/interfaces/quickbooks.interfaces';
 import { createClient as createSupabaseClient } from '@/utils/supabase/client';
-import { SetStateAction } from 'react';
 
 export const useVendor = () => {
   const supabase = createSupabaseClient();

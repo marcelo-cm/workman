@@ -1,14 +1,17 @@
-import { Loader2Icon } from 'lucide-react';
 import React, {
   ReactNode,
   forwardRef,
   useImperativeHandle,
   useState,
 } from 'react';
-import { Document, Page, pdfjs } from 'react-pdf';
-import Container from '../ui/container';
-import { Button } from '../ui/button';
+
 import { MinusIcon, PlusIcon } from '@radix-ui/react-icons';
+import { Loader2Icon } from 'lucide-react';
+
+import { Document, Page, pdfjs } from 'react-pdf';
+
+import { Button } from '../ui/button';
+import Container from '../ui/container';
 
 pdfjs.GlobalWorkerOptions.workerSrc =
   'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.js';

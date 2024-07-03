@@ -1,12 +1,15 @@
+import { useRef, useState } from 'react';
+
+import { UploadIcon } from '@radix-ui/react-icons';
+
+import { Button } from '../ui/button';
 import {
   Dialog,
   DialogContent,
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-import { UploadIcon } from '@radix-ui/react-icons';
-import { useRef, useState } from 'react';
-import { Button } from '../ui/button';
+
 import PDFSplitter from '../PDF/PDFSplitter/PDFSplitter';
 
 const UploadFileButton = () => {

@@ -1,4 +1,19 @@
-import Invoice from '@/classes/Invoice';
+import React, { SetStateAction, useEffect, useRef, useState } from 'react';
+
+import {
+  BookmarkIcon,
+  CheckIcon,
+  ChevronRightIcon,
+  PlusIcon,
+  ResetIcon,
+  TrashIcon,
+} from '@radix-ui/react-icons';
+import { Scan } from 'lucide-react';
+
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useFieldArray, useForm, useWatch } from 'react-hook-form';
+import { z } from 'zod';
+
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -11,20 +26,10 @@ import {
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/text-area';
+
+import Invoice from '@/classes/Invoice';
 import { InvoiceData } from '@/interfaces/common.interfaces';
-import { zodResolver } from '@hookform/resolvers/zod';
-import {
-  BookmarkIcon,
-  CheckIcon,
-  ChevronRightIcon,
-  PlusIcon,
-  ResetIcon,
-  TrashIcon,
-} from '@radix-ui/react-icons';
-import { Scan } from 'lucide-react';
-import React, { SetStateAction, useEffect, useRef, useState } from 'react';
-import { useFieldArray, useForm, useWatch } from 'react-hook-form';
-import { z } from 'zod';
+
 import ExtractionFormComponent from './ExtractionFormComponent';
 import UploadToQuickBooks from './UploadToQuickBooks';
 
