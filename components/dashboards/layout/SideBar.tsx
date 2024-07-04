@@ -7,6 +7,7 @@ import {
   FileIcon,
   Pencil2Icon,
   PersonIcon,
+  FileTextIcon,
 } from '@radix-ui/react-icons';
 import { ArrowLeftToLine, ArrowRightToLine, Check, LogOut } from 'lucide-react';
 
@@ -162,6 +163,7 @@ const SideBarExpanded = () => {
           </div>
           <div className="w-full rounded-r-lg bg-wm-white-50 py-1 pr-2">
             <MenuItem icon disabled>
+              <FileTextIcon className="h-4 w-4" />
               Bills
             </MenuItem>
             <MenuItem href="/unprocessed">
