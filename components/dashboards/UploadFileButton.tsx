@@ -53,7 +53,7 @@ const UploadFileButton = () => {
     setDragActive(false);
     const files = Array.from(event.dataTransfer.files) as File[];
 
-    setFilesToUpload((prevFiles) => [...prevFiles, ...files]);
+    setFilesToUpload(files);
   };
 
   return (
@@ -73,7 +73,7 @@ const UploadFileButton = () => {
           <div className="flex h-full flex-col gap-4  p-4">
             <DialogTitle>Upload Documents</DialogTitle>
             <button
-              className="flex h-full w-full items-center justify-center rounded-lg border border-dashed border-wm-white-500 bg-wm-white-50 text-wm-white-700 hover:border-wm-orange-500 hover:bg-wm-orange-50 hover:text-wm-orange-700"
+              className={`flex h-full w-full items-center justify-center rounded-lg border border-dashed border-wm-white-500 bg-wm-white-50 text-wm-white-700 hover:border-wm-orange-500 hover:bg-wm-orange-50 hover:text-wm-orange-700 ${isDragActive ? 'bg-wm-orange-50 text-wm-orange-700 border-wm-orange-500' : ''}`}
               onClick={handleButtonClick}
               onDragEnter={handleDragEnter}
               onDragLeave={handleDragLeave}
