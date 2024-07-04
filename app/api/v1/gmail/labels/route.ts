@@ -1,7 +1,8 @@
-import { Label_Basic } from '@/interfaces/gmail.interfaces';
 import { Nango } from '@nangohq/node';
 import { StatusCodes } from 'http-status-codes';
 import { NextRequest, NextResponse } from 'next/server';
+
+import { Label_Basic } from '@/interfaces/gmail.interfaces';
 
 const nango = new Nango({
   secretKey: process.env.NANGO_SECRET_KEY!,

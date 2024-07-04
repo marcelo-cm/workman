@@ -1,18 +1,22 @@
 'use client';
 
-import { Checkbox } from '@/components/ui/checkbox';
-import { formatDate, sliceWithEllipsis } from '@/lib/utils';
 import { CaretDownIcon, CaretUpIcon } from '@radix-ui/react-icons';
-import { ColumnDef } from '@tanstack/react-table';
 import { ExternalLinkIcon } from 'lucide-react';
+
+import { ColumnDef } from '@tanstack/react-table';
+
 import { Button } from '../ui/button';
-import Invoice from '@/classes/Invoice';
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from '../ui/tooltip';
+import { Checkbox } from '@/components/ui/checkbox';
+
+import Invoice from '@/classes/Invoice';
+import { formatDate, sliceWithEllipsis } from '@/lib/utils';
+
 import PDFViewer from '../PDF/PDFViewer';
 
 export const columns: ColumnDef<Invoice>[] = [

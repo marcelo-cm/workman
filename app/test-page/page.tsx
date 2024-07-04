@@ -1,15 +1,20 @@
 'use client';
 
+import { useState } from 'react';
+
+import { decode } from 'base64-arraybuffer';
+
 import PDFViewer from '@/components/PDF/PDFViewer';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/components/ui/use-toast';
+
+import { useGmail } from '@/lib/hooks/gmail/useGmail';
+
 import { createClient as createNangoClient } from '@/utils/nango/client';
 import { handleGoogleMailIntegration } from '@/utils/nango/google';
 import { createClient as createSupabaseClient } from '@/utils/supabase/client';
-import { decode } from 'base64-arraybuffer';
-import { useState } from 'react';
+
 import { Email, PDFData } from '../api/v1/gmail/messages/route';
-import { useGmail } from '@/lib/hooks/gmail/useGmail';
 
 const nango = createNangoClient();
 const supabase = createSupabaseClient();

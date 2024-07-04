@@ -1,13 +1,17 @@
 'use client';
 
-import { Checkbox } from '@/components/ui/checkbox';
-import { formatDate } from '@/lib/utils';
 import { CaretDownIcon, CaretUpIcon } from '@radix-ui/react-icons';
-import { ColumnDef } from '@tanstack/react-table';
 import { ExternalLinkIcon } from 'lucide-react';
+
+import { ColumnDef } from '@tanstack/react-table';
+
 import { Button } from '../ui/button';
-import { Email } from '@/app/api/v1/gmail/messages/route';
+import { Checkbox } from '@/components/ui/checkbox';
+
 import { useGmail } from '@/lib/hooks/gmail/useGmail';
+
+import { Email } from '@/app/api/v1/gmail/messages/route';
+import { formatDate } from '@/lib/utils';
 
 const { markAsIgnore, markAsScanned } = useGmail();
 

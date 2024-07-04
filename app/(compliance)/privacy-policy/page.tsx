@@ -514,7 +514,8 @@ const PrivacyPolicy = () => {
               </p>
               <h2 className="text-xl font-medium">Training Data</h2>
               <p className="text-gray-700">
-                Google Workspace API's will not be used to train, develop, or improve our generalized AI/ML models.
+                Google Workspace API's will not be used to train, develop, or
+                improve our generalized AI/ML models.
               </p>
               <h2 className="text-xl font-medium">Contact Us</h2>
               <p className="text-gray-700">

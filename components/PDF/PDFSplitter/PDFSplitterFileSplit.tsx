@@ -1,3 +1,22 @@
+import React, { useEffect, useRef, useState } from 'react';
+
+import {
+  CaretRightIcon,
+  DownloadIcon,
+  PlusIcon,
+  ResetIcon,
+  ScissorsIcon,
+  TrashIcon,
+} from '@radix-ui/react-icons';
+
+import { zodResolver } from '@hookform/resolvers/zod';
+import { formatISO } from 'date-fns';
+import { PDFDocument } from 'pdf-lib';
+import { useFieldArray, useForm } from 'react-hook-form';
+import { pdfjs } from 'react-pdf';
+import { z } from 'zod';
+
+import { Button } from '../../ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import Container from '@/components/ui/container';
 import {
@@ -14,27 +33,12 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { zodResolver } from '@hookform/resolvers/zod';
-import {
-  CaretRightIcon,
-  DownloadIcon,
-  PlusIcon,
-  ResetIcon,
-  ScissorsIcon,
-  TrashIcon,
-} from '@radix-ui/react-icons';
-import React, { useEffect, useRef, useState } from 'react';
-import { useFieldArray, useForm } from 'react-hook-form';
-import { z } from 'zod';
-import { Button } from '../../ui/button';
+import { toast } from '@/components/ui/use-toast';
+
 import PDFViewer from '../PDFViewer';
 import { usePDFSplitter } from './PDFSplitter';
-import { formatISO } from 'date-fns';
-import { toast } from '@/components/ui/use-toast';
-import { PDFDocument } from 'pdf-lib';
-import { pdfjs } from 'react-pdf';
-import { defaultFormValues, fileSpitSchema } from './constants';
 import PDFSplitterCustomHeader from './PDFSplitterCustomHeader';
+import { defaultFormValues, fileSpitSchema } from './constants';
 
 pdfjs.GlobalWorkerOptions.workerSrc =
   'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.js';
@@ -437,7 +441,11 @@ const PDFSplitterFileSplit = () => {
       </div>
       <div className="w-3/5 bg-wm-white-50">
         <div className="flex h-12 min-h-12 items-center justify-between border-b px-4 text-sm">
-          {filesToSplit[activeIndex]?.name} {filesToUpload.length}
+          <div>{filesToSplit[activeIndex]?.name}</div>
+          <div className="mr-8">
+            {filesToSplit.length} file{filesToSplit.length > 1 ? 's' : ''}{' '}
+            remaining
+          </div>
         </div>
         <div
           className="no-scrollbar h-full w-full overflow-y-scroll p-4"

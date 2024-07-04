@@ -1,13 +1,13 @@
 'use client';
 
-import { Checkbox } from '@/components/ui/checkbox';
-import { formatDate, sliceWithEllipsis, toTitleCase } from '@/lib/utils';
 import {
   CaretDownIcon,
   CaretUpIcon,
   MixerHorizontalIcon,
 } from '@radix-ui/react-icons';
+
 import { ColumnDef } from '@tanstack/react-table';
+
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
 import {
@@ -17,13 +17,17 @@ import {
   DropdownMenuRadioItem,
   DropdownMenuTrigger,
 } from '../ui/dropdown-menu';
-import Invoice from '@/classes/Invoice';
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from '../ui/tooltip';
+import { Checkbox } from '@/components/ui/checkbox';
+
+import Invoice from '@/classes/Invoice';
+import { formatDate, sliceWithEllipsis, toTitleCase } from '@/lib/utils';
+
 import PDFViewer from '../PDF/PDFViewer';
 
 // define badge type by status type

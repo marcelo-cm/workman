@@ -1,5 +1,12 @@
 'use client';
 
+import React, { useEffect, useState } from 'react';
+
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useRouter } from 'next/navigation';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+
 import Gmail from '@/components/molecules/Gmail';
 import QuickBooks from '@/components/molecules/QuickBooks';
 import WorkmanLogo from '@/components/molecules/WorkmanLogo';
@@ -14,19 +21,16 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Label_Basic } from '@/interfaces/gmail.interfaces';
-import { getGoogleMailToken, getQuickBooksToken } from '@/lib/actions/actions';
+
 import { useGmail } from '@/lib/hooks/gmail/useGmail';
 import { useUser } from '@/lib/hooks/supabase/useUser';
+
+import { Label_Basic } from '@/interfaces/gmail.interfaces';
+import { getGoogleMailToken, getQuickBooksToken } from '@/lib/actions/actions';
 import { createClient as createNangoClient } from '@/utils/nango/client';
 import { handleGoogleMailIntegration } from '@/utils/nango/google';
 import { handleQuickBooksIntegration } from '@/utils/nango/quickbooks';
 import { createClient as createSupabaseClient } from '@/utils/supabase/client';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useRouter } from 'next/navigation';
-import React, { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
 
 const supabase = createSupabaseClient();
 const nango = createNangoClient();

@@ -1,10 +1,13 @@
 'use client';
 
+import React, { useEffect, useRef } from 'react';
+
+import { Router } from 'lucide-react';
+
+import { useRouter } from 'next/navigation';
+
 import WorkmanLogo from '@/components/molecules/WorkmanLogo';
 import { Button } from '@/components/ui/button';
-import { Router } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import React, { useEffect, useRef } from 'react';
 
 const Demo = () => {
   const router = useRouter();

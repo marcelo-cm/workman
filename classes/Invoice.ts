@@ -1,11 +1,13 @@
-import { PDFData } from '@/app/api/v1/gmail/messages/route';
+import { decode } from 'base64-arraybuffer';
+import { UUID } from 'crypto';
+
 import { Invoice_Quickbooks } from '@/components/extraction/UploadToQuickBooks';
 import { toast } from '@/components/ui/use-toast';
+
+import { PDFData } from '@/app/api/v1/gmail/messages/route';
 import { InvoiceData } from '@/interfaces/common.interfaces';
 import { mindeeScan } from '@/lib/actions/actions';
 import { createClient } from '@/utils/supabase/client';
-import { decode } from 'base64-arraybuffer';
-import { UUID } from 'crypto';
 
 const supabase = createClient();
 
@@ -15,15 +17,13 @@ export class Invoice {
   data: InvoiceData;
   fileUrl: string;
   status: string;
-  flag: string;
 
-  constructor({ id, created_at, data, status, fileUrl, flag }: Invoice) {
+  constructor({ id, created_at, data, status, fileUrl }: Invoice) {
     this.id = id;
     this.created_at = created_at;
     this.data = data;
     this.status = status;
     this.fileUrl = fileUrl;
-    this.flag = flag;
   }
 
   static async upload(file: File | PDFData) {

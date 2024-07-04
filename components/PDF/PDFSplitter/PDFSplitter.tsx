@@ -1,11 +1,3 @@
-import WorkmanLogo from '@/components/molecules/WorkmanLogo';
-import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
 import {
   Dispatch,
   SetStateAction,
@@ -14,10 +6,21 @@ import {
   useEffect,
   useState,
 } from 'react';
+
+import WorkmanLogo from '@/components/molecules/WorkmanLogo';
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { DialogContent } from '@/components/ui/dialog';
+
+import Invoice from '@/classes/Invoice';
+
 import PDFSplitterFileSelection from './PDFSplitterFileSelection';
 import PDFSplitterFileSplit from './PDFSplitterFileSplit';
-import { DialogContent } from '@/components/ui/dialog';
-import Invoice from '@/classes/Invoice';
 
 const STAGES = {
   SELECTION: <PDFSplitterFileSelection />,
@@ -31,6 +34,7 @@ interface PDFSplitterContext {
   filesToSplit: File[];
   setFilesToSplit: Dispatch<SetStateAction<File[]>>;
   setStage: Dispatch<SetStateAction<keyof typeof STAGES>>;
+  handleUpload: () => void;
 }
 
 const defaultPDFSplitterContext: PDFSplitterContext = {
@@ -39,6 +43,7 @@ const defaultPDFSplitterContext: PDFSplitterContext = {
   filesToSplit: [],
   setFilesToSplit: () => {},
   setStage: () => {},
+  handleUpload: async () => {},
 };
 
 const PDFSplitterContext = createContext<PDFSplitterContext>(
@@ -106,6 +111,7 @@ const PDFSplitter = ({
               filesToSplit,
               setFilesToSplit,
               setStage,
+              handleUpload,
             }}
           >
             <>{STAGES[stage]}</>

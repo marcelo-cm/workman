@@ -1,5 +1,7 @@
 'use client';
 
+import { useEffect, useState } from 'react';
+
 import { Check, ChevronsUpDown } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -15,8 +17,8 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
+
 import { cn } from '@/lib/utils';
-import { useEffect, useState } from 'react';
 
 function levenshtein(a: string, b: string): number {
   const an = a ? a.length : 0;
@@ -111,6 +113,7 @@ export function ComboBox({
           role="combobox"
           aria-expanded={open}
           className="w-fit min-w-[200px] justify-between"
+          type="button"
         >
           <p className="w-fit min-w-[155px] overflow-hidden text-ellipsis text-nowrap break-keep text-left">
             {value ? getOptionLabel(value) : 'Select Vendor...'}
