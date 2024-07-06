@@ -1,11 +1,11 @@
 import React, { SetStateAction, useEffect, useState } from 'react';
 
 import { EyeOpenIcon } from '@radix-ui/react-icons';
-import { HammerIcon, Loader2Icon, TableCellsSplit } from 'lucide-react';
+import { HammerIcon, Loader2Icon } from 'lucide-react';
 
-import { Badge } from '../ui/badge';
-import { Button } from '../ui/button';
-import { Checkbox } from '../ui/checkbox';
+import { Badge } from '../../ui/badge';
+import { Button } from '../../ui/button';
+import { Checkbox } from '../../ui/checkbox';
 import {
   Table,
   TableBody,
@@ -13,7 +13,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '../ui/table';
+} from '../../ui/table';
 import { TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 import { useAccount } from '@/lib/hooks/quickbooks/useAccount';
@@ -22,31 +22,17 @@ import { useVendor } from '@/lib/hooks/quickbooks/useVendor';
 
 import Invoice from '@/classes/Invoice';
 import { LineItem } from '@/interfaces/common.interfaces';
-import { Account, Customer, Vendor } from '@/interfaces/quickbooks.interfaces';
+import {
+  Account,
+  Customer,
+  Invoice_Quickbooks,
+  Vendor,
+} from '@/interfaces/quickbooks.interfaces';
 import { createClient } from '@/utils/supabase/client';
 
-import { ComboBox } from './Combobox';
+import { ComboBox } from '../Combobox';
 
 const supabase = createClient();
-
-export interface Invoice_Quickbooks extends Omit<Invoice, 'data'> {
-  data: {
-    supplierName: string;
-    vendorId: string;
-    invoiceNumber: string;
-    date: string;
-    dueDate: string;
-    customerAddress: string;
-    notes: string;
-    lineItems: LineItem_QuickBooks[];
-  };
-}
-
-export interface LineItem_QuickBooks extends LineItem {
-  customerId: string;
-  billable: boolean;
-  accountId: string;
-}
 
 const UploadToQuickBooks = ({
   files,
@@ -238,9 +224,6 @@ const UploadToQuickBooks = ({
                             }
                             getOptionLabel={(option) => option?.Name}
                           />
-                          <p className="ml-2 mt-1 text-xs font-medium text-wm-white-500">
-                            Product Code: {lineItem.productCode}
-                          </p>
                         </TableCell>
                         <TableCell>{lineItem.description}</TableCell>
                         <TableCell className="text-right">

@@ -1,3 +1,7 @@
+import Invoice from '@/classes/Invoice';
+
+import { LineItem } from './common.interfaces';
+
 export interface Vendor {
   BillAddr?: Address;
   Balance?: number;
@@ -67,6 +71,25 @@ export interface Account {
   Id: string;
   SyncToken: string;
   MetaData: MetaData;
+}
+
+export interface Invoice_Quickbooks extends Omit<Invoice, 'data'> {
+  data: {
+    supplierName: string;
+    vendorId: string;
+    invoiceNumber: string;
+    date: string;
+    dueDate: string;
+    customerAddress: string;
+    notes: string;
+    lineItems: LineItem_QuickBooks[];
+  };
+}
+
+export interface LineItem_QuickBooks extends LineItem {
+  customerId: string;
+  billable: boolean;
+  accountId: string;
 }
 
 interface Address {

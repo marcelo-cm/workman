@@ -54,9 +54,6 @@ export const useVendor = () => {
 
       if (setVendorCallback) {
         setVendorCallback(vendors);
-        toast({
-          title: 'Vendors fetched successfully',
-        });
       }
       return vendors;
     } catch (error) {

@@ -54,9 +54,6 @@ export const useCustomer = () => {
 
       if (setCustomerCallback) {
         setCustomerCallback(customers);
-        toast({
-          title: 'Customers fetched successfully',
-        });
       }
 
       return customers;

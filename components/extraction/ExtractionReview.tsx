@@ -69,7 +69,7 @@ const ExtractionReview = ({ files }: { files: Invoice[] }) => {
                     <CaretDownIcon />
                   </div>
                   <div>
-                    {activeIndex} of {files.length}
+                    {activeIndex + 1} of {files.length}
                   </div>
                 </div>
               </DropdownMenuTrigger>

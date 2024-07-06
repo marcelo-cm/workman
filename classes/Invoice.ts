@@ -1,11 +1,11 @@
 import { decode } from 'base64-arraybuffer';
 import { UUID } from 'crypto';
 
-import { Invoice_Quickbooks } from '@/components/extraction/UploadToQuickBooks';
 import { toast } from '@/components/ui/use-toast';
 
 import { PDFData } from '@/app/api/v1/gmail/messages/route';
 import { InvoiceData } from '@/interfaces/common.interfaces';
+import { Invoice_Quickbooks } from '@/interfaces/quickbooks.interfaces';
 import { mindeeScan } from '@/lib/actions/actions';
 import { createClient } from '@/utils/supabase/client';
 

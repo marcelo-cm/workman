@@ -83,7 +83,7 @@ export const columns: ColumnDef<Invoice>[] = [
         <TooltipProvider>
           <Tooltip>
             <TooltipContent side="right">
-              <div className="max-h-[600px] overflow-scroll">
+              <div className="max-h-[600px] overflow-x-hidden overflow-y-scroll no-scrollbar">
                 <PDFViewer file={row.original.fileUrl} width={400} />
               </div>
             </TooltipContent>
