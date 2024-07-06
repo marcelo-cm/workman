@@ -2,7 +2,7 @@ import { Connection, Nango } from '@nangohq/node';
 import { StatusCodes } from 'http-status-codes';
 import { NextRequest, NextResponse } from 'next/server';
 
-import { Invoice_Quickbooks } from '@/components/extraction/UploadToQuickBooks';
+import { Invoice_Quickbooks } from '@/interfaces/quickbooks.interfaces';
 
 const nango = new Nango({
   secretKey: process.env.NANGO_SECRET_KEY!,

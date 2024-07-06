@@ -5,9 +5,9 @@ import React, { useContext, useEffect, useState } from 'react';
 import {
   ExitIcon,
   FileIcon,
+  FileTextIcon,
   Pencil2Icon,
   PersonIcon,
-  FileTextIcon,
 } from '@radix-ui/react-icons';
 import { ArrowLeftToLine, ArrowRightToLine, Check, LogOut } from 'lucide-react';
 

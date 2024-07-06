@@ -267,7 +267,11 @@ const ExtractionTabs = ({
           </div>
         </TabsContent>
         <TabsContent value="2">
-          <UploadToQuickBooks files={files} setActiveIndex={setActiveIndex} />
+          <UploadToQuickBooks
+            files={files}
+            setActiveIndex={setActiveIndex}
+            activeIndex={activeIndex}
+          />
         </TabsContent>
       </div>
     </Tabs>

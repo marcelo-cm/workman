@@ -61,7 +61,7 @@ const ExtractionReview = ({ files }: { files: Invoice[] }) => {
           <div className="flex h-full w-fit flex-col border-r">
             <DropdownMenu defaultOpen>
               <DropdownMenuTrigger asChild>
-                <div className="flex h-10 min-h-10 cursor-pointer items-center justify-between border-b bg-wm-white-50 px-1 text-sm hover:bg-wm-white-100">
+                <div className="flex h-10 min-h-10 cursor-pointer items-center justify-between border-b bg-wm-white-50 px-2 text-sm hover:bg-wm-white-100">
                   <div className="ellipsis flex items-center gap-1 ">
                     {decodeURI(
                       files[activeIndex].fileUrl.split('/')[8].split('.pdf')[0],
@@ -90,7 +90,6 @@ const ExtractionReview = ({ files }: { files: Invoice[] }) => {
                 ))}
               </DropdownMenuContent>
             </DropdownMenu>
-
             <div className="no-scrollbar h-full w-full overflow-y-scroll bg-wm-white-50 p-4">
               <PDFViewer file={files[activeIndex].fileUrl} zoomable />
             </div>
