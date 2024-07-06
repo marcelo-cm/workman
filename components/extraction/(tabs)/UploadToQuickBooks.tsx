@@ -1,7 +1,12 @@
 import React, { SetStateAction, useEffect, useState } from 'react';
 
-import { ArrowLeftIcon, EyeOpenIcon } from '@radix-ui/react-icons';
-import { HammerIcon, Loader2Icon } from 'lucide-react';
+import {
+  ArrowLeftIcon,
+  BookmarkFilledIcon,
+  BookmarkIcon,
+  EyeOpenIcon,
+} from '@radix-ui/react-icons';
+import { BookmarkCheckIcon, HammerIcon, Loader2Icon } from 'lucide-react';
 
 import { Badge } from '../../ui/badge';
 import { Button } from '../../ui/button';
@@ -22,7 +27,6 @@ import { useCustomer } from '@/lib/hooks/quickbooks/useCustomer';
 import { useVendor } from '@/lib/hooks/quickbooks/useVendor';
 
 import Invoice from '@/classes/Invoice';
-import { LineItem } from '@/interfaces/common.interfaces';
 import {
   Account,
   Customer,
@@ -320,32 +324,8 @@ const UploadToQuickBooks = ({
                             </TableCell>
                           </TableRow>
                           <TableRow>
-                            <TableCell colSpan={2}>
-                              <div className="flex w-full flex-row gap-2">
-                                <Button
-                                  onClick={() => uploadToQuickBooks(fileIndex)}
-                                  disabled={
-                                    isLoading ||
-                                    uploadedFileIndexes.includes(fileIndex)
-                                  }
-                                  variant={'secondary'}
-                                >
-                                  <IfElseRender
-                                    ternary={isLoading}
-                                    ifTrue={
-                                      <>
-                                        <Loader2Icon className="h-4 w-4 animate-spin" />{' '}
-                                        Submitting...
-                                      </>
-                                    }
-                                    ifFalse={
-                                      <>
-                                        <HammerIcon className="h-4 w-4" />{' '}
-                                        Approve & Submit
-                                      </>
-                                    }
-                                  />
-                                </Button>
+                            <TableCell colSpan={5}>
+                              <div className="flex flex-row justify-between w-full">
                                 <Button
                                   onClick={() => {
                                     setActiveIndex(fileIndex);
@@ -356,6 +336,45 @@ const UploadToQuickBooks = ({
                                   <EyeOpenIcon className="h-4 w-4" /> View
                                   Invoice
                                 </Button>
+                                <div className="flex flex-row gap-2">
+                                  <Button
+                                    variant={'ghost'}
+                                    onClick={() =>
+                                      setUploadedFileIndexes([
+                                        ...uploadedFileIndexes,
+                                        fileIndex,
+                                      ])
+                                    }
+                                  >
+                                    <BookmarkIcon /> Save as Draft
+                                  </Button>
+                                  <Button
+                                    onClick={() =>
+                                      uploadToQuickBooks(fileIndex)
+                                    }
+                                    disabled={
+                                      isLoading ||
+                                      uploadedFileIndexes.includes(fileIndex)
+                                    }
+                                    variant={'secondary'}
+                                  >
+                                    <IfElseRender
+                                      ternary={isLoading}
+                                      ifTrue={
+                                        <>
+                                          <Loader2Icon className="h-4 w-4 animate-spin" />{' '}
+                                          Submitting...
+                                        </>
+                                      }
+                                      ifFalse={
+                                        <>
+                                          <HammerIcon className="h-4 w-4" />{' '}
+                                          Submit
+                                        </>
+                                      }
+                                    />
+                                  </Button>
+                                </div>
                               </div>
                             </TableCell>
                           </TableRow>
@@ -378,7 +397,7 @@ const UploadToQuickBooks = ({
           </TabsTrigger>
         </TabsList>
         <Button onClick={() => window.location.reload()}>
-          <HammerIcon className="h-4 w-4" /> Done Uploading
+          <HammerIcon className="h-4 w-4" /> Done
         </Button>
       </div>
     </>

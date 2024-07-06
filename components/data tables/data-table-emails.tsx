@@ -60,7 +60,7 @@ export function DataTable<TData, TValue>({
           {filters ? (
             <>
               {' '}
-              <div className="flex flex h-full w-[300px] flex-row items-center gap-2 rounded-md border bg-transparent px-3 py-1 text-sm text-wm-white-500 transition-colors">
+              <div className="flex h-full w-[300px] flex-row items-center gap-2 rounded-md border bg-transparent px-3 py-1 text-sm text-wm-white-500 transition-colors">
                 <MagnifyingGlassIcon
                   className="h-5 w-5 cursor-pointer"
                   onClick={() => searchFilterInputRef.current?.focus()}
@@ -160,7 +160,7 @@ export function DataTable<TData, TValue>({
         </Button>
         {filters ? (
           <>
-            <div className="flex flex h-full w-[300px] flex-row items-center gap-2 rounded-md border bg-transparent px-3 py-1 text-sm text-wm-white-500 transition-colors">
+            <div className="flex h-full w-[300px] flex-row items-center gap-2 rounded-md border bg-transparent px-3 py-1 text-sm text-wm-white-500 transition-colors">
               <MagnifyingGlassIcon
                 className="h-5 w-5 cursor-pointer"
                 onClick={() => searchFilterInputRef.current?.focus()}

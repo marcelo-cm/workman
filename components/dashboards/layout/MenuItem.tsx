@@ -29,11 +29,20 @@ const MenuItem = ({
      py-2
     ${!disabled ? 'cursor-pointer hover:bg-white' : null}
     ${
-      activePath == href
+      activePath === href
         ? 'border-r-2 border-orange-500 bg-white'
         : 'bg-wm-white-50'
     }`}
-      onClick={onClick ? onClick : () => (href ? router.push(href) : null)}
+      onClick={
+        onClick
+          ? onClick
+          : () =>
+              href
+                ? activePath === href
+                  ? window.location.reload()
+                  : router.push(href)
+                : null
+      }
     >
       {children}
     </div>
