@@ -1,0 +1,5 @@
+export enum InvoiceState {
+  UNPROCESSED = 'UNPROCESSED',
+  FOR_REVIEW = 'FOR_REVIEW',
+  PROCESSED = 'PROCESSED',
+}

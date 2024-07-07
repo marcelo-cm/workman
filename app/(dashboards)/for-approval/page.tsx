@@ -22,8 +22,9 @@ import IfElseRender from '@/components/ui/if-else-renderer';
 import { useInvoice } from '@/lib/hooks/supabase/useInvoice';
 
 import Invoice from '@/classes/Invoice';
+import { InvoiceState } from '@/constants/enums';
 
-const { getInvoices } = useInvoice();
+const { getInvoicesByState } = useInvoice();
 
 export default function ForApproval() {
   const [selectedFiles, setSelectedFiles] = useState<Invoice[]>([]); // Used for the Extraction Review component
@@ -32,7 +33,7 @@ export default function ForApproval() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    getInvoices(async (invoices) => {
+    getInvoicesByState(InvoiceState.FOR_REVIEW, async (invoices) => {
       setInvoices(invoices);
       setIsLoading(false);
     });

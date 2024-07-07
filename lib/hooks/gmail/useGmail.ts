@@ -89,9 +89,6 @@ export const useGmail = () => {
       const emails = await response.json();
       if (setMailCallback) {
         setMailCallback(emails);
-        toast({
-          title: 'Mail fetched successfully',
-        });
       }
 
       return emails;
@@ -186,6 +183,7 @@ export const useGmail = () => {
       toast({
         title: 'Label created successfully',
         description: `Label ${label.name} created successfully`,
+        variant: 'success',
       });
 
       return newLabel;

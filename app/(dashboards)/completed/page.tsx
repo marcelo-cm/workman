@@ -23,32 +23,13 @@ import { DatePickerWithRange } from '@/components/ui/date-range-picker';
 import LoadingState from '@/components/ui/empty-state';
 import IfElseRender from '@/components/ui/if-else-renderer';
 
+import { useInvoice } from '@/lib/hooks/supabase/useInvoice';
+
 import Invoice from '@/classes/Invoice';
+import { InvoiceState } from '@/constants/enums';
 import { createClient } from '@/utils/supabase/client';
 
-const getInvoices = async () => {
-  const supabase = createClient();
-
-  const { data: userDataRes, error: userDataError } =
-    await supabase.auth.getUser();
-
-  if (userDataError) {
-    throw userDataError;
-  }
-
-  const { data: invoices, error: invoicesError } = await supabase
-    .from('invoices')
-    .select('*')
-    .eq('owner', userDataRes.user.id)
-    .eq('status', 'PROCESSED')
-    .order('created_at', { ascending: false });
-
-  if (invoicesError) {
-    throw invoicesError;
-  }
-
-  return invoices;
-};
+const { getInvoicesByState } = useInvoice();
 
 const CompletedBills = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -56,16 +37,11 @@ const CompletedBills = () => {
   const router = useRouter();
 
   useEffect(() => {
-    fetchInvoices();
+    getInvoicesByState(InvoiceState.PROCESSED, async (invoices) => {
+      setInvoices(invoices);
+      setIsLoading(false);
+    });
   }, []);
-
-  async function fetchInvoices() {
-    console.log('fetching invoices');
-    const incomingInvoices = await getInvoices();
-    setInvoices(incomingInvoices);
-    console.log('invoices', incomingInvoices);
-    setIsLoading(false);
-  }
 
   return (
     <div className="flex h-full w-full flex-col gap-4 px-4 py-8">

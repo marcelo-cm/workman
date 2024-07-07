@@ -24,56 +24,36 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
+import LoadingState from '@/components/ui/empty-state';
+import IfElseRender from '@/components/ui/if-else-renderer';
 
 import { useGmail } from '@/lib/hooks/gmail/useGmail';
+import { useInvoice } from '@/lib/hooks/supabase/useInvoice';
 
 import { Email } from '@/app/api/v1/gmail/messages/route';
 import Invoice from '@/classes/Invoice';
+import { InvoiceState } from '@/constants/enums';
 import { createClient } from '@/utils/supabase/client';
 
-const getInvoices = async () => {
-  const supabase = createClient();
-  const { data: userDataRes, error: userDataError } =
-    await supabase.auth.getUser();
-
-  if (userDataError) {
-    throw userDataError;
-  }
-
-  const { data: invoices, error: invoicesError } = await supabase
-    .from('invoices')
-    .select('*')
-    .eq('owner', userDataRes.user.id)
-    .eq('status', 'UNPROCESSED');
-
-  if (invoicesError) {
-    throw invoicesError;
-  }
-
-  return invoices;
-};
-
-const supabase = createClient();
+const { getInvoicesByState } = useInvoice();
 
 const Unprocessed = () => {
   const { getEmails, markAsScanned } = useGmail();
   const [isUploading, setIsUploading] = useState<boolean>(false);
+  const [isLoadingInvoices, setIsLoadingInvoices] = useState<boolean>(true);
+  const [isLoadingEmails, setIsLoadingEmails] = useState<boolean>(true);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [emails, setEmails] = useState<Email[]>([]);
-  const router = useRouter();
-
-  async function fetchInvoices() {
-    const incomingInvoices = await getInvoices();
-    setInvoices(incomingInvoices);
-  }
-
-  async function fetchEmails() {
-    await getEmails(setEmails);
-  }
 
   useEffect(() => {
-    fetchInvoices();
-    fetchEmails();
+    getInvoicesByState(InvoiceState.UNPROCESSED, async (invoices) => {
+      setInvoices(invoices);
+      setIsLoadingInvoices(false);
+    });
+    getEmails((emails) => {
+      setEmails(emails);
+      setIsLoadingEmails(false);
+    });
   }, []);
 
   async function handleProcessSelected(selectedRows: Invoice[]) {
@@ -140,21 +120,33 @@ const Unprocessed = () => {
           Any invoices that have not been processed will be displayed here.
           Please select and process them as needed.
         </p>
-        <InvoiceTable
-          data={invoices}
-          columns={InvoiceColumns}
-          onAction={handleProcessSelected}
-          actionIcon={<MagicWandIcon />}
-          actionOnSelectText="Process Selected Invoices"
-          filters={false}
+        <IfElseRender
+          condition={!isLoadingInvoices}
+          ifTrue={
+            <InvoiceTable
+              data={invoices}
+              columns={InvoiceColumns}
+              onAction={handleProcessSelected}
+              actionIcon={<MagicWandIcon />}
+              actionOnSelectText="Process Selected Invoices"
+              filters={false}
+            />
+          }
+          ifFalse={<LoadingState message="Loading Invoices" />}
         />
-        <EmailTable
-          data={emails}
-          columns={EmailColumns}
-          onAction={handleProcessEmails}
-          actionOnSelectText="Process Selected Emails"
-          actionIcon={<MagicWandIcon />}
-          filters={false}
+        <IfElseRender
+          condition={!isLoadingEmails}
+          ifTrue={
+            <EmailTable
+              data={emails}
+              columns={EmailColumns}
+              onAction={handleProcessEmails}
+              actionOnSelectText="Process Selected Emails"
+              actionIcon={<MagicWandIcon />}
+              filters={false}
+            />
+          }
+          ifFalse={<LoadingState message="Loading Emails" />}
         />
       </div>
       <AlertDialog open={isUploading}>
