@@ -22,10 +22,6 @@ import {
 import IfElseRender from '@/components/ui/if-else-renderer';
 import { TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-import { useAccount } from '@/lib/hooks/quickbooks/useAccount';
-import { useCustomer } from '@/lib/hooks/quickbooks/useCustomer';
-import { useVendor } from '@/lib/hooks/quickbooks/useVendor';
-
 import Invoice from '@/classes/Invoice';
 import {
   Account,
@@ -36,26 +32,16 @@ import {
 import { createClient } from '@/utils/supabase/client';
 
 import { ComboBox } from '../Combobox';
+import { useExtractionReview } from '../ExtractionReview';
 
 const supabase = createClient();
 
-const UploadToQuickBooks = ({
-  files,
-  activeIndex,
-  setActiveIndex,
-}: {
-  files: Invoice[];
-  activeIndex: number;
-  setActiveIndex: React.Dispatch<SetStateAction<number>>;
-}) => {
-  const { getVendorList } = useVendor();
-  const { getCustomerList } = useCustomer();
-  const { getAccountList } = useAccount();
+const UploadToQuickBooks = () => {
+  const { files, accounts, vendors, customers, activeIndex, setActiveIndex } =
+    useExtractionReview();
   const [uploadedFileIndexes, setUploadedFileIndexes] = useState<number[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [vendors, setVendors] = useState<Vendor[]>([]);
-  const [customers, setCustomers] = useState<Customer[]>([]);
-  const [accounts, setAccounts] = useState<Account[]>([]);
+
   const [transformedFiles, setTransformedFiles] = useState<
     Invoice_Quickbooks[]
   >([]);
@@ -72,11 +58,7 @@ const UploadToQuickBooks = ({
   }, []);
 
   useEffect(() => {
-    if (!files) return;
-    fetchVendors();
-    fetchCustomers();
     transformData();
-    fetchAccounts();
   }, [files]);
 
   useEffect(() => {
@@ -91,22 +73,6 @@ const UploadToQuickBooks = ({
     setUploadedFileIndexes([...uploadedFileIndexes, fileIndex]);
     setIsLoading(false);
   }
-
-  const fetchVendors = async () => {
-    const columns: (keyof Vendor)[] = ['DisplayName', 'Id'];
-    await getVendorList(columns, null, setVendors);
-  };
-
-  const fetchCustomers = async () => {
-    const columns: (keyof Customer)[] = ['DisplayName', 'Id'];
-    await getCustomerList(columns, null, setCustomers);
-  };
-
-  const fetchAccounts = async () => {
-    const columns: (keyof Account)[] = ['Name', 'Id'];
-    const where = "Classification = 'Expense'";
-    await getAccountList(columns, where, setAccounts);
-  };
 
   const transformData = () => {
     const transformed: Invoice_Quickbooks[] = files.map((file) => ({
@@ -125,10 +91,7 @@ const UploadToQuickBooks = ({
     setTransformedFiles(transformed);
   };
 
-  const handleVendorSelect = (
-    value: { sparse: boolean; Id: string; DisplayName: string },
-    fileIndex: number,
-  ) => {
+  const handleVendorSelect = (value: Vendor, fileIndex: number) => {
     const updatedFiles = [...transformedFiles];
     updatedFiles[fileIndex].data.vendorId = value.Id;
     setTransformedFiles(updatedFiles);

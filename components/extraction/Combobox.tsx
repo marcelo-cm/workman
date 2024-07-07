@@ -57,16 +57,20 @@ function stringSimilarity(str1: string, str2: string): number {
   return 1 - distance / Math.max(str1.length, str2.length);
 }
 
-export function ComboBox({
+export function ComboBox<
+  T extends { Id?: string | number; id?: string | number },
+>({
   options,
   valueToMatch,
   callBackFunction,
   getOptionLabel,
+  className,
 }: {
-  options: any[];
+  options: T[];
   valueToMatch?: string;
-  callBackFunction?: (value: any) => void;
-  getOptionLabel: (option: any) => string;
+  callBackFunction?: (value: T) => void;
+  getOptionLabel: (option: T) => string;
+  className?: string;
 }) {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState<any | null>(null);
@@ -112,7 +116,7 @@ export function ComboBox({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-fit min-w-[200px] justify-between"
+          className={`w-fit min-w-[200px] justify-between ${className}`}
           type="button"
         >
           <p className="w-fit min-w-[155px] overflow-hidden text-ellipsis text-nowrap break-keep text-left">
@@ -128,7 +132,7 @@ export function ComboBox({
             <CommandEmpty>No Vendor found.</CommandEmpty>
             {options.map((option) => (
               <CommandItem
-                key={option.Id}
+                key={option.Id ?? option.id}
                 value={getOptionLabel(option)}
                 onSelect={(currentValue) => {
                   handleSelect(currentValue);

@@ -1,6 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import {
+  Dispatch,
+  SetStateAction,
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 
 import {
   CaretDownIcon,
@@ -8,16 +15,8 @@ import {
   CaretRightIcon,
 } from '@radix-ui/react-icons';
 
-import { Separator } from '@radix-ui/react-dropdown-menu';
-
 import { Badge } from '../ui/badge';
 import PDFViewer from '@/components/PDF/PDFViewer';
-import {
-  BreadcrumbEllipsis,
-  BreadcrumbItem,
-  BreadcrumbList,
-  BreadcrumbSeparator,
-} from '@/components/ui/breadcrumb';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -28,12 +27,72 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
+import { useAccount } from '@/lib/hooks/quickbooks/useAccount';
+import { useCustomer } from '@/lib/hooks/quickbooks/useCustomer';
+import { useVendor } from '@/lib/hooks/quickbooks/useVendor';
+
 import Invoice from '@/classes/Invoice';
+import { Account, Customer, Vendor } from '@/interfaces/quickbooks.interfaces';
 
 import ExtractionTabs from './ExtractionTabs';
 
+interface ExtractionReviewContext {
+  files: Invoice[];
+  accounts: Account[];
+  vendors: Vendor[];
+  customers: Customer[];
+  activeIndex: number;
+  setActiveIndex: Dispatch<SetStateAction<number>>;
+}
+
+const defaultExtractionReviewContext: ExtractionReviewContext = {
+  files: [],
+  accounts: [],
+  vendors: [],
+  customers: [],
+  activeIndex: 0,
+  setActiveIndex: () => {},
+};
+
+const ExtractionReviewContext = createContext<ExtractionReviewContext>(
+  defaultExtractionReviewContext,
+);
+
+export const useExtractionReview = () => {
+  return useContext(ExtractionReviewContext);
+};
+
 const ExtractionReview = ({ files }: { files: Invoice[] }) => {
+  const [vendors, setVendors] = useState<Vendor[]>([]);
+  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [accounts, setAccounts] = useState<Account[]>([]);
   const [activeIndex, setActiveIndex] = useState(0);
+  const { getVendorList } = useVendor();
+  const { getCustomerList } = useCustomer();
+  const { getAccountList } = useAccount();
+
+  useEffect(() => {
+    if (!files) return;
+    fetchVendors();
+    fetchCustomers();
+    fetchAccounts();
+  }, [files]);
+
+  const fetchVendors = async () => {
+    const columns: (keyof Vendor)[] = ['DisplayName', 'Id'];
+    await getVendorList(columns, null, setVendors);
+  };
+
+  const fetchCustomers = async () => {
+    const columns: (keyof Customer)[] = ['DisplayName', 'Id'];
+    await getCustomerList(columns, null, setCustomers);
+  };
+
+  const fetchAccounts = async () => {
+    const columns: (keyof Account)[] = ['Name', 'Id'];
+    const where = "Classification = 'Expense'";
+    await getAccountList(columns, where, setAccounts);
+  };
 
   const handleSetActiveIndex = (increment: 1 | -1) => {
     setActiveIndex((prev: number) => {
@@ -45,7 +104,16 @@ const ExtractionReview = ({ files }: { files: Invoice[] }) => {
   };
 
   return (
-    <>
+    <ExtractionReviewContext.Provider
+      value={{
+        files,
+        accounts,
+        vendors,
+        customers,
+        activeIndex,
+        setActiveIndex,
+      }}
+    >
       <div className="flex h-dvh w-full flex-col gap-4 pl-4 pt-8">
         <Button
           variant={'ghost'}
@@ -56,7 +124,6 @@ const ExtractionReview = ({ files }: { files: Invoice[] }) => {
           <CaretLeftIcon className="h-4 w-4" />
           Go Back
         </Button>
-
         <div className="relative flex h-[calc(100%-3px-3rem)] overflow-hidden rounded-tl border-l border-t">
           <div className="flex h-full w-fit flex-col border-r">
             <DropdownMenu defaultOpen>
@@ -111,15 +178,10 @@ const ExtractionReview = ({ files }: { files: Invoice[] }) => {
               </Button>
             </div>
           </div>
-          <ExtractionTabs
-            files={files}
-            activeIndex={activeIndex}
-            handleSetActiveIndex={handleSetActiveIndex}
-            setActiveIndex={setActiveIndex}
-          />
+          <ExtractionTabs handleSetActiveIndex={handleSetActiveIndex} />
         </div>
       </div>
-    </>
+    </ExtractionReviewContext.Provider>
   );
 };
 

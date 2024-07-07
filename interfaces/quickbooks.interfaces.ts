@@ -16,7 +16,7 @@ export interface Vendor {
   GivenName?: string;
   FamilyName?: string;
   CompanyName: string;
-  DisplayName?: string;
+  DisplayName: string;
   PrintOnCheckName?: string;
   Active?: boolean;
   PrimaryPhone?: {
