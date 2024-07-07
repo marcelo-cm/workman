@@ -27,6 +27,7 @@ import { InvoiceData } from '@/interfaces/common.interfaces';
 
 import EditExtractedData from './(tabs)/EditExtractedData';
 import UploadToQuickBooks from './(tabs)/UploadToQuickBooks';
+import { useExtractionReview } from './ExtractionReview';
 
 const formSchema = z.object({
   date: z
@@ -72,16 +73,11 @@ const formSchema = z.object({
 });
 
 const ExtractionTabs = ({
-  files,
-  activeIndex,
   handleSetActiveIndex,
-  setActiveIndex,
 }: {
-  files: Invoice[];
-  activeIndex: number;
   handleSetActiveIndex: (index: 1 | -1) => void;
-  setActiveIndex: React.Dispatch<SetStateAction<number>>;
 }) => {
+  const { files, activeIndex } = useExtractionReview();
   const [approvedFiles, setApprovedFiles] = useState<Invoice[]>([]);
   const [originalFileData, setOriginalFileData] = useState<InvoiceData>(
     files[activeIndex].data,
@@ -267,11 +263,7 @@ const ExtractionTabs = ({
           </div>
         </TabsContent>
         <TabsContent value="2">
-          <UploadToQuickBooks
-            files={files}
-            setActiveIndex={setActiveIndex}
-            activeIndex={activeIndex}
-          />
+          <UploadToQuickBooks />
         </TabsContent>
       </div>
     </Tabs>

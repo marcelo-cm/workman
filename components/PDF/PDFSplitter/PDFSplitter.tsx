@@ -117,7 +117,7 @@ const PDFSplitter = () => {
               handleUpload,
             }}
           >
-            <>{STAGES[stage]}</>
+            {STAGES[stage]}
           </PDFSplitterContext.Provider>
         </DialogContent>
       ) : (
