@@ -21,8 +21,10 @@ import Invoice from '@/classes/Invoice';
 
 import PDFSplitterFileSelection from './PDFSplitterFileSelection';
 import PDFSplitterFileSplit from './PDFSplitterFileSplit';
+import PDFSplitterUpload from './PDFSplitterUpload';
 
 const STAGES = {
+  UPLOADING: <PDFSplitterUpload />,
   SELECTION: <PDFSplitterFileSelection />,
   SPLITTING: <PDFSplitterFileSplit />,
   FINISHED: <div>Finished</div>,
@@ -54,22 +56,23 @@ export const usePDFSplitter = () => {
   return useContext(PDFSplitterContext);
 };
 
-const PDFSplitter = ({
-  filesToUpload,
-  setFilesToUpload,
-}: {
-  filesToUpload: File[];
-  setFilesToUpload: Dispatch<SetStateAction<File[]>>;
-}) => {
+const PDFSplitter = () => {
+  const [filesToUpload, setFilesToUpload] = useState<File[]>([]);
   const [filesToSplit, setFilesToSplit] = useState<File[]>([]);
-  const [stage, setStage] = useState<keyof typeof STAGES>('SELECTION');
+  const [stage, setStage] = useState<keyof typeof STAGES>('UPLOADING');
   const [isUploading, setIsUploading] = useState(false);
+
+  useEffect(() => {
+    if (filesToUpload.length > 0) {
+      setStage('SELECTION');
+    }
+  }, [filesToUpload]);
 
   useEffect(() => {
     if (stage === 'FINISHED') {
       handleUpload();
     }
-  });
+  }, [stage]);
 
   const handleUpload = async () => {
     setIsUploading(true);

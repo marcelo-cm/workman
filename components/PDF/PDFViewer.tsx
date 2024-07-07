@@ -99,7 +99,7 @@ const PDFViewer = forwardRef(
             Loading PDF <Loader2Icon className="ml-2 h-4 w-4 animate-spin" />
           </div>
         }
-        className={`grid w-fit gap-2 ${gridColumnsClass} relative overflow-x-scroll`}
+        className={`grid w-fit gap-2 ${gridColumnsClass} relative `}
       >
         {Array.from({ length: numPages }, (_, index) => (
           <div>

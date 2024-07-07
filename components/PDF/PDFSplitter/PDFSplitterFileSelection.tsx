@@ -39,8 +39,10 @@ const PDFSplitterFileSelection = () => {
   } = usePDFSplitter();
   const PDFViewerParentRef = useRef<null | HTMLDivElement>(null);
   const fileInputRef = useRef<null | HTMLInputElement>(null);
+  const uploadButtonRef = useRef<null | HTMLButtonElement>(null);
   const [PDFViewerWidth, setPDFViewerWidth] = useState<number>(500);
   const [activeFile, setActiveFile] = useState<File>(filesToUpload[0]);
+  const [isDragActive, setDragActive] = useState(false);
 
   useEffect(() => {
     updatePDFViewerWidth();
@@ -49,6 +51,15 @@ const PDFSplitterFileSelection = () => {
       window.removeEventListener('resize', updatePDFViewerWidth);
     };
   }, []);
+
+  useEffect(() => {
+    if (uploadButtonRef.current) {
+      uploadButtonRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'end',
+      });
+    }
+  }, [filesToUpload]);
 
   function updatePDFViewerWidth() {
     if (PDFViewerParentRef.current) {
@@ -91,13 +102,36 @@ const PDFSplitterFileSelection = () => {
     setFilesToUpload((prevFiles) => [...prevFiles, ...files]);
   };
 
+  const handleDragEnter = (event: React.DragEvent) => {
+    event.preventDefault();
+    setDragActive(true);
+  };
+
+  const handleDragLeave = (event: React.DragEvent) => {
+    event.preventDefault();
+    setDragActive(false);
+  };
+
+  const handleDragOver = (event: React.DragEvent) => {
+    event.preventDefault();
+  };
+
+  const handleDrop = (event: React.DragEvent) => {
+    event.preventDefault();
+    setDragActive(false);
+    const newFiles = Array.from(event.dataTransfer.files) as File[];
+    const updatedFilesToUpload = [...filesToUpload, ...newFiles];
+
+    setFilesToUpload(updatedFilesToUpload);
+  };
+
   return (
     <div className="flex h-full">
-      <div className="relative flex h-full w-2/5 flex-col border-r">
+      <section className="relative flex h-full w-2/5 flex-col border-r">
         <DialogTitle className="h-12 border-b p-4">
           Upload Documents
         </DialogTitle>
-        <div className="h-full overflow-scroll p-4">
+        <div className="h-full flex flex-col overflow-scroll p-4">
           {filesToUpload.map((file, index) => (
             <div className="mb-1 flex flex-row items-center gap-2" key={index}>
               <Checkbox
@@ -113,11 +147,16 @@ const PDFSplitterFileSelection = () => {
                   <TooltipContent>{file.name}</TooltipContent>
                 </Tooltip>
               </TooltipProvider>
-              <div className="nowrap ml-auto flex gap-1">
+              <div className="nowrap ml-auto flex gap-1 ">
                 <Button
                   variant={'outline'}
                   size={'icon'}
                   onClick={() => setActiveFile(file)}
+                  className={
+                    activeFile === file
+                      ? 'text-wm-orange-500 border-wm-orange-300'
+                      : ''
+                  }
                 >
                   <EyeOpenIcon />
                 </Button>
@@ -132,18 +171,20 @@ const PDFSplitterFileSelection = () => {
               </div>
             </div>
           ))}
+          <button
+            className={`flex-grow mt-4 min-h-[100px] items-center justify-center rounded-lg border border-dashed border-wm-white-500 bg-wm-white-50 text-wm-white-700 hover:border-wm-orange-500 hover:bg-wm-orange-50 hover:text-wm-orange-700 ${isDragActive ? 'bg-wm-orange-50 text-wm-orange-700 border-wm-orange-500' : ''}`}
+            onClick={handleButtonClick}
+            onDragEnter={handleDragEnter}
+            onDragLeave={handleDragLeave}
+            onDragOver={handleDragOver}
+            onDrop={handleDrop}
+          >
+            Drag More Files or Click to Upload
+          </button>
         </div>
         <DialogFooter className="flex h-16 w-full flex-row items-center border-t px-4">
-          <Button
-            variant={'outline'}
-            className="mr-auto"
-            onClick={handleButtonClick}
-          >
-            <PlusIcon />
-            Add More Files
-          </Button>
           <Button variant={'secondary'} onClick={handleUpload}>
-            Skip Splitting
+            Continue without Splitting
             <CaretRightIcon />
           </Button>
           <Button
@@ -154,8 +195,8 @@ const PDFSplitterFileSelection = () => {
             Split PDFs
           </Button>
         </DialogFooter>
-      </div>
-      <div className="w-3/5 bg-wm-white-50">
+      </section>
+      <section className="w-3/5 bg-wm-white-50">
         <DialogHeader className="flex h-12 min-h-12 flex-row items-center justify-between border-b px-4 text-sm">
           {activeFile?.name}
         </DialogHeader>
@@ -169,7 +210,7 @@ const PDFSplitterFileSelection = () => {
             gridColumns={3}
           />
         </div>
-      </div>
+      </section>
       <input
         type="file"
         ref={fileInputRef}

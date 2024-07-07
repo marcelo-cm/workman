@@ -53,9 +53,6 @@ export const useAccount = () => {
 
       if (setAccountCallback) {
         setAccountCallback(customers);
-        toast({
-          title: 'Accounts fetched successfully',
-        });
       }
 
       return customers;
