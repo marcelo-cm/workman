@@ -133,7 +133,7 @@ const Account = () => {
           {labels?.length > 0 && (
             <ComboBox
               options={labels}
-              getOptionLabel={(options) => options?.name}
+              getOptionLabel={(option) => option?.name}
             />
           )}
         </div>

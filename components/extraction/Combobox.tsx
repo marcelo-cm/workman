@@ -57,7 +57,9 @@ function stringSimilarity(str1: string, str2: string): number {
   return 1 - distance / Math.max(str1.length, str2.length);
 }
 
-export function ComboBox<T extends { Id: string | number }>({
+export function ComboBox<
+  T extends { Id?: string | number; id?: string | number },
+>({
   options,
   valueToMatch,
   callBackFunction,
@@ -130,7 +132,7 @@ export function ComboBox<T extends { Id: string | number }>({
             <CommandEmpty>No Vendor found.</CommandEmpty>
             {options.map((option) => (
               <CommandItem
-                key={option.Id}
+                key={option.Id ?? option.id}
                 value={getOptionLabel(option)}
                 onSelect={(currentValue) => {
                   handleSelect(currentValue);
