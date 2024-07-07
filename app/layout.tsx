@@ -14,7 +14,7 @@ export function generateMetadata() {
       default: 'Workman | Accounting Automation for Builders',
     },
     description:
-      'Automated manual data entry from invoices to existing bookkeeping software. Saving you time, money, and mistakes.',
+      'Automated manual data entry from your invoices to your existing bookkeeping software. Saving you time, money, and mistakes.',
     keywords: [
       'quickbooks online',
       'construction invoices',
@@ -30,7 +30,7 @@ export function generateMetadata() {
     openGraph: {
       title: 'Workman | Accounting Automation for Builders',
       description:
-        'Automated manual data entry from invoices to existing bookkeeping software. Saving you time, money, and mistakes.',
+        'Automated manual data entry from your invoices to your existing bookkeeping software. Saving you time, money, and mistakes.',
       type: 'website',
       images: ['/opengraph-image.png'],
     },
@@ -38,7 +38,7 @@ export function generateMetadata() {
       card: 'summary_large_image',
       images: ['/twitter-image.png'],
       description:
-        'Automated manual data entry from invoices to existing bookkeeping software. Saving you time, money, and mistakes.',
+        'Automated manual data entry from your invoices to your existing bookkeeping software. Saving you time, money, and mistakes.',
     },
   };
 }

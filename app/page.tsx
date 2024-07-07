@@ -37,7 +37,7 @@ export default function Home() {
         <div className="flex flex-col items-center gap-8">
           <WorkmanLogo variant="COMBO" className="w-64 lg:w-96" />
           <h1 className="text-2xl">
-            Automated data entry from invoices your into existing bookkeeping
+            Automated data entry from your invoices into your existing bookkeeping
             software
           </h1>
           <div className="flex flex-col items-center gap-4">

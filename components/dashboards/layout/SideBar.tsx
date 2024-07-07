@@ -8,6 +8,7 @@ import {
   FileTextIcon,
   Pencil2Icon,
   PersonIcon,
+  FileTextIcon,
 } from '@radix-ui/react-icons';
 import { ArrowLeftToLine, ArrowRightToLine, Check, LogOut } from 'lucide-react';
 
