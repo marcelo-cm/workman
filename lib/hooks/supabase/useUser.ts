@@ -1,11 +1,11 @@
-import { PostgrestSingleResponse } from '@supabase/supabase-js';
+import { PostgrestSingleResponse, UserResponse } from '@supabase/supabase-js';
 
 import { User } from '@/classes/User';
 import { createClient as createSupabaseClient } from '@/utils/supabase/client';
 
-export const useUser = () => {
-  const supabase = createSupabaseClient();
+const supabase = createSupabaseClient();
 
+export const useUser = () => {
   const updateUser = async (column_value: { [column: string]: string }) => {
     const { data: userData, error: userError } = await supabase.auth.getUser();
 
@@ -63,8 +63,14 @@ export const useUser = () => {
     return data;
   };
 
+  async function fetchUser(): Promise<UserResponse> {
+    const user = await supabase.auth.getUser();
+    return user;
+  }
+
   return {
     updateUser,
     fetchUserData,
+    fetchUser,
   };
 };

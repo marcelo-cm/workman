@@ -19,6 +19,7 @@ import {
   TableHeader,
   TableRow,
 } from '../../ui/table';
+import LoadingState from '@/components/ui/empty-state';
 import IfElseRender from '@/components/ui/if-else-renderer';
 import { TabsList, TabsTrigger } from '@/components/ui/tabs';
 
@@ -131,18 +132,14 @@ const UploadToQuickBooks = () => {
     <>
       <div className="flex h-full flex-col gap-4 p-4 ">
         <IfElseRender
-          ternary={initialLoading}
-          ifTrue={
-            <div className="flex h-96 w-full animate-pulse items-center justify-center rounded-md border bg-wm-white-50">
-              Loading... <Loader2Icon className="ml-2 h-4 w-4 animate-spin" />
-            </div>
-          }
+          condition={initialLoading}
+          ifTrue={<LoadingState />}
           ifFalse={
             <>
               {files.map((file, fileIndex) => (
                 <div>
                   <IfElseRender
-                    ternary={activeIndex == fileIndex}
+                    condition={activeIndex == fileIndex}
                     ifTrue={
                       <div className="text-xs px-2 py-1 text-white font-medium bg-wm-orange-500 rounded-t-md">
                         Currently Viewing This File
@@ -322,7 +319,7 @@ const UploadToQuickBooks = () => {
                                     variant={'secondary'}
                                   >
                                     <IfElseRender
-                                      ternary={isLoading}
+                                      condition={isLoading}
                                       ifTrue={
                                         <>
                                           <Loader2Icon className="h-4 w-4 animate-spin" />{' '}

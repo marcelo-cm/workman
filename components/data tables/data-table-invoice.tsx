@@ -50,40 +50,6 @@ export function DataTable<TData, TValue>({
   canActionBeDisabled = true,
   filters = true,
 }: DataTableProps<TData, TValue>) {
-  if (!columns || !data.length) {
-    return (
-      <>
-        <div className="flex flex-row gap-4">
-          <Button variant="secondary" disabled>
-            {actionIcon}
-            {actionOnSelectText}
-          </Button>
-          {filters ? (
-            <>
-              {' '}
-              <div className="flex h-full w-[300px] flex-row items-center gap-2 rounded-md border bg-transparent px-3 py-1 text-sm text-wm-white-500 transition-colors">
-                <MagnifyingGlassIcon
-                  className="h-5 w-5 cursor-pointer"
-                  onClick={() => searchFilterInputRef.current?.focus()}
-                />
-                <input
-                  disabled
-                  placeholder="Filter by invoice name or sender"
-                  className="h-full w-full appearance-none bg-transparent text-black outline-none placeholder:text-wm-white-500 disabled:cursor-not-allowed disabled:opacity-50"
-                />
-              </div>
-              <DatePickerWithRange placeholder="Filter by Date Invoiced" />
-              <Button variant="outline" disabled>
-                Clear Filters
-              </Button>
-            </>
-          ) : null}
-        </div>
-        <div>There are no invoices to show!</div>
-      </>
-    );
-  }
-
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [rowSelection, setRowSelection] = useState({});
