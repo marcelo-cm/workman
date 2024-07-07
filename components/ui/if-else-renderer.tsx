@@ -2,18 +2,18 @@ import React, { ReactNode } from 'react';
 
 /**
  * EXPERIMENTAL, DOESN'T WORK AS EXPECTED
- * Evaluate a ternary expression and render the appropriate component
+ * Evaluate a condition expression and render the appropriate component
  */
 const IfElseRender = ({
-  ternary,
+  condition,
   ifTrue,
   ifFalse,
 }: {
-  ternary: boolean;
+  condition: boolean;
   ifTrue?: ReactNode | null;
   ifFalse?: ReactNode | null;
 }) => {
-  return <>{!!ternary ? ifTrue : ifFalse} </>;
+  return <>{!!condition ? ifTrue : ifFalse} </>;
 };
 
 export default IfElseRender;

@@ -2,7 +2,11 @@
 
 import { useEffect, useState } from 'react';
 
-import { EnvelopeClosedIcon } from '@radix-ui/react-icons';
+import {
+  EnvelopeClosedIcon,
+  MagnifyingGlassIcon,
+  Pencil2Icon,
+} from '@radix-ui/react-icons';
 
 import { useRouter } from 'next/navigation';
 
@@ -14,45 +18,29 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
+import { Button } from '@/components/ui/button';
+import { DatePickerWithRange } from '@/components/ui/date-range-picker';
+import LoadingState from '@/components/ui/empty-state';
+import IfElseRender from '@/components/ui/if-else-renderer';
+
+import { useInvoice } from '@/lib/hooks/supabase/useInvoice';
 
 import Invoice from '@/classes/Invoice';
+import { InvoiceState } from '@/constants/enums';
 import { createClient } from '@/utils/supabase/client';
 
-const getInvoices = async () => {
-  const supabase = createClient();
-
-  const { data: userDataRes, error: userDataError } =
-    await supabase.auth.getUser();
-
-  if (userDataError) {
-    throw userDataError;
-  }
-
-  const { data: invoices, error: invoicesError } = await supabase
-    .from('invoices')
-    .select('*')
-    .eq('owner', userDataRes.user.id)
-    .eq('status', 'PROCESSED')
-    .order('created_at', { ascending: false });
-
-  if (invoicesError) {
-    throw invoicesError;
-  }
-
-  return invoices;
-};
+const { getInvoicesByState } = useInvoice();
 
 const CompletedBills = () => {
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const router = useRouter();
 
-  async function fetchInvoices() {
-    const incomingInvoices = await getInvoices();
-    setInvoices(incomingInvoices);
-  }
-
   useEffect(() => {
-    fetchInvoices();
+    getInvoicesByState(InvoiceState.PROCESSED, async (invoices) => {
+      setInvoices(invoices);
+      setIsLoading(false);
+    });
   }, []);
 
   return (
@@ -70,14 +58,42 @@ const CompletedBills = () => {
       <p>
         Any invoices that have already been processed will be displayed here.
       </p>
-      <DataTable
-        data={invoices}
-        columns={columns}
-        onAction={() => router.push('mailto:admin@workman.so')}
-        actionIcon={<EnvelopeClosedIcon />}
-        actionOnSelectText="Email Founders"
-        canActionBeDisabled={false}
-        filters={false}
+      <IfElseRender
+        condition={!isLoading}
+        ifTrue={
+          <DataTable
+            columns={columns}
+            data={invoices}
+            onAction={() => router.push('mailto:admin@workman.so')}
+            actionIcon={<EnvelopeClosedIcon />}
+            actionOnSelectText="Email Founders"
+            canActionBeDisabled={false}
+            filters={false}
+          />
+        }
+        ifFalse={
+          <>
+            <div className="flex flex-row gap-4">
+              <Button variant="secondary" disabled>
+                <EnvelopeClosedIcon />
+                Email Founders
+              </Button>
+              <div className="flex h-full w-[300px] flex-row items-center gap-2 rounded-md border bg-transparent px-3 py-1 text-sm text-wm-white-500 transition-colors">
+                <MagnifyingGlassIcon className="h-5 w-5 cursor-pointer" />
+                <input
+                  disabled
+                  placeholder="Filter by invoice name or sender"
+                  className="h-full w-full appearance-none bg-transparent text-black outline-none placeholder:text-wm-white-500 disabled:cursor-not-allowed disabled:opacity-50"
+                />
+              </div>
+              <DatePickerWithRange placeholder="Filter by Date Invoiced" />
+              <Button variant="outline" disabled>
+                Clear Filters
+              </Button>
+            </div>
+            <LoadingState />
+          </>
+        }
       />
     </div>
   );

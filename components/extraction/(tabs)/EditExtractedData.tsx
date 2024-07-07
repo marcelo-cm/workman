@@ -6,6 +6,7 @@ import { Loader2Icon } from 'lucide-react';
 import { UseFormReturn, useFieldArray } from 'react-hook-form';
 
 import { Button } from '@/components/ui/button';
+import LoadingState from '@/components/ui/empty-state';
 import {
   Form,
   FormControl,
@@ -60,12 +61,8 @@ const EditExtractedData = ({
   return (
     <div className=" p-4">
       <IfElseRender
-        ternary={initialLoading}
-        ifTrue={
-          <div className="flex h-96 w-full animate-pulse items-center justify-center rounded-md border bg-wm-white-50">
-            Loading... <Loader2Icon className="ml-2 h-4 w-4 animate-spin" />
-          </div>
-        }
+        condition={initialLoading}
+        ifTrue={<LoadingState />}
         ifFalse={
           <Form {...form}>
             <form className="space-y-4">

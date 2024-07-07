@@ -224,7 +224,7 @@ const ExtractionTabs = ({
           <EditExtractedData form={form} />
           <div className="sticky bottom-0 flex h-14 min-h-14 w-full items-center gap-2 border-t bg-white pl-2 pr-8">
             <IfElseRender
-              ternary={hasDirtyFields}
+              condition={hasDirtyFields}
               ifTrue={
                 <Button
                   onClick={() => handleUpdateInvoiceData(files[activeIndex])}
@@ -246,7 +246,7 @@ const ExtractionTabs = ({
               }
             />
             <IfElseRender
-              ternary={hasDirtyFields}
+              condition={hasDirtyFields}
               ifTrue={
                 <Button onClick={() => discardChanges()} variant={'outline'}>
                   <ResetIcon /> Discard Changes
