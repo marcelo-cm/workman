@@ -24,7 +24,7 @@ import { handleGoogleMailIntegration } from '@/utils/nango/google';
 import { handleQuickBooksIntegration } from '@/utils/nango/quickbooks';
 
 const Account = () => {
-  const { getVendorList, getVendorByID, getDefaultCategoryByVendorId } =
+  const { getVendorList, getVendorByID, getDefaultCategoryByVendorName } =
     useVendor();
   const { getLabels, createLabel } = useGmail();
   const { updateUser } = useUser();
@@ -37,7 +37,10 @@ const Account = () => {
   useEffect(() => {
     if (!currentVendor) return;
 
-    getDefaultCategoryByVendorId(currentVendor.Id, setDefaultCategory);
+    getDefaultCategoryByVendorName(
+      currentVendor.DisplayName,
+      setDefaultCategory,
+    );
   }, [currentVendor]);
 
   const fetchVendors = async () => {
