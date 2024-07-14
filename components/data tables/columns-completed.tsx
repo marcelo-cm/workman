@@ -10,8 +10,8 @@ import { ColumnDef } from '@tanstack/react-table';
 
 import { Button } from '../ui/button';
 
-import Invoice from '@/classes/Invoice';
 import { formatDate } from '@/lib/utils';
+import Invoice from '@/models/Invoice';
 
 // define badge type by status type
 type BadgeType = 'success' | 'destructive' | 'warning' | 'info';

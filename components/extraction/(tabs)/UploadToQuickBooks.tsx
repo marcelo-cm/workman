@@ -23,13 +23,13 @@ import LoadingState from '@/components/ui/empty-state';
 import IfElseRender from '@/components/ui/if-else-renderer';
 import { TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-import Invoice from '@/classes/Invoice';
 import {
   Account,
   Customer,
   Invoice_Quickbooks,
   Vendor,
 } from '@/interfaces/quickbooks.interfaces';
+import Invoice from '@/models/Invoice';
 import { createClient } from '@/utils/supabase/client';
 
 import { ComboBox } from '../Combobox';

@@ -1,4 +1,4 @@
-import { Company } from '@/classes/Company';
+import { Company } from '@/models/Company';
 import { createClient } from '@/utils/supabase/client';
 
 const supabase = createClient();
@@ -20,7 +20,23 @@ export const useCompany = () => {
     return data;
   };
 
+  const fetchCompanyData = async (
+    columns: (keyof Company)[] | ['*'] = ['*'],
+  ): Promise<Company> => {
+    const { data, error } = await supabase
+      .from('companies')
+      .select('*')
+      .single();
+
+    if (error) {
+      throw new Error('Failed to fetch company data');
+    }
+
+    return data;
+  };
+
   return {
     createCompany,
+    fetchCompanyData,
   };
 };

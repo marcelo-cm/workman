@@ -17,7 +17,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { DialogContent } from '@/components/ui/dialog';
 
-import Invoice from '@/classes/Invoice';
+import Invoice from '@/models/Invoice';
 
 import PDFSplitterFileSelection from './PDFSplitterFileSelection';
 import PDFSplitterFileSplit from './PDFSplitterFileSplit';

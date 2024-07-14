@@ -1,5 +1,5 @@
-import Invoice from '@/classes/Invoice';
 import { InvoiceState } from '@/constants/enums';
+import Invoice from '@/models/Invoice';
 import { createClient } from '@/utils/supabase/client';
 
 import { useUser } from './useUser';

@@ -22,8 +22,8 @@ import IfElseRender from '../ui/if-else-renderer';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-import Invoice from '@/classes/Invoice';
 import { InvoiceData } from '@/interfaces/common.interfaces';
+import Invoice from '@/models/Invoice';
 
 import EditExtractedData from './(tabs)/EditExtractedData';
 import UploadToQuickBooks from './(tabs)/UploadToQuickBooks';

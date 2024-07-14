@@ -2,12 +2,17 @@ import { SetStateAction } from 'react';
 
 import { toast } from '@/components/ui/use-toast';
 
+import { Default_Vendor_Category } from '@/interfaces/db.interfaces';
 import { Vendor } from '@/interfaces/quickbooks.interfaces';
 import { createClient as createSupabaseClient } from '@/utils/supabase/client';
 
-export const useVendor = () => {
-  const supabase = createSupabaseClient();
+import { useUser } from '../supabase/useUser';
 
+const supabase = createSupabaseClient();
+
+const { fetchUserData } = useUser();
+
+export const useVendor = () => {
   const getVendorList = async (
     columns: (keyof Vendor)[] | ['*'] = ['*'],
     where: string | null = null,
@@ -61,5 +66,59 @@ export const useVendor = () => {
     }
   };
 
-  return { getVendorList };
+  const getDefaultCategoryByVendorId = async (
+    vendorId: string,
+  ): Promise<Default_Vendor_Category> => {
+    const { company_id: companyId } = await fetchUserData(['company_id']);
+
+    if (!companyId) {
+      throw new Error(
+        'Company ID not found, you must have a company to get default category',
+      );
+    }
+
+    const { data, error } = await supabase
+      .from('default_vendor_categories')
+      .select('*')
+      .eq('vendor_id', vendorId)
+      .eq('company_id', companyId)
+      .single();
+
+    if (error) {
+      throw new Error('Failed to get default category');
+    }
+
+    return data;
+  };
+
+  const saveDefaultCategory = async (
+    vendorId: string,
+    category: string,
+  ): Promise<Default_Vendor_Category> => {
+    const { company_id: companyId } = await fetchUserData(['company_id']);
+
+    if (!companyId) {
+      throw new Error(
+        'Company ID not found, you must have a company to save default category',
+      );
+    }
+
+    const { data, error } = await supabase
+      .from('default_vendor_categories')
+      .upsert({
+        vendor_id: vendorId,
+        company_id: companyId,
+        category,
+      })
+      .select('*')
+      .single();
+
+    if (error) {
+      throw new Error('Failed to save default category');
+    }
+
+    return data;
+  };
+
+  return { getVendorList, getDefaultCategoryByVendorId, saveDefaultCategory };
 };

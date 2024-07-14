@@ -29,7 +29,7 @@ import {
 } from '@/components/ui/table';
 
 import { Email } from '@/app/api/v1/gmail/messages/route';
-import Invoice from '@/classes/Invoice';
+import Invoice from '@/models/Invoice';
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
