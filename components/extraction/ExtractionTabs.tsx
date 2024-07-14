@@ -1,20 +1,11 @@
-import React, {
-  SetStateAction,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 import {
   ArrowRightIcon,
   BookmarkIcon,
   CheckIcon,
-  ExitIcon,
-  Pencil1Icon,
   ResetIcon,
 } from '@radix-ui/react-icons';
-import { Scan } from 'lucide-react';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, useWatch } from 'react-hook-form';
@@ -307,9 +298,10 @@ const ExtractionTabs = ({
           <DialogContent>
             <DialogTitle>Save Default Category</DialogTitle>
             <DialogDescription>
-              Would you like to set the default category for {watchVendorName}{' '}
-              to {watchLineItems[0].productCode}? This will overwrite the
-              existing default category.
+              Would you like to set the default category for{' '}
+              <strong>{watchVendorName}</strong>
+              to <strong>{watchLineItems[0].productCode}</strong>? This will
+              overwrite the existing default category.
             </DialogDescription>
             <DialogFooter>
               <DialogClose asChild>
