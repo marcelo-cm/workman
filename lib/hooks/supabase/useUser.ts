@@ -1,4 +1,5 @@
-import { PostgrestSingleResponse, UserResponse } from '@supabase/supabase-js';
+import { UserResponse } from '@supabase/supabase-js';
+import { UUID } from 'crypto';
 
 import { User } from '@/classes/User';
 import { createClient as createSupabaseClient } from '@/utils/supabase/client';
@@ -6,17 +7,22 @@ import { createClient as createSupabaseClient } from '@/utils/supabase/client';
 const supabase = createSupabaseClient();
 
 export const useUser = () => {
-  const createUser = async () => {
+  const createUser = async (company_id: UUID): Promise<User> => {
     const { data: userData } = await fetchUser();
 
-    const { data, error } = await supabase.from('users').insert({
-      user_id: userData.user?.id,
-      ignore_label_id: null,
-      scanned_label_id: null,
-      gmail_integration_status: false,
-      quickbooks_integration_status: false,
-      email: userData?.user?.email,
-    });
+    const { data, error } = await supabase
+      .from('users')
+      .insert({
+        user_id: userData.user?.id,
+        ignore_label_id: null,
+        scanned_label_id: null,
+        gmail_integration_status: false,
+        quickbooks_integration_status: false,
+        email: userData?.user?.email,
+        company_id: company_id,
+      })
+      .select('*')
+      .single();
 
     if (error) {
       throw new Error('Failed to create user');
@@ -24,6 +30,7 @@ export const useUser = () => {
 
     return data;
   };
+
   const updateUser = async (column_value: Partial<User>) => {
     const { data: userData, error: userError } = await supabase.auth.getUser();
 
