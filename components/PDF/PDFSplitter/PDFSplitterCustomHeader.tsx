@@ -9,7 +9,7 @@ const PDFSplitterCustomHeader = ({
   numPages: number;
   watchedPages: {
     fileName: string;
-    pageNumbers: any[];
+    pageNumbers: number[];
   }[];
 }) => {
   const file = watchedPages.find((field) =>
