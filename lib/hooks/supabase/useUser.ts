@@ -6,7 +6,25 @@ import { createClient as createSupabaseClient } from '@/utils/supabase/client';
 const supabase = createSupabaseClient();
 
 export const useUser = () => {
-  const updateUser = async (column_value: { [column: string]: string }) => {
+  const createUser = async () => {
+    const { data: userData } = await fetchUser();
+
+    const { data, error } = await supabase.from('users').insert({
+      user_id: userData.user?.id,
+      ignore_label_id: null,
+      scanned_label_id: null,
+      gmail_integration_status: false,
+      quickbooks_integration_status: false,
+      email: userData?.user?.email,
+    });
+
+    if (error) {
+      throw new Error('Failed to create user');
+    }
+
+    return data;
+  };
+  const updateUser = async (column_value: Partial<User>) => {
     const { data: userData, error: userError } = await supabase.auth.getUser();
 
     if (userError) {
@@ -22,7 +40,7 @@ export const useUser = () => {
     const { data, error } = await supabase
       .from('users')
       .upsert(column_value)
-      .eq('user_id', userId);
+      .eq('id', userId);
 
     if (error) {
       throw new Error('Failed to update user');
@@ -31,11 +49,9 @@ export const useUser = () => {
     return data;
   };
 
-  const fetchUserData = async ({
-    columns = ['*'],
-  }: {
-    columns: (keyof User)[] | ['*'];
-  }): Promise<Partial<User>> => {
+  const fetchUserData = async (
+    columns: (keyof User)[] | ['*'] = ['*'],
+  ): Promise<Partial<User>> => {
     const { data: userData, error: userError } = await supabase.auth.getUser();
 
     if (userError) {
@@ -65,10 +81,16 @@ export const useUser = () => {
 
   async function fetchUser(): Promise<UserResponse> {
     const user = await supabase.auth.getUser();
+
+    if (user.error) {
+      throw new Error('Failed to fetch user');
+    }
+
     return user;
   }
 
   return {
+    createUser,
     updateUser,
     fetchUserData,
     fetchUser,
