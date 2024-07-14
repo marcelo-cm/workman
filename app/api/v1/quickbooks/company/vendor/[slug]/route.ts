@@ -33,6 +33,8 @@ export async function GET(
 
     const quickbooksRealmId = quickbooksConnection?.connection_config.realmId;
 
+    console.log('QuickBooks Realm ID:', quickbooksRealmId);
+
     if (!quickbooksRealmId) {
       return new NextResponse(JSON.stringify('QuickBooks not authorized'), {
         status: StatusCodes.UNAUTHORIZED,
@@ -44,6 +46,8 @@ export async function GET(
       String(quickbooksToken),
       vendorId,
     );
+
+    console.log(vendor);
 
     return new NextResponse(JSON.stringify(vendor), {
       status: StatusCodes.OK,
@@ -68,6 +72,7 @@ const getVendor = async (
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
+        Accept: 'application/json',
       },
     },
   );
