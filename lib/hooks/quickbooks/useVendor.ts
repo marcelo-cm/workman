@@ -90,8 +90,8 @@ export const useVendor = () => {
     }
   };
 
-  const getDefaultCategoryByVendorId = async (
-    vendorId: string,
+  const getDefaultCategoryByVendorName = async (
+    vendorName: string,
     categoryCallback?:
       | Function
       | Dispatch<SetStateAction<Default_Vendor_Category>>,
@@ -103,7 +103,7 @@ export const useVendor = () => {
     const { data, error } = await supabase
       .from('default_vendor_categories')
       .select('*')
-      .eq('vendor_id', vendorId)
+      .eq('vendor_name', vendorName)
       .eq('company_id', companyId)
       .maybeSingle();
 
@@ -116,12 +116,12 @@ export const useVendor = () => {
   };
 
   const saveDefaultCategory = async (
-    vendorId: string,
+    vendor_name: string,
     category: string,
   ): Promise<Default_Vendor_Category> => {
-    const { company_id: companyId } = await fetchUserData(['company_id']);
+    const { company_id } = await fetchUserData(['company_id']);
 
-    if (!companyId) {
+    if (!company_id) {
       throw new Error(
         'Company ID not found, you must have a company to save default category',
       );
@@ -130,15 +130,15 @@ export const useVendor = () => {
     const { data, error } = await supabase
       .from('default_vendor_categories')
       .upsert({
-        vendor_id: vendorId,
-        company_id: companyId,
+        vendor_name,
+        company_id,
         category,
       })
       .select('*')
       .single();
 
     if (error) {
-      throw new Error('Failed to save default category');
+      throw new Error(`Failed to save default category, ${error.message}`);
     }
 
     return data;
@@ -147,7 +147,7 @@ export const useVendor = () => {
   return {
     getVendorList,
     getVendorByID,
-    getDefaultCategoryByVendorId,
+    getDefaultCategoryByVendorName,
     saveDefaultCategory,
   };
 };

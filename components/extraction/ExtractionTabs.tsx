@@ -10,6 +10,8 @@ import {
   ArrowRightIcon,
   BookmarkIcon,
   CheckIcon,
+  ExitIcon,
+  Pencil1Icon,
   ResetIcon,
 } from '@radix-ui/react-icons';
 import { Scan } from 'lucide-react';
@@ -18,9 +20,19 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, useWatch } from 'react-hook-form';
 import { z } from 'zod';
 
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogTitle,
+} from '../ui/dialog';
 import IfElseRender from '../ui/if-else-renderer';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+
+import { useVendor } from '@/lib/hooks/quickbooks/useVendor';
 
 import { InvoiceData } from '@/interfaces/common.interfaces';
 import Invoice from '@/models/Invoice';
@@ -71,6 +83,7 @@ const formSchema = z.object({
     .min(1, 'At least one line item is required'),
   notes: z.string(),
 });
+const { getDefaultCategoryByVendorName, saveDefaultCategory } = useVendor();
 
 const ExtractionTabs = ({
   handleSetActiveIndex,
@@ -78,6 +91,8 @@ const ExtractionTabs = ({
   handleSetActiveIndex: (index: 1 | -1) => void;
 }) => {
   const { files, activeIndex } = useExtractionReview();
+  const [isSaveDefaultCategoryDialogOpen, setIsSaveDefaultCategoryDialogOpen] =
+    useState(false);
   const [approvedFiles, setApprovedFiles] = useState<Invoice[]>([]);
   const [originalFileData, setOriginalFileData] = useState<InvoiceData>(
     files[activeIndex].data,
@@ -118,6 +133,11 @@ const ExtractionTabs = ({
   const watchTotalTax = useWatch({
     control: form.control,
     name: 'totalTax',
+  });
+
+  const watchVendorName = useWatch({
+    control: form.control,
+    name: 'supplierName',
   });
 
   useEffect(() => {
@@ -163,6 +183,7 @@ const ExtractionTabs = ({
   };
 
   const handleUpdateInvoiceData = async (file: Invoice) => {
+    checkDefaultCategory();
     setApprovedFiles((prevApprovedFiles) => {
       const isAlreadyApproved = prevApprovedFiles.some(
         (approvedFile) => approvedFile.fileUrl === file.fileUrl,
@@ -194,6 +215,23 @@ const ExtractionTabs = ({
     files[activeIndex].data = data;
     await Invoice.update(file.fileUrl, data);
     mapDataToForm(data);
+  };
+
+  const checkDefaultCategory = async () => {
+    const vendorName = watchVendorName;
+    const productCodes = watchLineItems.map((item) => item.productCode);
+
+    const uniqueProductCodes = Array.from(new Set(productCodes));
+
+    if (uniqueProductCodes.length > 1) return;
+
+    const defaultCategory = await getDefaultCategoryByVendorName(vendorName);
+    if (
+      defaultCategory === null ||
+      defaultCategory.category !== productCodes[0]
+    ) {
+      setIsSaveDefaultCategoryDialogOpen(true);
+    }
   };
 
   const discardChanges = () => {
@@ -265,6 +303,41 @@ const ExtractionTabs = ({
         <TabsContent value="2">
           <UploadToQuickBooks />
         </TabsContent>
+        <Dialog open={isSaveDefaultCategoryDialogOpen}>
+          <DialogContent>
+            <DialogTitle>Save Default Category</DialogTitle>
+            <DialogDescription>
+              Would you like to set the default category for {watchVendorName}{' '}
+              to {watchLineItems[0].productCode}? This will overwrite the
+              existing default category.
+            </DialogDescription>
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button
+                  variant={'secondary'}
+                  type="button"
+                  onClick={() => setIsSaveDefaultCategoryDialogOpen(false)}
+                >
+                  No
+                </Button>
+              </DialogClose>
+              <DialogClose asChild>
+                <Button
+                  type="button"
+                  onClick={() => {
+                    saveDefaultCategory(
+                      watchVendorName,
+                      watchLineItems[0].productCode as string,
+                    );
+                    setIsSaveDefaultCategoryDialogOpen(false);
+                  }}
+                >
+                  Set Default Category
+                </Button>
+              </DialogClose>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </Tabs>
   );
