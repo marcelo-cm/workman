@@ -1,6 +1,6 @@
 import React from 'react';
 
-import SideBar from '@/components/dashboards/layout/SideBar';
+import SideBar from '@/components/dashboards/SideBar';
 
 const AppLayout = ({ children }: Readonly<{ children: React.ReactNode }>) => {
   return (

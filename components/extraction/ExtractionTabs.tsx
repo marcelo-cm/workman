@@ -139,7 +139,7 @@ const ExtractionTabs = ({
     form.setValue('totalNet', totalNet);
   }, [watchLineItems, watchTotalTax]);
 
-  const mapDataToForm = async (data: any) => {
+  const mapDataToForm = async (data: InvoiceData) => {
     form.reset({
       date: data?.date || '',
       dueDate: data?.dueDate || '',

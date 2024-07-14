@@ -4,10 +4,10 @@ import { useEffect, useState } from 'react';
 
 import { MagnifyingGlassIcon, Pencil2Icon } from '@radix-ui/react-icons';
 
-import UploadFileButton from '@/components/dashboards/UploadFileButton';
 import { columns } from '@/components/data tables/columns-for-review';
 import { DataTable } from '@/components/data tables/data-table-invoice';
 import ExtractionReview from '@/components/extraction/ExtractionReview';
+import UploadFileButton from '@/components/general/UploadFileButton';
 import {
   BreadcrumbItem,
   BreadcrumbLink,

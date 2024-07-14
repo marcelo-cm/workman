@@ -16,6 +16,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '../../ui/tooltip';
+import DragToUploadArea from '@/components/general/DragToUploadArea';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
   DialogContent,
@@ -85,46 +86,6 @@ const PDFSplitterFileSelection = () => {
     );
   };
 
-  const handleButtonClick = () => {
-    if (fileInputRef.current) {
-      fileInputRef.current.click();
-    }
-  };
-
-  const addToUploadQueue = (event: any) => {
-    const filesList = event.target.files;
-    if (!filesList) {
-      return;
-    }
-
-    const files = Array.from(filesList) as File[];
-
-    setFilesToUpload((prevFiles) => [...prevFiles, ...files]);
-  };
-
-  const handleDragEnter = (event: React.DragEvent) => {
-    event.preventDefault();
-    setDragActive(true);
-  };
-
-  const handleDragLeave = (event: React.DragEvent) => {
-    event.preventDefault();
-    setDragActive(false);
-  };
-
-  const handleDragOver = (event: React.DragEvent) => {
-    event.preventDefault();
-  };
-
-  const handleDrop = (event: React.DragEvent) => {
-    event.preventDefault();
-    setDragActive(false);
-    const newFiles = Array.from(event.dataTransfer.files) as File[];
-    const updatedFilesToUpload = [...filesToUpload, ...newFiles];
-
-    setFilesToUpload(updatedFilesToUpload);
-  };
-
   return (
     <div className="flex h-full">
       <section className="relative flex h-full w-2/5 flex-col border-r">
@@ -171,16 +132,11 @@ const PDFSplitterFileSelection = () => {
               </div>
             </div>
           ))}
-          <button
-            className={`flex-grow mt-4 min-h-[100px] items-center justify-center rounded-lg border border-dashed border-wm-white-500 bg-wm-white-50 text-wm-white-700 hover:border-wm-orange-500 hover:bg-wm-orange-50 hover:text-wm-orange-700 ${isDragActive ? 'bg-wm-orange-50 text-wm-orange-700 border-wm-orange-500' : ''}`}
-            onClick={handleButtonClick}
-            onDragEnter={handleDragEnter}
-            onDragLeave={handleDragLeave}
-            onDragOver={handleDragOver}
-            onDrop={handleDrop}
-          >
-            Drag More Files or Click to Upload
-          </button>
+          <DragToUploadArea
+            setFiles={setFilesToUpload}
+            files={filesToUpload}
+            className="mt-2"
+          />
         </div>
         <DialogFooter className="flex h-16 w-full flex-row items-center border-t px-4">
           <Button variant={'secondary'} onClick={handleUpload}>
@@ -211,14 +167,6 @@ const PDFSplitterFileSelection = () => {
           />
         </div>
       </section>
-      <input
-        type="file"
-        ref={fileInputRef}
-        multiple
-        accept="application/pdf"
-        onChange={addToUploadQueue}
-        style={{ display: 'none' }}
-      />
     </div>
   );
 };

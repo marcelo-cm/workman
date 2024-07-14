@@ -17,7 +17,7 @@ import useLocalStorage from '@/lib/hooks/useLocalStorage';
 
 import { createClient } from '@/utils/supabase/client';
 
-import WorkmanLogo from '../../molecules/WorkmanLogo';
+import WorkmanLogo from '../molecules/WorkmanLogo';
 import MenuItem from './MenuItem';
 
 interface SideBarProps {

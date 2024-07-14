@@ -65,6 +65,8 @@ const PDFSplitter = () => {
   useEffect(() => {
     if (filesToUpload.length > 0) {
       setStage('SELECTION');
+    } else {
+      setStage('UPLOADING');
     }
   }, [filesToUpload]);
 
