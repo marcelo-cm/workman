@@ -206,9 +206,7 @@ export const useGmail = () => {
         throw new Error('User ID not found');
       }
 
-      const { ignore_label_id } = await fetchUserData({
-        columns: ['ignore_label_id'],
-      });
+      const { ignore_label_id } = await fetchUserData(['ignore_label_id']);
 
       const response = await fetch(`/api/v1/gmail/messages/batchModify`, {
         method: 'POST',
@@ -255,9 +253,7 @@ export const useGmail = () => {
         throw new Error('User ID not found');
       }
 
-      const { scanned_label_id } = await fetchUserData({
-        columns: ['scanned_label_id'],
-      });
+      const { scanned_label_id } = await fetchUserData(['scanned_label_id']);
 
       const response = await fetch(`/api/v1/gmail/messages/batchModify`, {
         method: 'POST',

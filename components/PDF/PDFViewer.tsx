@@ -102,13 +102,12 @@ const PDFViewer = forwardRef(
         className={`grid w-fit gap-2 ${gridColumnsClass} relative `}
       >
         {Array.from({ length: numPages }, (_, index) => (
-          <div>
+          <div key={index + 1}>
             {customPageHeader &&
               (typeof customPageHeader === 'function'
                 ? customPageHeader(index, numPages)
                 : customPageHeader)}
             <Page
-              key={index + 1}
               pageNumber={index + 1}
               pageIndex={index}
               renderTextLayer={false}

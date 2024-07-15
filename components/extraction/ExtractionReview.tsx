@@ -31,8 +31,8 @@ import { useAccount } from '@/lib/hooks/quickbooks/useAccount';
 import { useCustomer } from '@/lib/hooks/quickbooks/useCustomer';
 import { useVendor } from '@/lib/hooks/quickbooks/useVendor';
 
-import Invoice from '@/classes/Invoice';
 import { Account, Customer, Vendor } from '@/interfaces/quickbooks.interfaces';
+import Invoice from '@/models/Invoice';
 
 import ExtractionTabs from './ExtractionTabs';
 

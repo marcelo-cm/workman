@@ -21,8 +21,8 @@ import IfElseRender from '@/components/ui/if-else-renderer';
 
 import { useInvoice } from '@/lib/hooks/supabase/useInvoice';
 
-import Invoice from '@/classes/Invoice';
 import { InvoiceState } from '@/constants/enums';
+import Invoice from '@/models/Invoice';
 
 const { getInvoicesByState } = useInvoice();
 
