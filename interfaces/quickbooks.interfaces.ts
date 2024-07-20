@@ -1,4 +1,4 @@
-import Invoice from '@/classes/Invoice';
+import Invoice from '@/models/Invoice';
 
 import { LineItem } from './common.interfaces';
 

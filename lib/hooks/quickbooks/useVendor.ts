@@ -1,31 +1,26 @@
-import { SetStateAction } from 'react';
+import { Dispatch, SetStateAction } from 'react';
 
 import { toast } from '@/components/ui/use-toast';
 
+import { Default_Vendor_Category } from '@/interfaces/db.interfaces';
 import { Vendor } from '@/interfaces/quickbooks.interfaces';
 import { createClient as createSupabaseClient } from '@/utils/supabase/client';
 
-export const useVendor = () => {
-  const supabase = createSupabaseClient();
+import { useUser } from '../supabase/useUser';
 
+const supabase = createSupabaseClient();
+
+const { fetchUserData, fetchUser } = useUser();
+
+export const useVendor = () => {
   const getVendorList = async (
     columns: (keyof Vendor)[] | ['*'] = ['*'],
     where: string | null = null,
-    setVendorCallback?: React.Dispatch<SetStateAction<Vendor[]>>,
+    setVendorCallback?: Function | Dispatch<SetStateAction<Vendor[]>>,
   ): Promise<Vendor[]> => {
     try {
-      const { data, error } = await supabase.auth.getUser();
-
-      if (error) {
-        throw new Error('Failed to get user');
-      }
-
-      const userId = data?.user?.id;
-
-      if (!userId) {
-        throw new Error('User ID not found');
-      }
-
+      const userData = await fetchUserData();
+      const userId = userData.id;
       const columnsToSelect = columns.join(',');
 
       const response = await fetch(
@@ -52,14 +47,107 @@ export const useVendor = () => {
         (vendor: any) => vendor.DisplayName,
       );
 
-      if (setVendorCallback) {
-        setVendorCallback(vendors);
-      }
+      setVendorCallback && setVendorCallback(vendors);
       return vendors;
     } catch (error) {
       throw new Error(`Failed to get vendor list ${error}`);
     }
   };
 
-  return { getVendorList };
+  const getVendorByID = async (
+    vendorId: string,
+    vendorCallback?: Function | Dispatch<SetStateAction<Vendor>>,
+  ): Promise<Vendor> => {
+    try {
+      const userData = await fetchUserData();
+      const userId = userData.id;
+
+      const response = await fetch(
+        `/api/v1/quickbooks/company/vendor/${vendorId}?userId=${userId}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        },
+      );
+
+      if (!response.ok) {
+        toast({
+          title: 'Error fetching vendor',
+          description: response.statusText,
+          variant: 'destructive',
+        });
+        throw new Error('Failed to fetch vendor');
+      }
+
+      const responseData = await response.json();
+      const vendor = responseData.Vendor;
+      vendorCallback && vendorCallback(vendor);
+      return vendor;
+    } catch (error) {
+      throw new Error(`Failed to get vendor by ID ${error}`);
+    }
+  };
+
+  const getDefaultCategoryByVendorName = async (
+    vendorName: string,
+    categoryCallback?:
+      | Function
+      | Dispatch<SetStateAction<Default_Vendor_Category>>,
+  ): Promise<Default_Vendor_Category | null> => {
+    const { company_id: companyId } = await fetchUserData(['company_id']);
+
+    if (!companyId) throw new Error('Company ID not found');
+
+    const { data, error } = await supabase
+      .from('default_vendor_categories')
+      .select('*')
+      .eq('vendor_name', vendorName)
+      .eq('company_id', companyId)
+      .maybeSingle();
+
+    if (error) {
+      throw new Error(`Failed to get default category, ${error.message}`);
+    }
+
+    categoryCallback?.(data);
+    return data;
+  };
+
+  const saveDefaultCategory = async (
+    vendor_name: string,
+    category: string,
+  ): Promise<Default_Vendor_Category> => {
+    const { company_id } = await fetchUserData(['company_id']);
+
+    if (!company_id) {
+      throw new Error(
+        'Company ID not found, you must have a company to save default category',
+      );
+    }
+
+    const { data, error } = await supabase
+      .from('default_vendor_categories')
+      .upsert({
+        vendor_name,
+        company_id,
+        category,
+      })
+      .select('*')
+      .single();
+
+    if (error) {
+      throw new Error(`Failed to save default category, ${error.message}`);
+    }
+
+    return data;
+  };
+
+  return {
+    getVendorList,
+    getVendorByID,
+    getDefaultCategoryByVendorName,
+    saveDefaultCategory,
+  };
 };

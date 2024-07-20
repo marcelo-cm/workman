@@ -25,8 +25,8 @@ import {
 } from '../ui/tooltip';
 import { Checkbox } from '@/components/ui/checkbox';
 
-import Invoice from '@/classes/Invoice';
 import { formatDate, sliceWithEllipsis, toTitleCase } from '@/lib/utils';
+import Invoice from '@/models/Invoice';
 
 import PDFViewer from '../PDF/PDFViewer';
 

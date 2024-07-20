@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { ComboBox } from '@/components/extraction/Combobox';
 import Gmail from '@/components/molecules/Gmail';
@@ -17,17 +17,31 @@ import { useGmail } from '@/lib/hooks/gmail/useGmail';
 import { useVendor } from '@/lib/hooks/quickbooks/useVendor';
 import { useUser } from '@/lib/hooks/supabase/useUser';
 
+import { Default_Vendor_Category } from '@/interfaces/db.interfaces';
 import { Label_Basic } from '@/interfaces/gmail.interfaces';
 import { Vendor } from '@/interfaces/quickbooks.interfaces';
 import { handleGoogleMailIntegration } from '@/utils/nango/google';
 import { handleQuickBooksIntegration } from '@/utils/nango/quickbooks';
 
 const Account = () => {
-  const { getVendorList } = useVendor();
+  const { getVendorList, getVendorByID, getDefaultCategoryByVendorName } =
+    useVendor();
   const { getLabels, createLabel } = useGmail();
   const { updateUser } = useUser();
   const [vendors, setVendors] = useState<Vendor[]>([]);
   const [labels, setLabels] = useState<Label_Basic[]>([]);
+  const [currentVendor, setCurrentVendor] = useState<Vendor>();
+  const [defaultCategory, setDefaultCategory] =
+    useState<Default_Vendor_Category>();
+
+  useEffect(() => {
+    if (!currentVendor) return;
+
+    getDefaultCategoryByVendorName(
+      currentVendor.DisplayName,
+      setDefaultCategory,
+    );
+  }, [currentVendor]);
 
   const fetchVendors = async () => {
     const columns: (keyof Vendor)[] = ['DisplayName', 'Id'];
@@ -124,8 +138,10 @@ const Account = () => {
             <ComboBox
               options={vendors}
               getOptionLabel={(option) => option?.DisplayName}
+              callBackFunction={(newValue) => setCurrentVendor(newValue)}
             />
           )}
+          <div>{JSON.stringify(defaultCategory)}</div>
         </div>
         <div className="flex w-fit flex-row items-center justify-between gap-4">
           Google Mail Labels

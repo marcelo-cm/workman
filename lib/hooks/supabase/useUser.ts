@@ -1,28 +1,43 @@
-import { PostgrestSingleResponse, UserResponse } from '@supabase/supabase-js';
+import { UserResponse } from '@supabase/supabase-js';
+import { UUID } from 'crypto';
 
-import { User } from '@/classes/User';
+import { User } from '@/models/User';
 import { createClient as createSupabaseClient } from '@/utils/supabase/client';
 
 const supabase = createSupabaseClient();
 
 export const useUser = () => {
-  const updateUser = async (column_value: { [column: string]: string }) => {
-    const { data: userData, error: userError } = await supabase.auth.getUser();
+  const createUser = async (company_id: UUID): Promise<User> => {
+    const { data: userData } = await fetchUser();
 
-    if (userError) {
-      throw new Error('Failed to get user');
+    const { data, error } = await supabase
+      .from('users')
+      .insert({
+        user_id: userData.user?.id,
+        ignore_label_id: null,
+        scanned_label_id: null,
+        gmail_integration_status: false,
+        quickbooks_integration_status: false,
+        email: userData?.user?.email,
+        company_id: company_id,
+      })
+      .select('*')
+      .single();
+
+    if (error) {
+      throw new Error('Failed to create user');
     }
 
-    const userId = userData?.user?.id;
+    return data;
+  };
 
-    if (!userId) {
-      throw new Error('User ID not found');
-    }
+  const updateUser = async (column_value: Partial<User>) => {
+    const { data: userData } = await fetchUser();
 
     const { data, error } = await supabase
       .from('users')
       .upsert(column_value)
-      .eq('user_id', userId);
+      .eq('id', userData?.user?.id);
 
     if (error) {
       throw new Error('Failed to update user');
@@ -31,29 +46,17 @@ export const useUser = () => {
     return data;
   };
 
-  const fetchUserData = async ({
-    columns = ['*'],
-  }: {
-    columns: (keyof User)[] | ['*'];
-  }): Promise<Partial<User>> => {
-    const { data: userData, error: userError } = await supabase.auth.getUser();
-
-    if (userError) {
-      throw new Error('Failed to get user');
-    }
-
-    const userId = userData?.user?.id;
-
-    if (!userId) {
-      throw new Error('User ID not found');
-    }
+  const fetchUserData = async (
+    columns: (keyof User)[] | ['*'] = ['*'],
+  ): Promise<Partial<User>> => {
+    const { data: userData } = await fetchUser();
 
     const columnsToFetch = columns.join(', ');
 
     const { data, error } = await supabase
       .from('users')
       .select(columnsToFetch as '*')
-      .eq('id', userId)
+      .eq('id', userData?.user?.id)
       .single();
 
     if (error || !data) {
@@ -65,10 +68,20 @@ export const useUser = () => {
 
   async function fetchUser(): Promise<UserResponse> {
     const user = await supabase.auth.getUser();
+
+    if (user.error) {
+      throw new Error('Failed to fetch user');
+    }
+
+    if (!user.data?.user) {
+      throw new Error('User not found');
+    }
+
     return user;
   }
 
   return {
+    createUser,
     updateUser,
     fetchUserData,
     fetchUser,

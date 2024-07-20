@@ -31,8 +31,8 @@ import { useGmail } from '@/lib/hooks/gmail/useGmail';
 import { useInvoice } from '@/lib/hooks/supabase/useInvoice';
 
 import { Email } from '@/app/api/v1/gmail/messages/route';
-import Invoice from '@/classes/Invoice';
 import { InvoiceState } from '@/constants/enums';
+import Invoice from '@/models/Invoice';
 import { createClient } from '@/utils/supabase/client';
 
 const { getInvoicesByState } = useInvoice();

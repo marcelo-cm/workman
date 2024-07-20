@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 
 import { PlusIcon, TrashIcon } from '@radix-ui/react-icons';
-import { Loader2Icon } from 'lucide-react';
 
 import { UseFormReturn, useFieldArray } from 'react-hook-form';
 
@@ -20,25 +19,45 @@ import IfElseRender from '@/components/ui/if-else-renderer';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/text-area';
 
-import { useAccount } from '@/lib/hooks/quickbooks/useAccount';
+import { useVendor } from '@/lib/hooks/quickbooks/useVendor';
 
-import { Account, Customer } from '@/interfaces/quickbooks.interfaces';
+import { LineItem } from '@/interfaces/common.interfaces';
+import { Account } from '@/interfaces/quickbooks.interfaces';
 
 import ExtractionFormComponent from '../ExtractionFormComponent';
 import { useExtractionReview } from '../ExtractionReview';
+
+const { getDefaultCategoryByVendorName } = useVendor();
 
 const EditExtractedData = ({
   form,
 }: {
   form: UseFormReturn<any, any, undefined>;
 }) => {
-  const { accounts, customers, vendors, activeIndex } = useExtractionReview();
+  const { accounts, customers, vendors } = useExtractionReview();
   const { watch } = form;
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,
     name: 'lineItems',
   });
+
+  const setLineItemsDefaultCategories = async (vendorName: string) => {
+    console.log('vendorId', vendorName);
+    const defaultCategory = await getDefaultCategoryByVendorName(vendorName);
+    if (!defaultCategory) return;
+
+    fields.forEach((lineItem, index) => {
+      form.setValue(
+        `lineItems.${index}.productCode`,
+        defaultCategory.category,
+        {
+          shouldValidate: true,
+          shouldDirty: true,
+        },
+      );
+    });
+  };
 
   const initialLoading = !(
     vendors.length &&
@@ -137,6 +156,7 @@ const EditExtractedData = ({
                               shouldValidate: true,
                               shouldDirty: true,
                             });
+                            setLineItemsDefaultCategories(newValue.DisplayName);
                           }}
                           getOptionLabel={(option) => option?.DisplayName}
                           className="w-full"
@@ -348,6 +368,7 @@ const EditExtractedData = ({
                                   `lineItems.${index}.productCode`,
                                 )}
                                 callBackFunction={(newValue: Account) => {
+                                  console.log('newValue', newValue);
                                   form.setValue(
                                     `lineItems.${index}.productCode`,
                                     newValue.Name,
