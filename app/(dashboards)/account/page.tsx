@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 
-import { ComboBox } from '@/components/extraction/Combobox';
 import Gmail from '@/components/molecules/Gmail';
 import QuickBooks from '@/components/molecules/QuickBooks';
 import {
@@ -12,6 +11,7 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
 import { Button } from '@/components/ui/button';
+import { ComboBox } from '@/components/ui/combo-box';
 
 import { useGmail } from '@/lib/hooks/gmail/useGmail';
 import { useVendor } from '@/lib/hooks/quickbooks/useVendor';
