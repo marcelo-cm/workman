@@ -11,6 +11,7 @@ import { BookmarkCheckIcon, HammerIcon, Loader2Icon } from 'lucide-react';
 import { Badge } from '../../ui/badge';
 import { Button } from '../../ui/button';
 import { Checkbox } from '../../ui/checkbox';
+import { ComboBox } from '../../ui/combo-box';
 import {
   Table,
   TableBody,
@@ -32,7 +33,6 @@ import {
 } from '@/interfaces/quickbooks.interfaces';
 import { createClient } from '@/utils/supabase/client';
 
-import { ComboBox } from '../Combobox';
 import { useExtractionReview } from '../ExtractionReview';
 
 const supabase = createClient();

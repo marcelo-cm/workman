@@ -19,6 +19,7 @@ import {
 import DragToUploadArea from '@/components/general/DragToUploadArea';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -37,13 +38,12 @@ const PDFSplitterFileSelection = () => {
     setFilesToSplit,
     setStage,
     handleUpload,
+    isUploading,
   } = usePDFSplitter();
   const PDFViewerParentRef = useRef<null | HTMLDivElement>(null);
-  const fileInputRef = useRef<null | HTMLInputElement>(null);
   const uploadButtonRef = useRef<null | HTMLButtonElement>(null);
   const [PDFViewerWidth, setPDFViewerWidth] = useState<number>(500);
   const [activeFile, setActiveFile] = useState<File>(filesToUpload[0]);
-  const [isDragActive, setDragActive] = useState(false);
 
   useEffect(() => {
     updatePDFViewerWidth();
@@ -139,13 +139,19 @@ const PDFSplitterFileSelection = () => {
           />
         </div>
         <DialogFooter className="flex h-16 w-full flex-row items-center border-t px-4">
-          <Button variant={'secondary'} onClick={handleUpload}>
-            Continue without Splitting
-            <CaretRightIcon />
-          </Button>
+          <DialogClose>
+            <Button
+              variant={'secondary'}
+              onClick={() => handleUpload()}
+              disabled={isUploading}
+            >
+              Continue without Splitting
+              <CaretRightIcon />
+            </Button>
+          </DialogClose>
           <Button
             onClick={() => setStage('SPLITTING')}
-            disabled={Boolean(filesToSplit.length === 0)}
+            disabled={Boolean(filesToSplit.length === 0) || isUploading}
           >
             <ScissorsIcon />
             Split PDFs

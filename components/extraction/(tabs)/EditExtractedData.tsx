@@ -5,6 +5,7 @@ import { Loader2Icon } from 'lucide-react';
 
 import { UseFormReturn, useFieldArray } from 'react-hook-form';
 
+import { ComboBox } from '../../ui/combo-box';
 import { Button } from '@/components/ui/button';
 import LoadingState from '@/components/ui/empty-state';
 import {
@@ -23,7 +24,6 @@ import { useAccount } from '@/lib/hooks/quickbooks/useAccount';
 
 import { Account, Customer } from '@/interfaces/quickbooks.interfaces';
 
-import { ComboBox } from '../Combobox';
 import ExtractionFormComponent from '../ExtractionFormComponent';
 import { useExtractionReview } from '../ExtractionReview';
 

@@ -27,7 +27,7 @@ const STAGES = {
   UPLOADING: <PDFSplitterUpload />,
   SELECTION: <PDFSplitterFileSelection />,
   SPLITTING: <PDFSplitterFileSplit />,
-  FINISHED: <div>Finished</div>,
+  FINISHED: <></>,
 };
 
 interface PDFSplitterContext {
@@ -37,6 +37,7 @@ interface PDFSplitterContext {
   setFilesToSplit: Dispatch<SetStateAction<File[]>>;
   setStage: Dispatch<SetStateAction<keyof typeof STAGES>>;
   handleUpload: () => void;
+  isUploading: boolean;
 }
 
 const defaultPDFSplitterContext: PDFSplitterContext = {
@@ -46,6 +47,7 @@ const defaultPDFSplitterContext: PDFSplitterContext = {
   setFilesToSplit: () => {},
   setStage: () => {},
   handleUpload: async () => {},
+  isUploading: false,
 };
 
 const PDFSplitterContext = createContext<PDFSplitterContext>(
@@ -98,7 +100,7 @@ const PDFSplitter = () => {
 
       setTimeout(() => {
         window.location.reload();
-      }, 1000);
+      }, 500);
     } catch (error) {
       console.error('Error uploading files:', error);
     }
@@ -107,36 +109,33 @@ const PDFSplitter = () => {
 
   return (
     <>
-      {stage !== 'FINISHED' ? (
-        <DialogContent className="flex h-[90%] max-w-[90%] flex-col overflow-hidden p-0">
-          <PDFSplitterContext.Provider
-            value={{
-              filesToUpload,
-              setFilesToUpload,
-              filesToSplit,
-              setFilesToSplit,
-              setStage,
-              handleUpload,
-            }}
-          >
-            {STAGES[stage]}
-          </PDFSplitterContext.Provider>
-        </DialogContent>
-      ) : (
-        <AlertDialog open={isUploading}>
-          <AlertDialogContent className="justify-center">
-            <AlertDialogHeader className="items-center">
-              <WorkmanLogo className="w-32 animate-pulse" />
-              <AlertDialogTitle>Uploading your Data Now!</AlertDialogTitle>
-            </AlertDialogHeader>
-            <AlertDialogDescription className="text-center">
-              It's important that you don't close this window while we're
-              uploading your data. We are uploading {filesToUpload.length}{' '}
-              files.
-            </AlertDialogDescription>
-          </AlertDialogContent>
-        </AlertDialog>
-      )}
+      <DialogContent className="flex h-[90%] max-w-[90%] flex-col overflow-hidden p-0">
+        <PDFSplitterContext.Provider
+          value={{
+            filesToUpload,
+            setFilesToUpload,
+            filesToSplit,
+            setFilesToSplit,
+            setStage,
+            handleUpload,
+            isUploading,
+          }}
+        >
+          {STAGES[stage]}
+        </PDFSplitterContext.Provider>
+      </DialogContent>
+      <AlertDialog open={isUploading}>
+        <AlertDialogContent className="justify-center">
+          <AlertDialogHeader className="items-center">
+            <WorkmanLogo className="w-32 animate-pulse" />
+            <AlertDialogTitle>Uploading your Data Now!</AlertDialogTitle>
+          </AlertDialogHeader>
+          <AlertDialogDescription className="text-center">
+            It's important that you don't close this window while we're
+            uploading your data. We are uploading {filesToUpload.length} files.
+          </AlertDialogDescription>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 };
