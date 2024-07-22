@@ -5,7 +5,10 @@ import { toast } from '@/components/ui/use-toast';
 
 import { PDFData } from '@/app/api/v1/gmail/messages/route';
 import { InvoiceData } from '@/interfaces/common.interfaces';
-import { Invoice_Quickbooks } from '@/interfaces/quickbooks.interfaces';
+import {
+  Invoice_Quickbooks,
+  LineItem_QuickBooks,
+} from '@/interfaces/quickbooks.interfaces';
 import { mindeeScan } from '@/lib/actions/actions';
 import { createClient } from '@/utils/supabase/client';
 
@@ -342,6 +345,34 @@ export class Invoice {
 
   set data(data: InvoiceData) {
     this._data = data;
+  }
+
+  static async transformToQuickBooksInvoice(
+    invoice: Invoice,
+  ): Promise<Invoice_Quickbooks> {
+    const transformedInvoice: Invoice_Quickbooks = {
+      id: invoice.id,
+      created_at: invoice.createdAt,
+      file_url: invoice.fileUrl,
+      status: invoice.status,
+      data: {
+        supplierName: invoice.supplierName,
+        vendorId: invoice.data.supplierName,
+        invoiceNumber: invoice.invoiceNumber,
+        date: invoice.date,
+        dueDate: invoice.dueDate,
+        customerAddress: invoice.customerAddress,
+        notes: invoice.notes,
+        lineItems: invoice.lineItems.map((item: LineItem_QuickBooks) => ({
+          ...item,
+          customerId: '',
+          billable: false,
+          accountId: '',
+        })),
+      },
+    };
+
+    return transformedInvoice;
   }
 }
 

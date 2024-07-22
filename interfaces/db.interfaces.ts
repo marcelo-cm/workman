@@ -2,6 +2,8 @@ import { UUID } from 'crypto';
 
 import { Roles } from '@/constants/enums';
 
+import { InvoiceData } from './common.interfaces';
+
 export interface Default_Vendor_Category {
   id: number;
   company_id: UUID;
@@ -19,4 +21,12 @@ export interface User_Update {
   email?: string;
   company_id?: UUID;
   roles?: Roles[];
+}
+
+export interface Invoice {
+  id: UUID;
+  created_at: string;
+  data: InvoiceData;
+  file_url: string;
+  status: string;
 }

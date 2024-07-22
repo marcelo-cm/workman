@@ -75,20 +75,13 @@ const UploadToQuickBooks = () => {
     setIsLoading(false);
   }
 
-  const transformData = () => {
-    const transformed = files.map((file) => ({
-      ...file,
-      data: {
-        ...file.data,
-        vendorId: file.data.supplierName, // Temporary mapping; to be updated on selection
-        lineItems: file.data.lineItems.map((lineItem) => ({
-          ...lineItem,
-          customerId: file.data.customerAddress, // Temporary mapping; to be updated on selection
-          billable: true,
-          accountId: '',
-        })),
-      },
-    }));
+  const transformData = async () => {
+    const transformed: Invoice_Quickbooks[] = await Promise.all(
+      files.map(async (file) => {
+        const parsedInvoice = await Invoice.transformToQuickBooksInvoice(file);
+        return parsedInvoice;
+      }),
+    );
     setTransformedFiles(transformed as unknown as Invoice_Quickbooks[]);
   };
 
