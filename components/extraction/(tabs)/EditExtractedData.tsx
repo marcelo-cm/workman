@@ -43,7 +43,6 @@ const EditExtractedData = ({
   });
 
   const setLineItemsDefaultCategories = async (vendorName: string) => {
-    console.log('vendorId', vendorName);
     const defaultCategory = await getDefaultCategoryByVendorName(vendorName);
     if (!defaultCategory) return;
 
@@ -368,7 +367,6 @@ const EditExtractedData = ({
                                   `lineItems.${index}.productCode`,
                                 )}
                                 callBackFunction={(newValue: Account) => {
-                                  console.log('newValue', newValue);
                                   form.setValue(
                                     `lineItems.${index}.productCode`,
                                     newValue.Name,

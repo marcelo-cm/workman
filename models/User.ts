@@ -1,20 +1,13 @@
 import { UUID } from 'crypto';
 
+import { Roles } from '@/constants/enums';
 import { createClient } from '@/utils/supabase/client';
+
+import { Company } from './Company';
 
 const supabase = createClient();
 
 export class User {
-<<<<<<< Updated upstream
-  id: UUID;
-  email: string;
-  company_id: UUID;
-  ignore_label_id: string;
-  scanned_label_id: string;
-  gmail_integration_status: string;
-  quickbooks_integration_status: string;
-  created_at: string;
-=======
   private _id: UUID;
   private _email: string;
   private _company: Company;
@@ -24,28 +17,17 @@ export class User {
   private _quickbooks_integration_status: string;
   private _roles: string[];
   private _created_at: Date;
->>>>>>> Stashed changes
 
   constructor({
     id,
     email,
-    company_id,
+    company,
     ignore_label_id,
     scanned_label_id,
     gmail_integration_status,
     quickbooks_integration_status,
+    roles,
     created_at,
-<<<<<<< Updated upstream
-  }: User) {
-    this.id = id;
-    this.email = email;
-    this.company_id = company_id;
-    this.ignore_label_id = ignore_label_id;
-    this.scanned_label_id = scanned_label_id;
-    this.gmail_integration_status = gmail_integration_status;
-    this.quickbooks_integration_status = quickbooks_integration_status;
-    this.created_at = created_at;
-=======
   }: {
     id: UUID;
     email: string;
@@ -54,7 +36,7 @@ export class User {
     scanned_label_id: string;
     gmail_integration_status: string;
     quickbooks_integration_status: string;
-    roles: string[];
+    roles: Roles[];
     created_at: string;
   }) {
     this._id = id;
@@ -102,6 +84,5 @@ export class User {
 
   get createdAt(): Date {
     return this._created_at;
->>>>>>> Stashed changes
   }
 }

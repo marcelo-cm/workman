@@ -12,6 +12,8 @@ import {
 } from '@/components/ui/breadcrumb';
 import { Button } from '@/components/ui/button';
 import { ComboBox } from '@/components/ui/combo-box';
+import LoadingState from '@/components/ui/empty-state';
+import IfElseRender from '@/components/ui/if-else-renderer';
 
 import { useGmail } from '@/lib/hooks/gmail/useGmail';
 import { useVendor } from '@/lib/hooks/quickbooks/useVendor';
@@ -20,35 +22,28 @@ import { useUser } from '@/lib/hooks/supabase/useUser';
 import { Default_Vendor_Category } from '@/interfaces/db.interfaces';
 import { Label_Basic } from '@/interfaces/gmail.interfaces';
 import { Vendor } from '@/interfaces/quickbooks.interfaces';
+import { User } from '@/models/User';
 import { handleGoogleMailIntegration } from '@/utils/nango/google';
 import { handleQuickBooksIntegration } from '@/utils/nango/quickbooks';
 
 const Account = () => {
   const { getVendorList, getVendorByID, getDefaultCategoryByVendorName } =
     useVendor();
+  const { fetchUserData } = useUser();
   const { getLabels, createLabel } = useGmail();
   const { updateUser } = useUser();
   const [vendors, setVendors] = useState<Vendor[]>([]);
   const [labels, setLabels] = useState<Label_Basic[]>([]);
   const [currentVendor, setCurrentVendor] = useState<Vendor>();
+  const [user, setUser] = useState<User>();
   const [defaultCategory, setDefaultCategory] =
     useState<Default_Vendor_Category>();
 
   useEffect(() => {
-<<<<<<< Updated upstream
-    if (!currentVendor) return;
-
-    getDefaultCategoryByVendorName(
-      currentVendor.DisplayName,
-      setDefaultCategory,
-    );
-  }, [currentVendor]);
-=======
     fetchUserData().then((data) => {
       setUser(data);
     });
   }, []);
->>>>>>> Stashed changes
 
   const fetchVendors = async () => {
     const columns: (keyof Vendor)[] = ['DisplayName', 'Id'];
@@ -124,8 +119,6 @@ const Account = () => {
         Manage all your integrations, settings, and preferences in one place.
       </p>
       <div className="flex flex-col gap-2">
-<<<<<<< Updated upstream
-=======
         <div className="text-xl">User Information</div>
         <IfElseRender
           condition={!!user}
@@ -138,7 +131,6 @@ const Account = () => {
           }
           ifFalse={<LoadingState />}
         />
->>>>>>> Stashed changes
         <div className="text-xl">Integrations</div>
         <div className="flex w-fit flex-row items-center justify-between gap-4">
           Google Mail Integration <Gmail />

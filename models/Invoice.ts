@@ -12,11 +12,11 @@ import { createClient } from '@/utils/supabase/client';
 const supabase = createClient();
 
 export class Invoice {
-  _id: UUID;
-  _created_at: string;
-  _data: InvoiceData;
-  _file_url: string;
-  _status: string;
+  private _id: UUID;
+  private _created_at: string;
+  private _data: InvoiceData;
+  private _file_url: string;
+  private _status: string;
 
   constructor({
     id,
@@ -264,7 +264,7 @@ export class Invoice {
     return this._id;
   }
 
-  get created_at(): string {
+  get createdAt(): string {
     return this._created_at;
   }
 
@@ -338,6 +338,10 @@ export class Invoice {
 
   get notes(): string {
     return this._data.notes;
+  }
+
+  set data(data: InvoiceData) {
+    this._data = data;
   }
 }
 

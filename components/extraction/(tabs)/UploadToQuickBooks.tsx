@@ -76,7 +76,7 @@ const UploadToQuickBooks = () => {
   }
 
   const transformData = () => {
-    const transformed: Invoice_Quickbooks[] = files.map((file) => ({
+    const transformed = files.map((file) => ({
       ...file,
       data: {
         ...file.data,
@@ -85,11 +85,11 @@ const UploadToQuickBooks = () => {
           ...lineItem,
           customerId: file.data.customerAddress, // Temporary mapping; to be updated on selection
           billable: true,
-          accountId: '63',
+          accountId: '',
         })),
       },
     }));
-    setTransformedFiles(transformed);
+    setTransformedFiles(transformed as unknown as Invoice_Quickbooks[]);
   };
 
   const handleVendorSelect = (value: Vendor, fileIndex: number) => {
