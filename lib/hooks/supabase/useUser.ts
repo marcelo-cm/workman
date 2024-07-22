@@ -57,7 +57,7 @@ export const useUser = () => {
 
     const { data, error } = await supabase
       .from('users')
-      .select(columnsToFetch as '*')
+      .select(`${columnsToFetch}, companies (*)` as '*')
       .eq('id', userData?.user?.id)
       .single();
 
@@ -66,8 +66,6 @@ export const useUser = () => {
     }
 
     const { company_id, companies, ...rest } = data;
-
-    console.log(data);
 
     return new User({
       ...rest,

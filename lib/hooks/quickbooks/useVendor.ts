@@ -129,11 +129,14 @@ export const useVendor = () => {
 
     const { data, error } = await supabase
       .from('default_vendor_categories')
-      .upsert({
-        vendor_name,
-        company_id: company.id,
-        category,
-      })
+      .upsert(
+        {
+          vendor_name,
+          company_id: company.id,
+          category,
+        },
+        { onConflict: 'vendor_name, company_id' },
+      )
       .select('*')
       .single();
 

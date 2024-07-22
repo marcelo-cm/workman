@@ -171,7 +171,7 @@ export class Invoice {
     const { data: updatedData, error } = await supabase
       .from('invoices')
       .update({ data, status: 'FOR_REVIEW' })
-      .eq('fileUrl', fileUrl)
+      .eq('file_url', fileUrl) // why fileUrl and not id?
       .select('*');
 
     if (error) {
