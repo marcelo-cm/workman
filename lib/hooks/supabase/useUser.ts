@@ -1,6 +1,11 @@
 import { UserResponse } from '@supabase/supabase-js';
 import { UUID } from 'crypto';
 
+<<<<<<< Updated upstream
+=======
+import { User_Update } from '@/interfaces/db.interfaces';
+import { Company } from '@/models/Company';
+>>>>>>> Stashed changes
 import { User } from '@/models/User';
 import { createClient as createSupabaseClient } from '@/utils/supabase/client';
 
@@ -28,10 +33,10 @@ export const useUser = () => {
       throw new Error('Failed to create user');
     }
 
-    return data;
+    return new User(data);
   };
 
-  const updateUser = async (column_value: Partial<User>) => {
+  const updateUser = async (column_value: User_Update) => {
     const { data: userData } = await fetchUser();
 
     const { data, error } = await supabase
@@ -63,7 +68,16 @@ export const useUser = () => {
       throw new Error('Failed to fetch user data');
     }
 
+<<<<<<< Updated upstream
     return data;
+=======
+    const { company_id, companies, ...rest } = data;
+
+    return new User({
+      ...rest,
+      company: companies,
+    });
+>>>>>>> Stashed changes
   };
 
   async function fetchUser(): Promise<UserResponse> {

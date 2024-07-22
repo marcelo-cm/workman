@@ -3,3 +3,9 @@ export enum InvoiceState {
   FOR_REVIEW = 'FOR_REVIEW',
   PROCESSED = 'PROCESSED',
 }
+
+export enum Roles {
+  PLATFORM_ADMIN = 'PLATFORM_ADMIN',
+  COMPANY_ADMIN = 'COMPANY_ADMIN',
+  BOOKKEEPER = 'BOOKKEEPER',
+}

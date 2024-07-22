@@ -12,18 +12,30 @@ import { createClient } from '@/utils/supabase/client';
 const supabase = createClient();
 
 export class Invoice {
-  id: UUID;
-  created_at: string;
-  data: InvoiceData;
-  fileUrl: string;
-  status: string;
+  _id: UUID;
+  _created_at: string;
+  _data: InvoiceData;
+  _file_url: string;
+  _status: string;
 
-  constructor({ id, created_at, data, status, fileUrl }: Invoice) {
-    this.id = id;
-    this.created_at = created_at;
-    this.data = data;
-    this.status = status;
-    this.fileUrl = fileUrl;
+  constructor({
+    id,
+    created_at,
+    data,
+    status,
+    file_url,
+  }: {
+    id: UUID;
+    created_at: string;
+    data: InvoiceData;
+    status: string;
+    file_url: string;
+  }) {
+    this._id = id;
+    this._created_at = created_at;
+    this._data = data;
+    this._status = status;
+    this._file_url = file_url;
   }
 
   static async upload(file: File | PDFData) {
@@ -246,6 +258,86 @@ export class Invoice {
     };
 
     return mappedData;
+  }
+
+  get id(): UUID {
+    return this._id;
+  }
+
+  get created_at(): string {
+    return this._created_at;
+  }
+
+  get data(): InvoiceData {
+    return this._data;
+  }
+
+  get fileUrl(): string {
+    return this._file_url;
+  }
+
+  get status(): string {
+    return this._status;
+  }
+
+  get totalAmount(): number {
+    return this._data.totalAmount;
+  }
+
+  get totalNet(): number {
+    return this._data.totalNet;
+  }
+
+  get totalTax(): string {
+    return this._data.totalTax;
+  }
+
+  get date(): string {
+    return this._data.date;
+  }
+
+  get dueDate(): string {
+    return this._data.dueDate;
+  }
+
+  get invoiceNumber(): string {
+    return this._data.invoiceNumber;
+  }
+
+  get supplierName(): string {
+    return this._data.supplierName;
+  }
+
+  get supplierAddress(): string {
+    return this._data.supplierAddress;
+  }
+
+  get supplierEmail(): string {
+    return this._data.supplierEmail;
+  }
+
+  get supplierPhoneNumber(): string {
+    return this._data.supplierPhoneNumber;
+  }
+
+  get customerAddress(): string {
+    return this._data.customerAddress;
+  }
+
+  get customerName(): string {
+    return this._data.customerName;
+  }
+
+  get shippingAddress(): string {
+    return this._data.shippingAddress;
+  }
+
+  get lineItems(): any {
+    return this._data.lineItems;
+  }
+
+  get notes(): string {
+    return this._data.notes;
   }
 }
 

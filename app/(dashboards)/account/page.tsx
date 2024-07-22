@@ -35,6 +35,7 @@ const Account = () => {
     useState<Default_Vendor_Category>();
 
   useEffect(() => {
+<<<<<<< Updated upstream
     if (!currentVendor) return;
 
     getDefaultCategoryByVendorName(
@@ -42,6 +43,12 @@ const Account = () => {
       setDefaultCategory,
     );
   }, [currentVendor]);
+=======
+    fetchUserData().then((data) => {
+      setUser(data);
+    });
+  }, []);
+>>>>>>> Stashed changes
 
   const fetchVendors = async () => {
     const columns: (keyof Vendor)[] = ['DisplayName', 'Id'];
@@ -117,6 +124,21 @@ const Account = () => {
         Manage all your integrations, settings, and preferences in one place.
       </p>
       <div className="flex flex-col gap-2">
+<<<<<<< Updated upstream
+=======
+        <div className="text-xl">User Information</div>
+        <IfElseRender
+          condition={!!user}
+          ifTrue={
+            <div className="">
+              <div>Email: {user?.email}</div>
+              <div>Company: {user?.company?.name}</div>
+              <div>Role: {user?.roles?.join(',')}</div>
+            </div>
+          }
+          ifFalse={<LoadingState />}
+        />
+>>>>>>> Stashed changes
         <div className="text-xl">Integrations</div>
         <div className="flex w-fit flex-row items-center justify-between gap-4">
           Google Mail Integration <Gmail />

@@ -26,8 +26,9 @@ export const useInvoice = () => {
       console.error('Error fetching invoices:', error);
       return [];
     } else {
-      callBack && callBack(data as Invoice[]);
-      return data as Invoice[];
+      const parsedData = data.map((invoice) => new Invoice(invoice));
+      callBack && callBack(parsedData);
+      return parsedData;
     }
   }
 
