@@ -87,10 +87,25 @@ export const useUser = () => {
     return user;
   }
 
+  async function getUserById(id: UUID): Promise<User> {
+    const { data, error } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error || !data) {
+      throw new Error('Failed to fetch user');
+    }
+
+    return new User(data);
+  }
+
   return {
     createUser,
     updateUser,
     fetchUserData,
     fetchUser,
+    getUserById,
   };
 };

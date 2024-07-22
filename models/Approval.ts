@@ -1,6 +1,10 @@
 import { UUID } from 'crypto';
 
+import { useUser } from '@/lib/hooks/supabase/useUser';
+
 import { User } from './User';
+
+const { getUserById } = useUser();
 
 export class Approval {
   private _id: number;
@@ -73,8 +77,11 @@ export class Approval {
     return this._created_at;
   }
 
-  // TODO: Implement the principal getter method
-  // that calls supa
-  //   get principal(): User {
-  //   }
+  async getPrincipal(): Promise<User> {
+    return await getUserById(this._principal_id);
+  }
+
+  async getApprover(): Promise<User> {
+    return await getUserById(this._approver_id);
+  }
 }
