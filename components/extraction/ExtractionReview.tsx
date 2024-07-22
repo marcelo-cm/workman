@@ -131,7 +131,7 @@ const ExtractionReview = ({ files }: { files: Invoice[] }) => {
                 <div className="flex h-10 min-h-10 cursor-pointer items-center justify-between border-b bg-wm-white-50 px-2 text-sm hover:bg-wm-white-100">
                   <div className="ellipsis flex items-center gap-1 ">
                     {decodeURI(
-                      files[activeIndex].fileUrl.split('/')[8].split('.pdf')[0],
+                      files[activeIndex].file_url.split('/')[8].split('.pdf')[0],
                     )}
                     <CaretDownIcon />
                   </div>
@@ -149,7 +149,7 @@ const ExtractionReview = ({ files }: { files: Invoice[] }) => {
                     onClick={() => setActiveIndex(index)}
                     className="hover flex cursor-pointer items-center justify-between gap-4 rounded-md hover:bg-wm-white-50"
                   >
-                    {decodeURI(file.fileUrl.split('/')[8].split('.pdf')[0])}
+                    {decodeURI(file.file_url.split('/')[8].split('.pdf')[0])}
                     {activeIndex === index ? (
                       <Badge variant="success">Active</Badge>
                     ) : null}
@@ -158,7 +158,7 @@ const ExtractionReview = ({ files }: { files: Invoice[] }) => {
               </DropdownMenuContent>
             </DropdownMenu>
             <div className="no-scrollbar h-full w-full overflow-y-scroll bg-wm-white-50 p-4">
-              <PDFViewer file={files[activeIndex].fileUrl} zoomable />
+              <PDFViewer file={files[activeIndex].file_url} zoomable />
             </div>
             <div className="sticky bottom-0 flex h-14 min-h-14 items-center gap-2 border-t bg-white px-2">
               <Button

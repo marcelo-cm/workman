@@ -45,7 +45,7 @@ export const columns: ColumnDef<Invoice>[] = [
     accessorKey: 'file_name',
     accessorFn: (row) =>
       decodeURI(
-        row.fileUrl.split('/')[8]?.split('.pdf')[0] +
+        row.file_url.split('/')[8]?.split('.pdf')[0] +
           ' ' +
           row.data.supplierName,
       ),
@@ -58,12 +58,12 @@ export const columns: ColumnDef<Invoice>[] = [
           <Tooltip>
             <TooltipContent side="right">
               <div className="max-h-[600px] overflow-scroll">
-                <PDFViewer file={row.original.fileUrl} width={400} />
+                <PDFViewer file={row.original.file_url} width={400} />
               </div>
             </TooltipContent>
             <TooltipTrigger asChild>
               <div className="flex w-fit flex-col">
-                {decodeURI(row.original.fileUrl.split('/')[8].split('.pdf')[0])}
+                {decodeURI(row.original.file_url.split('/')[8].split('.pdf')[0])}
               </div>
             </TooltipTrigger>
           </Tooltip>
@@ -100,7 +100,7 @@ export const columns: ColumnDef<Invoice>[] = [
         variant={'ghost'}
         className="p-0 hover:text-wm-orange-500"
         onClick={() => {
-          window.open(row.original.fileUrl, '_blank');
+          window.open(row.original.file_url, '_blank');
         }}
       >
         View File <ExternalLinkIcon className="h-4 w-4" />

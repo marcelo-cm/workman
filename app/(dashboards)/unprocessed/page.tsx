@@ -60,7 +60,7 @@ const Unprocessed = () => {
     setIsUploading(true);
     try {
       const scanAndUpdatePromises = selectedRows.map(async (row) => {
-        await Invoice.scanAndUpdate(row.fileUrl);
+        await Invoice.scanAndUpdate(row.file_url);
       });
 
       const scanAndUpdateResolved = await Promise.all(scanAndUpdatePromises);
@@ -79,14 +79,14 @@ const Unprocessed = () => {
     try {
       for (const email of selectedRows) {
         const attachments = email.attachments;
-        const allFileUrlPromises = attachments.map(
+        const allfile_urlPromises = attachments.map(
           async (attachment) => await Invoice.upload(attachment),
         );
 
-        const fileUrls = await Promise.all(allFileUrlPromises);
+        const file_urls = await Promise.all(allfile_urlPromises);
 
-        const scanAllFilePromises = fileUrls.map(async (fileUrl) => {
-          await Invoice.scanAndUpdate(fileUrl);
+        const scanAllFilePromises = file_urls.map(async (file_url) => {
+          await Invoice.scanAndUpdate(file_url);
         });
 
         await Promise.all(scanAllFilePromises);

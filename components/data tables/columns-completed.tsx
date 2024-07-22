@@ -33,7 +33,7 @@ export const columns: ColumnDef<Invoice>[] = [
     accessorKey: 'file_name&sender',
     accessorFn: (row) =>
       decodeURI(
-        row.fileUrl.split('/')[8]?.split('.pdf')[0] +
+        row.file_url.split('/')[8]('.pdf')[0] +
           ' ' +
           row.data.supplierName,
       ),
@@ -44,7 +44,7 @@ export const columns: ColumnDef<Invoice>[] = [
       return (
         <div className="flex flex-col">
           <div className="flex items-center gap-1">
-            {decodeURI(row.original.fileUrl.split('/')[8].split('.pdf')[0])}
+            {decodeURI(row.original.file_url.split('/')[8].split('.pdf')[0])}
             <p className="text-xs text-wm-white-200">[{row.original.id}]</p>
           </div>
           <div className="text-xs">{row.original.data.supplierName}</div>
@@ -137,7 +137,7 @@ export const columns: ColumnDef<Invoice>[] = [
         variant={'ghost'}
         className="flex w-full justify-end p-0 hover:text-wm-orange-500"
         onClick={() => {
-          window.open(row.original.fileUrl, '_blank');
+          window.open(row.original.file_url, '_blank');
         }}
       >
         View File <ExternalLinkIcon className="h-4 w-4" />

@@ -87,13 +87,13 @@ const PDFSplitter = () => {
     const files = Array.from(filesToUpload) as File[];
 
     try {
-      const allFileUrlPromises = files.map(
+      const allfile_urlPromises = files.map(
         async (file) => await Invoice.upload(file),
       );
-      const fileUrls = await Promise.all(allFileUrlPromises);
+      const file_urls = await Promise.all(allfile_urlPromises);
 
-      const scanAllFilePromises = fileUrls.map(async (fileUrl) => {
-        await Invoice.scanAndUpdate(fileUrl);
+      const scanAllFilePromises = file_urls.map(async (file_url) => {
+        await Invoice.scanAndUpdate(file_url);
       });
 
       await Promise.all(scanAllFilePromises);

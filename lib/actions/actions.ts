@@ -11,10 +11,10 @@ const nango = new Nango({
   secretKey: process.env.NANGO_SECRET_KEY!,
 });
 
-export async function mindeeScan(fileUrl: string) {
+export async function mindeeScan(file_url: string) {
   const mindeeClient = createMindeeClient();
 
-  const inputSource = await mindeeClient.docFromUrl(fileUrl);
+  const inputSource = await mindeeClient.docFromUrl(file_url);
   const respPromise = await mindeeClient.parse(
     mindee.product.InvoiceV4,
     inputSource,

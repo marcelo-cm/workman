@@ -15,15 +15,15 @@ export class Invoice {
   id: UUID;
   created_at: string;
   data: InvoiceData;
-  fileUrl: string;
+  file_url: string;
   status: string;
 
-  constructor({ id, created_at, data, status, fileUrl }: Invoice) {
+  constructor({ id, created_at, data, status, file_url }: Invoice) {
     this.id = id;
     this.created_at = created_at;
     this.data = data;
     this.status = status;
-    this.fileUrl = fileUrl;
+    this.file_url = file_url;
   }
 
   static async upload(file: File | PDFData) {
@@ -85,7 +85,7 @@ export class Invoice {
       {
         owner: id,
         status: 'UNPROCESSED',
-        fileUrl: publicUrl,
+        file_url: publicUrl,
       },
     ]);
 
@@ -155,16 +155,16 @@ export class Invoice {
     });
   }
 
-  static async update(fileUrl: string, data: any) {
+  static async update(file_url: string, data: any) {
     const { data: updatedData, error } = await supabase
       .from('invoices')
       .update({ data, status: 'FOR_REVIEW' })
-      .eq('fileUrl', fileUrl)
+      .eq('file_url', file_url)
       .select('*');
 
     if (error) {
       toast({
-        title: `Failed to updating or scanning ${decodeURI(fileUrl.split('/')[8].split('.pdf')[0])}`,
+        title: `Failed to updating or scanning ${decodeURI(file_url.split('/')[8].split('.pdf')[0])}`,
         description: 'Please scan this document again unprocessed',
         variant: 'destructive',
       });
@@ -172,18 +172,18 @@ export class Invoice {
     }
 
     toast({
-      title: `Invoice ${fileUrl.split('/')[8].split('.pdf')[0]} has been updated`,
+      title: `Invoice ${file_url.split('/')[8].split('.pdf')[0]} has been updated`,
       variant: 'success',
     });
 
     return updatedData;
   }
 
-  static async scanAndUpdate(fileUrl: string) {
-    const apiResponse = await mindeeScan(fileUrl);
+  static async scanAndUpdate(file_url: string) {
+    const apiResponse = await mindeeScan(file_url);
     const parsedResponse = JSON.parse(apiResponse);
     const parsedData = await Invoice.parse(parsedResponse);
-    const updatedData = await Invoice.update(fileUrl, parsedData);
+    const updatedData = await Invoice.update(file_url, parsedData);
     return parsedData;
   }
 
@@ -191,7 +191,7 @@ export class Invoice {
     const { data, error } = await supabase
       .from('invoices')
       .select('*')
-      .eq('fileUrl', url);
+      .eq('file_url', url);
 
     if (error) {
       toast({
