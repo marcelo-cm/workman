@@ -1,5 +1,7 @@
 import React from 'react';
 
+import Container from '../ui/container';
+
 const ExtractionFormComponent = ({
   children,
   gridCols,
@@ -8,22 +10,16 @@ const ExtractionFormComponent = ({
 }: {
   children: React.ReactNode;
   gridCols?: number;
-  label: string;
+  label: string | React.ReactNode;
   className?: string;
 }) => {
   return (
-    <div className={`space-y-3 rounded-md border `}>
-      <div
-        className={`flex h-10 w-full items-center border-b p-2 text-sm font-medium `}
-      >
-        {label}
-      </div>
-      <div
-        className={`${gridCols ? `grid grid-cols-${gridCols}` : null} gap-3 ${className} !pt-0 `}
-      >
-        {children}
-      </div>
-    </div>
+    <Container
+      header={label}
+      innerClassName={`${gridCols ? `grid grid-cols-${gridCols}` : null} gap-3 ${className} !pt-0 `}
+    >
+      {children}
+    </Container>
   );
 };
 

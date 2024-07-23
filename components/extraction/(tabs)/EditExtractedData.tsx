@@ -6,6 +6,7 @@ import { UseFormReturn, useFieldArray } from 'react-hook-form';
 
 import { ComboBox } from '../../ui/combo-box';
 import { Button } from '@/components/ui/button';
+import Container from '@/components/ui/container';
 import LoadingState from '@/components/ui/empty-state';
 import {
   Form,
@@ -84,54 +85,6 @@ const EditExtractedData = ({
         ifFalse={
           <Form {...form}>
             <form className="space-y-4">
-              <div className="text-xs">
-                <div>
-                  <p className="mr-2 inline font-medium">Sub-Total:</p> $
-                  {Number(form.getValues('totalAmount'))?.toFixed(2) || 0}
-                </div>
-                <FormField
-                  control={form.control}
-                  name="totalTax"
-                  render={({ field }) => (
-                    <FormItem>
-                      <div className="flex gap-2">
-                        <p className="w-12 break-keep font-medium">Tax: $</p>
-                        <Input
-                          placeholder="0.00"
-                          {...field}
-                          {...form.register(field.name, {
-                            onChange(event) {
-                              form.setValue(
-                                field.name,
-                                String(event.target.value),
-                                {
-                                  shouldValidate: true,
-                                  shouldDirty: true,
-                                },
-                              );
-                            },
-                            onBlur(event) {
-                              form.setValue(
-                                field.name,
-                                parseFloat(event.target.value || 0).toFixed(2),
-                                {
-                                  shouldValidate: true,
-                                  shouldDirty: true,
-                                },
-                              );
-                            },
-                          })}
-                          className="h-fit w-16 px-1 py-0 text-right text-xs"
-                        />
-                      </div>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <p className="text-2xl">
-                  Total: ${Number(form.getValues('totalNet'))?.toFixed(2) || 0}
-                </p>
-              </div>
               <ExtractionFormComponent
                 label="Bill Details"
                 gridCols={2}
@@ -273,7 +226,65 @@ const EditExtractedData = ({
                   )}
                 />
               </ExtractionFormComponent>
-              <ExtractionFormComponent label="Line Items">
+              <Container
+                header={
+                  <div className="flex flex-row justify-between w-full items-center font-normal">
+                    <p className="text-2xl ">
+                      Total: $
+                      {Number(form.getValues('totalNet'))?.toFixed(2) || 0}
+                    </p>
+                    <div className="text-xs">
+                      <div>
+                        <p className="mr-2 inline font-medium">Sub-Total:</p> $
+                        {Number(form.getValues('totalAmount'))?.toFixed(2) || 0}
+                      </div>
+                      <FormField
+                        control={form.control}
+                        name="totalTax"
+                        render={({ field }) => (
+                          <FormItem>
+                            <div className="flex gap-2">
+                              <p className="w-12 break-keep font-medium">
+                                Tax: $
+                              </p>
+                              <Input
+                                placeholder="0.00"
+                                {...field}
+                                {...form.register(field.name, {
+                                  onChange(event) {
+                                    form.setValue(
+                                      field.name,
+                                      String(event.target.value),
+                                      {
+                                        shouldValidate: true,
+                                        shouldDirty: true,
+                                      },
+                                    );
+                                  },
+                                  onBlur(event) {
+                                    form.setValue(
+                                      field.name,
+                                      parseFloat(
+                                        event.target.value || 0,
+                                      ).toFixed(2),
+                                      {
+                                        shouldValidate: true,
+                                        shouldDirty: true,
+                                      },
+                                    );
+                                  },
+                                })}
+                                className="h-fit w-16 px-1 py-0 text-right text-xs"
+                              />
+                            </div>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </div>
+                }
+              >
                 {(fields.length &&
                   fields.map((lineItem: any, index) => (
                     <div
@@ -413,7 +424,7 @@ const EditExtractedData = ({
                   <PlusIcon />
                   Add Line Item
                 </Button>
-              </ExtractionFormComponent>
+              </Container>
               <ExtractionFormComponent
                 label="Additional Details"
                 className="p-4"
