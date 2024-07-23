@@ -1,10 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
-import { MagnifyingGlassIcon, Pencil2Icon } from '@radix-ui/react-icons';
+import { Pencil2Icon } from '@radix-ui/react-icons';
 
-import { columns } from '@/components/data tables/columns-for-review';
 import { InvoiceDataTable } from '@/components/data tables/data-table-invoice';
 import ExtractionReview from '@/components/extraction/ExtractionReview';
 import UploadFileButton from '@/components/general/UploadFileButton';
@@ -14,17 +13,8 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
-import { Button } from '@/components/ui/button';
-import { DatePickerWithRange } from '@/components/ui/date-range-picker';
-import LoadingState from '@/components/ui/empty-state';
-import IfElseRender from '@/components/ui/if-else-renderer';
 
-import { useInvoice } from '@/lib/hooks/supabase/useInvoice';
-
-import { InvoiceState } from '@/constants/enums';
 import Invoice from '@/models/Invoice';
-
-const { getInvoicesByState } = useInvoice();
 
 export default function ForApproval() {
   const [selectedFiles, setSelectedFiles] = useState<Invoice[]>([]); // Used for the Extraction Review component

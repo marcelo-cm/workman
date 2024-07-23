@@ -1,8 +1,9 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { MagnifyingGlassIcon } from '@radix-ui/react-icons';
+import { Check, Inbox } from 'lucide-react';
 
 import {
   ColumnFiltersState,
@@ -18,6 +19,7 @@ import {
 import { Button } from '../ui/button';
 import { DatePickerWithRange } from '../ui/date-range-picker';
 import IfElseRender from '../ui/if-else-renderer';
+import { Tabs, TabsList, TabsTrigger } from '../ui/tabs';
 import { columns } from '@/components/data tables/columns-for-review';
 import {
   Table,
@@ -30,9 +32,13 @@ import {
 } from '@/components/ui/table';
 
 import { useInvoice } from '@/lib/hooks/supabase/useInvoice';
+import { useUser } from '@/lib/hooks/supabase/useUser';
 
 import { InvoiceState } from '@/constants/enums';
 import Invoice from '@/models/Invoice';
+import { User } from '@/models/User';
+
+import { INVOICE_DATA_TABLE_TABS, TabValue } from './constants';
 
 interface DataTableProps {
   onAction: ((selectedFiles: Invoice[]) => void) | (() => void);
@@ -43,7 +49,8 @@ interface DataTableProps {
   defaultInvoiceState?: InvoiceState;
 }
 
-const { getInvoicesByState } = useInvoice();
+const { getInvoicesByState, getInvoicesByStateAndApprover } = useInvoice();
+const { fetchUserData } = useUser();
 
 export function InvoiceDataTable<TData, TValue>({
   onAction,
@@ -53,6 +60,7 @@ export function InvoiceDataTable<TData, TValue>({
   filters = true,
   defaultInvoiceState = InvoiceState.FOR_REVIEW,
 }: DataTableProps) {
+  const [user, setUser] = useState<User>();
   const [data, setData] = useState<Invoice[]>([]);
   const [invoiceStatus, setInvoiceStatus] =
     useState<InvoiceState>(defaultInvoiceState);
@@ -64,12 +72,48 @@ export function InvoiceDataTable<TData, TValue>({
     to: undefined,
   });
   const [filteredData, setFilteredData] = useState<Invoice[]>([]);
+  const [tabValue, setTabValue] = useState<TabValue>();
 
   const searchFilterInputRef = useRef<HTMLInputElement>(null);
   const dateRangeRef = useRef<any>(null);
   const selectedFilesUrls = Object.keys(rowSelection).map(
     (key) => filteredData[parseInt(key)] as Invoice,
   );
+  const tabs = useMemo(
+    () => (user && INVOICE_DATA_TABLE_TABS(user)) || [],
+    [user],
+  );
+
+  useEffect(() => {
+    fetchUserData().then((user) => setUser(user));
+  }, []);
+
+  useEffect(() => {
+    if (!tabs.length) return;
+
+    setTabValue(tabs[0].value as TabValue);
+  }, [tabs]);
+
+  useEffect(() => {
+    if (!tabValue) return;
+
+    if (tabValue.approverId) {
+      getInvoicesByStateAndApprover(
+        tabValue.state,
+        tabValue.approverId,
+        setData,
+      );
+      return;
+    }
+
+    getInvoicesByState(tabValue.state, setData);
+  }, [tabValue]);
+
+  useEffect(() => {
+    if (!data) return;
+
+    updateFilteredData();
+  }, [dateRange, data]);
 
   const table = useReactTable({
     data: filteredData,
@@ -97,20 +141,6 @@ export function InvoiceDataTable<TData, TValue>({
   const { pageSize, pageIndex } = table.getState().pagination;
   const startIndex = pageSize * pageIndex + 1; //adding 1 to start counting from 1 for the invoices user is seeing (not 0-9)
   const endIndex = Math.min(pageSize * (pageIndex + 1), data.length); // Ensure it doesn't exceed total rows
-
-  useEffect(() => {
-    if (!invoiceStatus) return;
-
-    getInvoicesByState(invoiceStatus, async (invoices) => {
-      setData(invoices);
-    });
-  }, [invoiceStatus]);
-
-  useEffect(() => {
-    if (!data) return;
-
-    updateFilteredData();
-  }, [dateRange, data]);
 
   const updateFilteredData = () => {
     if (!dateRange.from && !dateRange.to) {
@@ -189,93 +219,122 @@ export function InvoiceDataTable<TData, TValue>({
           ifFalse={null}
         />
       </div>
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext(),
-                          )}
-                    </TableHead>
-                  );
-                })}
-              </TableRow>
-            ))}
-          </TableHeader>
-
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && 'selected'}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext(),
-                      )}
-                    </TableCell>
+      <div>
+        <IfElseRender
+          condition={tabs.length > 0}
+          ifTrue={
+            <Tabs
+              defaultValue={tabs && (tabs[0]?.value as unknown as string)}
+              onValueChange={(value) =>
+                setTabValue(value as unknown as TabValue)
+              }
+              value={tabValue as unknown as string}
+            >
+              <TabsList className="rounded-t-md rounded-b-none border border-b-0 h-fit">
+                {tabs &&
+                  tabs.map((tab) => (
+                    <TabsTrigger
+                      key={tab.title}
+                      value={tab.value as unknown as string}
+                      className="flex gap-2 h-10 grow justify-start data-[state=active]:border-b data-[state=active]:border-wm-orange data-[state=active]:text-wm-orange"
+                    >
+                      {tab.icon}
+                      {tab.title}
+                    </TabsTrigger>
                   ))}
+              </TabsList>
+            </Tabs>
+          }
+          ifFalse={null}
+        />
+        <div className="rounded-md border rounded-tl-none">
+          <Table>
+            <TableHeader>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => {
+                    return (
+                      <TableHead key={header.id}>
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                              header.column.columnDef.header,
+                              header.getContext(),
+                            )}
+                      </TableHead>
+                    );
+                  })}
                 </TableRow>
-              ))
-            ) : (
+              ))}
+            </TableHeader>
+
+            <TableBody>
+              {table.getRowModel().rows?.length ? (
+                table.getRowModel().rows.map((row) => (
+                  <TableRow
+                    key={row.id}
+                    data-state={row.getIsSelected() && 'selected'}
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id}>
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext(),
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-24 text-center"
+                  >
+                    No results.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+            <TableFooter>
               <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  No results.
+                <TableCell colSpan={columns.length}>
+                  <div className="flex items-center justify-end space-x-2 ">
+                    <div className="flex-1">
+                      <div className="text-muted-foreground items-center text-sm">
+                        {table.getFilteredSelectedRowModel().rows.length} of{' '}
+                        {table.getFilteredRowModel().rows.length} invoice(s)
+                        selected.
+                      </div>
+                      <div className="text-xs font-normal">
+                        Viewing Invoices {startIndex}-{endIndex}
+                      </div>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => table.previousPage()}
+                      disabled={!table.getCanPreviousPage()}
+                    >
+                      Previous
+                    </Button>
+                    <div className="w-4 text-center">
+                      {table.getState().pagination.pageIndex + 1}
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => table.nextPage()}
+                      disabled={!table.getCanNextPage()}
+                    >
+                      Next
+                    </Button>
+                  </div>
                 </TableCell>
               </TableRow>
-            )}
-          </TableBody>
-          <TableFooter>
-            <TableRow>
-              <TableCell colSpan={columns.length}>
-                <div className="flex items-center justify-end space-x-2 ">
-                  <div className="flex-1">
-                    <div className="text-muted-foreground items-center text-sm">
-                      {table.getFilteredSelectedRowModel().rows.length} of{' '}
-                      {table.getFilteredRowModel().rows.length} invoice(s)
-                      selected.
-                    </div>
-                    <div className="text-xs font-normal">
-                      Viewing Invoices {startIndex}-{endIndex}
-                    </div>
-                  </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => table.previousPage()}
-                    disabled={!table.getCanPreviousPage()}
-                  >
-                    Previous
-                  </Button>
-                  <div className="w-4 text-center">
-                    {table.getState().pagination.pageIndex + 1}
-                  </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => table.nextPage()}
-                    disabled={!table.getCanNextPage()}
-                  >
-                    Next
-                  </Button>
-                </div>
-              </TableCell>
-            </TableRow>
-          </TableFooter>
-        </Table>
+            </TableFooter>
+          </Table>
+        </div>
       </div>
     </>
   );
