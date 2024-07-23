@@ -5,7 +5,6 @@ import { useEffect, useRef, useState } from 'react';
 import { MagnifyingGlassIcon } from '@radix-ui/react-icons';
 
 import {
-  ColumnDef,
   ColumnFiltersState,
   SortingState,
   flexRender,
@@ -18,6 +17,8 @@ import {
 
 import { Button } from '../ui/button';
 import { DatePickerWithRange } from '../ui/date-range-picker';
+import IfElseRender from '../ui/if-else-renderer';
+import { columns } from '@/components/data tables/columns-for-review';
 import {
   Table,
   TableBody,
@@ -28,28 +29,33 @@ import {
   TableRow,
 } from '@/components/ui/table';
 
-import { Email } from '@/app/api/v1/gmail/messages/route';
+import { useInvoice } from '@/lib/hooks/supabase/useInvoice';
+
+import { InvoiceState } from '@/constants/enums';
 import Invoice from '@/models/Invoice';
 
-interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[];
-  data: TData[];
+interface DataTableProps {
   onAction: ((selectedFiles: Invoice[]) => void) | (() => void);
   actionOnSelectText: string;
   actionIcon: React.ReactNode;
   canActionBeDisabled?: boolean;
   filters?: boolean;
+  defaultInvoiceState?: InvoiceState;
 }
 
-export function DataTable<TData, TValue>({
-  columns,
-  data,
+const { getInvoicesByState } = useInvoice();
+
+export function InvoiceDataTable<TData, TValue>({
   onAction,
   actionOnSelectText,
   actionIcon,
   canActionBeDisabled = true,
   filters = true,
-}: DataTableProps<TData, TValue>) {
+  defaultInvoiceState = InvoiceState.FOR_REVIEW,
+}: DataTableProps) {
+  const [data, setData] = useState<Invoice[]>([]);
+  const [invoiceStatus, setInvoiceStatus] =
+    useState<InvoiceState>(defaultInvoiceState);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [rowSelection, setRowSelection] = useState({});
@@ -57,34 +63,13 @@ export function DataTable<TData, TValue>({
     from: undefined,
     to: undefined,
   });
-  const [filteredData, setFilteredData] = useState(data);
+  const [filteredData, setFilteredData] = useState<Invoice[]>([]);
+
   const searchFilterInputRef = useRef<HTMLInputElement>(null);
   const dateRangeRef = useRef<any>(null);
   const selectedFilesUrls = Object.keys(rowSelection).map(
     (key) => filteredData[parseInt(key)] as Invoice,
   );
-
-  useEffect(() => {
-    updateFilteredData();
-  }, [dateRange]);
-
-  const updateFilteredData = () => {
-    if (!dateRange.from && !dateRange.to) {
-      setFilteredData(data);
-      return;
-    }
-
-    const filtered = data.filter((item) => {
-      const invoiceDate = new Date((item as Invoice).data.date).getTime();
-      const fromTime = dateRange.from && new Date(dateRange.from).getTime();
-      const toTime = dateRange.to && new Date(dateRange.to).getTime();
-      return (
-        (!fromTime || invoiceDate >= fromTime) &&
-        (!toTime || invoiceDate <= toTime)
-      );
-    });
-    setFilteredData(filtered);
-  };
 
   const table = useReactTable({
     data: filteredData,
@@ -109,16 +94,47 @@ export function DataTable<TData, TValue>({
     },
   });
 
+  const { pageSize, pageIndex } = table.getState().pagination;
+  const startIndex = pageSize * pageIndex + 1; //adding 1 to start counting from 1 for the invoices user is seeing (not 0-9)
+  const endIndex = Math.min(pageSize * (pageIndex + 1), data.length); // Ensure it doesn't exceed total rows
+
+  useEffect(() => {
+    if (!invoiceStatus) return;
+
+    getInvoicesByState(invoiceStatus, async (invoices) => {
+      setData(invoices);
+    });
+  }, [invoiceStatus]);
+
+  useEffect(() => {
+    if (!data) return;
+
+    updateFilteredData();
+  }, [dateRange, data]);
+
+  const updateFilteredData = () => {
+    if (!dateRange.from && !dateRange.to) {
+      setFilteredData(data);
+      return;
+    }
+
+    const filtered = data.filter((item) => {
+      const invoiceDate = new Date((item as Invoice).data.date).getTime();
+      const fromTime = dateRange.from && new Date(dateRange.from).getTime();
+      const toTime = dateRange.to && new Date(dateRange.to).getTime();
+      return (
+        (!fromTime || invoiceDate >= fromTime) &&
+        (!toTime || invoiceDate <= toTime)
+      );
+    });
+    setFilteredData(filtered);
+  };
+
   const handleClearFilters = () => {
     setColumnFilters([]);
     setDateRange({ from: undefined, to: undefined });
     dateRangeRef.current?.clearDate();
   };
-
-  const { pageSize, pageIndex } = table.getState().pagination;
-
-  const startIndex = pageSize * pageIndex + 1; //adding 1 to start counting from 1 for the invoices user is seeing (not 0-9)
-  const endIndex = Math.min(pageSize * (pageIndex + 1), data.length); // Ensure it doesn't exceed total rows
 
   return (
     <>
@@ -131,43 +147,47 @@ export function DataTable<TData, TValue>({
           {actionIcon}
           {actionOnSelectText}
         </Button>
-        {filters ? (
-          <>
-            <div className="flex h-full w-[300px] flex-row items-center gap-2 rounded-md border bg-transparent px-3 py-1 text-sm text-wm-white-500 transition-colors">
-              <MagnifyingGlassIcon
-                className="h-5 w-5 cursor-pointer"
-                onClick={() => searchFilterInputRef.current?.focus()}
+        <IfElseRender
+          condition={filters}
+          ifTrue={
+            <>
+              <div className="flex h-full w-[300px] flex-row items-center gap-2 rounded-md border bg-transparent px-3 py-1 text-sm text-wm-white-500 transition-colors">
+                <MagnifyingGlassIcon
+                  className="h-5 w-5 cursor-pointer"
+                  onClick={() => searchFilterInputRef.current?.focus()}
+                />
+                <input
+                  ref={searchFilterInputRef}
+                  value={
+                    (table
+                      .getColumn('file_name&sender')
+                      ?.getFilterValue() as string) ?? ''
+                  }
+                  onChange={(event) =>
+                    table
+                      .getColumn('file_name&sender')
+                      ?.setFilterValue(event.target.value)
+                  }
+                  placeholder="Filter by invoice name or sender"
+                  className="h-full w-full appearance-none bg-transparent text-black outline-none placeholder:text-wm-white-500 disabled:cursor-not-allowed disabled:opacity-50"
+                />
+              </div>
+              <DatePickerWithRange
+                placeholder="Filter by Date Invoiced"
+                onDateChange={setDateRange}
+                ref={dateRangeRef}
               />
-              <input
-                ref={searchFilterInputRef}
-                value={
-                  (table
-                    .getColumn('file_name&sender')
-                    ?.getFilterValue() as string) ?? ''
-                }
-                onChange={(event) =>
-                  table
-                    .getColumn('file_name&sender')
-                    ?.setFilterValue(event.target.value)
-                }
-                placeholder="Filter by invoice name or sender"
-                className="h-full w-full appearance-none bg-transparent text-black outline-none placeholder:text-wm-white-500 disabled:cursor-not-allowed disabled:opacity-50"
-              />
-            </div>
-            <DatePickerWithRange
-              placeholder="Filter by Date Invoiced"
-              onDateChange={setDateRange}
-              ref={dateRangeRef}
-            />
-            <Button
-              variant="outline"
-              disabled={columnFilters.length === 0 && !dateRange.from}
-              onClick={handleClearFilters}
-            >
-              Clear Filters
-            </Button>
-          </>
-        ) : null}
+              <Button
+                variant="outline"
+                disabled={columnFilters.length === 0 && !dateRange.from}
+                onClick={handleClearFilters}
+              >
+                Clear Filters
+              </Button>
+            </>
+          }
+          ifFalse={null}
+        />
       </div>
       <div className="rounded-md border">
         <Table>
