@@ -16,7 +16,7 @@ const ExtractionFormComponent = ({
   return (
     <Container
       header={label}
-      innerClassName={`${gridCols ? `grid grid-cols-${gridCols}` : null} gap-3 ${className} !pt-0 `}
+      innerClassName={`${gridCols ? `grid grid-cols-${gridCols}` : null} gap-3 ${className} !pt-2`}
     >
       {children}
     </Container>

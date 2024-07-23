@@ -8,8 +8,8 @@ const { getUserById } = useUser();
 
 export class Approval {
   private _id: number;
-  private _approver_id: UUID;
-  private _principal_id: UUID;
+  private _approver: User;
+  private _principal: User;
   private _approvable_id: UUID;
   private _approvable_type: string;
   private _status: string;
@@ -18,8 +18,8 @@ export class Approval {
 
   constructor({
     id,
-    approver_id,
-    principal_id,
+    approver,
+    principal,
     approvable_id,
     approvable_type,
     status,
@@ -27,8 +27,8 @@ export class Approval {
     created_at,
   }: {
     id: number;
-    approver_id: UUID;
-    principal_id: UUID;
+    approver: User;
+    principal: User;
     approvable_id: UUID;
     approvable_type: string;
     status: string;
@@ -36,8 +36,8 @@ export class Approval {
     created_at: string;
   }) {
     this._id = id;
-    this._approver_id = approver_id;
-    this._principal_id = principal_id;
+    this._approver = approver;
+    this._principal = principal;
     this._approvable_id = approvable_id;
     this._approvable_type = approvable_type;
     this._status = status;
@@ -49,12 +49,12 @@ export class Approval {
     return this._id;
   }
 
-  get approverId(): UUID {
-    return this._approver_id;
+  get approver(): User {
+    return this._approver;
   }
 
-  get principalId(): UUID {
-    return this._principal_id;
+  get principal(): User {
+    return this._principal;
   }
 
   get approvableId(): UUID {
@@ -75,13 +75,5 @@ export class Approval {
 
   get createdAt(): Date {
     return this._created_at;
-  }
-
-  async getPrincipal(): Promise<User> {
-    return await getUserById(this._principal_id);
-  }
-
-  async getApprover(): Promise<User> {
-    return await getUserById(this._approver_id);
   }
 }

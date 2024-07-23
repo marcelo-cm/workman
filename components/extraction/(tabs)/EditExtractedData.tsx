@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { PlusIcon, TrashIcon } from '@radix-ui/react-icons';
 
@@ -6,6 +6,7 @@ import { UseFormReturn, useFieldArray } from 'react-hook-form';
 
 import { ComboBox } from '../../ui/combo-box';
 import { Button } from '@/components/ui/button';
+import Chip, { STATUS_CHIP_VARIANTS } from '@/components/ui/chip';
 import Container from '@/components/ui/container';
 import LoadingState from '@/components/ui/empty-state';
 import {
@@ -21,27 +22,37 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/text-area';
 
 import { useVendor } from '@/lib/hooks/quickbooks/useVendor';
+import { useApprovals } from '@/lib/hooks/supabase/useApprovals';
 
 import { LineItem } from '@/interfaces/common.interfaces';
 import { Account } from '@/interfaces/quickbooks.interfaces';
+import { Approval } from '@/models/Approval';
 
 import ExtractionFormComponent from '../ExtractionFormComponent';
 import { useExtractionReview } from '../ExtractionReview';
 
 const { getDefaultCategoryByVendorName } = useVendor();
+const { getApprovalsByApprovableId } = useApprovals();
 
 const EditExtractedData = ({
   form,
 }: {
   form: UseFormReturn<any, any, undefined>;
 }) => {
-  const { accounts, customers, vendors } = useExtractionReview();
+  const [approvals, setApprovals] = useState<Approval[]>([]);
+  const { accounts, customers, vendors, files, activeIndex } =
+    useExtractionReview();
   const { watch } = form;
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,
     name: 'lineItems',
   });
+
+  useEffect(() => {
+    const id = files[activeIndex]?.id;
+    getApprovalsByApprovableId(id, setApprovals);
+  }, [activeIndex]);
 
   const setLineItemsDefaultCategories = async (vendorName: string) => {
     const defaultCategory = await getDefaultCategoryByVendorName(vendorName);
@@ -288,7 +299,7 @@ const EditExtractedData = ({
                 {(fields.length &&
                   fields.map((lineItem: any, index) => (
                     <div
-                      className="grid grid-cols-2 gap-3 border-b p-4 pt-2 first:pt-0 last:border-0"
+                      className="grid grid-cols-2 gap-3 border-b p-4 pt-2 first:pt-2 last:border-0"
                       key={lineItem.id}
                     >
                       <FormField
@@ -425,6 +436,27 @@ const EditExtractedData = ({
                   Add Line Item
                 </Button>
               </Container>
+              <ExtractionFormComponent
+                label="Needs Approval From"
+                className="text-sm p-4"
+              >
+                <p className="pt-1">
+                  Everybody in this list must approve your bill before it is
+                  allowed to be sent to QuickBooks.
+                </p>
+                {approvals.map((approval) => {
+                  const variantKey = !approval.removable
+                    ? 'NON_REMOVABLE'
+                    : approval.status;
+                  const icon_variant = STATUS_CHIP_VARIANTS[variantKey];
+
+                  return (
+                    <Chip key={approval.id} variant={icon_variant.variant}>
+                      {approval.approver.email} {icon_variant.icon}
+                    </Chip>
+                  );
+                })}
+              </ExtractionFormComponent>
               <ExtractionFormComponent
                 label="Additional Details"
                 className="p-4"
