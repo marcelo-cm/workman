@@ -177,7 +177,7 @@ const ExtractionTabs = ({
     checkDefaultCategory();
     setApprovedFiles((prevApprovedFiles) => {
       const isAlreadyApproved = prevApprovedFiles.some(
-        (approvedFile) => approvedFile.fileUrl === file.fileUrl,
+        (approvedFile) => approvedFile.file_url === file.file_url,
       );
 
       if (!isAlreadyApproved) {
@@ -204,7 +204,7 @@ const ExtractionTabs = ({
 
     const data: InvoiceData = form.getValues();
     files[activeIndex].data = data;
-    await Invoice.update(file.fileUrl, data);
+    await Invoice.update(file.file_url, data);
     mapDataToForm(data);
   };
 

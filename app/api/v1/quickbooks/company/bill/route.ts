@@ -142,7 +142,7 @@ const createBillInQuickBooks = async (
       value: 'USD', // Assuming the currency is USD; replace if needed
     },
     PrivateNote:
-      file.data.notes + '\n\n' + file.fileUrl + '\n\n Filed by Workman',
+      file.data.notes + '\n\n' + file.file_url + '\n\n Filed by Workman',
     DocNumber: file.data.invoiceNumber,
   };
 

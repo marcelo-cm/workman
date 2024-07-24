@@ -60,7 +60,7 @@ const Unprocessed = () => {
     setIsUploading(true);
     try {
       const scanAndUpdatePromises = selectedRows.map(async (row) => {
-        await Invoice.scanAndUpdate(row.fileUrl);
+        await Invoice.scanAndUpdate(row.file_url);
       });
 
       const scanAndUpdateResolved = await Promise.all(scanAndUpdatePromises);
