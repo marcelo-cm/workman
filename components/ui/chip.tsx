@@ -1,9 +1,7 @@
-import React, { ReactNode } from 'react';
+import React, { MouseEventHandler, ReactNode } from 'react';
 
-import { CheckIcon } from '@radix-ui/react-icons';
-import { FileWarningIcon, Lock } from 'lucide-react';
+import { AlertTriangle, Check, Lock, X } from 'lucide-react';
 
-import { Close } from '@radix-ui/react-toast';
 import { VariantProps, cva } from 'class-variance-authority';
 
 import { cn } from '@/lib/utils';
@@ -11,17 +9,20 @@ import { cn } from '@/lib/utils';
 export const STATUS_CHIP_VARIANTS: {
   [key: string]: { icon: ReactNode; variant: ChipVariants['variant'] };
 } = {
-  PENDING: { icon: <Close className="h-3 w-3" />, variant: 'info' },
-  APPROVED: { icon: <CheckIcon className="h-3 w-3" />, variant: 'success' },
+  PENDING: {
+    icon: <X className="h-3 w-3 group-hover:text-red-500" />,
+    variant: 'info',
+  },
+  APPROVED: { icon: <Check className="h-3 w-3" />, variant: 'success' },
   REJECTED: {
-    icon: <FileWarningIcon className="h-3 w-3" />,
+    icon: <AlertTriangle className="h-3 w-3" />,
     variant: 'destructive',
   },
   NON_REMOVABLE: { icon: <Lock className="h-3 w-3" />, variant: 'special' },
 };
 
 const chipVariants = cva(
-  'py-1 px-2 rounded-md flex flex-row gap-2 items-center select-none w-fit text-sm',
+  'py-1 px-2 rounded-md flex flex-row gap-2 items-center select-none w-fit text-sm group',
   {
     variants: {
       variant: {
@@ -44,13 +45,17 @@ const Chip = ({
   variant = 'info',
   className,
   children,
+  onClick,
 }: {
   variant?: ChipVariants['variant'];
   className?: string;
   children: ReactNode;
+  onClick?: MouseEventHandler<HTMLDivElement>;
 }) => {
   return (
-    <div className={cn(chipVariants({ variant, className }))}>{children}</div>
+    <div className={cn(chipVariants({ variant, className }))} onClick={onClick}>
+      {children}
+    </div>
   );
 };
 

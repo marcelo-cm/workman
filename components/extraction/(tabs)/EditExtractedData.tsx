@@ -19,26 +19,31 @@ import {
 } from '@/components/ui/form';
 import IfElseRender from '@/components/ui/if-else-renderer';
 import { Input } from '@/components/ui/input';
+import { MultiComboBox } from '@/components/ui/multi-combo-box';
 import { Textarea } from '@/components/ui/text-area';
 
 import { useVendor } from '@/lib/hooks/quickbooks/useVendor';
 import { useApprovals } from '@/lib/hooks/supabase/useApprovals';
+import { useUser } from '@/lib/hooks/supabase/useUser';
 
 import { LineItem } from '@/interfaces/common.interfaces';
 import { Account } from '@/interfaces/quickbooks.interfaces';
 import { Approval } from '@/models/Approval';
+import { User } from '@/models/User';
 
 import ExtractionFormComponent from '../ExtractionFormComponent';
 import { useExtractionReview } from '../ExtractionReview';
 
 const { getDefaultCategoryByVendorName } = useVendor();
 const { getApprovalsByApprovableId } = useApprovals();
+const { getUsersByCompanyId, fetchUserData } = useUser();
 
 const EditExtractedData = ({
   form,
 }: {
   form: UseFormReturn<any, any, undefined>;
 }) => {
+  const [user, setUser] = useState<User>();
   const [approvals, setApprovals] = useState<Approval[]>([]);
   const { accounts, customers, vendors, files, activeIndex } =
     useExtractionReview();
@@ -48,6 +53,10 @@ const EditExtractedData = ({
     control: form.control,
     name: 'lineItems',
   });
+
+  useEffect(() => {
+    fetchUserData().then(setUser);
+  }, []);
 
   useEffect(() => {
     const id = files[activeIndex]?.id;
@@ -440,22 +449,67 @@ const EditExtractedData = ({
                 label="Needs Approval From"
                 className="text-sm p-4"
               >
-                <p className="pt-1">
+                <p className="pt-1 pb-2">
                   Everybody in this list must approve your bill before it is
                   allowed to be sent to QuickBooks.
                 </p>
-                {approvals.map((approval) => {
-                  const variantKey = !approval.removable
-                    ? 'NON_REMOVABLE'
-                    : approval.status;
-                  const icon_variant = STATUS_CHIP_VARIANTS[variantKey];
+                <IfElseRender
+                  condition={!!user}
+                  ifTrue={
+                    <MultiComboBox
+                      className="w-full"
+                      fetchValuesFunction={() =>
+                        getUsersByCompanyId(user?.company.id!).then((users) =>
+                          users.map((user) => {
+                            const userFound = approvals.find(
+                              (approval) => user.id == approval.approver.id,
+                            );
 
-                  return (
-                    <Chip key={approval.id} variant={icon_variant.variant}>
-                      {approval.approver.email} {icon_variant.icon}
-                    </Chip>
-                  );
-                })}
+                            return {
+                              id: user.id,
+                              status: userFound?.status ?? 'PENDING',
+                              approver: user,
+                              removable: userFound?.removable ?? true,
+                            };
+                          }),
+                        )
+                      }
+                      valuesToMatch={approvals.map((approval) => ({
+                        id: approval.approver.id,
+                        status: approval.status,
+                        approver: approval.approver,
+                        removable: approval.removable,
+                      }))}
+                      getOptionLabel={(option) => option.approver.name}
+                      callBackFunction={(newValue) => {
+                        console.log(newValue);
+                      }}
+                      renderValues={(approval) => {
+                        const variantKey =
+                          approval.status === 'PENDING'
+                            ? approval.removable
+                              ? 'PENDING'
+                              : 'NON_REMOVABLE'
+                            : approval.status;
+
+                        const icon_variant = STATUS_CHIP_VARIANTS[variantKey];
+
+                        return (
+                          <Chip
+                            key={approval.id}
+                            variant={icon_variant.variant}
+                          >
+                            {approval.approver.name} {icon_variant.icon}
+                          </Chip>
+                        );
+                      }}
+                      optionDisabledIf={(option) =>
+                        !option.removable || !(option.status === 'PENDING')
+                      }
+                    />
+                  }
+                  ifFalse={<LoadingState />}
+                />
               </ExtractionFormComponent>
               <ExtractionFormComponent
                 label="Additional Details"

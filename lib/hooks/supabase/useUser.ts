@@ -101,11 +101,25 @@ export const useUser = () => {
     return new User(data);
   }
 
+  async function getUsersByCompanyId(company_id: UUID): Promise<User[]> {
+    const { data, error } = await supabase
+      .from('users')
+      .select('*')
+      .eq('company_id', company_id);
+
+    if (error || !data) {
+      throw new Error('Failed to fetch users');
+    }
+
+    return data.map((user) => new User(user));
+  }
+
   return {
     createUser,
     updateUser,
     fetchUserData,
     fetchUser,
     getUserById,
+    getUsersByCompanyId,
   };
 };

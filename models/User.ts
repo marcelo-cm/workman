@@ -8,6 +8,7 @@ import { Company } from './Company';
 const supabase = createClient();
 
 export class User {
+  private _name: string;
   private _id: UUID;
   private _email: string;
   private _company: Company;
@@ -19,6 +20,7 @@ export class User {
   private _created_at: Date;
 
   constructor({
+    name,
     id,
     email,
     company,
@@ -29,6 +31,7 @@ export class User {
     roles,
     created_at,
   }: {
+    name: string;
     id: UUID;
     email: string;
     company: Company;
@@ -39,6 +42,7 @@ export class User {
     roles: Roles[];
     created_at: string;
   }) {
+    this._name = name;
     this._id = id;
     this._email = email;
     this._company = company;
@@ -48,6 +52,10 @@ export class User {
     this._quickbooks_integration_status = quickbooks_integration_status;
     this._roles = roles;
     this._created_at = new Date(created_at);
+  }
+
+  get name(): string {
+    return this._name;
   }
 
   get id(): UUID {
