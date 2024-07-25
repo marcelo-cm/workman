@@ -11,7 +11,7 @@ export enum Roles {
 }
 
 export enum Approvable {
-  INVOICE = 'INVOICE',
+  INVOICE = 'Invoice',
 }
 
 export enum ApprovalStatus {

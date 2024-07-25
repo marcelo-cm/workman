@@ -62,8 +62,6 @@ export function InvoiceDataTable<TData, TValue>({
 }: DataTableProps) {
   const [user, setUser] = useState<User>();
   const [data, setData] = useState<Invoice[]>([]);
-  const [invoiceStatus, setInvoiceStatus] =
-    useState<InvoiceState>(defaultInvoiceState);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [rowSelection, setRowSelection] = useState({});

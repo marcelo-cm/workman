@@ -42,11 +42,12 @@ const InvoiceApprovals = ({ invoice }: { invoice: Invoice }) => {
   const handleSelect = async (newValues: ApprovalOption[]) => {
     console.log(newValues, approvals);
     if (newValues.length < approvals.length) {
+      const newValuesIds = newValues.map((nv) => nv.id);
       const removedApproval = approvals.find(
-        (a) => !newValues.map((nv) => nv.id).includes(a.id),
+        (a) => !newValuesIds.includes(a.approver.id),
       );
 
-      if (removedApproval) {
+      if (removedApproval && removedApproval.removable) {
         await deleteApproval(removedApproval.id);
         setApprovals((prev) => prev.filter((a) => a.id !== removedApproval.id));
       }
