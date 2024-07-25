@@ -2,14 +2,14 @@ import { UUID } from 'crypto';
 
 import { useUser } from '@/lib/hooks/supabase/useUser';
 
-import { User } from './User';
+import { User, User_Nested } from './User';
 
 const { getUserById } = useUser();
 
 export class Approval {
-  private _id: number;
-  private _approver: User;
-  private _principal: User;
+  private _id: UUID;
+  private _approver: User_Nested;
+  private _principal: User_Nested;
   private _approvable_id: UUID;
   private _approvable_type: string;
   private _status: string;
@@ -26,9 +26,9 @@ export class Approval {
     removable,
     created_at,
   }: {
-    id: number;
-    approver: User;
-    principal: User;
+    id: UUID;
+    approver: User_Nested;
+    principal: User_Nested;
     approvable_id: UUID;
     approvable_type: string;
     status: string;
@@ -36,8 +36,8 @@ export class Approval {
     created_at: string;
   }) {
     this._id = id;
-    this._approver = approver;
-    this._principal = principal;
+    this._approver = new User_Nested(approver);
+    this._principal = new User_Nested(principal);
     this._approvable_id = approvable_id;
     this._approvable_type = approvable_type;
     this._status = status;
@@ -45,15 +45,15 @@ export class Approval {
     this._created_at = new Date(created_at);
   }
 
-  get id(): number {
+  get id(): UUID {
     return this._id;
   }
 
-  get approver(): User {
+  get approver(): User_Nested {
     return this._approver;
   }
 
-  get principal(): User {
+  get principal(): User_Nested {
     return this._principal;
   }
 

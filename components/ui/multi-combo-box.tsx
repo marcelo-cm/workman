@@ -83,7 +83,7 @@ export function MultiComboBox<
   options?: T[];
   valuesToMatch?: T[];
   fetchValuesFunction?: () => Promise<T[]>;
-  callBackFunction?: (value: T[]) => void;
+  callBackFunction?: (value: T[]) => void | Promise<void>;
   getOptionLabel: (option: T) => string;
   renderValues?: (value: T) => JSX.Element;
   optionDisabledIf: (option: T) => boolean;
@@ -127,7 +127,7 @@ export function MultiComboBox<
 
       setValues(filteredBestMatches);
 
-      callBackFunction && callBackFunction(filteredBestMatches);
+      // callBackFunction && callBackFunction(filteredBestMatches);
     }
   }, [valuesToMatch, optionsList]);
 

@@ -9,3 +9,13 @@ export enum Roles {
   COMPANY_ADMIN = 'COMPANY_ADMIN',
   BOOKKEEPER = 'BOOKKEEPER',
 }
+
+export enum Approvable {
+  INVOICE = 'INVOICE',
+}
+
+export enum ApprovalStatus {
+  PENDING = 'PENDING',
+  APPROVED = 'APPROVED',
+  REJECTED = 'REJECTED',
+}

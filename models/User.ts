@@ -94,3 +94,27 @@ export class User {
     return this._created_at;
   }
 }
+
+export class User_Nested {
+  private _name: string;
+  private _id: UUID;
+  private _email: string;
+
+  constructor({ id, name, email }: { id: UUID; name: string; email: string }) {
+    this._id = id;
+    this._name = name;
+    this._email = email;
+  }
+
+  get name(): string {
+    return this._name;
+  }
+
+  get id(): UUID {
+    return this._id;
+  }
+
+  get email(): string {
+    return this._email;
+  }
+}

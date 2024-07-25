@@ -5,6 +5,8 @@ import { PlusIcon, TrashIcon } from '@radix-ui/react-icons';
 import { UseFormReturn, useFieldArray } from 'react-hook-form';
 
 import { ComboBox } from '../../ui/combo-box';
+import ExtractionFormComponent from '../components/ExtractionFormComponent';
+import InvoiceApprovals from '../components/InvoiceApprovals';
 import { Button } from '@/components/ui/button';
 import Chip, { STATUS_CHIP_VARIANTS } from '@/components/ui/chip';
 import Container from '@/components/ui/container';
@@ -31,7 +33,6 @@ import { Account } from '@/interfaces/quickbooks.interfaces';
 import { Approval } from '@/models/Approval';
 import { User } from '@/models/User';
 
-import ExtractionFormComponent from '../ExtractionFormComponent';
 import { useExtractionReview } from '../ExtractionReview';
 
 const { getDefaultCategoryByVendorName } = useVendor();
@@ -453,63 +454,8 @@ const EditExtractedData = ({
                   Everybody in this list must approve your bill before it is
                   allowed to be sent to QuickBooks.
                 </p>
-                <IfElseRender
-                  condition={!!user}
-                  ifTrue={
-                    <MultiComboBox
-                      className="w-full"
-                      fetchValuesFunction={() =>
-                        getUsersByCompanyId(user?.company.id!).then((users) =>
-                          users.map((user) => {
-                            const userFound = approvals.find(
-                              (approval) => user.id == approval.approver.id,
-                            );
 
-                            return {
-                              id: user.id,
-                              status: userFound?.status ?? 'PENDING',
-                              approver: user,
-                              removable: userFound?.removable ?? true,
-                            };
-                          }),
-                        )
-                      }
-                      valuesToMatch={approvals.map((approval) => ({
-                        id: approval.approver.id,
-                        status: approval.status,
-                        approver: approval.approver,
-                        removable: approval.removable,
-                      }))}
-                      getOptionLabel={(option) => option.approver.name}
-                      callBackFunction={(newValue) => {
-                        console.log(newValue);
-                      }}
-                      renderValues={(approval) => {
-                        const variantKey =
-                          approval.status === 'PENDING'
-                            ? approval.removable
-                              ? 'PENDING'
-                              : 'NON_REMOVABLE'
-                            : approval.status;
-
-                        const icon_variant = STATUS_CHIP_VARIANTS[variantKey];
-
-                        return (
-                          <Chip
-                            key={approval.id}
-                            variant={icon_variant.variant}
-                          >
-                            {approval.approver.name} {icon_variant.icon}
-                          </Chip>
-                        );
-                      }}
-                      optionDisabledIf={(option) =>
-                        !option.removable || !(option.status === 'PENDING')
-                      }
-                    />
-                  }
-                  ifFalse={<LoadingState />}
-                />
+                <InvoiceApprovals invoice={files[activeIndex]} />
               </ExtractionFormComponent>
               <ExtractionFormComponent
                 label="Additional Details"

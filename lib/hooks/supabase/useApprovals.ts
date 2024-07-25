@@ -1,3 +1,6 @@
+import { toast } from '@/components/ui/use-toast';
+
+import { Approvable, ApprovalStatus } from '@/constants/enums';
 import { Approval } from '@/models/Approval';
 import { createClient } from '@/utils/supabase/client';
 
@@ -26,5 +29,53 @@ export const useApprovals = () => {
     }
   };
 
-  return { getApprovalsByApprovableId };
+  const createApproval = async (
+    approvable_id: string,
+    approvable_type: Approvable,
+    approver_id: string,
+    removable: boolean,
+  ): Promise<Approval> => {
+    console.log('creating approval', approver_id);
+    const { data, error } = await supabase
+      .from('approvals')
+      .insert([
+        {
+          approvable_id,
+          approvable_type,
+          approver_id,
+          status: ApprovalStatus.PENDING,
+          removable,
+        },
+      ])
+      .select(
+        '*, approver: approver_id(id, name, email), principal: principal_id(id, name, email)',
+      );
+
+    console.log('data', data);
+
+    if (error) {
+      throw new Error('Failed to create approval');
+    } else {
+      const parsedData = new Approval(data[0]);
+      return parsedData;
+    }
+  };
+
+  const deleteApproval = async (approvalId: string) => {
+    console.log('deleting approval');
+    const { error } = await supabase
+      .from('approvals')
+      .delete()
+      .eq('id', approvalId);
+
+    if (error) {
+      toast({
+        title: 'Failed to delete approval',
+      });
+    } else {
+      return true;
+    }
+  };
+
+  return { createApproval, deleteApproval, getApprovalsByApprovableId };
 };
