@@ -7,8 +7,6 @@ import QuickBooks from '@/components/molecules/QuickBooks';
 import { BreadcrumbItem, BreadcrumbList } from '@/components/ui/breadcrumb';
 import { Button } from '@/components/ui/button';
 import { ComboBox } from '@/components/ui/combo-box';
-import Container from '@/components/ui/container';
-import LoadingState from '@/components/ui/empty-state';
 import IfElseRender from '@/components/ui/if-else-renderer';
 
 import { useGmail } from '@/lib/hooks/gmail/useGmail';
@@ -51,7 +49,6 @@ const Account = () => {
     const ignoreLabelExists = labels.find(
       (label: Label_Basic) => label.name === 'WORKMAN_IGNORE',
     );
-    // @todo search for the ignore label, create it if not there, and update the user configs with the new label if successful
 
     if (!workmanLabelExists) {
       const WORKMAN_SCANNED_LABEL: Omit<Label_Basic, 'id'> = {

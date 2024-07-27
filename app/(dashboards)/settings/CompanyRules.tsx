@@ -30,12 +30,7 @@ const CompanyRules = ({ company }: { company: Company }) => {
   }, []);
 
   const handleSelect = (value: User_Nested) => {
-    console.log(
-      value,
-      defaultApprovers.map((approver) => approver),
-    );
     const user = defaultApprovers.find((approver) => approver.id === value.id);
-    console.log(user);
 
     if (user) {
       deleteDefaultApproverByCompanyAndApproverId(company.id, value.id).then(
@@ -58,7 +53,7 @@ const CompanyRules = ({ company }: { company: Company }) => {
         condition={!!company.id && !fetchingDefaultApprovers}
         ifTrue={
           <MultiComboBox
-            className="w-full"
+            className="w-full mt-2"
             fetchValuesFunction={() =>
               getUsersByCompanyId(company.id!).then((data) =>
                 data.map((user) => new User_Nested(user)),
