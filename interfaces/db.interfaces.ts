@@ -21,6 +21,7 @@ export interface User_Update {
   email?: string;
   company_id?: UUID;
   roles?: Roles[];
+  name?: string;
 }
 
 export interface Invoice {

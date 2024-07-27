@@ -1,17 +1,13 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 import Gmail from '@/components/molecules/Gmail';
 import QuickBooks from '@/components/molecules/QuickBooks';
-import {
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbSeparator,
-} from '@/components/ui/breadcrumb';
+import { BreadcrumbItem, BreadcrumbList } from '@/components/ui/breadcrumb';
 import { Button } from '@/components/ui/button';
 import { ComboBox } from '@/components/ui/combo-box';
+import Container from '@/components/ui/container';
 import LoadingState from '@/components/ui/empty-state';
 import IfElseRender from '@/components/ui/if-else-renderer';
 
@@ -19,26 +15,22 @@ import { useGmail } from '@/lib/hooks/gmail/useGmail';
 import { useVendor } from '@/lib/hooks/quickbooks/useVendor';
 import { useUser } from '@/lib/hooks/supabase/useUser';
 
-import { Default_Vendor_Category } from '@/interfaces/db.interfaces';
 import { Label_Basic } from '@/interfaces/gmail.interfaces';
 import { Vendor } from '@/interfaces/quickbooks.interfaces';
-import { User } from '@/models/User';
 import { handleGoogleMailIntegration } from '@/utils/nango/google';
 import { handleQuickBooksIntegration } from '@/utils/nango/quickbooks';
 
 import { useAppContext } from '../layout';
+import CompanyRules from './CompanyRules';
+import ManageAccount from './ManageAccount';
 
 const Account = () => {
-  const { getVendorList, getVendorByID, getDefaultCategoryByVendorName } =
-    useVendor();
+  const { getVendorList } = useVendor();
   const { user } = useAppContext();
   const { getLabels, createLabel } = useGmail();
   const { updateUser } = useUser();
   const [vendors, setVendors] = useState<Vendor[]>([]);
   const [labels, setLabels] = useState<Label_Basic[]>([]);
-  const [currentVendor, setCurrentVendor] = useState<Vendor>();
-  const [defaultCategory, setDefaultCategory] =
-    useState<Default_Vendor_Category>();
 
   const fetchVendors = async () => {
     const columns: (keyof Vendor)[] = ['DisplayName', 'Id'];
@@ -100,32 +92,23 @@ const Account = () => {
 
   return (
     <div className="flex h-full w-full flex-col gap-4 px-4 py-8">
-      <BreadcrumbList className="text-wm-white-400">
-        <BreadcrumbItem>Bills</BreadcrumbItem>
-        <BreadcrumbSeparator />
-        <BreadcrumbLink className="text-black" href="/account">
-          Account
-        </BreadcrumbLink>
+      <BreadcrumbList>
+        <BreadcrumbItem>Settings</BreadcrumbItem>
       </BreadcrumbList>
       <div className="flex w-full flex-row justify-between font-poppins text-4xl">
-        Manage your Account
+        Settings
       </div>
-      <p>
-        Manage all your integrations, settings, and preferences in one place.
-      </p>
+      <IfElseRender
+        condition={!!user.name}
+        ifTrue={<ManageAccount user={user} />}
+        ifFalse={null}
+      />
+      <IfElseRender
+        condition={!!user.company}
+        ifTrue={<CompanyRules company={user.company} />}
+        ifFalse={null}
+      />
       <div className="flex flex-col gap-2">
-        <div className="text-xl">User Information</div>
-        <IfElseRender
-          condition={!!user}
-          ifTrue={
-            <div className="">
-              <div>Email: {user?.email}</div>
-              <div>Company: {user?.company?.name}</div>
-              <div>Role: {user?.roles?.join(',')}</div>
-            </div>
-          }
-          ifFalse={<LoadingState />}
-        />
         <div className="text-xl">Integrations</div>
         <div className="flex w-fit flex-row items-center justify-between gap-4">
           Google Mail Integration <Gmail />
@@ -147,10 +130,8 @@ const Account = () => {
             <ComboBox
               options={vendors}
               getOptionLabel={(option) => option?.DisplayName}
-              callBackFunction={(newValue) => setCurrentVendor(newValue)}
             />
           )}
-          <div>{JSON.stringify(defaultCategory)}</div>
         </div>
         <div className="flex w-fit flex-row items-center justify-between gap-4">
           Google Mail Labels

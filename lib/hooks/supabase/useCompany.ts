@@ -1,4 +1,6 @@
+import { useAppContext } from '@/app/(dashboards)/layout';
 import { Company } from '@/models/Company';
+import { User, User_Nested } from '@/models/User';
 import { createClient } from '@/utils/supabase/client';
 
 const supabase = createClient();
@@ -35,8 +37,26 @@ export const useCompany = () => {
     return data;
   };
 
+  const getDefaultApprovers = async (companyId: string) => {
+    const { data: defaultApproversData, error } = await supabase
+      .from('company_criterion')
+      .select('*, approver: users(id, name, email)')
+      .eq('company_id', companyId)
+      .eq('type', 'DEFAULT_APPROVER');
+
+    if (error) {
+      return [];
+    } else {
+      const parsedData = defaultApproversData.map(
+        (approval) => new User_Nested(approval.approver),
+      );
+      return parsedData;
+    }
+  };
+
   return {
     createCompany,
     fetchCompanyData,
+    getDefaultApprovers,
   };
 };

@@ -13,10 +13,12 @@ const { fetchUserData } = useUser();
 
 interface AppContext {
   user: User;
+  refetchUser: Function;
 }
 
 const defaultAppContext: AppContext = {
   user: {} as User,
+  refetchUser: () => {},
 };
 
 export const AppContext = createContext<AppContext>(defaultAppContext);
@@ -29,12 +31,15 @@ const AppLayout = ({ children }: Readonly<{ children: React.ReactNode }>) => {
   const [user, setUser] = useState<User>({} as User);
 
   useEffect(() => {
-    fetchUserData().then(setUser);
+    refetchUser();
   }, []);
 
+  const refetchUser = () => {
+    fetchUserData().then(setUser);
+  };
   return (
     <div className="flex h-dvh w-dvw flex-row overflow-x-hidden bg-white text-black">
-      <AppContext.Provider value={{ user }}>
+      <AppContext.Provider value={{ user, refetchUser }}>
         <SideBar />
         <main className="no-scrollbar flex h-dvh w-full items-center overflow-scroll">
           {children}

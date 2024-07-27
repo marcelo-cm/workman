@@ -39,32 +39,22 @@ const InvoiceApprovals = ({ invoice }: { invoice: Invoice }) => {
     );
   }, [invoice]);
 
-  const handleSelect = async (newValues: ApprovalOption[]) => {
-    if (newValues.length < approvals.length) {
-      const newValuesIds = newValues.map((nv) => nv.id);
-      const removedApproval = approvals.find(
-        (a) => !newValuesIds.includes(a.approver.id),
-      );
+  const handleSelect = async (newValue: ApprovalOption) => {
+    const approval = approvals.find((a) => a.approver.id === newValue.id);
 
-      if (removedApproval && removedApproval.removable) {
-        await deleteApproval(removedApproval.id);
-        setApprovals((prev) => prev.filter((a) => a.id !== removedApproval.id));
+    if (approval) {
+      if (approval.removable) {
+        await deleteApproval(approval.id);
+        setApprovals((prev) => prev.filter((a) => a.id !== approval.id));
       }
-    } else if (newValues.length > approvals.length) {
-      const approvalIds = approvals.map((a) => a.approver.id);
-      const addedApproval = newValues.find(
-        (nv) => !approvalIds.includes(nv.id),
+    } else {
+      const createdApproval = await createApproval(
+        invoice.id,
+        Approvable.INVOICE,
+        newValue.id,
+        true,
       );
-
-      if (addedApproval) {
-        const createdApproval = await createApproval(
-          invoice.id,
-          Approvable.INVOICE,
-          addedApproval.id,
-          true,
-        );
-        setApprovals((prev) => [...prev, createdApproval]);
-      }
+      setApprovals((prev) => [...prev, createdApproval]);
     }
   };
 

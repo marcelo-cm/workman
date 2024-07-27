@@ -56,7 +56,7 @@ function levenshtein(a: string, b: string): number {
 
 function stringSimilarity(str1: string, str2: string): number {
   const distance = levenshtein(str1, str2);
-  return 1 - distance / Math.max(str1.length, str2.length);
+  return 1 - distance / Math.max(str1.length, str2?.length || 0);
 }
 
 /**
@@ -85,10 +85,10 @@ export function MultiComboBox<
   options?: T[];
   valuesToMatch?: T[];
   fetchValuesFunction?: () => Promise<T[]>;
-  callBackFunction?: (value: T[]) => void | Promise<void>;
+  callBackFunction?: (value: T) => void | Promise<void>;
   getOptionLabel: (option: T) => string;
   renderValues?: (value: T) => JSX.Element;
-  optionDisabledIf: (option: T) => boolean;
+  optionDisabledIf?: (option: T) => boolean;
   className?: string;
 }) {
   const firstMount = useRef(true);
@@ -136,22 +136,22 @@ export function MultiComboBox<
   const handleSelect = (currentValue: string) => {
     const currentLabels = values.map(getOptionLabel);
     let newValues;
+    const newValue = optionsList.find(
+      (option) => getOptionLabel(option) === currentValue,
+    );
 
     if (currentLabels.includes(currentValue)) {
       newValues = values.filter(
         (value) => getOptionLabel(value) !== currentValue,
       );
     } else {
-      const newValue = optionsList.find(
-        (option) => getOptionLabel(option) === currentValue,
-      );
       if (!newValue) return;
       newValues = [...values, newValue];
     }
 
     setValues(newValues);
-    if (callBackFunction) {
-      callBackFunction(newValues);
+    if (callBackFunction && newValue) {
+      callBackFunction(newValue);
     }
   };
 
@@ -211,7 +211,7 @@ export function MultiComboBox<
                   handleSelect(currentValue);
                 }}
                 className="w-[200px] "
-                disabled={optionDisabledIf(option)}
+                disabled={optionDisabledIf?.(option) || false}
               >
                 <Check
                   className={cn(

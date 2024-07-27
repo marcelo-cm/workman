@@ -120,9 +120,67 @@ export const useApprovals = () => {
     }
   };
 
+  const createDefaultApprover = async (
+    company_id: string,
+    approver_id: string,
+  ) => {
+    const { data, error } = await supabase
+      .from('company_criterion')
+      .upsert(
+        {
+          company_id,
+          approver_id,
+          type: 'DEFAULT_APPROVER',
+        },
+        {
+          onConflict: 'company_id, approver_id',
+        },
+      )
+      .select('*');
+
+    if (error) {
+      throw new Error('Failed to create default approver');
+    }
+
+    return data;
+  };
+
+  const deleteDefaultApproverByCompanyAndApproverId = async (
+    company_id: string,
+    approver_id: string,
+  ) => {
+    const { error } = await supabase
+      .from('company_criterion')
+      .delete()
+      .eq('company_id', company_id)
+      .eq('approver_id', approver_id);
+
+    if (error) {
+      throw new Error('Failed to delete default approver');
+    }
+
+    return true;
+  };
+
+  const deleteDefaultApproverById = async (id: string) => {
+    const { error } = await supabase
+      .from('company_criterion')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      throw new Error('Failed to delete default approver');
+    }
+
+    return true;
+  };
+
   return {
     createApproval,
+    createDefaultApprover,
     deleteApproval,
+    deleteDefaultApproverById,
+    deleteDefaultApproverByCompanyAndApproverId,
     getApprovalsByApprovableId,
     updateApprovalByApprovableAndApproverId,
     updateApprovalById,

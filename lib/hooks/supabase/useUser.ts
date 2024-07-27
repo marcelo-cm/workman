@@ -27,7 +27,7 @@ export const useUser = () => {
       .single();
 
     if (error) {
-      throw new Error('Failed to create user');
+      throw new Error(`Failed to create user, ${error.message}`);
     }
 
     return new User(data);
@@ -38,11 +38,11 @@ export const useUser = () => {
 
     const { data, error } = await supabase
       .from('users')
-      .upsert(column_value)
+      .update(column_value)
       .eq('id', userData?.user?.id);
 
     if (error) {
-      throw new Error('Failed to update user');
+      throw new Error(`Failed to update user, ${error.message}`);
     }
 
     return data;
