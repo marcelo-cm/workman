@@ -1,4 +1,4 @@
-import { InvoiceState } from '@/constants/enums';
+import { Approvable, ApprovalStatus, InvoiceState } from '@/constants/enums';
 import Invoice from '@/models/Invoice';
 import { createClient } from '@/utils/supabase/client';
 
@@ -8,8 +8,8 @@ const supabase = createClient();
 const { fetchUser } = useUser();
 
 export const useInvoice = () => {
-  async function getInvoicesByState(
-    state: InvoiceState,
+  async function getInvoicesByStates(
+    states: InvoiceState[],
     callBack?: (invoices: Invoice[]) => void,
   ) {
     const user = await fetchUser();
@@ -18,7 +18,7 @@ export const useInvoice = () => {
     const { data, error } = await supabase
       .from('invoices')
       .select('*')
-      .eq('status', state)
+      .in('status', states)
       .eq('owner', `${id}`)
       .order('created_at', { ascending: false });
 
@@ -32,8 +32,9 @@ export const useInvoice = () => {
     }
   }
 
-  async function getInvoicesByStateAndApprover(
+  async function getInvoicesByStateApproverAndApprovalStatus(
     state: InvoiceState,
+    approvalStatus: ApprovalStatus[],
     approverId: string,
     callBack?: (invoices: Invoice[]) => void,
   ) {
@@ -42,7 +43,8 @@ export const useInvoice = () => {
       .from('approvals')
       .select('approvable_id')
       .eq('approver_id', approverId)
-      .eq('approvable_type', 'Invoice');
+      .eq('approvable_type', Approvable.INVOICE)
+      .in('status', approvalStatus);
 
     if (approvalError) {
       console.error('Error fetching approvals:', approvalError);
@@ -71,5 +73,21 @@ export const useInvoice = () => {
     }
   }
 
-  return { getInvoicesByState, getInvoicesByStateAndApprover };
+  async function getInvoicesAwaitingUserApproval(
+    approverId: string,
+    callBack?: (invoices: Invoice[]) => void,
+  ) {
+    return getInvoicesByStateApproverAndApprovalStatus(
+      InvoiceState.FOR_REVIEW,
+      [ApprovalStatus.PENDING],
+      approverId,
+      callBack,
+    );
+  }
+
+  return {
+    getInvoicesByStates,
+    getInvoicesByStateApproverAndApprovalStatus,
+    getInvoicesAwaitingUserApproval,
+  };
 };

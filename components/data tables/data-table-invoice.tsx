@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { MagnifyingGlassIcon } from '@radix-ui/react-icons';
-import { Check, Inbox } from 'lucide-react';
 
 import {
   ColumnFiltersState,
@@ -49,7 +48,7 @@ interface DataTableProps {
   defaultInvoiceState?: InvoiceState;
 }
 
-const { getInvoicesByState, getInvoicesByStateAndApprover } = useInvoice();
+const { getInvoicesByStates, getInvoicesAwaitingUserApproval } = useInvoice();
 const { fetchUserData } = useUser();
 
 export function InvoiceDataTable<TData, TValue>({
@@ -58,7 +57,6 @@ export function InvoiceDataTable<TData, TValue>({
   actionIcon,
   canActionBeDisabled = true,
   filters = true,
-  defaultInvoiceState = InvoiceState.FOR_REVIEW,
 }: DataTableProps) {
   const [user, setUser] = useState<User>();
   const [data, setData] = useState<Invoice[]>([]);
@@ -96,15 +94,14 @@ export function InvoiceDataTable<TData, TValue>({
     if (!tabValue) return;
 
     if (tabValue.approverId) {
-      getInvoicesByStateAndApprover(
-        tabValue.state,
-        tabValue.approverId,
-        setData,
-      );
+      getInvoicesAwaitingUserApproval(tabValue.approverId, setData);
       return;
     }
 
-    getInvoicesByState(tabValue.state, setData);
+    getInvoicesByStates(
+      [tabValue.state].flatMap((i) => i),
+      setData,
+    );
   }, [tabValue]);
 
   useEffect(() => {

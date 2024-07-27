@@ -6,7 +6,7 @@ import { InvoiceState } from '@/constants/enums';
 import { User } from '@/models/User';
 
 export interface TabValue {
-  state: InvoiceState;
+  state: InvoiceState | InvoiceState[];
   approverId: string | null;
 }
 
@@ -22,7 +22,7 @@ export const INVOICE_DATA_TABLE_TABS = (
       title: 'Company Inbox',
       icon: <Inbox className="w-4 h-4" />,
       value: {
-        state: InvoiceState.FOR_REVIEW,
+        state: [InvoiceState.FOR_REVIEW, InvoiceState.APPROVED],
         approverId: null,
       },
     },
