@@ -2,7 +2,9 @@ import { UUID } from 'crypto';
 
 import { useUser } from '@/lib/hooks/supabase/useUser';
 
-import { User, User_Nested } from './User';
+import { ApprovalStatus } from '@/constants/enums';
+
+import { User_Nested } from './User';
 
 const { getUserById } = useUser();
 
@@ -12,9 +14,10 @@ export class Approval {
   private _principal: User_Nested;
   private _approvable_id: UUID;
   private _approvable_type: string;
-  private _status: string;
+  private _status: ApprovalStatus;
   private _removable: boolean;
   private _created_at: Date;
+  private _updated_at: Date;
 
   constructor({
     id,
@@ -25,6 +28,7 @@ export class Approval {
     status,
     removable,
     created_at,
+    updated_at,
   }: {
     id: UUID;
     approver: User_Nested;
@@ -34,15 +38,17 @@ export class Approval {
     status: string;
     removable: boolean;
     created_at: string;
+    updated_at: string;
   }) {
     this._id = id;
     this._approver = new User_Nested(approver);
     this._principal = new User_Nested(principal);
     this._approvable_id = approvable_id;
     this._approvable_type = approvable_type;
-    this._status = status;
+    this._status = status as ApprovalStatus;
     this._removable = removable;
     this._created_at = new Date(created_at);
+    this._updated_at = new Date(updated_at);
   }
 
   get id(): UUID {
@@ -65,7 +71,7 @@ export class Approval {
     return this._approvable_type;
   }
 
-  get status(): string {
+  get status(): ApprovalStatus {
     return this._status;
   }
 
@@ -75,5 +81,9 @@ export class Approval {
 
   get createdAt(): Date {
     return this._created_at;
+  }
+
+  get updatedAt(): Date {
+    return this._updated_at;
   }
 }

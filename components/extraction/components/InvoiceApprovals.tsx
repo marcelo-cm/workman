@@ -11,7 +11,7 @@ import { useApprovals } from '@/lib/hooks/supabase/useApprovals';
 import { useUser } from '@/lib/hooks/supabase/useUser';
 
 import { useAppContext } from '@/app/(dashboards)/layout';
-import { Approvable } from '@/constants/enums';
+import { Approvable, ApprovalStatus } from '@/constants/enums';
 import { Approval } from '@/models/Approval';
 import Invoice from '@/models/Invoice';
 import { User, User_Nested } from '@/models/User';
@@ -30,14 +30,16 @@ interface ApprovalOption {
 const InvoiceApprovals = ({ invoice }: { invoice: Invoice }) => {
   const { user } = useAppContext();
   const [approvals, setApprovals] = useState<Approval[]>([]);
+  const [fetchingApprovals, setFetchingApprovals] = useState(true);
 
   useEffect(() => {
     const id = invoice.id;
-    getApprovalsByApprovableId(id, setApprovals);
+    getApprovalsByApprovableId(id, setApprovals).then(() =>
+      setFetchingApprovals(false),
+    );
   }, [invoice]);
 
   const handleSelect = async (newValues: ApprovalOption[]) => {
-    console.log(newValues, approvals);
     if (newValues.length < approvals.length) {
       const newValuesIds = newValues.map((nv) => nv.id);
       const removedApproval = approvals.find(
@@ -98,7 +100,7 @@ const InvoiceApprovals = ({ invoice }: { invoice: Invoice }) => {
 
   return (
     <IfElseRender
-      condition={!!user}
+      condition={!!user && !fetchingApprovals}
       ifTrue={
         <>
           <MultiComboBox
@@ -122,25 +124,42 @@ const InvoiceApprovals = ({ invoice }: { invoice: Invoice }) => {
               !option.removable || !(option.status === 'PENDING')
             }
           />
-          <div className="pt-2">
-            {approvals.map((approval) => {
-              return (
-                <p
-                  className={`pt-1 ${approval.status === 'REJECTED' ? 'text-red-500' : ''}`}
-                >
-                  {approval.principal.name} {approval.status.toLowerCase()} this
-                  invoice at{' '}
-                  {approval.createdAt.toLocaleDateString() +
-                    ' ' +
-                    approval.createdAt.toLocaleTimeString()}
-                </p>
-              );
-            })}
-          </div>
+          <ApprovalAuditTrail approvals={approvals} />
         </>
       }
       ifFalse={<LoadingState />}
     />
+  );
+};
+
+const ApprovalAuditTrail = ({ approvals }: { approvals: Approval[] }) => {
+  return (
+    <div className="pt-2">
+      {approvals.map((approval) => {
+        const color: Record<ApprovalStatus, string> = {
+          [ApprovalStatus.APPROVED]: 'text-green-500',
+          [ApprovalStatus.REJECTED]: 'text-red-500',
+          [ApprovalStatus.PENDING]: 'text-black',
+        };
+
+        return (
+          <p className={`${color[approval.status as ApprovalStatus]}`}>
+            {approval.approver.name} {approval.status.toLowerCase()} this
+            invoice on{' '}
+            {approval.updatedAt.toLocaleDateString('US', {
+              weekday: 'long',
+              month: 'long',
+              day: 'numeric',
+            }) +
+              ' at ' +
+              approval.updatedAt.toLocaleTimeString('en', {
+                hour: 'numeric',
+                minute: '2-digit',
+              })}
+          </p>
+        );
+      })}
+    </div>
   );
 };
 
