@@ -26,24 +26,19 @@ import { User } from '@/models/User';
 import { handleGoogleMailIntegration } from '@/utils/nango/google';
 import { handleQuickBooksIntegration } from '@/utils/nango/quickbooks';
 
+import { useAppContext } from '../layout';
+
 const Account = () => {
   const { getVendorList, getVendorByID, getDefaultCategoryByVendorName } =
     useVendor();
-  const { fetchUserData } = useUser();
+  const { user } = useAppContext();
   const { getLabels, createLabel } = useGmail();
   const { updateUser } = useUser();
   const [vendors, setVendors] = useState<Vendor[]>([]);
   const [labels, setLabels] = useState<Label_Basic[]>([]);
   const [currentVendor, setCurrentVendor] = useState<Vendor>();
-  const [user, setUser] = useState<User>();
   const [defaultCategory, setDefaultCategory] =
     useState<Default_Vendor_Category>();
-
-  useEffect(() => {
-    fetchUserData().then((data) => {
-      setUser(data);
-    });
-  }, []);
 
   const fetchVendors = async () => {
     const columns: (keyof Vendor)[] = ['DisplayName', 'Id'];

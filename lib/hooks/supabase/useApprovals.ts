@@ -77,5 +77,49 @@ export const useApprovals = () => {
     }
   };
 
-  return { createApproval, deleteApproval, getApprovalsByApprovableId };
+  const updateApprovalByApprovableAndApproverId = async (
+    approvableId: string,
+    approverId: string,
+    status: ApprovalStatus,
+  ) => {
+    const { error } = await supabase
+      .from('approvals')
+      .update({ status })
+      .eq('approvable_id', approvableId)
+      .eq('approver_id', approverId);
+
+    if (error) {
+      toast({
+        title: 'Failed to update approval',
+      });
+    } else {
+      return true;
+    }
+  };
+
+  const updateApprovalById = async (
+    approvalId: string,
+    status: ApprovalStatus,
+  ) => {
+    const { error } = await supabase
+      .from('approvals')
+      .update({ status })
+      .eq('id', approvalId);
+
+    if (error) {
+      toast({
+        title: 'Failed to update approval',
+      });
+    } else {
+      return true;
+    }
+  };
+
+  return {
+    createApproval,
+    deleteApproval,
+    getApprovalsByApprovableId,
+    updateApprovalByApprovableAndApproverId,
+    updateApprovalById,
+  };
 };

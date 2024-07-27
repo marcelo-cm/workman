@@ -10,6 +10,7 @@ import { MultiComboBox } from '@/components/ui/multi-combo-box';
 import { useApprovals } from '@/lib/hooks/supabase/useApprovals';
 import { useUser } from '@/lib/hooks/supabase/useUser';
 
+import { useAppContext } from '@/app/(dashboards)/layout';
 import { Approvable } from '@/constants/enums';
 import { Approval } from '@/models/Approval';
 import Invoice from '@/models/Invoice';
@@ -17,7 +18,7 @@ import { User, User_Nested } from '@/models/User';
 
 const { getApprovalsByApprovableId, createApproval, deleteApproval } =
   useApprovals();
-const { getUsersByCompanyId, fetchUserData } = useUser();
+const { getUsersByCompanyId } = useUser();
 
 interface ApprovalOption {
   id: UUID;
@@ -27,12 +28,8 @@ interface ApprovalOption {
 }
 
 const InvoiceApprovals = ({ invoice }: { invoice: Invoice }) => {
-  const [user, setUser] = useState<User>();
+  const { user } = useAppContext();
   const [approvals, setApprovals] = useState<Approval[]>([]);
-
-  useEffect(() => {
-    fetchUserData().then(setUser);
-  }, []);
 
   useEffect(() => {
     const id = invoice.id;
@@ -103,26 +100,44 @@ const InvoiceApprovals = ({ invoice }: { invoice: Invoice }) => {
     <IfElseRender
       condition={!!user}
       ifTrue={
-        <MultiComboBox
-          className="w-full"
-          fetchValuesFunction={() =>
-            getUsersByCompanyId(user?.company.id!).then((users) =>
-              users.map(userToApproverOption),
-            )
-          }
-          valuesToMatch={approvals.map((approval) => ({
-            id: approval.approver.id,
-            status: approval.status,
-            approver: approval.approver,
-            removable: approval.removable,
-          }))}
-          getOptionLabel={(option) => option.approver.name}
-          callBackFunction={handleSelect}
-          renderValues={renderApprovalValues}
-          optionDisabledIf={(option) =>
-            !option.removable || !(option.status === 'PENDING')
-          }
-        />
+        <>
+          <MultiComboBox
+            disabled={invoice.status === 'APPROVED'}
+            className="w-full"
+            fetchValuesFunction={() =>
+              getUsersByCompanyId(user?.company.id!).then((users) =>
+                users.map(userToApproverOption),
+              )
+            }
+            valuesToMatch={approvals.map((approval) => ({
+              id: approval.approver.id,
+              status: approval.status,
+              approver: approval.approver,
+              removable: approval.removable,
+            }))}
+            getOptionLabel={(option) => option.approver.name}
+            callBackFunction={handleSelect}
+            renderValues={renderApprovalValues}
+            optionDisabledIf={(option) =>
+              !option.removable || !(option.status === 'PENDING')
+            }
+          />
+          <div className="pt-2">
+            {approvals.map((approval) => {
+              return (
+                <p
+                  className={`pt-1 ${approval.status === 'REJECTED' ? 'text-red-500' : ''}`}
+                >
+                  {approval.principal.name} {approval.status.toLowerCase()} this
+                  invoice at{' '}
+                  {approval.createdAt.toLocaleDateString() +
+                    ' ' +
+                    approval.createdAt.toLocaleTimeString()}
+                </p>
+              );
+            })}
+          </div>
+        </>
       }
       ifFalse={<LoadingState />}
     />

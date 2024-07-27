@@ -37,14 +37,12 @@ import { useExtractionReview } from '../ExtractionReview';
 
 const { getDefaultCategoryByVendorName } = useVendor();
 const { getApprovalsByApprovableId } = useApprovals();
-const { getUsersByCompanyId, fetchUserData } = useUser();
 
 const EditExtractedData = ({
   form,
 }: {
   form: UseFormReturn<any, any, undefined>;
 }) => {
-  const [user, setUser] = useState<User>();
   const [approvals, setApprovals] = useState<Approval[]>([]);
   const { accounts, customers, vendors, files, activeIndex } =
     useExtractionReview();
@@ -54,10 +52,6 @@ const EditExtractedData = ({
     control: form.control,
     name: 'lineItems',
   });
-
-  useEffect(() => {
-    fetchUserData().then(setUser);
-  }, []);
 
   useEffect(() => {
     const id = files[activeIndex]?.id;

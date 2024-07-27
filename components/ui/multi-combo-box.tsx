@@ -71,6 +71,7 @@ function stringSimilarity(str1: string, str2: string): number {
 export function MultiComboBox<
   T extends { Id?: string | number; id?: string | number },
 >({
+  disabled,
   options,
   valuesToMatch,
   fetchValuesFunction,
@@ -80,6 +81,7 @@ export function MultiComboBox<
   optionDisabledIf,
   className,
 }: {
+  disabled?: boolean;
   options?: T[];
   valuesToMatch?: T[];
   fetchValuesFunction?: () => Promise<T[]>;
@@ -162,6 +164,7 @@ export function MultiComboBox<
           aria-expanded={open}
           className={`w-fit min-w-[200px] justify-between ${className}`}
           type="button"
+          disabled={disabled}
         >
           <p className="w-fit min-w-[155px] overflow-hidden flex flex-row gap-2 ">
             {values

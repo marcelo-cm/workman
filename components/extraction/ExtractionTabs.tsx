@@ -24,7 +24,10 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 import { useVendor } from '@/lib/hooks/quickbooks/useVendor';
+import { useApprovals } from '@/lib/hooks/supabase/useApprovals';
 
+import { useAppContext } from '@/app/(dashboards)/layout';
+import { ApprovalStatus } from '@/constants/enums';
 import { InvoiceData } from '@/interfaces/common.interfaces';
 import Invoice from '@/models/Invoice';
 
@@ -75,12 +78,14 @@ const formSchema = z.object({
   notes: z.string(),
 });
 const { getDefaultCategoryByVendorName, saveDefaultCategory } = useVendor();
+const { updateApprovalByApprovableAndApproverId } = useApprovals();
 
 const ExtractionTabs = ({
   handleSetActiveIndex,
 }: {
   handleSetActiveIndex: (index: 1 | -1) => void;
 }) => {
+  const { user } = useAppContext();
   const { files, activeIndex } = useExtractionReview();
   const [isSaveDefaultCategoryDialogOpen, setIsSaveDefaultCategoryDialogOpen] =
     useState(false);
@@ -174,6 +179,11 @@ const ExtractionTabs = ({
   };
 
   const handleUpdateInvoiceData = async (file: Invoice) => {
+    updateApprovalByApprovableAndApproverId(
+      file.id,
+      user.id,
+      ApprovalStatus.APPROVED,
+    );
     checkDefaultCategory();
     setApprovedFiles((prevApprovedFiles) => {
       const isAlreadyApproved = prevApprovedFiles.some(

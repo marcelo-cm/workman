@@ -33,6 +33,7 @@ import {
 import { useInvoice } from '@/lib/hooks/supabase/useInvoice';
 import { useUser } from '@/lib/hooks/supabase/useUser';
 
+import { useAppContext } from '@/app/(dashboards)/layout';
 import { InvoiceState } from '@/constants/enums';
 import Invoice from '@/models/Invoice';
 import { User } from '@/models/User';
@@ -49,7 +50,6 @@ interface DataTableProps {
 }
 
 const { getInvoicesByStates, getInvoicesAwaitingUserApproval } = useInvoice();
-const { fetchUserData } = useUser();
 
 export function InvoiceDataTable<TData, TValue>({
   onAction,
@@ -58,7 +58,7 @@ export function InvoiceDataTable<TData, TValue>({
   canActionBeDisabled = true,
   filters = true,
 }: DataTableProps) {
-  const [user, setUser] = useState<User>();
+  const { user } = useAppContext();
   const [data, setData] = useState<Invoice[]>([]);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -79,11 +79,6 @@ export function InvoiceDataTable<TData, TValue>({
     () => (user && INVOICE_DATA_TABLE_TABS(user)) || [],
     [user],
   );
-
-  useEffect(() => {
-    fetchUserData().then((user) => setUser(user));
-  }, []);
-
   useEffect(() => {
     if (!tabs.length) return;
 
