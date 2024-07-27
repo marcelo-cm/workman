@@ -31,12 +31,10 @@ import {
 } from '@/components/ui/table';
 
 import { useInvoice } from '@/lib/hooks/supabase/useInvoice';
-import { useUser } from '@/lib/hooks/supabase/useUser';
 
 import { useAppContext } from '@/app/(dashboards)/layout';
 import { InvoiceStatus } from '@/constants/enums';
 import Invoice from '@/models/Invoice';
-import { User } from '@/models/User';
 
 import { INVOICE_DATA_TABLE_TABS, TabValue } from './constants';
 

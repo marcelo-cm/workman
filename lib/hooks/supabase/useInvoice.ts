@@ -17,9 +17,9 @@ export const useInvoice = () => {
 
     const { data, error } = await supabase
       .from('invoices')
-      .select('*')
+      .select('*, principal: users(name, email, id), company: companies(*)')
       .in('status', states)
-      .eq('owner', `${id}`)
+      .eq('principal_id', `${id}`)
       .order('created_at', { ascending: false });
 
     if (error) {

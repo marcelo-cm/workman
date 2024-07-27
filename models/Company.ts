@@ -12,7 +12,7 @@ export class Company {
   }: {
     id: UUID;
     name: string;
-    created_at: string;
+    created_at: Date;
   }) {
     this._id = id;
     this._name = name;
