@@ -8,7 +8,6 @@ import { ComboBox } from '../../ui/combo-box';
 import ExtractionFormComponent from '../components/ExtractionFormComponent';
 import InvoiceApprovals from '../components/InvoiceApprovals';
 import { Button } from '@/components/ui/button';
-import Chip, { STATUS_CHIP_VARIANTS } from '@/components/ui/chip';
 import Container from '@/components/ui/container';
 import LoadingState from '@/components/ui/empty-state';
 import {
@@ -21,17 +20,13 @@ import {
 } from '@/components/ui/form';
 import IfElseRender from '@/components/ui/if-else-renderer';
 import { Input } from '@/components/ui/input';
-import { MultiComboBox } from '@/components/ui/multi-combo-box';
 import { Textarea } from '@/components/ui/text-area';
 
 import { useVendor } from '@/lib/hooks/quickbooks/useVendor';
 import { useApprovals } from '@/lib/hooks/supabase/useApprovals';
-import { useUser } from '@/lib/hooks/supabase/useUser';
 
-import { LineItem } from '@/interfaces/common.interfaces';
 import { Account } from '@/interfaces/quickbooks.interfaces';
 import { Approval } from '@/models/Approval';
-import { User } from '@/models/User';
 
 import { useExtractionReview } from '../ExtractionReview';
 

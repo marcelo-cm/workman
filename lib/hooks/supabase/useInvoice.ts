@@ -1,4 +1,4 @@
-import { Approvable, ApprovalStatus, InvoiceState } from '@/constants/enums';
+import { Approvable, ApprovalStatus, InvoiceStatus } from '@/constants/enums';
 import Invoice from '@/models/Invoice';
 import { createClient } from '@/utils/supabase/client';
 
@@ -9,7 +9,7 @@ const { fetchUser } = useUser();
 
 export const useInvoice = () => {
   async function getInvoicesByStates(
-    states: InvoiceState[],
+    states: InvoiceStatus[],
     callBack?: (invoices: Invoice[]) => void,
   ) {
     const user = await fetchUser();
@@ -33,7 +33,7 @@ export const useInvoice = () => {
   }
 
   async function getInvoicesByStateApproverAndApprovalStatus(
-    state: InvoiceState,
+    state: InvoiceStatus,
     approvalStatus: ApprovalStatus[],
     approverId: string,
     callBack?: (invoices: Invoice[]) => void,
@@ -78,7 +78,7 @@ export const useInvoice = () => {
     callBack?: (invoices: Invoice[]) => void,
   ) {
     return getInvoicesByStateApproverAndApprovalStatus(
-      InvoiceState.FOR_REVIEW,
+      InvoiceStatus.FOR_REVIEW,
       [ApprovalStatus.PENDING],
       approverId,
       callBack,

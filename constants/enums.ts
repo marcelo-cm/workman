@@ -1,4 +1,4 @@
-export enum InvoiceState {
+export enum InvoiceStatus {
   UNPROCESSED = 'UNPROCESSED',
   FOR_REVIEW = 'FOR_REVIEW',
   APPROVED = 'APPROVED',

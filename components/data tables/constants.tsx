@@ -2,11 +2,11 @@ import { ReactNode, useMemo } from 'react';
 
 import { Check, Inbox, Scan } from 'lucide-react';
 
-import { InvoiceState } from '@/constants/enums';
+import { InvoiceStatus } from '@/constants/enums';
 import { User } from '@/models/User';
 
 export interface TabValue {
-  state: InvoiceState | InvoiceState[];
+  state: InvoiceStatus | InvoiceStatus[];
   approverId: string | null;
 }
 
@@ -22,7 +22,7 @@ export const INVOICE_DATA_TABLE_TABS = (
       title: 'Company Inbox',
       icon: <Inbox className="w-4 h-4" />,
       value: {
-        state: [InvoiceState.FOR_REVIEW, InvoiceState.APPROVED],
+        state: [InvoiceStatus.FOR_REVIEW, InvoiceStatus.APPROVED],
         approverId: null,
       },
     },
@@ -30,7 +30,7 @@ export const INVOICE_DATA_TABLE_TABS = (
       title: 'Awaiting Your Review',
       icon: <Inbox className="w-4 h-4" />,
       value: {
-        state: InvoiceState.FOR_REVIEW,
+        state: InvoiceStatus.FOR_REVIEW,
         approverId: user.id,
       },
     },
@@ -38,7 +38,7 @@ export const INVOICE_DATA_TABLE_TABS = (
       title: 'Awaiting Scan',
       icon: <Scan className="w-4 h-4" />,
       value: {
-        state: InvoiceState.UNPROCESSED,
+        state: InvoiceStatus.UNPROCESSED,
         approverId: null,
       },
     },
@@ -46,7 +46,7 @@ export const INVOICE_DATA_TABLE_TABS = (
       title: 'Completed',
       icon: <Check className="w-4 h-4" />,
       value: {
-        state: InvoiceState.PROCESSED,
+        state: InvoiceStatus.PROCESSED,
         approverId: null,
       },
     },

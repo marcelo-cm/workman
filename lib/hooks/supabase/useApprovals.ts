@@ -84,7 +84,12 @@ export const useApprovals = () => {
   ) => {
     const { error } = await supabase
       .from('approvals')
-      .update({ status })
+      .upsert(
+        { status },
+        {
+          onConflict: 'approvable_id, approver_id',
+        },
+      )
       .eq('approvable_id', approvableId)
       .eq('approver_id', approverId);
 

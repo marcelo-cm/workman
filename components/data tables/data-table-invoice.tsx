@@ -34,7 +34,7 @@ import { useInvoice } from '@/lib/hooks/supabase/useInvoice';
 import { useUser } from '@/lib/hooks/supabase/useUser';
 
 import { useAppContext } from '@/app/(dashboards)/layout';
-import { InvoiceState } from '@/constants/enums';
+import { InvoiceStatus } from '@/constants/enums';
 import Invoice from '@/models/Invoice';
 import { User } from '@/models/User';
 
@@ -46,7 +46,7 @@ interface DataTableProps {
   actionIcon: React.ReactNode;
   canActionBeDisabled?: boolean;
   filters?: boolean;
-  defaultInvoiceState?: InvoiceState;
+  defaultInvoiceStatus?: InvoiceStatus;
 }
 
 const { getInvoicesByStates, getInvoicesAwaitingUserApproval } = useInvoice();

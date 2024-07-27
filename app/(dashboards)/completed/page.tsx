@@ -25,7 +25,7 @@ import IfElseRender from '@/components/ui/if-else-renderer';
 
 import { useInvoice } from '@/lib/hooks/supabase/useInvoice';
 
-import { InvoiceState } from '@/constants/enums';
+import { InvoiceStatus } from '@/constants/enums';
 import Invoice from '@/models/Invoice';
 import { createClient } from '@/utils/supabase/client';
 
@@ -37,7 +37,7 @@ const CompletedBills = () => {
   const router = useRouter();
 
   useEffect(() => {
-    getInvoicesByState(InvoiceState.PROCESSED, async (invoices) => {
+    getInvoicesByState(InvoiceStatus.PROCESSED, async (invoices) => {
       setInvoices(invoices);
       setIsLoading(false);
     });
