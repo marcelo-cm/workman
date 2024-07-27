@@ -5,21 +5,21 @@ import { createClient } from '@/utils/supabase/client';
 import { useUser } from './useUser';
 
 const supabase = createClient();
-const { fetchUser } = useUser();
+const { fetchUserData } = useUser();
 
 export const useInvoice = () => {
   async function getInvoicesByStates(
     states: InvoiceStatus[],
     callBack?: (invoices: Invoice[]) => void,
   ) {
-    const user = await fetchUser();
-    const id = user.data.user?.id;
+    const user = await fetchUserData();
+    const companyId = user.company.id;
 
     const { data, error } = await supabase
       .from('invoices')
       .select('*, principal: users(name, email, id), company: companies(*)')
       .in('status', states)
-      .eq('principal_id', `${id}`)
+      .eq('company_id', companyId)
       .order('created_at', { ascending: false });
 
     if (error) {
