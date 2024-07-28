@@ -52,7 +52,7 @@ const SignIn = () => {
     const { data } = await supabase.auth.getUser();
 
     if (data.user) {
-      router.push('/for-approval');
+      router.push('/bills');
     }
   }
 
@@ -73,7 +73,7 @@ const SignIn = () => {
       return;
     }
 
-    router.push('/for-approval');
+    router.push('/bills');
   }
 
   return (
