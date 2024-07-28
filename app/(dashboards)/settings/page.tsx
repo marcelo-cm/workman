@@ -4,7 +4,12 @@ import { useState } from 'react';
 
 import Gmail from '@/components/molecules/Gmail';
 import QuickBooks from '@/components/molecules/QuickBooks';
-import { BreadcrumbItem, BreadcrumbList } from '@/components/ui/breadcrumb';
+import {
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbSeparator,
+} from '@/components/ui/breadcrumb';
 import { Button } from '@/components/ui/button';
 import { ComboBox } from '@/components/ui/combo-box';
 import IfElseRender from '@/components/ui/if-else-renderer';
@@ -89,8 +94,12 @@ const Account = () => {
 
   return (
     <div className="flex h-full w-full flex-col gap-4 px-4 py-8">
-      <BreadcrumbList>
-        <BreadcrumbItem>Settings</BreadcrumbItem>
+      <BreadcrumbList className="text-wm-white-400">
+        <BreadcrumbItem>Dashboard</BreadcrumbItem>
+        <BreadcrumbSeparator />
+        <BreadcrumbLink className="text-black" href="/settings">
+          Settings
+        </BreadcrumbLink>
       </BreadcrumbList>
       <div className="flex w-full flex-row justify-between font-poppins text-4xl">
         Settings

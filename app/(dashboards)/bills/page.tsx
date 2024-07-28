@@ -32,10 +32,10 @@ export default function ForApproval() {
       ) : (
         <div className="flex h-full w-full flex-col gap-4 px-4 py-8">
           <BreadcrumbList className="text-wm-white-400">
-            <BreadcrumbItem>Bills</BreadcrumbItem>
+            <BreadcrumbItem>Dashboard</BreadcrumbItem>
             <BreadcrumbSeparator />
-            <BreadcrumbLink className="text-black" href="/for-approval">
-              For Approval
+            <BreadcrumbLink className="text-black" href="/bills">
+              Bills
             </BreadcrumbLink>
           </BreadcrumbList>
           <div className="flex w-full flex-row justify-between font-poppins text-4xl">
