@@ -1,11 +1,14 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { PlusIcon, TrashIcon } from '@radix-ui/react-icons';
 
 import { UseFormReturn, useFieldArray } from 'react-hook-form';
 
 import { ComboBox } from '../../ui/combo-box';
+import ExtractionFormComponent from '../components/ExtractionFormComponent';
+import InvoiceApprovals from '../components/InvoiceApprovals';
 import { Button } from '@/components/ui/button';
+import Container from '@/components/ui/container';
 import LoadingState from '@/components/ui/empty-state';
 import {
   Form,
@@ -20,21 +23,24 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/text-area';
 
 import { useVendor } from '@/lib/hooks/quickbooks/useVendor';
+import { useApprovals } from '@/lib/hooks/supabase/useApprovals';
 
-import { LineItem } from '@/interfaces/common.interfaces';
 import { Account } from '@/interfaces/quickbooks.interfaces';
+import { Approval } from '@/models/Approval';
 
-import ExtractionFormComponent from '../ExtractionFormComponent';
 import { useExtractionReview } from '../ExtractionReview';
 
 const { getDefaultCategoryByVendorName } = useVendor();
+const { getApprovalsByApprovableId } = useApprovals();
 
 const EditExtractedData = ({
   form,
 }: {
   form: UseFormReturn<any, any, undefined>;
 }) => {
-  const { accounts, customers, vendors } = useExtractionReview();
+  const [approvals, setApprovals] = useState<Approval[]>([]);
+  const { accounts, customers, vendors, files, activeIndex } =
+    useExtractionReview();
   const { watch } = form;
 
   const { fields, append, remove } = useFieldArray({
@@ -42,8 +48,12 @@ const EditExtractedData = ({
     name: 'lineItems',
   });
 
+  useEffect(() => {
+    const id = files[activeIndex]?.id;
+    getApprovalsByApprovableId(id, setApprovals);
+  }, [activeIndex]);
+
   const setLineItemsDefaultCategories = async (vendorName: string) => {
-    console.log('vendorId', vendorName);
     const defaultCategory = await getDefaultCategoryByVendorName(vendorName);
     if (!defaultCategory) return;
 
@@ -85,54 +95,6 @@ const EditExtractedData = ({
         ifFalse={
           <Form {...form}>
             <form className="space-y-4">
-              <div className="text-xs">
-                <div>
-                  <p className="mr-2 inline font-medium">Sub-Total:</p> $
-                  {Number(form.getValues('totalAmount'))?.toFixed(2) || 0}
-                </div>
-                <FormField
-                  control={form.control}
-                  name="totalTax"
-                  render={({ field }) => (
-                    <FormItem>
-                      <div className="flex gap-2">
-                        <p className="w-12 break-keep font-medium">Tax: $</p>
-                        <Input
-                          placeholder="0.00"
-                          {...field}
-                          {...form.register(field.name, {
-                            onChange(event) {
-                              form.setValue(
-                                field.name,
-                                String(event.target.value),
-                                {
-                                  shouldValidate: true,
-                                  shouldDirty: true,
-                                },
-                              );
-                            },
-                            onBlur(event) {
-                              form.setValue(
-                                field.name,
-                                parseFloat(event.target.value || 0).toFixed(2),
-                                {
-                                  shouldValidate: true,
-                                  shouldDirty: true,
-                                },
-                              );
-                            },
-                          })}
-                          className="h-fit w-16 px-1 py-0 text-right text-xs"
-                        />
-                      </div>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <p className="text-2xl">
-                  Total: ${Number(form.getValues('totalNet'))?.toFixed(2) || 0}
-                </p>
-              </div>
               <ExtractionFormComponent
                 label="Bill Details"
                 gridCols={2}
@@ -274,11 +236,69 @@ const EditExtractedData = ({
                   )}
                 />
               </ExtractionFormComponent>
-              <ExtractionFormComponent label="Line Items">
+              <Container
+                header={
+                  <div className="flex flex-row justify-between w-full items-center font-normal">
+                    <p className="text-2xl ">
+                      Total: $
+                      {Number(form.getValues('totalNet'))?.toFixed(2) || 0}
+                    </p>
+                    <div className="text-xs">
+                      <div>
+                        <p className="mr-2 inline font-medium">Sub-Total:</p> $
+                        {Number(form.getValues('totalAmount'))?.toFixed(2) || 0}
+                      </div>
+                      <FormField
+                        control={form.control}
+                        name="totalTax"
+                        render={({ field }) => (
+                          <FormItem>
+                            <div className="flex gap-2">
+                              <p className="w-12 break-keep font-medium">
+                                Tax: $
+                              </p>
+                              <Input
+                                placeholder="0.00"
+                                {...field}
+                                {...form.register(field.name, {
+                                  onChange(event) {
+                                    form.setValue(
+                                      field.name,
+                                      String(event.target.value),
+                                      {
+                                        shouldValidate: true,
+                                        shouldDirty: true,
+                                      },
+                                    );
+                                  },
+                                  onBlur(event) {
+                                    form.setValue(
+                                      field.name,
+                                      parseFloat(
+                                        event.target.value || 0,
+                                      ).toFixed(2),
+                                      {
+                                        shouldValidate: true,
+                                        shouldDirty: true,
+                                      },
+                                    );
+                                  },
+                                })}
+                                className="h-fit w-16 px-1 py-0 text-right text-xs"
+                              />
+                            </div>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </div>
+                }
+              >
                 {(fields.length &&
                   fields.map((lineItem: any, index) => (
                     <div
-                      className="grid grid-cols-2 gap-3 border-b p-4 pt-2 first:pt-0 last:border-0"
+                      className="grid grid-cols-2 gap-3 border-b p-4 pt-2 first:pt-2 last:border-0"
                       key={lineItem.id}
                     >
                       <FormField
@@ -368,7 +388,6 @@ const EditExtractedData = ({
                                   `lineItems.${index}.productCode`,
                                 )}
                                 callBackFunction={(newValue: Account) => {
-                                  console.log('newValue', newValue);
                                   form.setValue(
                                     `lineItems.${index}.productCode`,
                                     newValue.Name,
@@ -415,6 +434,17 @@ const EditExtractedData = ({
                   <PlusIcon />
                   Add Line Item
                 </Button>
+              </Container>
+              <ExtractionFormComponent
+                label="Needs Approval From"
+                className="text-sm p-4"
+              >
+                <p className="pt-1 pb-2">
+                  Everybody in this list must approve your bill before it is
+                  allowed to be sent to QuickBooks.
+                </p>
+
+                <InvoiceApprovals invoice={files[activeIndex]} />
               </ExtractionFormComponent>
               <ExtractionFormComponent
                 label="Additional Details"

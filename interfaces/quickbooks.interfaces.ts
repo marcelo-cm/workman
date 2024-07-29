@@ -1,6 +1,5 @@
-import Invoice from '@/models/Invoice';
-
 import { LineItem } from './common.interfaces';
+import { Invoice } from './db.interfaces';
 
 export interface Vendor {
   BillAddr?: Address;

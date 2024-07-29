@@ -35,9 +35,7 @@ const Demo = () => {
           ref={demoRef}
         />
       </div>
-      <Button onClick={() => router.push('/for-approval')}>
-        Launch the Platform
-      </Button>
+      <Button onClick={() => router.push('/bills')}>Launch the Platform</Button>
     </div>
   );
 };

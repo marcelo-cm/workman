@@ -96,15 +96,15 @@ export const useVendor = () => {
       | Function
       | Dispatch<SetStateAction<Default_Vendor_Category>>,
   ): Promise<Default_Vendor_Category | null> => {
-    const { company_id: companyId } = await fetchUserData(['company_id']);
+    const user = await fetchUserData();
 
-    if (!companyId) throw new Error('Company ID not found');
+    if (!user.company) throw new Error('Company ID not found');
 
     const { data, error } = await supabase
       .from('default_vendor_categories')
       .select('*')
       .eq('vendor_name', vendorName)
-      .eq('company_id', companyId)
+      .eq('company_id', user.company.id)
       .maybeSingle();
 
     if (error) {
@@ -119,9 +119,9 @@ export const useVendor = () => {
     vendor_name: string,
     category: string,
   ): Promise<Default_Vendor_Category> => {
-    const { company_id } = await fetchUserData(['company_id']);
+    const { company } = await fetchUserData();
 
-    if (!company_id) {
+    if (!company) {
       throw new Error(
         'Company ID not found, you must have a company to save default category',
       );
@@ -129,11 +129,14 @@ export const useVendor = () => {
 
     const { data, error } = await supabase
       .from('default_vendor_categories')
-      .upsert({
-        vendor_name,
-        company_id,
-        category,
-      })
+      .upsert(
+        {
+          vendor_name,
+          company_id: company.id,
+          category,
+        },
+        { onConflict: 'vendor_name, company_id' },
+      )
       .select('*')
       .single();
 

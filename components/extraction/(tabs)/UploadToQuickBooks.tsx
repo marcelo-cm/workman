@@ -1,12 +1,11 @@
-import React, { SetStateAction, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import {
   ArrowLeftIcon,
-  BookmarkFilledIcon,
   BookmarkIcon,
   EyeOpenIcon,
 } from '@radix-ui/react-icons';
-import { BookmarkCheckIcon, HammerIcon, Loader2Icon } from 'lucide-react';
+import { HammerIcon, Loader2Icon } from 'lucide-react';
 
 import { Badge } from '../../ui/badge';
 import { Button } from '../../ui/button';
@@ -24,12 +23,8 @@ import LoadingState from '@/components/ui/empty-state';
 import IfElseRender from '@/components/ui/if-else-renderer';
 import { TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-import {
-  Account,
-  Customer,
-  Invoice_Quickbooks,
-  Vendor,
-} from '@/interfaces/quickbooks.interfaces';
+import { InvoiceStatus } from '@/constants/enums';
+import { Invoice_Quickbooks, Vendor } from '@/interfaces/quickbooks.interfaces';
 import Invoice from '@/models/Invoice';
 import { createClient } from '@/utils/supabase/client';
 
@@ -75,21 +70,14 @@ const UploadToQuickBooks = () => {
     setIsLoading(false);
   }
 
-  const transformData = () => {
-    const transformed: Invoice_Quickbooks[] = files.map((file) => ({
-      ...file,
-      data: {
-        ...file.data,
-        vendorId: file.data.supplierName, // Temporary mapping; to be updated on selection
-        lineItems: file.data.lineItems.map((lineItem) => ({
-          ...lineItem,
-          customerId: file.data.customerAddress, // Temporary mapping; to be updated on selection
-          billable: true,
-          accountId: '63',
-        })),
-      },
-    }));
-    setTransformedFiles(transformed);
+  const transformData = async () => {
+    const transformed: Invoice_Quickbooks[] = await Promise.all(
+      files.map(async (file) => {
+        const parsedInvoice = await Invoice.transformToQuickBooksInvoice(file);
+        return parsedInvoice;
+      }),
+    );
+    setTransformedFiles(transformed as unknown as Invoice_Quickbooks[]);
   };
 
   const handleVendorSelect = (value: Vendor, fileIndex: number) => {
@@ -314,7 +302,8 @@ const UploadToQuickBooks = () => {
                                     }
                                     disabled={
                                       isLoading ||
-                                      uploadedFileIndexes.includes(fileIndex)
+                                      uploadedFileIndexes.includes(fileIndex) ||
+                                      file.status !== InvoiceStatus.APPROVED
                                     }
                                     variant={'secondary'}
                                   >

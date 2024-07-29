@@ -1,6 +1,8 @@
 import { UserResponse } from '@supabase/supabase-js';
 import { UUID } from 'crypto';
 
+import { User_Update } from '@/interfaces/db.interfaces';
+import { Company } from '@/models/Company';
 import { User } from '@/models/User';
 import { createClient as createSupabaseClient } from '@/utils/supabase/client';
 
@@ -25,22 +27,22 @@ export const useUser = () => {
       .single();
 
     if (error) {
-      throw new Error('Failed to create user');
+      throw new Error(`Failed to create user, ${error.message}`);
     }
 
-    return data;
+    return new User(data);
   };
 
-  const updateUser = async (column_value: Partial<User>) => {
+  const updateUser = async (column_value: User_Update) => {
     const { data: userData } = await fetchUser();
 
     const { data, error } = await supabase
       .from('users')
-      .upsert(column_value)
+      .update(column_value)
       .eq('id', userData?.user?.id);
 
     if (error) {
-      throw new Error('Failed to update user');
+      throw new Error(`Failed to update user, ${error.message}`);
     }
 
     return data;
@@ -48,14 +50,14 @@ export const useUser = () => {
 
   const fetchUserData = async (
     columns: (keyof User)[] | ['*'] = ['*'],
-  ): Promise<Partial<User>> => {
+  ): Promise<User> => {
     const { data: userData } = await fetchUser();
 
     const columnsToFetch = columns.join(', ');
 
     const { data, error } = await supabase
       .from('users')
-      .select(columnsToFetch as '*')
+      .select(`${columnsToFetch}, companies (*)` as '*')
       .eq('id', userData?.user?.id)
       .single();
 
@@ -63,7 +65,12 @@ export const useUser = () => {
       throw new Error('Failed to fetch user data');
     }
 
-    return data;
+    const { company_id, companies, ...rest } = data;
+
+    return new User({
+      ...rest,
+      company: companies,
+    });
   };
 
   async function fetchUser(): Promise<UserResponse> {
@@ -80,10 +87,39 @@ export const useUser = () => {
     return user;
   }
 
+  async function getUserById(id: UUID): Promise<User> {
+    const { data, error } = await supabase
+      .from('users')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error || !data) {
+      throw new Error('Failed to fetch user');
+    }
+
+    return new User(data);
+  }
+
+  async function getUsersByCompanyId(company_id: UUID): Promise<User[]> {
+    const { data, error } = await supabase
+      .from('users')
+      .select('*')
+      .eq('company_id', company_id);
+
+    if (error || !data) {
+      throw new Error('Failed to fetch users');
+    }
+
+    return data.map((user) => new User(user));
+  }
+
   return {
     createUser,
     updateUser,
     fetchUserData,
     fetchUser,
+    getUserById,
+    getUsersByCompanyId,
   };
 };

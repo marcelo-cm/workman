@@ -51,7 +51,7 @@ const SignUp = () => {
       return;
     }
 
-    router.push('/for-approval');
+    router.push('/bills');
   }
 
   return (

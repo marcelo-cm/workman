@@ -5,25 +5,51 @@ import { toast } from '@/components/ui/use-toast';
 
 import { PDFData } from '@/app/api/v1/gmail/messages/route';
 import { InvoiceData } from '@/interfaces/common.interfaces';
-import { Invoice_Quickbooks } from '@/interfaces/quickbooks.interfaces';
+import {
+  Invoice_Quickbooks,
+  LineItem_QuickBooks,
+} from '@/interfaces/quickbooks.interfaces';
 import { mindeeScan } from '@/lib/actions/actions';
 import { createClient } from '@/utils/supabase/client';
+
+import { Company } from './Company';
+import { User_Nested } from './User';
 
 const supabase = createClient();
 
 export class Invoice {
-  id: UUID;
-  created_at: string;
-  data: InvoiceData;
-  fileUrl: string;
-  status: string;
+  private _id: UUID;
+  private _created_at: Date;
+  private _data: InvoiceData;
+  private _file_url: string;
+  private _status: string;
+  private _principal: User_Nested;
+  private _company: Company;
 
-  constructor({ id, created_at, data, status, fileUrl }: Invoice) {
-    this.id = id;
-    this.created_at = created_at;
-    this.data = data;
-    this.status = status;
-    this.fileUrl = fileUrl;
+  constructor({
+    id,
+    created_at,
+    data,
+    status,
+    file_url,
+    principal,
+    company,
+  }: {
+    id: UUID;
+    created_at: Date;
+    data: InvoiceData;
+    status: string;
+    file_url: string;
+    principal: User_Nested;
+    company: Company;
+  }) {
+    this._id = id;
+    this._created_at = new Date(created_at);
+    this._data = data;
+    this._status = status;
+    this._file_url = file_url;
+    this._principal = new User_Nested(principal);
+    this._company = new Company(company);
   }
 
   static async upload(file: File | PDFData) {
@@ -159,7 +185,7 @@ export class Invoice {
     const { data: updatedData, error } = await supabase
       .from('invoices')
       .update({ data, status: 'FOR_REVIEW' })
-      .eq('fileUrl', fileUrl)
+      .eq('file_url', fileUrl) // why fileUrl and not id?
       .select('*');
 
     if (error) {
@@ -246,6 +272,126 @@ export class Invoice {
     };
 
     return mappedData;
+  }
+
+  get id(): UUID {
+    return this._id;
+  }
+
+  get createdAt(): Date {
+    return this._created_at;
+  }
+
+  get data(): InvoiceData {
+    return this._data;
+  }
+
+  get fileUrl(): string {
+    return this._file_url;
+  }
+
+  get principal(): User_Nested {
+    return this._principal;
+  }
+
+  get company(): Company {
+    return this._company;
+  }
+
+  get status(): string {
+    return this._status;
+  }
+
+  get totalAmount(): number {
+    return this._data.totalAmount;
+  }
+
+  get totalNet(): number {
+    return this._data.totalNet;
+  }
+
+  get totalTax(): string {
+    return this._data.totalTax;
+  }
+
+  get date(): string {
+    return this._data.date;
+  }
+
+  get dueDate(): string {
+    return this._data.dueDate;
+  }
+
+  get invoiceNumber(): string {
+    return this._data.invoiceNumber;
+  }
+
+  get supplierName(): string {
+    return this._data.supplierName;
+  }
+
+  get supplierAddress(): string {
+    return this._data.supplierAddress;
+  }
+
+  get supplierEmail(): string {
+    return this._data.supplierEmail;
+  }
+
+  get supplierPhoneNumber(): string {
+    return this._data.supplierPhoneNumber;
+  }
+
+  get customerAddress(): string {
+    return this._data.customerAddress;
+  }
+
+  get customerName(): string {
+    return this._data.customerName;
+  }
+
+  get shippingAddress(): string {
+    return this._data.shippingAddress;
+  }
+
+  get lineItems(): any {
+    return this._data.lineItems;
+  }
+
+  get notes(): string {
+    return this._data.notes;
+  }
+
+  set data(data: InvoiceData) {
+    this._data = data;
+  }
+
+  static async transformToQuickBooksInvoice(
+    invoice: Invoice,
+  ): Promise<Invoice_Quickbooks> {
+    const transformedInvoice: Invoice_Quickbooks = {
+      id: invoice.id,
+      created_at: String(invoice.createdAt),
+      file_url: invoice.fileUrl,
+      status: invoice.status,
+      data: {
+        supplierName: invoice.supplierName,
+        vendorId: invoice.data.supplierName,
+        invoiceNumber: invoice.invoiceNumber,
+        date: invoice.date,
+        dueDate: invoice.dueDate,
+        customerAddress: invoice.customerAddress,
+        notes: invoice.notes,
+        lineItems: invoice.lineItems.map((item: LineItem_QuickBooks) => ({
+          ...item,
+          customerId: '',
+          billable: false,
+          accountId: '',
+        })),
+      },
+    };
+
+    return transformedInvoice;
   }
 }
 

@@ -11,13 +11,6 @@ import { ColumnDef } from '@tanstack/react-table';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuTrigger,
-} from '../ui/dropdown-menu';
-import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
@@ -25,7 +18,7 @@ import {
 } from '../ui/tooltip';
 import { Checkbox } from '@/components/ui/checkbox';
 
-import { formatDate, sliceWithEllipsis, toTitleCase } from '@/lib/utils';
+import { formatDate, sliceWithEllipsis } from '@/lib/utils';
 import Invoice from '@/models/Invoice';
 
 import PDFViewer from '../PDF/PDFViewer';
@@ -34,12 +27,14 @@ import PDFViewer from '../PDF/PDFViewer';
 type BadgeType = 'success' | 'destructive' | 'warning' | 'info';
 function getBadgeType(status: string): BadgeType {
   switch (status) {
-    case 'SUCCESS':
+    case 'APPROVED':
       return 'success';
-    case 'MISSING_FIELDS':
-      return 'destructive';
-    case 'MANUAL_REVIEW':
+    case 'PROCESSED':
+      return 'success';
+    case 'FOR_REVIEW':
       return 'warning';
+    case 'UNPROCESSED':
+      return 'destructive';
     default:
       return 'info';
   }
@@ -182,6 +177,16 @@ export const columns: ColumnDef<Invoice>[] = [
       }).format(row.original.data.totalNet);
 
       return <div>{formatted}</div>;
+    },
+  },
+  {
+    accessorKey: 'status',
+    header: () => <div>Status</div>,
+    cell: ({ row }) => {
+      const status = row.original.status;
+      return (
+        <Badge variant={getBadgeType(status)}>{status.replace('_', ' ')}</Badge>
+      );
     },
   },
 ];

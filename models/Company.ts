@@ -1,13 +1,33 @@
 import { UUID } from 'crypto';
 
 export class Company {
-  id: UUID;
-  name: string;
-  created_at: string;
+  private _id: UUID;
+  private _name: string;
+  private _created_at: Date;
 
-  constructor({ id, name, created_at }: Company) {
-    this.id = id;
-    this.name = name;
-    this.created_at = created_at;
+  constructor({
+    id,
+    name,
+    created_at,
+  }: {
+    id: UUID;
+    name: string;
+    created_at: Date;
+  }) {
+    this._id = id;
+    this._name = name;
+    this._created_at = new Date(created_at);
+  }
+
+  get id(): UUID {
+    return this._id;
+  }
+
+  get name(): string {
+    return this._name;
+  }
+
+  get created_at(): Date {
+    return this._created_at;
   }
 }

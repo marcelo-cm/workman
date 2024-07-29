@@ -213,7 +213,6 @@ const PDFSplitterFileSplit = () => {
       });
     }
 
-    console.log('filtering out file from filesToUpload');
     setFilesToUpload((prev) => {
       return prev.filter((file) => file !== filesToSplit[activeIndex]);
     });

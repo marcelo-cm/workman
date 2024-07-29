@@ -206,7 +206,7 @@ export const useGmail = () => {
         throw new Error('User ID not found');
       }
 
-      const { ignore_label_id } = await fetchUserData(['ignore_label_id']);
+      const user = await fetchUserData();
 
       const response = await fetch(`/api/v1/gmail/messages/batchModify`, {
         method: 'POST',
@@ -216,7 +216,7 @@ export const useGmail = () => {
         body: JSON.stringify({
           userId,
           emailIds: [emailId],
-          addLabelIds: [ignore_label_id],
+          addLabelIds: [user.ignoreLabelId],
           removeLabelIds: [],
         }),
       });
@@ -253,7 +253,7 @@ export const useGmail = () => {
         throw new Error('User ID not found');
       }
 
-      const { scanned_label_id } = await fetchUserData(['scanned_label_id']);
+      const user = await fetchUserData();
 
       const response = await fetch(`/api/v1/gmail/messages/batchModify`, {
         method: 'POST',
@@ -263,7 +263,7 @@ export const useGmail = () => {
         body: JSON.stringify({
           userId,
           emailIds: [emailId],
-          addLabelIds: [scanned_label_id],
+          addLabelIds: [user.scannedLabelId],
           removeLabelIds: [],
         }),
       });

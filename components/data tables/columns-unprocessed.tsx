@@ -73,7 +73,7 @@ export const columns: ColumnDef<Invoice>[] = [
   },
   {
     accessorKey: 'created_at',
-    accessorFn: (row) => new Date(row.created_at),
+    accessorFn: (row) => new Date(row.createdAt),
     header: ({ column }) => (
       <Button
         variant="ghost"
@@ -89,7 +89,7 @@ export const columns: ColumnDef<Invoice>[] = [
       </Button>
     ),
     cell: ({ row }) => (
-      <div>{formatDate(new Date(row.original.created_at))}</div>
+      <div>{formatDate(new Date(row.original.createdAt))}</div>
     ),
   },
   {
