@@ -1,7 +1,6 @@
 'use client';
 
 import { CaretDownIcon, CaretUpIcon } from '@radix-ui/react-icons';
-import { ExternalLinkIcon } from 'lucide-react';
 
 import { ColumnDef } from '@tanstack/react-table';
 
@@ -13,7 +12,7 @@ import { useGmail } from '@/lib/hooks/gmail/useGmail';
 import { Email } from '@/app/api/v1/gmail/messages/route';
 import { formatDate } from '@/lib/utils';
 
-const { markAsIgnore, markAsScanned } = useGmail();
+const { markAsIgnore } = useGmail();
 
 export const columns: ColumnDef<Email>[] = [
   {

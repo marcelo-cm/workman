@@ -35,7 +35,8 @@ import { useAppContext } from '@/app/(dashboards)/context';
 import { InvoiceStatus } from '@/constants/enums';
 import Invoice from '@/models/Invoice';
 
-import { columns } from './columns-invoices-processed';
+import { columns as processed_columns } from './columns-invoices-processed';
+import { columns as unprocessed_columns } from './columns-invoices-unprocessed';
 import { INVOICE_DATA_TABLE_TABS, TabValue } from './constants';
 
 interface DataTableProps {
@@ -77,6 +78,7 @@ export function InvoiceDataTable<TData, TValue>({
     () => (user && INVOICE_DATA_TABLE_TABS(user)) || [],
     [user],
   );
+
   useEffect(() => {
     if (!tabs.length) return;
 
@@ -103,9 +105,14 @@ export function InvoiceDataTable<TData, TValue>({
     updateFilteredData();
   }, [dateRange, data]);
 
+  const columns =
+    tabValue?.state === InvoiceStatus.UNPROCESSED
+      ? unprocessed_columns
+      : processed_columns;
+
   const table = useReactTable({
     data: filteredData,
-    columns,
+    columns: columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     onSortingChange: setSorting,
@@ -255,7 +262,6 @@ export function InvoiceDataTable<TData, TValue>({
                 </TableRow>
               ))}
             </TableHeader>
-
             <TableBody>
               {table.getRowModel().rows?.length ? (
                 table.getRowModel().rows.map((row) => (
