@@ -1,10 +1,6 @@
 'use client';
 
-import {
-  CaretDownIcon,
-  CaretUpIcon,
-  MixerHorizontalIcon,
-} from '@radix-ui/react-icons';
+import { CaretDownIcon, CaretUpIcon } from '@radix-ui/react-icons';
 
 import { ColumnDef } from '@tanstack/react-table';
 

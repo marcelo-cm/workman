@@ -15,7 +15,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 
-import { formatDate, sliceWithEllipsis } from '@/lib/utils';
+import { formatDate } from '@/lib/utils';
 import Invoice from '@/models/Invoice';
 
 export const columns: ColumnDef<Invoice>[] = [

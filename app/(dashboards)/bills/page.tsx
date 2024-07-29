@@ -4,7 +4,7 @@ import { useState } from 'react';
 
 import { Pencil2Icon } from '@radix-ui/react-icons';
 
-import { InvoiceDataTable } from '@/components/(dashboards)/bills/data tables/data-table-invoice';
+import { InvoiceDataTable } from '@/components/(dashboards)/bills/data-tables/data-table-invoice';
 import ExtractionReview from '@/components/(dashboards)/bills/extraction/ExtractionReview';
 import UploadFileButton from '@/components/(shared)/general/UploadFileButton';
 import {

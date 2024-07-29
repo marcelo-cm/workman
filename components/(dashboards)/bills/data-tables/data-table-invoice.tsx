@@ -35,7 +35,7 @@ import { useAppContext } from '@/app/(dashboards)/context';
 import { InvoiceStatus } from '@/constants/enums';
 import Invoice from '@/models/Invoice';
 
-import { columns } from './columns-for-review';
+import { columns } from './columns-invoices-processed';
 import { INVOICE_DATA_TABLE_TABS, TabValue } from './constants';
 
 interface DataTableProps {
