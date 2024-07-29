@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 
-import SideBar from '@/components/dashboards/SideBar';
+import SideBar from '@/components/(dashboards)/SideBar';
 
 import { useUser } from '@/lib/hooks/supabase/useUser';
 

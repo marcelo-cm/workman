@@ -2,21 +2,8 @@
 
 import React, { useEffect, useState } from 'react';
 
-import {
-  ExitIcon,
-  FileIcon,
-  FileTextIcon,
-  GearIcon,
-  Pencil2Icon,
-  PersonIcon,
-} from '@radix-ui/react-icons';
-import {
-  ArrowLeftToLine,
-  ArrowRightToLine,
-  Check,
-  LogOut,
-  ReceiptIcon,
-} from 'lucide-react';
+import { ExitIcon, GearIcon } from '@radix-ui/react-icons';
+import { ArrowLeftToLine, ArrowRightToLine } from 'lucide-react';
 
 import { usePathname } from 'next/navigation';
 
