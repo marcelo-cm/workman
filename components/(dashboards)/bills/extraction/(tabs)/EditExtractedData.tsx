@@ -5,7 +5,6 @@ import { PlusIcon, TrashIcon } from '@radix-ui/react-icons';
 import { UseFormReturn, useFieldArray } from 'react-hook-form';
 
 import ExtractionFormComponent from '../components/ExtractionFormComponent';
-import InvoiceApprovals from '../components/InvoiceApprovals';
 import { Button } from '@/components/ui/button';
 import { ComboBox } from '@/components/ui/combo-box';
 import Container from '@/components/ui/container';
@@ -28,6 +27,7 @@ import { useApprovals } from '@/lib/hooks/supabase/useApprovals';
 import { Account } from '@/interfaces/quickbooks.interfaces';
 import { Approval } from '@/models/Approval';
 
+import InvoiceApprovals from '../../../../(shared)/invoices/InvoiceApprovals';
 import { useExtractionReview } from '../ExtractionReview';
 
 const { getDefaultCategoryByVendorName } = useVendor();

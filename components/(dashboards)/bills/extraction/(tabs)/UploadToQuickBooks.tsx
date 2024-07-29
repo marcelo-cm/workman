@@ -30,8 +30,6 @@ import Invoice from '@/models/Invoice';
 
 import { useExtractionReview } from '../ExtractionReview';
 
-const supabase = createClient();
-
 const UploadToQuickBooks = () => {
   const { files, accounts, vendors, customers, activeIndex, setActiveIndex } =
     useExtractionReview();
