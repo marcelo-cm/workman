@@ -8,7 +8,7 @@ import {
 
 import { ColumnDef } from '@tanstack/react-table';
 
-import { Button } from '../ui/button';
+import { Button } from '@/components/ui/button';
 
 import { formatDate } from '@/lib/utils';
 import Invoice from '@/models/Invoice';

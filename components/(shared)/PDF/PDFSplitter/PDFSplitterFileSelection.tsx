@@ -9,14 +9,8 @@ import {
   TrashIcon,
 } from '@radix-ui/react-icons';
 
-import { Button } from '../../ui/button';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '../../ui/tooltip';
-import DragToUploadArea from '@/components/general/DragToUploadArea';
+import DragToUploadArea from '@/components/(shared)/general/DragToUploadArea';
+import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
   DialogClose,
@@ -26,6 +20,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 import PDFViewer from '../PDFViewer';
 import { usePDFSplitter } from './PDFSplitter';

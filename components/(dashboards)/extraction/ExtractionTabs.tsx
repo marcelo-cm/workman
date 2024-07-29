@@ -11,6 +11,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, useWatch } from 'react-hook-form';
 import { z } from 'zod';
 
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogClose,
@@ -18,9 +19,8 @@ import {
   DialogDescription,
   DialogFooter,
   DialogTitle,
-} from '../ui/dialog';
-import IfElseRender from '../ui/if-else-renderer';
-import { Button } from '@/components/ui/button';
+} from '@/components/ui/dialog';
+import IfElseRender from '@/components/ui/if-else-renderer';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 import { useVendor } from '@/lib/hooks/quickbooks/useVendor';

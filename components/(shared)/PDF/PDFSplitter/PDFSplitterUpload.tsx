@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 
-import DragToUploadArea from '@/components/general/DragToUploadArea';
+import DragToUploadArea from '@/components/(shared)/general/DragToUploadArea';
 import { DialogContent, DialogTitle } from '@/components/ui/dialog';
 
 import { usePDFSplitter } from './PDFSplitter';

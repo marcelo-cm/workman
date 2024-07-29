@@ -5,19 +5,18 @@ import { ExternalLinkIcon } from 'lucide-react';
 
 import { ColumnDef } from '@tanstack/react-table';
 
-import { Button } from '../ui/button';
+import PDFViewer from '@/components/(shared)/PDF/PDFViewer';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from '../ui/tooltip';
-import { Checkbox } from '@/components/ui/checkbox';
+} from '@/components/ui/tooltip';
 
 import { formatDate, sliceWithEllipsis } from '@/lib/utils';
 import Invoice from '@/models/Invoice';
-
-import PDFViewer from '../PDF/PDFViewer';
 
 export const columns: ColumnDef<Invoice>[] = [
   {

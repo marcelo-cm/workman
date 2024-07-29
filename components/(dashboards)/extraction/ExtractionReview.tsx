@@ -15,8 +15,8 @@ import {
   CaretRightIcon,
 } from '@radix-ui/react-icons';
 
-import { Badge } from '../ui/badge';
-import PDFViewer from '@/components/PDF/PDFViewer';
+import PDFViewer from '@/components/(shared)/PDF/PDFViewer';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,

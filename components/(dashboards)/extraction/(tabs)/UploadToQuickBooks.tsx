@@ -7,10 +7,12 @@ import {
 } from '@radix-ui/react-icons';
 import { HammerIcon, Loader2Icon } from 'lucide-react';
 
-import { Badge } from '../../ui/badge';
-import { Button } from '../../ui/button';
-import { Checkbox } from '../../ui/checkbox';
-import { ComboBox } from '../../ui/combo-box';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { ComboBox } from '@/components/ui/combo-box';
+import LoadingState from '@/components/ui/empty-state';
+import IfElseRender from '@/components/ui/if-else-renderer';
 import {
   Table,
   TableBody,
@@ -18,9 +20,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '../../ui/table';
-import LoadingState from '@/components/ui/empty-state';
-import IfElseRender from '@/components/ui/if-else-renderer';
+} from '@/components/ui/table';
 import { TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 import { InvoiceStatus } from '@/constants/enums';

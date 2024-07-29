@@ -10,8 +10,8 @@ import { Loader2Icon } from 'lucide-react';
 
 import { Document, Page, pdfjs } from 'react-pdf';
 
-import { Button } from '../ui/button';
-import Container from '../ui/container';
+import { Button } from '@/components/ui/button';
+import Container from '@/components/ui/container';
 
 pdfjs.GlobalWorkerOptions.workerSrc =
   'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.js';

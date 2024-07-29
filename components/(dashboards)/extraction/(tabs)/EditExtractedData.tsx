@@ -4,10 +4,10 @@ import { PlusIcon, TrashIcon } from '@radix-ui/react-icons';
 
 import { UseFormReturn, useFieldArray } from 'react-hook-form';
 
-import { ComboBox } from '../../ui/combo-box';
 import ExtractionFormComponent from '../components/ExtractionFormComponent';
 import InvoiceApprovals from '../components/InvoiceApprovals';
 import { Button } from '@/components/ui/button';
+import { ComboBox } from '@/components/ui/combo-box';
 import Container from '@/components/ui/container';
 import LoadingState from '@/components/ui/empty-state';
 import {

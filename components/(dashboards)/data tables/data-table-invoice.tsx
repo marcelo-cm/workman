@@ -15,11 +15,9 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 
-import { Button } from '../ui/button';
-import { DatePickerWithRange } from '../ui/date-range-picker';
-import IfElseRender from '../ui/if-else-renderer';
-import { Tabs, TabsList, TabsTrigger } from '../ui/tabs';
-import { columns } from '@/components/data tables/columns-for-review';
+import { Button } from '@/components/ui/button';
+import { DatePickerWithRange } from '@/components/ui/date-range-picker';
+import IfElseRender from '@/components/ui/if-else-renderer';
 import {
   Table,
   TableBody,
@@ -29,6 +27,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 import { useInvoice } from '@/lib/hooks/supabase/useInvoice';
 
@@ -36,6 +35,7 @@ import { useAppContext } from '@/app/(dashboards)/context';
 import { InvoiceStatus } from '@/constants/enums';
 import Invoice from '@/models/Invoice';
 
+import { columns } from './columns-for-review';
 import { INVOICE_DATA_TABLE_TABS, TabValue } from './constants';
 
 interface DataTableProps {

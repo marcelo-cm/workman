@@ -1,6 +1,6 @@
 import { UploadIcon } from '@radix-ui/react-icons';
 
-import { Button } from '../ui/button';
+import { Button } from '../../ui/button';
 import { Dialog, DialogTrigger } from '@/components/ui/dialog';
 
 import PDFSplitter from '../PDF/PDFSplitter/PDFSplitter';

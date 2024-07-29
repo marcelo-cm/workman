@@ -16,8 +16,8 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 
-import { Button } from '../ui/button';
-import { DatePickerWithRange } from '../ui/date-range-picker';
+import { Button } from '@/components/ui/button';
+import { DatePickerWithRange } from '@/components/ui/date-range-picker';
 import {
   Table,
   TableBody,

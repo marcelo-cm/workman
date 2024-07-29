@@ -5,7 +5,7 @@ import { ExternalLinkIcon } from 'lucide-react';
 
 import { ColumnDef } from '@tanstack/react-table';
 
-import { Button } from '../ui/button';
+import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 
 import { useGmail } from '@/lib/hooks/gmail/useGmail';
