@@ -2,7 +2,7 @@ import { SetStateAction } from 'react';
 
 import { toast } from '@/components/ui/use-toast';
 
-import { createClient as createSupabaseClient } from '@/utils/supabase/client';
+import { createClient as createSupabaseClient } from '@/lib/utils/supabase/client';
 
 export const useAccount = () => {
   const supabase = createSupabaseClient();

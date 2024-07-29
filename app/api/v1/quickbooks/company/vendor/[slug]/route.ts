@@ -12,10 +12,11 @@ export async function GET(
   req: NextRequest,
   { params }: { params: { slug: string } },
 ) {
-  try {
-    const userId = req.nextUrl.searchParams.get('userId');
-    const vendorId = params.slug;
+  const searchParams = req.nextUrl.searchParams;
+  const userId = searchParams.get('userId');
+  const vendorId = params.slug;
 
+  try {
     if (!userId || !vendorId) {
       return new NextResponse(
         JSON.stringify('User ID, Vendor ID, and Select are all required'),

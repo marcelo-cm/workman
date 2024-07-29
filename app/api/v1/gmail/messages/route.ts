@@ -25,9 +25,10 @@ export interface PDFData {
 }
 
 export async function GET(req: NextRequest): Promise<NextResponse> {
-  try {
-    const userId = req.nextUrl.searchParams.get('userId');
+  const searchParams = req.nextUrl.searchParams;
+  const userId = searchParams.get('userId');
 
+  try {
     if (!userId) {
       return new NextResponse(JSON.stringify('User ID is required'), {
         status: StatusCodes.BAD_REQUEST,

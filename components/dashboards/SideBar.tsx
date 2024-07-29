@@ -24,7 +24,7 @@ import IfElseRender from '../ui/if-else-renderer';
 
 import useLocalStorage from '@/lib/hooks/useLocalStorage';
 
-import { createClient } from '@/utils/supabase/client';
+import { createClient } from '@/lib/utils/supabase/client';
 
 import WorkmanLogo from '../molecules/WorkmanLogo';
 import MenuItem from './MenuItem';

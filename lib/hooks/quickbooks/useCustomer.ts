@@ -3,7 +3,7 @@ import { SetStateAction } from 'react';
 import { toast } from '@/components/ui/use-toast';
 
 import { Customer } from '@/interfaces/quickbooks.interfaces';
-import { createClient as createSupabaseClient } from '@/utils/supabase/client';
+import { createClient as createSupabaseClient } from '@/lib/utils/supabase/client';
 
 export const useCustomer = () => {
   const supabase = createSupabaseClient();

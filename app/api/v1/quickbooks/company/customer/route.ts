@@ -7,11 +7,12 @@ const nango = new Nango({
 });
 
 export async function GET(req: NextRequest) {
-  try {
-    const userId = req.nextUrl.searchParams.get('userId');
-    const select = req.nextUrl.searchParams.get('select');
-    const where = req.nextUrl.searchParams.get('where');
+  const searchParams = req.nextUrl.searchParams;
+  const userId = searchParams.get('userId');
+  const select = searchParams.get('select');
+  const where = searchParams.get('where');
 
+  try {
     if (!userId || !select) {
       return new NextResponse(
         JSON.stringify('User ID and Select are both required'),

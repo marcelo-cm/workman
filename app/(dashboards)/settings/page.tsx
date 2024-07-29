@@ -20,8 +20,8 @@ import { useUser } from '@/lib/hooks/supabase/useUser';
 
 import { Label_Basic } from '@/interfaces/gmail.interfaces';
 import { Vendor } from '@/interfaces/quickbooks.interfaces';
-import { handleGoogleMailIntegration } from '@/utils/nango/google';
-import { handleQuickBooksIntegration } from '@/utils/nango/quickbooks';
+import { handleGoogleMailIntegration } from '@/lib/utils/nango/google';
+import { handleQuickBooksIntegration } from '@/lib/utils/nango/quickbooks';
 
 import { useAppContext } from '../layout';
 import CompanyRules from './CompanyRules';

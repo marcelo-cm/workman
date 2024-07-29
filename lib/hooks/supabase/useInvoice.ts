@@ -1,6 +1,6 @@
 import { Approvable, ApprovalStatus, InvoiceStatus } from '@/constants/enums';
+import { createClient } from '@/lib/utils/supabase/client';
 import Invoice from '@/models/Invoice';
-import { createClient } from '@/utils/supabase/client';
 
 import { useUser } from './useUser';
 

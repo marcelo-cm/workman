@@ -10,9 +10,9 @@ import { toast } from '@/components/ui/use-toast';
 
 import { useGmail } from '@/lib/hooks/gmail/useGmail';
 
-import { createClient as createNangoClient } from '@/utils/nango/client';
-import { handleGoogleMailIntegration } from '@/utils/nango/google';
-import { createClient as createSupabaseClient } from '@/utils/supabase/client';
+import { createClient as createNangoClient } from '@/lib/utils/nango/client';
+import { handleGoogleMailIntegration } from '@/lib/utils/nango/google';
+import { createClient as createSupabaseClient } from '@/lib/utils/supabase/client';
 
 import { Email, PDFData } from '../api/v1/gmail/messages/route';
 

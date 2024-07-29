@@ -10,7 +10,7 @@ import {
   LineItem_QuickBooks,
 } from '@/interfaces/quickbooks.interfaces';
 import { mindeeScan } from '@/lib/actions/actions';
-import { createClient } from '@/utils/supabase/client';
+import { createClient } from '@/lib/utils/supabase/client';
 
 import { Company } from './Company';
 import { User_Nested } from './User';

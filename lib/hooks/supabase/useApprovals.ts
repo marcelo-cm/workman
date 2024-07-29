@@ -1,8 +1,8 @@
 import { toast } from '@/components/ui/use-toast';
 
 import { Approvable, ApprovalStatus } from '@/constants/enums';
+import { createClient } from '@/lib/utils/supabase/client';
 import { Approval } from '@/models/Approval';
-import { createClient } from '@/utils/supabase/client';
 
 const supabase = createClient();
 

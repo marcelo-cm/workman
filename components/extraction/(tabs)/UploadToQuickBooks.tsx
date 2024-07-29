@@ -25,8 +25,8 @@ import { TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 import { InvoiceStatus } from '@/constants/enums';
 import { Invoice_Quickbooks, Vendor } from '@/interfaces/quickbooks.interfaces';
+import { createClient } from '@/lib/utils/supabase/client';
 import Invoice from '@/models/Invoice';
-import { createClient } from '@/utils/supabase/client';
 
 import { useExtractionReview } from '../ExtractionReview';
 

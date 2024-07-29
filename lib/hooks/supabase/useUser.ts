@@ -2,9 +2,9 @@ import { UserResponse } from '@supabase/supabase-js';
 import { UUID } from 'crypto';
 
 import { User_Update } from '@/interfaces/db.interfaces';
+import { createClient as createSupabaseClient } from '@/lib/utils/supabase/client';
 import { Company } from '@/models/Company';
 import { User } from '@/models/User';
-import { createClient as createSupabaseClient } from '@/utils/supabase/client';
 
 const supabase = createSupabaseClient();
 
