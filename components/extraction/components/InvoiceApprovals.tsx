@@ -10,7 +10,7 @@ import { MultiComboBox } from '@/components/ui/multi-combo-box';
 import { useApprovals } from '@/lib/hooks/supabase/useApprovals';
 import { useUser } from '@/lib/hooks/supabase/useUser';
 
-import { useAppContext } from '@/app/(dashboards)/layout';
+import { useAppContext } from '@/app/(dashboards)/context';
 import { Approvable, ApprovalStatus } from '@/constants/enums';
 import { Approval } from '@/models/Approval';
 import Invoice from '@/models/Invoice';

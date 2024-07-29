@@ -23,7 +23,7 @@ import { Vendor } from '@/interfaces/quickbooks.interfaces';
 import { handleGoogleMailIntegration } from '@/lib/utils/nango/google';
 import { handleQuickBooksIntegration } from '@/lib/utils/nango/quickbooks';
 
-import { useAppContext } from '../layout';
+import { useAppContext } from '../context';
 import CompanyRules from './CompanyRules';
 import ManageAccount from './ManageAccount';
 

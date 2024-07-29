@@ -26,7 +26,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useVendor } from '@/lib/hooks/quickbooks/useVendor';
 import { useApprovals } from '@/lib/hooks/supabase/useApprovals';
 
-import { useAppContext } from '@/app/(dashboards)/layout';
+import { useAppContext } from '@/app/(dashboards)/context';
 import { ApprovalStatus } from '@/constants/enums';
 import { InvoiceData } from '@/interfaces/common.interfaces';
 import Invoice from '@/models/Invoice';

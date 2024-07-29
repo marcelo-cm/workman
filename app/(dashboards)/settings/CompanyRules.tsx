@@ -12,7 +12,7 @@ import { useUser } from '@/lib/hooks/supabase/useUser';
 import { Company } from '@/models/Company';
 import { User, User_Nested } from '@/models/User';
 
-import { useAppContext } from '../layout';
+import { useAppContext } from '../context';
 
 const { getUsersByCompanyId } = useUser();
 const { getDefaultApprovers } = useCompany();

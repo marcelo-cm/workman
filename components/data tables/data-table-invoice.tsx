@@ -32,7 +32,7 @@ import {
 
 import { useInvoice } from '@/lib/hooks/supabase/useInvoice';
 
-import { useAppContext } from '@/app/(dashboards)/layout';
+import { useAppContext } from '@/app/(dashboards)/context';
 import { InvoiceStatus } from '@/constants/enums';
 import Invoice from '@/models/Invoice';
 
