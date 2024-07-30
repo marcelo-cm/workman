@@ -15,6 +15,9 @@ import { createClient } from '@/lib/utils/supabase/client';
 import { Company } from './Company';
 import { User_Nested } from './User';
 
+import { Company } from './Company';
+import { User_Nested } from './User';
+
 const supabase = createClient();
 
 export class Invoice {
