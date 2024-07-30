@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 
-import SideBar from '@/components/(dashboards)/SideBar';
+import SideBar from '@/components/(dashboards)/layout/SideBar';
 
 import { useUser } from '@/lib/hooks/supabase/useUser';
 
@@ -22,6 +22,7 @@ const AppLayout = ({ children }: Readonly<{ children: React.ReactNode }>) => {
   const refetchUser = () => {
     fetchUserData().then(setUser);
   };
+
   return (
     <div className="flex h-dvh w-dvw flex-row overflow-x-hidden bg-white text-black">
       <AppContext.Provider value={{ user, refetchUser }}>
