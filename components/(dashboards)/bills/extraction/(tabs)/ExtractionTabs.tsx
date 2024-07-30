@@ -27,7 +27,7 @@ import { useVendor } from '@/lib/hooks/quickbooks/useVendor';
 import { useApprovals } from '@/lib/hooks/supabase/useApprovals';
 
 import { useAppContext } from '@/app/(dashboards)/context';
-import { ApprovalStatus } from '@/constants/enums';
+import { ApprovalStatus, InvoiceStatus } from '@/constants/enums';
 import { InvoiceData } from '@/interfaces/common.interfaces';
 import Invoice from '@/models/Invoice';
 
@@ -37,7 +37,8 @@ import InvoiceDataForm from './edit/InvoiceDataForm';
 import UploadToQuickBooks from './upload/UploadToQuickBooks';
 
 const { getDefaultCategoryByVendorName, saveDefaultCategory } = useVendor();
-const { updateApprovalByApprovableAndApproverId } = useApprovals();
+const { updateApprovalByApprovableAndApproverId, getApprovalsByApprovableId } =
+  useApprovals();
 
 const ExtractionTabs = ({
   handleSetActiveIndex,
@@ -153,6 +154,16 @@ const ExtractionTabs = ({
       user.id,
       ApprovalStatus.APPROVED,
     );
+
+    const approvals = await getApprovalsByApprovableId(file.id);
+
+    const isAllApproved = approvals.every(
+      (approval) => approval.status === ApprovalStatus.APPROVED,
+    );
+
+    if (isAllApproved) {
+      file.status = InvoiceStatus.APPROVED;
+    }
 
     setApprovedFiles((prevApprovedFiles) => {
       const isAlreadyApproved = prevApprovedFiles.some(
