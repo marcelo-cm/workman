@@ -111,7 +111,7 @@ export class Invoice {
       {
         owner: id,
         status: 'UNPROCESSED',
-        fileUrl: publicUrl,
+        file_url: publicUrl,
       },
     ]);
 
@@ -217,7 +217,7 @@ export class Invoice {
     const { data, error } = await supabase
       .from('invoices')
       .select('*')
-      .eq('fileUrl', url);
+      .eq('file_url', url);
 
     if (error) {
       toast({
