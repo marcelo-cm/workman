@@ -38,7 +38,6 @@ export const useInvoice = () => {
     approverId: string,
     callBack?: (invoices: Invoice[]) => void,
   ) {
-    console.log('approverId', approverId);
     const { data: approvalData, error: approvalError } = await supabase
       .from('approvals')
       .select('approvable_id')
@@ -47,15 +46,12 @@ export const useInvoice = () => {
       .in('status', approvalStatus);
 
     if (approvalError) {
-      console.error('Error fetching approvals:', approvalError);
       return [];
     }
 
-    console.log('approvalData', approvalData);
-
     const { data, error } = await supabase
       .from('invoices')
-      .select('*')
+      .select('*, principal: users(name, email, id), company: companies(*)')
       .eq('status', state)
       .in(
         'id',

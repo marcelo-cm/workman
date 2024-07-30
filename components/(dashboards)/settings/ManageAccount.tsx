@@ -50,7 +50,6 @@ const ManageAccount = ({
   });
 
   const handleUpdateAccount = () => {
-    console.log('Update account');
     updateUser({
       name: form.getValues('name'),
       email: form.getValues('email'),
