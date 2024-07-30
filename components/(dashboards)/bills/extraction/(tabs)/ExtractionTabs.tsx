@@ -139,6 +139,21 @@ const ExtractionTabs = ({
 
   const handleUpdateInvoiceData = async (file: Invoice) => {
     checkDefaultCategory();
+    if (!form.formState.isDirty) return;
+
+    const data: InvoiceData = form.getValues();
+    files[activeIndex].data = data;
+    await Invoice.update(file.fileUrl, data);
+    mapDataToForm(data);
+  };
+
+  const handleApproveInvoice = async (file: Invoice) => {
+    updateApprovalByApprovableAndApproverId(
+      file.id,
+      user.id,
+      ApprovalStatus.APPROVED,
+    );
+
     setApprovedFiles((prevApprovedFiles) => {
       const isAlreadyApproved = prevApprovedFiles.some(
         (approvedFile) => approvedFile.fileUrl === file.fileUrl,
@@ -163,13 +178,6 @@ const ExtractionTabs = ({
         return prevApprovedFiles;
       }
     });
-
-    if (!form.formState.isDirty) return;
-
-    const data: InvoiceData = form.getValues();
-    files[activeIndex].data = data;
-    await Invoice.update(file.fileUrl, data);
-    mapDataToForm(data);
   };
 
   const checkDefaultCategory = async () => {
@@ -229,11 +237,7 @@ const ExtractionTabs = ({
               ifFalse={
                 <Button
                   onClick={() => {
-                    updateApprovalByApprovableAndApproverId(
-                      files[activeIndex].id,
-                      user.id,
-                      ApprovalStatus.APPROVED,
-                    );
+                    handleApproveInvoice(files[activeIndex]);
                     handleSetActiveIndex(1);
                   }}
                   disabled={Object.keys(form.formState.errors).length !== 0}
