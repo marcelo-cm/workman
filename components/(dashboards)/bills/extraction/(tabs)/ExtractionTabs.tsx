@@ -33,7 +33,7 @@ import Invoice from '@/models/Invoice';
 
 import { useExtractionReview } from '../ExtractionReview';
 import { invoiceDataFormSchema } from '../constants';
-import EditExtractedData from './edit/InvoiceDataForm';
+import InvoiceDataForm from './edit/InvoiceDataForm';
 import UploadToQuickBooks from './upload/UploadToQuickBooks';
 
 const { getDefaultCategoryByVendorName, saveDefaultCategory } = useVendor();
@@ -138,11 +138,6 @@ const ExtractionTabs = ({
   };
 
   const handleUpdateInvoiceData = async (file: Invoice) => {
-    updateApprovalByApprovableAndApproverId(
-      file.id,
-      user.id,
-      ApprovalStatus.APPROVED,
-    );
     checkDefaultCategory();
     setApprovedFiles((prevApprovedFiles) => {
       const isAlreadyApproved = prevApprovedFiles.some(
@@ -219,7 +214,7 @@ const ExtractionTabs = ({
       </TabsList>
       <div className="no-scrollbar h-full overflow-scroll">
         <TabsContent value="1" className="w-full">
-          <EditExtractedData form={form} />
+          <InvoiceDataForm form={form} />
           <div className="sticky bottom-0 flex h-14 min-h-14 w-full items-center gap-2 border-t bg-white pl-2 pr-8">
             <IfElseRender
               condition={hasDirtyFields}
@@ -234,7 +229,11 @@ const ExtractionTabs = ({
               ifFalse={
                 <Button
                   onClick={() => {
-                    handleUpdateInvoiceData(files[activeIndex]);
+                    updateApprovalByApprovableAndApproverId(
+                      files[activeIndex].id,
+                      user.id,
+                      ApprovalStatus.APPROVED,
+                    );
                     handleSetActiveIndex(1);
                   }}
                   disabled={Object.keys(form.formState.errors).length !== 0}

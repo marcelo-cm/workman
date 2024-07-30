@@ -20,7 +20,7 @@ import { useExtractionReview } from '../../ExtractionReview';
 import BillDetails from './BillDetails';
 import LineItems from './LineItems';
 
-const EditExtractedData = ({
+const InvoiceDataForm = ({
   form,
 }: {
   form: UseFormReturn<any, any, undefined>;
@@ -84,4 +84,4 @@ const EditExtractedData = ({
   );
 };
 
-export default EditExtractedData;
+export default InvoiceDataForm;
