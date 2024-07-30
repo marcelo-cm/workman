@@ -7,15 +7,15 @@ import { ArrowLeftToLine, ArrowRightToLine } from 'lucide-react';
 
 import { usePathname } from 'next/navigation';
 
-import IfElseRender from '../ui/if-else-renderer';
+import IfElseRender from '../../ui/if-else-renderer';
 
 import useLocalStorage from '@/lib/hooks/useLocalStorage';
 
 import { createClient } from '@/lib/utils/supabase/client';
 
-import WorkmanLogo from '../molecules/WorkmanLogo';
+import WorkmanLogo from '../../molecules/WorkmanLogo';
+import { MENU_TABS } from '../constants';
 import MenuItem from './MenuItem';
-import { MENU_TABS } from './constants';
 
 interface SideBarProps {
   activePath: string;

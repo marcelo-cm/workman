@@ -125,7 +125,7 @@ const ExtractionReview = ({ files }: { files: Invoice[] }) => {
           Go Back
         </Button>
         <div className="relative flex h-[calc(100%-3px-3rem)] overflow-hidden rounded-tl border-l border-t">
-          <div className="flex h-full w-fit flex-col border-r">
+          <section className="flex h-full w-fit flex-col border-r">
             <DropdownMenu defaultOpen>
               <DropdownMenuTrigger asChild>
                 <div className="flex h-10 min-h-10 cursor-pointer items-center justify-between border-b bg-wm-white-50 px-2 text-sm hover:bg-wm-white-100">
@@ -177,7 +177,7 @@ const ExtractionReview = ({ files }: { files: Invoice[] }) => {
                 <CaretRightIcon />
               </Button>
             </div>
-          </div>
+          </section>
           <ExtractionTabs handleSetActiveIndex={handleSetActiveIndex} />
         </div>
       </div>
