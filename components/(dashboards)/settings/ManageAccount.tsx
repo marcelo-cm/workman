@@ -22,9 +22,8 @@ import { Input } from '@/components/ui/input';
 
 import { useUser } from '@/lib/hooks/supabase/useUser';
 
+import { useAppContext } from '@/app/(dashboards)/context';
 import { User } from '@/models/User';
-
-import { useAppContext } from '../context';
 
 const accountFormSchema = z.object({
   name: z.string().min(1),

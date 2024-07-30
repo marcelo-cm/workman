@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const formSchema = z.object({
+export const invoiceDataFormSchema = z.object({
   date: z
     .string()
     .min(1, 'Date is required')

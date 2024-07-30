@@ -31,10 +31,10 @@ import { ApprovalStatus } from '@/constants/enums';
 import { InvoiceData } from '@/interfaces/common.interfaces';
 import Invoice from '@/models/Invoice';
 
-import EditExtractedData from './(tabs)/EditExtractedData';
-import UploadToQuickBooks from './(tabs)/UploadToQuickBooks';
-import { useExtractionReview } from './ExtractionReview';
-import { formSchema } from './constants';
+import { useExtractionReview } from '../ExtractionReview';
+import { invoiceDataFormSchema } from '../constants';
+import EditExtractedData from './edit/InvoiceDataForm';
+import UploadToQuickBooks from './upload/UploadToQuickBooks';
 
 const { getDefaultCategoryByVendorName, saveDefaultCategory } = useVendor();
 const { updateApprovalByApprovableAndApproverId } = useApprovals();
@@ -53,8 +53,8 @@ const ExtractionTabs = ({
     files[activeIndex].data,
   );
   const uploadToQuickBooksTabRef = useRef<HTMLButtonElement>(null);
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<typeof invoiceDataFormSchema>>({
+    resolver: zodResolver(invoiceDataFormSchema),
     defaultValues: {
       date: files[activeIndex]?.data?.date || '',
       dueDate: files[activeIndex]?.data?.dueDate || '',

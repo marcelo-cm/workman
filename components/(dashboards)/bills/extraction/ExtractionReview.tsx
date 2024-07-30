@@ -34,7 +34,7 @@ import { useVendor } from '@/lib/hooks/quickbooks/useVendor';
 import { Account, Customer, Vendor } from '@/interfaces/quickbooks.interfaces';
 import Invoice from '@/models/Invoice';
 
-import ExtractionTabs from './ExtractionTabs';
+import ExtractionTabs from './(tabs)/ExtractionTabs';
 
 interface ExtractionReviewContext {
   files: Invoice[];

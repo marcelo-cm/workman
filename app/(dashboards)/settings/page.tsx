@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 
+import CompanyRules from '@/components/(dashboards)/settings/CompanyRules';
+import ManageAccount from '@/components/(dashboards)/settings/ManageAccount';
 import Gmail from '@/components/molecules/Gmail';
 import QuickBooks from '@/components/molecules/QuickBooks';
 import {
@@ -24,8 +26,6 @@ import { handleGoogleMailIntegration } from '@/lib/utils/nango/google';
 import { handleQuickBooksIntegration } from '@/lib/utils/nango/quickbooks';
 
 import { useAppContext } from '../context';
-import CompanyRules from './CompanyRules';
-import ManageAccount from './ManageAccount';
 
 const Account = () => {
   const { getVendorList } = useVendor();
