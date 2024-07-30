@@ -3,8 +3,8 @@
 import * as mindee from 'mindee';
 import { Nango } from '@nangohq/node';
 
-import { createMindeeClient } from '@/utils/mindee/client';
-import { createClient } from '@/utils/supabase/server';
+import { createMindeeClient } from '@/lib/utils/mindee/client';
+import { createClient } from '@/lib/utils/supabase/server';
 
 const supabase = createClient();
 const nango = new Nango({

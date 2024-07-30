@@ -1,7 +1,6 @@
-import { useAppContext } from '@/app/(dashboards)/layout';
+import { createClient } from '@/lib/utils/supabase/client';
 import { Company } from '@/models/Company';
-import { User, User_Nested } from '@/models/User';
-import { createClient } from '@/utils/supabase/client';
+import { User_Nested } from '@/models/User';
 
 const supabase = createClient();
 

@@ -4,7 +4,7 @@ import { toast } from '@/components/ui/use-toast';
 
 import { Default_Vendor_Category } from '@/interfaces/db.interfaces';
 import { Vendor } from '@/interfaces/quickbooks.interfaces';
-import { createClient as createSupabaseClient } from '@/utils/supabase/client';
+import { createClient as createSupabaseClient } from '@/lib/utils/supabase/client';
 
 import { useUser } from '../supabase/useUser';
 

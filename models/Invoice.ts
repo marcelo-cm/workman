@@ -3,6 +3,8 @@ import { UUID } from 'crypto';
 
 import { toast } from '@/components/ui/use-toast';
 
+import { useUser } from '@/lib/hooks/supabase/useUser';
+
 import { PDFData } from '@/app/api/v1/gmail/messages/route';
 import { InvoiceData } from '@/interfaces/common.interfaces';
 import {
@@ -10,12 +12,13 @@ import {
   LineItem_QuickBooks,
 } from '@/interfaces/quickbooks.interfaces';
 import { mindeeScan } from '@/lib/actions/actions';
-import { createClient } from '@/utils/supabase/client';
+import { createClient } from '@/lib/utils/supabase/client';
 
 import { Company } from './Company';
 import { User_Nested } from './User';
 
 const supabase = createClient();
+const { fetchUserData } = useUser();
 
 export class Invoice {
   private _id: UUID;
@@ -100,8 +103,8 @@ export class Invoice {
       throw new Error(`Failed to upload file`);
     }
 
-    const user = await supabase.auth.getUser();
-    const id = user.data.user?.id;
+    const user = await fetchUserData();
+    const id = user.id;
 
     const {
       data: { publicUrl },
@@ -109,9 +112,10 @@ export class Invoice {
 
     const { error: invoiceError } = await supabase.from('invoices').insert([
       {
-        owner: id,
+        principal_id: id,
         status: 'UNPROCESSED',
-        fileUrl: publicUrl,
+        file_url: publicUrl,
+        company_id: user.company.id,
       },
     ]);
 
@@ -217,7 +221,7 @@ export class Invoice {
     const { data, error } = await supabase
       .from('invoices')
       .select('*')
-      .eq('fileUrl', url);
+      .eq('file_url', url);
 
     if (error) {
       toast({

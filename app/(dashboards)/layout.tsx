@@ -1,31 +1,16 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
-import SideBar from '@/components/dashboards/SideBar';
+import SideBar from '@/components/(dashboards)/layout/SideBar';
 
 import { useUser } from '@/lib/hooks/supabase/useUser';
 
-import { Company } from '@/models/Company';
 import { User } from '@/models/User';
 
+import { AppContext } from './context';
+
 const { fetchUserData } = useUser();
-
-interface AppContext {
-  user: User;
-  refetchUser: Function;
-}
-
-const defaultAppContext: AppContext = {
-  user: {} as User,
-  refetchUser: () => {},
-};
-
-export const AppContext = createContext<AppContext>(defaultAppContext);
-
-export const useAppContext = () => {
-  return useContext(AppContext);
-};
 
 const AppLayout = ({ children }: Readonly<{ children: React.ReactNode }>) => {
   const [user, setUser] = useState<User>({} as User);

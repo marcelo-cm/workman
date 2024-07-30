@@ -1,8 +1,8 @@
 import { toast } from '@/components/ui/use-toast';
 
 import { Approvable, ApprovalStatus } from '@/constants/enums';
+import { createClient } from '@/lib/utils/supabase/client';
 import { Approval } from '@/models/Approval';
-import { createClient } from '@/utils/supabase/client';
 
 const supabase = createClient();
 
@@ -35,7 +35,6 @@ export const useApprovals = () => {
     approver_id: string,
     removable: boolean,
   ): Promise<Approval> => {
-    console.log('creating approval', approver_id);
     const { data, error } = await supabase
       .from('approvals')
       .insert([
@@ -51,8 +50,6 @@ export const useApprovals = () => {
         '*, approver: approver_id(id, name, email), principal: principal_id(id, name, email)',
       );
 
-    console.log('data', data);
-
     if (error) {
       throw new Error('Failed to create approval');
     } else {
@@ -62,7 +59,6 @@ export const useApprovals = () => {
   };
 
   const deleteApproval = async (approvalId: string) => {
-    console.log('deleting approval');
     const { error } = await supabase
       .from('approvals')
       .delete()
@@ -82,10 +78,16 @@ export const useApprovals = () => {
     approverId: string,
     status: ApprovalStatus,
   ) => {
+    console.log(approvableId, approverId, status);
     const { error } = await supabase
       .from('approvals')
       .upsert(
-        { status },
+        {
+          approver_id: approverId,
+          approvable_id: approvableId,
+          approvable_type: Approvable.INVOICE,
+          status,
+        },
         {
           onConflict: 'approvable_id, approver_id',
         },

@@ -24,7 +24,7 @@ import { useUser } from '@/lib/hooks/supabase/useUser';
 
 import { User } from '@/models/User';
 
-import { useAppContext } from '../layout';
+import { useAppContext } from '../context';
 
 const accountFormSchema = z.object({
   name: z.string().min(1),
@@ -51,7 +51,6 @@ const ManageAccount = ({
   });
 
   const handleUpdateAccount = () => {
-    console.log('Update account');
     updateUser({
       name: form.getValues('name'),
       email: form.getValues('email'),
