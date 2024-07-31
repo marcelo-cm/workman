@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { MagnifyingGlassIcon } from '@radix-ui/react-icons';
+import { ScanIcon } from 'lucide-react';
 
 import {
   ColumnFiltersState,
@@ -15,6 +16,14 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 
+import WorkmanLogo from '@/components/molecules/WorkmanLogo';
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { DatePickerWithRange } from '@/components/ui/date-range-picker';
 import IfElseRender from '@/components/ui/if-else-renderer';
@@ -68,6 +77,7 @@ export function InvoiceDataTable<TData, TValue>({
   });
   const [filteredData, setFilteredData] = useState<Invoice[]>([]);
   const [tabValue, setTabValue] = useState<TabValue>();
+  const [isUploading, setIsUploading] = useState(false);
 
   const searchFilterInputRef = useRef<HTMLInputElement>(null);
   const dateRangeRef = useRef<any>(null);
@@ -93,10 +103,7 @@ export function InvoiceDataTable<TData, TValue>({
       return;
     }
 
-    getInvoicesByStates(
-      [tabValue.state].flatMap((i) => i),
-      setData,
-    );
+    getInvoicesByStates([tabValue.state].flat(), setData);
   }, [tabValue]);
 
   useEffect(() => {
@@ -161,17 +168,57 @@ export function InvoiceDataTable<TData, TValue>({
     dateRangeRef.current?.clearDate();
   };
 
+  const handleScanInvoices = async (selectedFiles: Invoice[]) => {
+    setIsUploading(true);
+    const scanPromises = selectedFiles.map(
+      async (file) => await Invoice.scanAndUpdate(file.fileUrl),
+    );
+    await Promise.all(scanPromises).then(() => {
+      setIsUploading(false);
+      tabValue && getInvoicesByStates([tabValue.state].flat(), setData);
+      setRowSelection({});
+    });
+  };
+
   return (
     <>
       <div className="flex flex-row gap-4">
-        <Button
-          variant="secondary"
-          disabled={canActionBeDisabled && selectedFilesUrls.length === 0}
-          onClick={() => onAction(selectedFilesUrls)}
-        >
-          {actionIcon}
-          {actionOnSelectText}
-        </Button>
+        <AlertDialog open={isUploading}>
+          <AlertDialogContent className="justify-center">
+            <AlertDialogHeader className="items-center">
+              <WorkmanLogo className="w-32 animate-pulse" />
+              <AlertDialogTitle>Uploading your Data Now!</AlertDialogTitle>
+            </AlertDialogHeader>
+            <AlertDialogDescription className="text-center">
+              It's important that you don't close this window while we're
+              uploading your data. We are uploading {selectedFilesUrls.length}{' '}
+              files.
+            </AlertDialogDescription>
+          </AlertDialogContent>
+        </AlertDialog>
+        <IfElseRender
+          condition={tabValue?.state === InvoiceStatus.UNPROCESSED}
+          ifTrue={
+            <Button
+              variant="secondary"
+              disabled={canActionBeDisabled && selectedFilesUrls.length === 0}
+              onClick={() => handleScanInvoices(selectedFilesUrls)}
+            >
+              <ScanIcon className="w-4 h-4" />
+              Scan Selected
+            </Button>
+          }
+          ifFalse={
+            <Button
+              variant="secondary"
+              disabled={canActionBeDisabled && selectedFilesUrls.length === 0}
+              onClick={() => onAction(selectedFilesUrls)}
+            >
+              {actionIcon}
+              {actionOnSelectText}
+            </Button>
+          }
+        />
         <IfElseRender
           condition={filters}
           ifTrue={

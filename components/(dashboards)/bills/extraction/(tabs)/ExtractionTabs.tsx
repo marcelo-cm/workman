@@ -291,7 +291,7 @@ const ExtractionTabs = ({
                   onClick={() => {
                     saveDefaultCategory(
                       watchVendorName,
-                      watchLineItems[0].productCode as string,
+                      watchLineItems[0]?.productCode as string,
                     );
                     setIsSaveDefaultCategoryDialogOpen(false);
                   }}

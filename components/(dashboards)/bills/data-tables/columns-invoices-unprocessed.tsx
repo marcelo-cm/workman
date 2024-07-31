@@ -6,6 +6,7 @@ import { ExternalLinkIcon } from 'lucide-react';
 import { ColumnDef } from '@tanstack/react-table';
 
 import PDFViewer from '@/components/(shared)/PDF/PDFViewer';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
@@ -105,5 +106,13 @@ export const columns: ColumnDef<Invoice>[] = [
         View File <ExternalLinkIcon className="h-4 w-4" />
       </Button>
     ),
+  },
+  {
+    accessorKey: 'status',
+    header: () => <div>Status</div>,
+    cell: ({ row }) => {
+      const status = row.original.status;
+      return <Badge variant={'destructive'}>{status}</Badge>;
+    },
   },
 ];
