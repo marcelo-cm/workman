@@ -98,6 +98,8 @@ export function InvoiceDataTable<TData, TValue>({
   useEffect(() => {
     if (!tabValue) return;
 
+    setRowSelection({});
+
     if (tabValue.approverId) {
       getInvoicesAwaitingUserApproval(tabValue.approverId, setData);
       return;
