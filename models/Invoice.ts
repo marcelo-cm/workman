@@ -6,6 +6,7 @@ import { toast } from '@/components/ui/use-toast';
 import { useUser } from '@/lib/hooks/supabase/useUser';
 
 import { PDFData } from '@/app/api/v1/gmail/messages/route';
+import { InvoiceStatus } from '@/constants/enums';
 import { InvoiceData } from '@/interfaces/common.interfaces';
 import {
   Invoice_Quickbooks,
@@ -25,7 +26,7 @@ export class Invoice {
   private _created_at: Date;
   private _data: InvoiceData;
   private _file_url: string;
-  private _status: string;
+  private _status: InvoiceStatus;
   private _principal: User_Nested;
   private _company: Company;
 
@@ -41,7 +42,7 @@ export class Invoice {
     id: UUID;
     created_at: Date;
     data: InvoiceData;
-    status: string;
+    status: InvoiceStatus;
     file_url: string;
     principal: User_Nested;
     company: Company;
@@ -368,6 +369,10 @@ export class Invoice {
 
   set data(data: InvoiceData) {
     this._data = data;
+  }
+
+  set status(status: InvoiceStatus) {
+    this._status = status;
   }
 
   static async transformToQuickBooksInvoice(
