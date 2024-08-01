@@ -1,3 +1,5 @@
+import { Analytics } from '@vercel/analytics/react';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 import { Inter } from 'next/font/google';
 
 import { Toaster } from '@/components/ui/toaster';
@@ -75,6 +77,8 @@ export default function RootLayout({
       <body className={`${inter.className} h-dvh min-h-screen bg-white`}>
         {children}
         <Toaster />
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );

@@ -89,7 +89,7 @@ export default function Home() {
         </div>
         <div className="rounded-md border p-2 md:p-4 ">
           <video
-            src="WorkmanApprovalsDemo.mp4"
+            src="WorkmanDemo.mp4"
             className="w-full max-w-[900px] rounded-sm border"
             autoPlay={true}
             loop={true}
