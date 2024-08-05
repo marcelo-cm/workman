@@ -6,6 +6,7 @@ import {
 
 import Image from 'next/image';
 
+import Waitlist from '@/components/(shared)/general/Waitlist';
 import WorkmanLogo from '@/components/molecules/WorkmanLogo';
 import { Button } from '@/components/ui/button';
 
@@ -60,6 +61,7 @@ export default function Home() {
             </div>
           </div>
         </div>
+        <Waitlist />
         <Image
           src={'/WorkmanSneakPeek.png'}
           alt="Workman Platform 'For Approval' Dashboard"
