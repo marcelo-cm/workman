@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^3.3.4",
-    "@logsnag/react": "^1.0.2",
+    "@logsnag/next": "^1.0.3",
     "@nangohq/frontend": "^0.39.28",
     "@nangohq/node": "^0.39.28",
     "@radix-ui/react-alert-dialog": "^1.0.5",
