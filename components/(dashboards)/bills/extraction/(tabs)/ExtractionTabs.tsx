@@ -156,10 +156,15 @@ const ExtractionTabs = ({
     );
 
     const approvals = await getApprovalsByApprovableId(file.id);
+    console.log(approvals);
 
     const isAllApproved = approvals.every(
-      (approval) => approval.status === ApprovalStatus.APPROVED,
+      (approval) =>
+        approval.status === ApprovalStatus.APPROVED ||
+        approval.principal.id === user.id,
     );
+
+    console.log(isAllApproved);
 
     if (isAllApproved) {
       file.status = InvoiceStatus.APPROVED;
