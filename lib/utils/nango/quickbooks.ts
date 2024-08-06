@@ -25,7 +25,8 @@ export const handleQuickBooksIntegration = async () => {
           .eq('id', userId);
         toast({
           title: 'Authorization Successful',
-          description: 'You have successfully authorized QuickBooks',
+          description:
+            'You have successfully authorized QuickBooks, please refresh.',
         });
       },
     )

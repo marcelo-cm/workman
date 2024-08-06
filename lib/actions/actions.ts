@@ -2,6 +2,7 @@
 
 import * as mindee from 'mindee';
 import { Nango } from '@nangohq/node';
+import { UUID } from 'crypto';
 
 import { createMindeeClient } from '@/lib/utils/mindee/client';
 import { createClient } from '@/lib/utils/supabase/server';
@@ -27,18 +28,11 @@ export async function mindeeScan(fileUrl: string) {
  * Retrieves OAuth2 token from Nango for Google Mail
  * @returns Token for Google Mail if found, otherwise false
  */
-export async function getGoogleMailToken() {
-  const { data } = await supabase.auth.getUser();
-
-  if (!data.user) {
-    console.error('User not found');
-    return;
-  }
-
+export async function getGoogleMailToken(id: UUID) {
   const gmailIntegrationStatus = await supabase
     .from('users')
     .select('gmail_integration_status')
-    .eq('id', data.user.id)
+    .eq('id', id)
     .single();
 
   if (gmailIntegrationStatus.error) {
@@ -50,23 +44,20 @@ export async function getGoogleMailToken() {
     return false;
   }
 
-  const token = await nango.getToken('google-mail', data.user?.id);
+  const token = await nango.getToken('google-mail', id);
 
   return token;
 }
 
-export async function getQuickBooksToken() {
-  const { data } = await supabase.auth.getUser();
-
-  if (!data.user) {
-    console.error('User not found');
-    return;
-  }
-
+/**
+ * Retrieves OAuth2 token from Nango for QuickBooks
+ * @returns Token for Google Mail if found, otherwise false
+ */
+export async function getQuickBooksToken(id: UUID) {
   const quickbooksIntegrationStatus = await supabase
     .from('users')
     .select('quickbooks_integration_status')
-    .eq('id', data.user.id)
+    .eq('id', id)
     .single();
 
   if (quickbooksIntegrationStatus.error) {
@@ -78,7 +69,7 @@ export async function getQuickBooksToken() {
     return false;
   }
 
-  const token = await nango.getToken('quickbooks', data.user.id);
+  const token = await nango.getToken('quickbooks', id);
 
   return token;
 }

@@ -27,7 +27,7 @@ const Demo = () => {
       </h3>
       <div className="flex max-w-[900px] flex-col gap-4 rounded-md border p-2 md:w-2/3 md:p-4">
         <video
-          src="WorkmanDemoJun1.mp4"
+          src="WorkmanDemo.mp4"
           className="w-full rounded-sm border"
           autoPlay={true}
           loop={true}

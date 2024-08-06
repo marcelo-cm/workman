@@ -2,6 +2,7 @@ import { UserResponse } from '@supabase/supabase-js';
 import { UUID } from 'crypto';
 
 import { User_Update } from '@/interfaces/db.interfaces';
+import { getGoogleMailToken, getQuickBooksToken } from '@/lib/actions/actions';
 import { createClient as createSupabaseClient } from '@/lib/utils/supabase/client';
 import { User } from '@/models/User';
 
@@ -56,7 +57,7 @@ export const useUser = () => {
 
     const { data, error } = await supabase
       .from('users')
-      .select(`${columnsToFetch}, companies (*)` as '*')
+      .select(`${columnsToFetch}, company: companies(*)` as '*')
       .eq('id', userData?.user?.id)
       .single();
 
@@ -64,12 +65,7 @@ export const useUser = () => {
       throw new Error('Failed to fetch user data');
     }
 
-    const { company_id, companies, ...rest } = data;
-
-    return new User({
-      ...rest,
-      company: companies,
-    });
+    return new User(data);
   };
 
   async function fetchUser(): Promise<UserResponse> {
@@ -113,6 +109,14 @@ export const useUser = () => {
     return data.map((user) => new User(user));
   }
 
+  const getNangoIntegrationsById = async (id: UUID) => {
+    const gmailToken = await getGoogleMailToken(id);
+    const quickbooksToken = await getQuickBooksToken(id);
+    return {
+      gmail: gmailToken,
+      quickbooks: quickbooksToken,
+    };
+  };
   return {
     createUser,
     updateUser,
@@ -120,5 +124,6 @@ export const useUser = () => {
     fetchUser,
     getUserById,
     getUsersByCompanyId,
+    getNangoIntegrationsById,
   };
 };

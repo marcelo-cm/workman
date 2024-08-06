@@ -7,7 +7,6 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
-import Gmail from '@/components/molecules/Gmail';
 import QuickBooks from '@/components/molecules/QuickBooks';
 import WorkmanLogo from '@/components/molecules/WorkmanLogo';
 import { Button } from '@/components/ui/button';
@@ -22,18 +21,15 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 
-import { useGmail } from '@/lib/hooks/gmail/useGmail';
 import { useUser } from '@/lib/hooks/supabase/useUser';
 
-import { Label_Basic } from '@/interfaces/gmail.interfaces';
 import { getGoogleMailToken, getQuickBooksToken } from '@/lib/actions/actions';
 import { createClient as createNangoClient } from '@/lib/utils/nango/client';
-import { handleGoogleMailIntegration } from '@/lib/utils/nango/google';
 import { handleQuickBooksIntegration } from '@/lib/utils/nango/quickbooks';
 import { createClient as createSupabaseClient } from '@/lib/utils/supabase/client';
+import { User } from '@/models/User';
 
 const supabase = createSupabaseClient();
-const nango = createNangoClient();
 
 const signUpSchema = z.object({
   email: z.string().email(),
@@ -43,31 +39,28 @@ const signUpSchema = z.object({
 const Onboarding = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState({
-    gmail: false,
-    quickbooks: false,
+  const [userData, setUserData] = useState<User>();
+  const [isAuthenticated, setIsAuthenticated] = useState<
+    Record<string, unknown>
+  >({
+    gmail: null,
+    quickbooks: null,
   });
-  const { getLabels, createLabel } = useGmail();
-  const { updateUser } = useUser();
+  const { fetchUserData, getNangoIntegrationsById } = useUser();
   const router = useRouter();
   const form = useForm<z.infer<typeof signUpSchema>>({
     resolver: zodResolver(signUpSchema),
-    defaultValues: {
-      email: '',
-      password: '',
-    },
   });
 
   useEffect(() => {
-    getUser().then((user) => {
-      if (user) {
-        setIsLoggedIn(true);
-      }
-    });
+    fetchUserData().then((user) => {
+      if (!user) return;
 
-    getNangoIntegrations().then((integrations) => {
-      setIsAuthenticated(integrations);
+      setUserData(user);
+      form.setValue('email', user.email);
+      getNangoIntegrationsById(user.id).then((integrations) => {
+        setIsAuthenticated(integrations);
+      });
     });
   }, []);
 
@@ -82,74 +75,7 @@ const Onboarding = () => {
       return;
     }
 
-    await upsertWorkmanLabels();
-
     router.refresh();
-  }
-
-  const upsertWorkmanLabels = async () => {
-    const labels = await getLabels();
-
-    const workmanLabelExists = labels.find(
-      (label: Label_Basic) => label.name === 'WORKMAN SCANNED',
-    );
-
-    const ignoreLabelExists = labels.find(
-      (label: Label_Basic) => label.name === 'WORKMAN IGNORE',
-    );
-
-    if (!workmanLabelExists) {
-      const WORKMAN_SCANNED_LABEL: Omit<Label_Basic, 'id'> = {
-        name: 'WORKMAN SCANNED',
-        messageListVisibility: 'show',
-        labelListVisibility: 'labelShow',
-        type: 'user',
-      };
-      const newLabel = await createLabel(WORKMAN_SCANNED_LABEL);
-
-      if (newLabel) {
-        const valuesToUpdate = {
-          scanned_label_id: newLabel.id,
-        };
-
-        await updateUser(valuesToUpdate);
-      }
-    }
-
-    if (!ignoreLabelExists) {
-      const WORKMAN_IGNORE_LABEL: Omit<Label_Basic, 'id'> = {
-        name: 'WORKMAN IGNORE',
-        messageListVisibility: 'show',
-        labelListVisibility: 'labelShow',
-        type: 'user',
-      };
-      const newLabel = await createLabel(WORKMAN_IGNORE_LABEL);
-
-      if (newLabel) {
-        const valuesToUpdate = {
-          ignore_label_id: newLabel.id,
-        };
-
-        await updateUser(valuesToUpdate);
-      }
-    }
-  };
-
-  async function getUser() {
-    const user = await supabase.auth.getUser();
-    if (!user.data.user) {
-      return null;
-    }
-    return user;
-  }
-
-  async function getNangoIntegrations() {
-    const gmailToken = await getGoogleMailToken();
-    const quickbooksToken = await getQuickBooksToken();
-    return {
-      gmail: Boolean(gmailToken),
-      quickbooks: Boolean(quickbooksToken),
-    };
   }
 
   return (
@@ -170,7 +96,20 @@ const Onboarding = () => {
                   <FormItem className="mb-2 flex w-full items-center gap-4">
                     <FormLabel className="w-[90px]">Email</FormLabel>
                     <FormControl>
-                      <Input placeholder="Email" type="text" {...field} />
+                      <Input
+                        disabled={!!userData || isLoading}
+                        placeholder="Email"
+                        type="text"
+                        {...field}
+                        {...form.register(field.name, {
+                          onChange(event) {
+                            form.setValue(field.name, event.target.value, {
+                              shouldValidate: true,
+                              shouldDirty: true,
+                            });
+                          },
+                        })}
+                      />
                     </FormControl>
                     <FormMessage className="text-red-500" />
                   </FormItem>
@@ -181,12 +120,23 @@ const Onboarding = () => {
                 name="password"
                 render={({ field }) => (
                   <FormItem className="mb-4 flex w-full items-center gap-4">
-                    <FormLabel className="w-[90px]">Password</FormLabel>
+                    <FormLabel className="w-[90px]">
+                      Password (6+ chars.)
+                    </FormLabel>
                     <FormControl>
                       <Input
+                        disabled={!!userData || isLoading}
                         placeholder="Password"
                         type="password"
                         {...field}
+                        {...form.register(field.name, {
+                          onChange(event) {
+                            form.setValue(field.name, event.target.value, {
+                              shouldValidate: true,
+                              shouldDirty: true,
+                            });
+                          },
+                        })}
                       />
                     </FormControl>
                     <FormMessage className="text-red-500" />
@@ -194,15 +144,10 @@ const Onboarding = () => {
                 )}
               />
               <div className="flex w-full justify-end">
-                {errorMessage && (
-                  <FormDescription className="text-balance text-red-500">
-                    {errorMessage}
-                  </FormDescription>
-                )}
                 <Button
                   type="submit"
                   className="ml-auto"
-                  disabled={isLoggedIn || isLoading}
+                  disabled={!!userData || isLoading}
                 >
                   Sign Up
                 </Button>
@@ -211,31 +156,14 @@ const Onboarding = () => {
           </Form>
         </div>
         <div className="flex flex-col gap-2 rounded-md border p-4">
-          <h3 className="text-lg font-medium">Connect your Gmail</h3>
-          <p className="text-sm">
-            We integrate with Gmail so you process invoices straight from your
-            inbox to QuickBooks in minutes
-          </p>
-          <Button
-            className="w-fit self-end"
-            variant={'secondary'}
-            disabled={!isLoggedIn || isAuthenticated.gmail || isLoading}
-            onClick={handleGoogleMailIntegration}
-          >
-            <Gmail />
-            Authenticate Gmail
-          </Button>
-        </div>
-        <div className="flex flex-col gap-2 rounded-md border p-4">
           <h3 className="text-lg font-medium">Connect your QuickBooks</h3>
           <p className="text-sm">
-            The Workman directly creates bills in your QuickBooks in just one
-            click.
+            Workman directly creates bills in your QuickBooks in just one click.
           </p>
           <Button
             className="w-fit self-end"
             variant={'secondary'}
-            disabled={!isLoggedIn || isAuthenticated.quickbooks || isLoading}
+            disabled={!userData || !!isAuthenticated.quickbooks || isLoading}
             onClick={handleQuickBooksIntegration}
           >
             <QuickBooks />
@@ -244,9 +172,7 @@ const Onboarding = () => {
         </div>
       </div>
       <Button
-        disabled={
-          !isAuthenticated.gmail || !isAuthenticated.quickbooks || isLoading
-        }
+        disabled={!isAuthenticated.quickbooks || isLoading}
         onClick={() => router.push('/demo')}
       >
         Launch Workman
@@ -256,3 +182,51 @@ const Onboarding = () => {
 };
 
 export default Onboarding;
+
+// const upsertWorkmanLabels = async () => {
+//   const labels = await getLabels();
+
+//   const workmanLabelExists = labels.find(
+//     (label: Label_Basic) => label.name === 'WORKMAN SCANNED',
+//   );
+
+//   const ignoreLabelExists = labels.find(
+//     (label: Label_Basic) => label.name === 'WORKMAN IGNORE',
+//   );
+
+//   if (!workmanLabelExists) {
+//     const WORKMAN_SCANNED_LABEL: Omit<Label_Basic, 'id'> = {
+//       name: 'WORKMAN SCANNED',
+//       messageListVisibility: 'show',
+//       labelListVisibility: 'labelShow',
+//       type: 'user',
+//     };
+//     const newLabel = await createLabel(WORKMAN_SCANNED_LABEL);
+
+//     if (newLabel) {
+//       const valuesToUpdate = {
+//         scanned_label_id: newLabel.id,
+//       };
+
+//       await updateUser(valuesToUpdate);
+//     }
+//   }
+
+//   if (!ignoreLabelExists) {
+//     const WORKMAN_IGNORE_LABEL: Omit<Label_Basic, 'id'> = {
+//       name: 'WORKMAN IGNORE',
+//       messageListVisibility: 'show',
+//       labelListVisibility: 'labelShow',
+//       type: 'user',
+//     };
+//     const newLabel = await createLabel(WORKMAN_IGNORE_LABEL);
+
+//     if (newLabel) {
+//       const valuesToUpdate = {
+//         ignore_label_id: newLabel.id,
+//       };
+
+//       await updateUser(valuesToUpdate);
+//     }
+//   }
+// };

@@ -22,6 +22,7 @@ const AppLayout = ({ children }: Readonly<{ children: React.ReactNode }>) => {
   const refetchUser = () => {
     fetchUserData().then(setUser);
   };
+
   return (
     <div className="flex h-dvh w-dvw flex-row overflow-x-hidden bg-white text-black">
       <AppContext.Provider value={{ user, refetchUser }}>
