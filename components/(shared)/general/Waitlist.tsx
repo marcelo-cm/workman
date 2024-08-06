@@ -58,7 +58,10 @@ const Waitlist = () => {
   };
 
   return (
-    <LogSnagProvider token={process.env.LOGSNAG_API_KEY!} project="workman">
+    <LogSnagProvider
+      token={process.env.NEXT_PUBLIC_LOGSNAG_API_KEY!}
+      project="workman"
+    >
       <Container className="p-4 text-left w-full md:w-1/2 md:min-w-[500px] shadow-sm motion-safe:animate-bounce focus-within:animate-none hover:animate-none">
         <p className="mb-2 text-center font-medium">
           Get started, we'll email you with next steps!
