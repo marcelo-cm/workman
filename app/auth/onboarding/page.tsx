@@ -13,7 +13,6 @@ import { Button } from '@/components/ui/button';
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -23,8 +22,6 @@ import { Input } from '@/components/ui/input';
 
 import { useUser } from '@/lib/hooks/supabase/useUser';
 
-import { getGoogleMailToken, getQuickBooksToken } from '@/lib/actions/actions';
-import { createClient as createNangoClient } from '@/lib/utils/nango/client';
 import { handleQuickBooksIntegration } from '@/lib/utils/nango/quickbooks';
 import { createClient as createSupabaseClient } from '@/lib/utils/supabase/client';
 import { User } from '@/models/User';
@@ -32,6 +29,7 @@ import { User } from '@/models/User';
 const supabase = createSupabaseClient();
 
 const signUpSchema = z.object({
+  name: z.string().min(1),
   email: z.string().email(),
   password: z.string().min(6),
 });
@@ -53,29 +51,57 @@ const Onboarding = () => {
   });
 
   useEffect(() => {
-    fetchUserData().then((user) => {
-      if (!user) return;
-
-      setUserData(user);
-      form.setValue('email', user.email);
-      getNangoIntegrationsById(user.id).then((integrations) => {
-        setIsAuthenticated(integrations);
-      });
-    });
+    checkIfUserExists();
   }, []);
+
+  const checkIfUserExists = async () => {
+    const { data: user } = await supabase.auth.getUser();
+    if (user) {
+      fetchUserData().then((user) => {
+        setUserData(user);
+        form.setValue('email', user.email);
+        form.setValue('name', user.name);
+        getNangoIntegrationsById(user.id).then((integrations) => {
+          setIsAuthenticated(integrations);
+        });
+      });
+    }
+  };
 
   async function onSubmit(values: z.infer<typeof signUpSchema>) {
     setIsLoading(true);
-    const { error } = await supabase.auth.signUp(values);
+    const { data, error } = await supabase.auth.signUp({
+      email: values.email,
+      password: values.password,
+      options: { data: { name: values.name } },
+    });
+    const { user } = data;
+    const createData = { id: user?.id, name: values.name, email: user?.email };
+    const { data: createRes, error: createError } = await supabase
+      .from('users')
+      .insert(createData)
+      .select('*')
+      .maybeSingle();
+
+    console.log(createRes, createError);
 
     if (error) {
       setErrorMessage(
-        `[${error.status} ${error.name}] Could not sign in. Please try again or contact support.`,
+        `[${error.status} ${error.name}] Could not sign up. Please try again or contact support.`,
       );
+      setIsLoading(false);
       return;
     }
 
-    router.refresh();
+    if (createError) {
+      setErrorMessage(
+        `[${createError.code} ${createError.message}] Could not create user. Please try again or contact support.`,
+      );
+      setIsLoading(false);
+      return;
+    }
+
+    window.location.reload();
   }
 
   return (
@@ -91,27 +117,57 @@ const Onboarding = () => {
             <form onSubmit={form.handleSubmit(onSubmit)}>
               <FormField
                 control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem className="mb-2 flex w-full items-center gap-4">
+                    <FormLabel className="w-[90px]">Name</FormLabel>
+                    <div className="flex flex-col w-full">
+                      <FormControl>
+                        <Input
+                          disabled={!!userData || isLoading}
+                          placeholder="Workman"
+                          type="text"
+                          {...field}
+                          {...form.register(field.name, {
+                            onChange(event) {
+                              form.setValue(field.name, event.target.value, {
+                                shouldValidate: true,
+                                shouldDirty: true,
+                              });
+                            },
+                          })}
+                        />
+                      </FormControl>
+                      <FormMessage className="text-red-500 pt-1" />
+                    </div>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
                 name="email"
                 render={({ field }) => (
                   <FormItem className="mb-2 flex w-full items-center gap-4">
                     <FormLabel className="w-[90px]">Email</FormLabel>
-                    <FormControl>
-                      <Input
-                        disabled={!!userData || isLoading}
-                        placeholder="Email"
-                        type="text"
-                        {...field}
-                        {...form.register(field.name, {
-                          onChange(event) {
-                            form.setValue(field.name, event.target.value, {
-                              shouldValidate: true,
-                              shouldDirty: true,
-                            });
-                          },
-                        })}
-                      />
-                    </FormControl>
-                    <FormMessage className="text-red-500" />
+                    <div className="flex flex-col w-full">
+                      <FormControl>
+                        <Input
+                          disabled={!!userData || isLoading}
+                          placeholder="Email"
+                          type="text"
+                          {...field}
+                          {...form.register(field.name, {
+                            onChange(event) {
+                              form.setValue(field.name, event.target.value, {
+                                shouldValidate: true,
+                                shouldDirty: true,
+                              });
+                            },
+                          })}
+                        />
+                      </FormControl>
+                      <FormMessage className="text-red-500 pt-1" />
+                    </div>
                   </FormItem>
                 )}
               />
@@ -123,31 +179,36 @@ const Onboarding = () => {
                     <FormLabel className="w-[90px]">
                       Password (6+ chars.)
                     </FormLabel>
-                    <FormControl>
-                      <Input
-                        disabled={!!userData || isLoading}
-                        placeholder="Password"
-                        type="password"
-                        {...field}
-                        {...form.register(field.name, {
-                          onChange(event) {
-                            form.setValue(field.name, event.target.value, {
-                              shouldValidate: true,
-                              shouldDirty: true,
-                            });
-                          },
-                        })}
-                      />
-                    </FormControl>
-                    <FormMessage className="text-red-500" />
+                    <div className="flex flex-col w-full">
+                      <FormControl>
+                        <Input
+                          disabled={!!userData || isLoading}
+                          placeholder="Password"
+                          type="password"
+                          {...field}
+                          {...form.register(field.name, {
+                            onChange(event) {
+                              form.setValue(field.name, event.target.value, {
+                                shouldValidate: true,
+                                shouldDirty: true,
+                              });
+                            },
+                          })}
+                        />
+                      </FormControl>
+                      <FormMessage className="text-red-500 pt-1" />
+                    </div>
                   </FormItem>
                 )}
               />
               <div className="flex w-full justify-end">
+                {errorMessage && (
+                  <p className="text-red-500 text-xs">{errorMessage}</p>
+                )}
                 <Button
                   type="submit"
                   className="ml-auto"
-                  disabled={!!userData || isLoading}
+                  disabled={!!userData || isLoading || !form.formState.isValid}
                 >
                   Sign Up
                 </Button>

@@ -9,29 +9,29 @@ import { User } from '@/models/User';
 const supabase = createSupabaseClient();
 
 export const useUser = () => {
-  const createUser = async (company_id: UUID): Promise<User> => {
-    const { data: userData } = await fetchUser();
+  // const createUser = async (company_id: UUID): Promise<User> => {
+  //   const { data: userData } = await fetchUser();
 
-    const { data, error } = await supabase
-      .from('users')
-      .insert({
-        user_id: userData.user?.id,
-        ignore_label_id: null,
-        scanned_label_id: null,
-        gmail_integration_status: false,
-        quickbooks_integration_status: false,
-        email: userData?.user?.email,
-        company_id: company_id,
-      })
-      .select('*')
-      .single();
+  //   const { data, error } = await supabase
+  //     .from('users')
+  //     .insert({
+  //       user_id: userData.user?.id,
+  //       ignore_label_id: null,
+  //       scanned_label_id: null,
+  //       gmail_integration_status: false,
+  //       quickbooks_integration_status: false,
+  //       email: userData?.user?.email,
+  //       company_id: company_id,
+  //     })
+  //     .select('*')
+  //     .single();
 
-    if (error) {
-      throw new Error(`Failed to create user, ${error.message}`);
-    }
+  //   if (error) {
+  //     throw new Error(`Failed to create user, ${error.message}`);
+  //   }
 
-    return new User(data);
-  };
+  //   return new User(data);
+  // };
 
   const updateUser = async (column_value: User_Update) => {
     const { data: userData } = await fetchUser();
@@ -72,7 +72,7 @@ export const useUser = () => {
     const user = await supabase.auth.getUser();
 
     if (user.error) {
-      throw new Error('Failed to fetch user');
+      throw new Error(`Failed to fetch user. ${user.error.message}`);
     }
 
     if (!user.data?.user) {
@@ -118,7 +118,7 @@ export const useUser = () => {
     };
   };
   return {
-    createUser,
+    // createUser,
     updateUser,
     fetchUserData,
     fetchUser,
