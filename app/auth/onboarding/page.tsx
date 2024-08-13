@@ -56,7 +56,8 @@ const Onboarding = () => {
 
   const checkIfUserExists = async () => {
     const { data: user } = await supabase.auth.getUser();
-    if (user) {
+
+    if (user.user) {
       fetchUserData().then((user) => {
         setUserData(user);
         form.setValue('email', user.email);
