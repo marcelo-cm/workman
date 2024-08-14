@@ -19,28 +19,25 @@ jest.mock('@nangohq/node', () => {
   };
 });
 
-const mockRequest = (body: any): NextRequest => {
-  return {
+const mockRequest = (body: any): NextRequest =>
+  ({
     json: jest.fn().mockResolvedValue(body),
-  } as unknown as NextRequest;
-};
+  }) as unknown as NextRequest;
 
-const mockResponse = (data: any, status: number) => {
-  return {
-    ok: true,
-    status,
-    json: () => Promise.resolve(data),
-  };
-};
+const mockResponse = (data: any, status: number) => ({
+  ok: true,
+  status,
+  json: () => Promise.resolve(data),
+});
 
 const createBillInQuickBooks = jest.fn();
 
 describe('POST /api/bills', () => {
-  describe('with invalid file', () => {
-    beforeEach(() => {
-      jest.clearAllMocks();
-    });
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
 
+  describe('with invalid file', () => {
     it('should throw error if file is invalid', async () => {
       const req = mockRequest({ userId: 'mock-user-id', file: INVALID_FILE });
 
@@ -54,11 +51,7 @@ describe('POST /api/bills', () => {
     beforeAll(() => {
       global.fetch = jest
         .fn()
-        .mockResolvedValue(mockResponse(API_POST_RESPONSE, 200));
-    });
-
-    beforeEach(() => {
-      jest.clearAllMocks();
+        .mockResolvedValue(mockResponse(API_POST_RESPONSE, StatusCodes.OK));
     });
 
     it('should return 400 if userId or file is missing', async () => {
@@ -66,7 +59,7 @@ describe('POST /api/bills', () => {
 
       const result = await POST(req);
 
-      expect(result.status).toBe(400);
+      expect(result.status).toBe(StatusCodes.BAD_REQUEST);
       const responseBody = await result.json();
       expect(responseBody.message).toBe('User ID and File are required');
     });
@@ -78,12 +71,12 @@ describe('POST /api/bills', () => {
       });
 
       createBillInQuickBooks.mockResolvedValue(
-        mockResponse(API_POST_RESPONSE, 200),
+        mockResponse(API_POST_RESPONSE, StatusCodes.OK),
       );
 
       const result = await POST(req);
 
-      expect(result.status).toBe(200);
+      expect(result.status).toBe(StatusCodes.OK);
       const responseBody = await result.json();
       expect(responseBody.Id).toBe(API_POST_RESPONSE.Id);
     });
@@ -105,7 +98,7 @@ describe('POST /api/bills', () => {
 
       const result = await POST(req);
 
-      expect(result.status).toBe(401);
+      expect(result.status).toBe(StatusCodes.UNAUTHORIZED);
       const responseBody = await result.json();
       expect(responseBody).toBe('QuickBooks not authorized');
     });
