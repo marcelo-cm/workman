@@ -1,6 +1,7 @@
 import { Connection, Nango } from '@nangohq/node';
 import { StatusCodes } from 'http-status-codes';
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
 
 import { Invoice_Quickbooks } from '@/interfaces/quickbooks.interfaces';
 
@@ -76,7 +77,7 @@ export async function POST(req: NextRequest) {
     return new NextResponse(
       JSON.stringify({ message: 'User ID and File are required' }),
       {
-        status: 400,
+        status: StatusCodes.BAD_REQUEST,
       },
     );
   }
@@ -114,59 +115,85 @@ const createBillInQuickBooks = async (
 ) => {
   const url = `https://quickbooks.api.intuit.com/v3/company/${realmId}/bill`;
 
-  const lineItems: LineItem[] = file.data.lineItems.map((item) => ({
-    DetailType: 'AccountBasedExpenseLineDetail',
-    Amount: parseFloat(item.totalAmount),
-    AccountBasedExpenseLineDetail: {
-      AccountRef: {
-        value: item.accountId, // 63 is hardcoded for, Job Expenses:Job Materials
-      },
-      BillableStatus: item.billable ? 'Billable' : 'NotBillable',
-      CustomerRef: {
-        value: item.customerId,
-      },
-    },
-    Description: item.description,
-  }));
-
-  const vendorRef = {
-    value: file.data.vendorId,
-  };
-
-  const bill = {
-    Line: lineItems,
-    VendorRef: vendorRef,
-    TxnDate: file.data.date,
-    DueDate: file.data.dueDate,
-    CurrencyRef: {
-      value: 'USD', // Assuming the currency is USD; replace if needed
-    },
-    PrivateNote:
-      file.data.notes + '\n\n' + file.file_url + '\n\n Filed by Workman',
-    DocNumber: file.data.invoiceNumber,
-  };
-
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-      Accept: 'application/json',
-    },
-    body: JSON.stringify(bill),
+  const lineItemSchema = z.object({
+    totalAmount: z.string().min(1, 'Total amount is required'),
+    accountId: z.string().min(1, 'Account ID is required'),
+    billable: z.boolean(),
+    customerId: z.string().min(1, 'Customer ID is required'),
+    description: z.string().min(1, 'Description is required'),
   });
 
-  if (!response.ok) {
-    const errorText = await response.text();
-    console.error(
-      'Failed to create bill in QuickBooks:',
-      response.status,
-      response.statusText,
-      errorText,
-    );
-    return [];
-  }
+  const invoiceSchema = z.object({
+    data: z.object({
+      lineItems: z.array(lineItemSchema).min(1, 'Line items are required'),
+      vendorId: z.string().min(1, 'Vendor ID is required'),
+      date: z.string().min(1, 'Date is required'),
+      dueDate: z.string().min(1, 'Due date is required'),
+      notes: z.string(),
+      invoiceNumber: z.string().min(1, 'Invoice number is required'),
+    }),
+    file_url: z.string().url('Invalid file URL').min(1, 'File URL is required'),
+  });
 
-  const data = await response.json();
-  return data;
+  try {
+    invoiceSchema.parse(file);
+
+    const lineItems: LineItem[] = file.data.lineItems.map((item) => ({
+      DetailType: 'AccountBasedExpenseLineDetail',
+      Amount: parseFloat(item.totalAmount),
+      AccountBasedExpenseLineDetail: {
+        AccountRef: {
+          value: item.accountId, // 63 is hardcoded for, Job Expenses:Job Materials
+        },
+        BillableStatus: item.billable ? 'Billable' : 'NotBillable',
+        CustomerRef: {
+          value: item.customerId,
+        },
+      },
+      Description: item.description,
+    }));
+
+    const vendorRef = {
+      value: file.data.vendorId,
+    };
+
+    const bill = {
+      Line: lineItems,
+      VendorRef: vendorRef,
+      TxnDate: file.data.date,
+      DueDate: file.data.dueDate,
+      CurrencyRef: {
+        value: 'USD', // Assuming the currency is USD; replace if needed
+      },
+      PrivateNote:
+        file.data.notes + '\n\n' + file.file_url + '\n\n Filed by Workman',
+      DocNumber: file.data.invoiceNumber,
+    };
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+        Accept: 'application/json',
+      },
+      body: JSON.stringify(bill),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(
+        'Failed to create bill in QuickBooks:',
+        response.status,
+        response.statusText,
+        errorText,
+      );
+      return [];
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (e: unknown) {
+    throw new Error(`Failed to create bill in QuickBooks`);
+  }
 };
