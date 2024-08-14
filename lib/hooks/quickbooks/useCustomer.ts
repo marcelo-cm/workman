@@ -48,9 +48,10 @@ export const useCustomer = () => {
       }
 
       const responseData = await response.json();
-      const customers = responseData.QueryResponse.Customer.filter(
-        (customer: any) => customer.DisplayName,
-      );
+      const customers =
+        responseData.QueryResponse.Customer?.filter(
+          (customer: any) => customer.DisplayName,
+        ) ?? [];
 
       if (setCustomerCallback) {
         setCustomerCallback(customers);

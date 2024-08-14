@@ -106,7 +106,7 @@ export function InvoiceDataTable<TData, TValue>({
     }
 
     getInvoicesByStates([tabValue.state].flat(), setData);
-  }, [tabValue]);
+  }, [JSON.stringify(tabValue)]);
 
   useEffect(() => {
     if (!data) return;

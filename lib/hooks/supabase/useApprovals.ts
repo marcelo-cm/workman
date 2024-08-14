@@ -78,7 +78,6 @@ export const useApprovals = () => {
     approverId: string,
     status: ApprovalStatus,
   ) => {
-    console.log(approvableId, approverId, status);
     const { error } = await supabase
       .from('approvals')
       .upsert(
