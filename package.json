@@ -46,7 +46,6 @@
     "lucide-react": "^0.378.0",
     "mindee": "^4.11.0",
     "next": "14.2.3",
-    "node-quickbooks": "^2.0.45",
     "pdf-lib": "^1.17.1",
     "react": "^18",
     "react-day-picker": "^8.10.1",
