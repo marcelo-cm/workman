@@ -1,9 +1,6 @@
 import { StatusCodes } from 'http-status-codes';
 import { NextRequest, NextResponse } from 'next/server';
 
-/**
- * @jest-environment node
- */
 import { POST } from './route';
 import { API_POST_RESPONSE, INVALID_FILE, VALID_FILE } from './test.constants';
 
@@ -70,7 +67,7 @@ describe('POST /api/bills', () => {
       const req = mockRequest({ userId: 'mock-user-id', file: INVALID_FILE });
 
       await expect(POST(req)).rejects.toThrow(
-        new Error('Failed to create bill in QuickBooks'),
+        new Error('The file is incomplete or invalid'),
       );
     });
   });

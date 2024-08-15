@@ -1,11 +1,10 @@
-import { Connection, Nango } from '@nangohq/node';
+import { Nango } from '@nangohq/node';
 import { StatusCodes } from 'http-status-codes';
 import { NextRequest, NextResponse } from 'next/server';
-import { z } from 'zod';
 
 import { Invoice_Quickbooks } from '@/interfaces/quickbooks.interfaces';
 
-import { BillSchema, LineItemSchema } from './constants';
+import { BillSchema } from './constants';
 import { Bill, LineItem } from './interfaces';
 
 const nango = new Nango({
@@ -25,46 +24,42 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const quickbooksToken = await nango.getToken('quickbooks', userId);
-  const quickbooksConnection: Connection = await nango.getConnection(
-    'quickbooks',
-    userId,
-  );
+  const { realmId, token } = await getCredentials(userId);
 
-  const quickbooksRealmId = quickbooksConnection?.connection_config.realmId;
-
-  if (!quickbooksRealmId) {
+  if (!realmId || !token) {
     return new NextResponse(JSON.stringify('QuickBooks not authorized'), {
       status: StatusCodes.UNAUTHORIZED,
     });
   }
 
-  // Upload the file to QuickBooks
-  const response = await createBillInQuickBooks(
-    quickbooksRealmId,
-    String(quickbooksToken),
-    file,
-  );
+  const bill = preparePayload(file);
+  const response = await sendBillToQuickBooks(realmId, String(token), bill);
 
   return new NextResponse(JSON.stringify(response), {
     status: StatusCodes.OK,
   });
 }
 
-const createBillInQuickBooks = async (
-  realmId: string,
-  token: string,
-  file: Invoice_Quickbooks,
-) => {
-  const url = `https://quickbooks.api.intuit.com/v3/company/${realmId}/bill`;
+const getCredentials = async (userId: string) => {
+  const token = await nango.getToken('quickbooks', userId);
+  const connection = await nango.getConnection('quickbooks', userId);
+  const realmId = connection?.connection_config.realmId;
 
+  if (!token || !realmId) {
+    return { token: undefined, realmId: undefined };
+  }
+
+  return { token, realmId };
+};
+
+const preparePayload = (file: Invoice_Quickbooks) => {
   try {
     const lineItems: LineItem[] = file.data.lineItems.map((item) => ({
       DetailType: 'AccountBasedExpenseLineDetail',
       Amount: parseFloat(item.totalAmount),
       AccountBasedExpenseLineDetail: {
         AccountRef: {
-          value: item.accountId, // 63 is hardcoded for, Job Expenses:Job Materials
+          value: item.accountId,
         },
         BillableStatus: item.billable ? 'Billable' : 'NotBillable',
         CustomerRef: {
@@ -73,8 +68,6 @@ const createBillInQuickBooks = async (
       },
       Description: item.description,
     }));
-
-    lineItems.forEach((lineItem) => LineItemSchema.parse(lineItem));
 
     const bill: Bill = {
       Line: lineItems,
@@ -93,30 +86,40 @@ const createBillInQuickBooks = async (
 
     BillSchema.parse(bill);
 
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
-        Accept: 'application/json',
-      },
-      body: JSON.stringify(bill),
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error(
-        'Failed to create bill in QuickBooks:',
-        response.status,
-        response.statusText,
-        errorText,
-      );
-      return [];
-    }
-
-    const data = await response.json();
-    return data;
+    return bill;
   } catch (e: unknown) {
-    throw new Error(`Failed to create bill in QuickBooks`);
+    throw new Error('The file is incomplete or invalid');
   }
+};
+
+const sendBillToQuickBooks = async (
+  realmId: string,
+  token: string,
+  bill: Bill,
+) => {
+  const url = `https://quickbooks.api.intuit.com/v3/company/${realmId}/bill`;
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+      Accept: 'application/json',
+    },
+    body: JSON.stringify(bill),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error(
+      'Failed to create bill in QuickBooks:',
+      response.status,
+      response.statusText,
+      errorText,
+    );
+    return [];
+  }
+
+  const data = await response.json();
+  return data;
 };
