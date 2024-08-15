@@ -5,63 +5,39 @@ const ReferenceTypeSchema = z.object({
   name: z.string().optional(),
 });
 
+const LineDetailSchema = z.object({
+  AccountRef: ReferenceTypeSchema,
+  TaxAmount: z.number().optional(),
+  ClassRef: ReferenceTypeSchema.optional(),
+  TaxCodeRef: ReferenceTypeSchema.optional(),
+  MarkupInfo: z
+    .object({
+      PriceLevelRef: ReferenceTypeSchema.optional(),
+      Percent: z.number().optional(),
+      MarkUpIncomeAccountRef: ReferenceTypeSchema.optional(),
+    })
+    .optional(),
+  BillableStatus: z
+    .enum(['Billable', 'NotBillable', 'HasBeenBilled'])
+    .optional(),
+  CustomerRef: ReferenceTypeSchema.optional(),
+});
+
 export const LineItemSchema = z.object({
   /**
    * @readonly Only required for updates
    */
   Id: z.string().optional(),
   DetailType: z.literal('AccountBasedExpenseLineDetail'), // Type of detail for the line item in bills
+  /**
+   * @value 10.5 format (max 15 digits)
+   */
   Amount: z
     .number()
     .refine((val) => /^\d{1,10}(\.\d{1,5})?$/.test(val.toString()), {
       message: 'Amount must be in 10.5 format (max 15 digits)',
-    }), // Max 15 digits in 10.5 format
-  AccountBasedExpenseLineDetail: z.object({
-    AccountRef: z.object({
-      value: z.string(), // ID of the account, on mismatch it'll use an account that matches transaction location and VAT used if applicable
-      name: z.string().optional(), // Identifying Display Name for object being referenced by value
     }),
-    TaxAmount: z.number().optional(), // Sales tax paid as a part of the expense
-    TaxInclusiveAmt: z.number().optional(), // Total amount of the line item including tax
-    ClassRef: z
-      .object({
-        value: z.string(), // ID of the class
-        name: z.string().optional(), // Identifying Display Name for object being referenced by value
-      })
-      .optional(), // Available if ClassTrackingPerLine is true
-    TaxCodeRef: z
-      .object({
-        value: z.string(), // ID of the tax code
-        name: z.string().optional(), // Identifying Display Name for object being referenced by value
-      })
-      .optional(), // Tax code (must query TaxCode list for this)
-    MarkupInfo: z
-      .object({
-        PriceLevelRef: z
-          .object({
-            value: z.string(), // ID of the price level
-            name: z.string().optional(),
-          })
-          .optional(),
-        Percent: z.number().optional(), // Markup amount as a percent of charges
-        MarkUpIncomeAccountRef: z
-          .object({
-            value: z.string(), // Only available with invoice objects when linktxn specified a ReimburseCharge
-            name: z.string().optional(),
-          })
-          .optional(),
-      })
-      .optional(), // Markup info for the line
-    BillableStatus: z
-      .enum(['Billable', 'NotBillable', 'HasBeenBilled'])
-      .optional(), // Whether the line item is billable or not
-    CustomerRef: z
-      .object({
-        value: z.string(), // ID of the customer
-        name: z.string().optional(), // Identifying Display Name for object being referenced by value
-      })
-      .optional(), // Reference to the customer
-  }),
+  AccountBasedExpenseLineDetail: LineDetailSchema,
   Description: z.string().max(4000).optional(), // Max 4000 characters
   LineNum: z.number().optional(), // Line number of the line item
 });
