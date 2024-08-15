@@ -51,7 +51,7 @@
     "react-day-picker": "^8.10.1",
     "react-dom": "^18",
     "react-hook-form": "^7.51.4",
-    "react-pdf": "^9.1.0",
+    "react-pdf": "^8.0.2",
     "tailwind-merge": "^2.3.0",
     "zod": "^3.23.8"
   },
