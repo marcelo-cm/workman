@@ -1,4 +1,3 @@
-import { Nango } from '@nangohq/node';
 import { StatusCodes } from 'http-status-codes';
 import { NextRequest } from 'next/server';
 
