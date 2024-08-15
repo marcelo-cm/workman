@@ -6,8 +6,6 @@ import { ApprovalStatus } from '@/constants/enums';
 
 import { User_Nested } from './User';
 
-const { getUserById } = useUser();
-
 export class Approval {
   private _id: UUID;
   private _approver: User_Nested;

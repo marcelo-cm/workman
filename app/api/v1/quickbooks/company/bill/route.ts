@@ -1,72 +1,15 @@
-import { Connection, Nango } from '@nangohq/node';
+import { Nango } from '@nangohq/node';
 import { StatusCodes } from 'http-status-codes';
 import { NextRequest, NextResponse } from 'next/server';
 
 import { Invoice_Quickbooks } from '@/interfaces/quickbooks.interfaces';
 
+import { BillSchema } from './constants';
+import { Bill, LineItem } from './interfaces';
+
 const nango = new Nango({
   secretKey: process.env.NANGO_SECRET_KEY!,
 });
-
-interface QuickBooksAPIRequest {
-  VendorRef?: {
-    // Reference to the vendor (must query vendor list for this)
-    value: string; // ID of the vendor
-    name?: string; // Identifying Display Name for object being referenced by value.
-  };
-  Line: LineItem[];
-  CurrencyRef?: {
-    // Only if Preference.MultiCurrencyEnabled is true
-    value: string; // 3 letter string ISO 4217 currency code
-    name?: string; // Full Name of the Currency
-  };
-}
-
-interface LineItem {
-  Id?: string; // Required only for updates, or if you specify an ID that doesn't exist then it'll create a line
-  DetailType: 'AccountBasedExpenseLineDetail'; // Type of detail for the line item in bills
-  Amount: number; // Max 15 digits in 10.5 format
-  AccountBasedExpenseLineDetail: {
-    AccountRef: {
-      // Reference to the Expense account associated with this item (must query account name list for this)
-      value: string; // ID of the account, on mismatch it'll use an account that matches transaction location and VAT used if applicable
-      name?: string; // Identifying Display Name for object being referenced by value.
-    };
-    TaxAmount?: number; // Sales tax paid as a part of the expense
-    TaxInclusiveAmt?: number; // AVAILABLE IN minorversion=1 ONLY. Total amount of the line item including tax
-    ClassRef?: {
-      // Reference to the class, only available if Preferences.AccountingInfoPrefs.ClassTrackingPerLine is true (must query class list for this)
-      value: string; // ID of the class
-      name?: string; // Identifying Display Name for object being referenced by value.
-    };
-    TaxCodeRef?: {
-      // Tax code (must query TaxCode list for this)
-      value: string; // ID of the tax code
-      name?: string; // Identifying Display Name for object being referenced by value.
-    };
-    MarkupInfo?: {
-      // Markup info for the line
-      PriceLevelRef?: {
-        value: string; // ID of the price level
-        name?: string;
-      };
-      Percent?: number; // Markup amount expressed as a percent of charges already entered in the current transaction. To enter a rate of 10% use 10.0, not 0.01.
-      MarkUpIncomeAccountRef?: {
-        // Only available with invoice objects when linktxn specified a ReimburseCharge
-        value: string;
-        name?: string;
-      };
-    };
-    BillableStatus?: 'Billable' | 'NotBillable' | 'HasBeenBilled'; // Whether the line item is billable or not
-    CustomerRef?: {
-      // Reference to the customer (must query customer list for this)
-      value: string; // ID of the customer
-      name?: string; // Identifying Display Name for object being referenced by value.
-    };
-  };
-  Description?: string; // Max 4000 characters
-  LineNum?: number; // Line number of the line item
-}
 
 export async function POST(req: NextRequest) {
   const { userId, file }: { userId: string; file: Invoice_Quickbooks } =
@@ -76,75 +19,85 @@ export async function POST(req: NextRequest) {
     return new NextResponse(
       JSON.stringify({ message: 'User ID and File are required' }),
       {
-        status: 400,
+        status: StatusCodes.BAD_REQUEST,
       },
     );
   }
 
-  const quickbooksToken = await nango.getToken('quickbooks', userId);
-  const quickbooksConnection: Connection = await nango.getConnection(
-    'quickbooks',
-    userId,
-  );
+  const { realmId, token } = await getCredentials(userId);
 
-  const quickbooksRealmId = quickbooksConnection?.connection_config.realmId;
-
-  if (!quickbooksRealmId) {
+  if (!realmId || !token) {
     return new NextResponse(JSON.stringify('QuickBooks not authorized'), {
       status: StatusCodes.UNAUTHORIZED,
     });
   }
 
-  // Upload the file to QuickBooks
-  const response = await createBillInQuickBooks(
-    quickbooksRealmId,
-    String(quickbooksToken),
-    file,
-  );
+  const bill = preparePayload(file);
+  const response = await sendBillToQuickBooks(realmId, String(token), bill);
 
   return new NextResponse(JSON.stringify(response), {
     status: StatusCodes.OK,
   });
 }
 
-const createBillInQuickBooks = async (
+const getCredentials = async (userId: string) => {
+  const token = await nango.getToken('quickbooks', userId);
+  const connection = await nango.getConnection('quickbooks', userId);
+  const realmId = connection?.connection_config.realmId;
+
+  if (!token || !realmId) {
+    return { token: undefined, realmId: undefined };
+  }
+
+  return { token, realmId };
+};
+
+const preparePayload = (file: Invoice_Quickbooks) => {
+  try {
+    const lineItems: LineItem[] = file.data.lineItems.map((item) => ({
+      DetailType: 'AccountBasedExpenseLineDetail',
+      Amount: parseFloat(item.totalAmount),
+      AccountBasedExpenseLineDetail: {
+        AccountRef: {
+          value: item.accountId,
+        },
+        BillableStatus: item.billable ? 'Billable' : 'NotBillable',
+        CustomerRef: {
+          value: item.customerId,
+        },
+      },
+      Description: item.description,
+    }));
+
+    const bill: Bill = {
+      Line: lineItems,
+      VendorRef: {
+        value: file.data.vendorId,
+      },
+      TxnDate: file.data.date,
+      DueDate: file.data.dueDate,
+      CurrencyRef: {
+        value: 'USD', // Assuming the currency is USD; replace if needed
+      },
+      PrivateNote:
+        file.data.notes + '\n\n' + file.file_url + '\n\n Filed by Workman',
+      DocNumber: file.data.invoiceNumber,
+    };
+
+    BillSchema.parse(bill);
+
+    return bill;
+  } catch (e: unknown) {
+    throw new Error('The file is incomplete or invalid');
+  }
+};
+
+const sendBillToQuickBooks = async (
   realmId: string,
   token: string,
-  file: Invoice_Quickbooks,
+  bill: Bill,
 ) => {
   const url = `https://quickbooks.api.intuit.com/v3/company/${realmId}/bill`;
-
-  const lineItems: LineItem[] = file.data.lineItems.map((item) => ({
-    DetailType: 'AccountBasedExpenseLineDetail',
-    Amount: parseFloat(item.totalAmount),
-    AccountBasedExpenseLineDetail: {
-      AccountRef: {
-        value: item.accountId, // 63 is hardcoded for, Job Expenses:Job Materials
-      },
-      BillableStatus: item.billable ? 'Billable' : 'NotBillable',
-      CustomerRef: {
-        value: item.customerId,
-      },
-    },
-    Description: item.description,
-  }));
-
-  const vendorRef = {
-    value: file.data.vendorId,
-  };
-
-  const bill = {
-    Line: lineItems,
-    VendorRef: vendorRef,
-    TxnDate: file.data.date,
-    DueDate: file.data.dueDate,
-    CurrencyRef: {
-      value: 'USD', // Assuming the currency is USD; replace if needed
-    },
-    PrivateNote:
-      file.data.notes + '\n\n' + file.file_url + '\n\n Filed by Workman',
-    DocNumber: file.data.invoiceNumber,
-  };
 
   const response = await fetch(url, {
     method: 'POST',

@@ -83,8 +83,6 @@ const Onboarding = () => {
       .select('*')
       .maybeSingle();
 
-    console.log(createRes, createError);
-
     if (error) {
       setErrorMessage(
         `[${error.status} ${error.name}] Could not sign up. Please try again or contact support.`,

@@ -15,6 +15,7 @@ export const useInvoice = () => {
     const user = await fetchUserData();
     const companyId = user.company.id;
 
+    //@todo implement a store to cache this call
     const { data, error } = await supabase
       .from('invoices')
       .select('*, principal: users(name, email, id), company: companies(*)')
@@ -49,6 +50,7 @@ export const useInvoice = () => {
       return [];
     }
 
+    //@todo implement a store to cache this call
     const { data, error } = await supabase
       .from('invoices')
       .select('*, principal: users(name, email, id), company: companies(*)')

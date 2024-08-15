@@ -47,9 +47,10 @@ export const useAccount = () => {
       }
 
       const responseData = await response.json();
-      const customers = responseData.QueryResponse.Account.filter(
-        (account: any) => account.Name,
-      );
+      const customers =
+        responseData.QueryResponse.Account?.filter(
+          (account: any) => account.Name,
+        ) ?? [];
 
       if (setAccountCallback) {
         setAccountCallback(customers);

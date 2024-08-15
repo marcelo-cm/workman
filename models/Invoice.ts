@@ -393,9 +393,9 @@ export class Invoice {
         notes: invoice.notes,
         lineItems: invoice.lineItems.map((item: LineItem_QuickBooks) => ({
           ...item,
-          customerId: '',
+          customerId: item.customerId,
           billable: false,
-          accountId: '',
+          accountId: item.accountId,
         })),
       },
     };
