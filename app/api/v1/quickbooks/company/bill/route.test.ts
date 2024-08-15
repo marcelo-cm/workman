@@ -25,19 +25,6 @@ const mockResponse = (data: any, status: number): NextResponse =>
     json: () => Promise.resolve(data),
   }) as unknown as NextResponse;
 
-const setupMockNango = (
-  token: string | undefined,
-  realmId: string | undefined,
-) => {
-  const NangoMock = require('@nangohq/node').Nango;
-  NangoMock.mockImplementation(() => ({
-    getToken: jest.fn().mockResolvedValue(token),
-    getConnection: jest.fn().mockResolvedValue({
-      connection_config: { realmId },
-    }),
-  }));
-};
-
 describe('POST /api/bills', () => {
   let fetchMock: jest.SpyInstance;
 
@@ -74,7 +61,6 @@ describe('POST /api/bills', () => {
 
   describe('Quickbooks Authorization', () => {
     it('should return 200 and response data if QuickBooks is authorized', async () => {
-      setupMockNango('mock-token', 'mock-realm-id');
       const req = mockRequest({
         userId: 'some-user-id',
         file: VALID_FILE,
