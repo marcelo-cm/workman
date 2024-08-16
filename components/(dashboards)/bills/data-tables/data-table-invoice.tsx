@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { MagnifyingGlassIcon } from '@radix-ui/react-icons';
+import { MagnifyingGlassIcon, PaperPlaneIcon } from '@radix-ui/react-icons';
 import { ScanIcon } from 'lucide-react';
 
 import {
@@ -176,9 +176,22 @@ export function InvoiceDataTable<TData, TValue>({
       async (file) => await Invoice.scanAndUpdate(file.fileUrl),
     );
     await Promise.all(scanPromises).then(() => {
-      setIsUploading(false);
       tabValue && getInvoicesByStates([tabValue.state].flat(), setData);
       setRowSelection({});
+      setIsUploading(false);
+    });
+  };
+
+  const quickSubmit = async () => {
+    setIsUploading(true);
+    const submitPromises = selectedFilesUrls.map(async (file) => {
+      const transformedData = await Invoice.transformToQuickBooksInvoice(file);
+      await Invoice.uploadToQuickbooks(transformedData);
+    });
+    await Promise.all(submitPromises).then(() => {
+      tabValue && getInvoicesByStates([tabValue.state].flat(), setData);
+      setRowSelection({});
+      setIsUploading(false);
     });
   };
 
@@ -221,47 +234,47 @@ export function InvoiceDataTable<TData, TValue>({
             </Button>
           }
         />
-        <IfElseRender
-          condition={filters}
-          ifTrue={
-            <>
-              <div className="flex h-full w-[300px] flex-row items-center gap-2 rounded-md border bg-transparent px-3 py-1 text-sm text-wm-white-500 transition-colors">
-                <MagnifyingGlassIcon
-                  className="h-5 w-5 cursor-pointer"
-                  onClick={() => searchFilterInputRef.current?.focus()}
-                />
-                <input
-                  ref={searchFilterInputRef}
-                  value={
-                    (table
-                      .getColumn('file_name&sender')
-                      ?.getFilterValue() as string) ?? ''
-                  }
-                  onChange={(event) =>
-                    table
-                      .getColumn('file_name&sender')
-                      ?.setFilterValue(event.target.value)
-                  }
-                  placeholder="Filter by invoice name or sender"
-                  className="h-full w-full appearance-none bg-transparent text-black outline-none placeholder:text-wm-white-500 disabled:cursor-not-allowed disabled:opacity-50"
-                />
-              </div>
-              <DatePickerWithRange
-                placeholder="Filter by Date Invoiced"
-                onDateChange={setDateRange}
-                ref={dateRangeRef}
-              />
-              <Button
-                variant="outline"
-                disabled={columnFilters.length === 0 && !dateRange.from}
-                onClick={handleClearFilters}
-              >
-                Clear Filters
-              </Button>
-            </>
-          }
-          ifFalse={null}
+        {Object.keys(rowSelection).length > 0 &&
+          Object.keys(rowSelection).every(
+            (index) => data[Number(index)].status === InvoiceStatus.APPROVED,
+          ) && (
+            <Button onClick={quickSubmit}>
+              Quick Submit <PaperPlaneIcon className="w-4 h-4" />
+            </Button>
+          )}
+        <div className="flex h-full w-[300px] flex-row items-center gap-2 rounded-md border bg-transparent px-3 py-1 text-sm text-wm-white-500 transition-colors">
+          <MagnifyingGlassIcon
+            className="h-5 w-5 cursor-pointer pointer-events-none"
+            onClick={() => searchFilterInputRef.current?.focus()}
+          />
+          <input
+            ref={searchFilterInputRef}
+            value={
+              (table
+                .getColumn('file_name&sender')
+                ?.getFilterValue() as string) ?? ''
+            }
+            onChange={(event) =>
+              table
+                .getColumn('file_name&sender')
+                ?.setFilterValue(event.target.value)
+            }
+            placeholder="Filter by invoice name or sender"
+            className="h-full w-full appearance-none bg-transparent text-black outline-none placeholder:text-wm-white-500 disabled:cursor-not-allowed disabled:opacity-50"
+          />
+        </div>
+        <DatePickerWithRange
+          placeholder="Filter by Date Invoiced"
+          onDateChange={setDateRange}
+          ref={dateRangeRef}
         />
+        <Button
+          variant="outline"
+          disabled={columnFilters.length === 0 && !dateRange.from}
+          onClick={handleClearFilters}
+        >
+          Clear Filters
+        </Button>
       </div>
       <div>
         <IfElseRender
