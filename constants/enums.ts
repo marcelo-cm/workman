@@ -5,6 +5,13 @@ export enum InvoiceStatus {
   PROCESSED = 'PROCESSED',
 }
 
+export enum ReceiptStatus {
+  UNPROCESSED = 'UNPROCESSED',
+  FOR_REVIEW = 'FOR_REVIEW',
+  APPROVED = 'APPROVED',
+  PROCESSED = 'PROCESSED',
+}
+
 export enum Roles {
   PLATFORM_ADMIN = 'PLATFORM_ADMIN',
   COMPANY_ADMIN = 'COMPANY_ADMIN',

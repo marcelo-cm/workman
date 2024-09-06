@@ -34,3 +34,5 @@ export interface LineItem {
   pageId: number;
   polygon: Polygon;
 }
+
+export interface ReceiptData {}
