@@ -10,7 +10,7 @@ import { useUser } from '../supabase/useUser';
 
 const supabase = createSupabaseClient();
 
-const { fetchUserData, fetchUser } = useUser();
+const { fetchUserData } = useUser();
 
 export const useVendor = () => {
   const getVendorList = async (
@@ -43,9 +43,10 @@ export const useVendor = () => {
       }
 
       const responseData = await response.json();
-      const vendors = responseData.QueryResponse.Vendor.filter(
-        (vendor: any) => vendor.DisplayName,
-      );
+      const vendors =
+        responseData.QueryResponse.Vendor?.filter(
+          (vendor: any) => vendor.DisplayName,
+        ) ?? [];
 
       setVendorCallback && setVendorCallback(vendors);
       return vendors;

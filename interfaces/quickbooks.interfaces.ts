@@ -111,15 +111,7 @@ interface MetaData {
   LastUpdatedTime: string;
 }
 
-interface CurrencyRef {
-  value: string;
-  name: string;
-}
-
-interface MetaData {
-  CreateTime: string;
-  LastUpdatedTime: string;
-}
+interface CurrencyRef extends CurrencyReference {}
 
 interface Phone {
   FreeFormNumber: string;

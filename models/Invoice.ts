@@ -62,6 +62,7 @@ export class Invoice {
     let data, error;
     if (file instanceof File) {
       const filePath = `/${file.name}_${new Date().getTime()}`;
+
       ({ data, error } = await supabase.storage
         .from('invoices')
         .upload(filePath, file));
@@ -388,9 +389,9 @@ export class Invoice {
         notes: invoice.notes,
         lineItems: invoice.lineItems.map((item: LineItem_QuickBooks) => ({
           ...item,
-          customerId: '',
+          customerId: item.customerId,
           billable: false,
-          accountId: '',
+          accountId: item.accountId,
         })),
       },
     };
