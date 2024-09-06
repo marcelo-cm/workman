@@ -73,13 +73,13 @@ export const columns: ColumnDef<Invoice>[] = [
         <TooltipProvider>
           <Tooltip>
             <TooltipContent side="right">
-              <div className="max-h-[600px] overflow-x-hidden overflow-y-scroll no-scrollbar">
+              <div className="no-scrollbar max-h-[600px] overflow-x-hidden overflow-y-scroll">
                 <PDFViewer file={row.original.fileUrl} width={400} />
               </div>
             </TooltipContent>
             <TooltipTrigger asChild>
               <div className="flex w-fit flex-col">
-                <div className="w-fit">{row.original.data.supplierName}</div>
+                <div className="w-fit">{row.original?.data?.supplierName}</div>
                 <div className="text-xs text-wm-white-300">
                   {sliceWithEllipsis(
                     decodeURI(

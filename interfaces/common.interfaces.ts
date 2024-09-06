@@ -1,3 +1,5 @@
+import { Polygon } from 'mindee/src/geometry';
+
 /**
  * This is the data we save from the API call to the OCR service. It's achieved by parsing the JSON response using Invoice.parse.
  */
@@ -30,4 +32,5 @@ export interface LineItem {
   totalAmount: string;
   unitPrice: number;
   pageId: number;
+  polygon: Polygon;
 }
