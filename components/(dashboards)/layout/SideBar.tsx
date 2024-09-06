@@ -83,7 +83,7 @@ const SideBar = () => {
           <section className="flex flex-col gap-2">
             <div className="w-full rounded-r-lg bg-wm-white-50 py-1 pr-2">
               <MenuItem
-                leadingIcon={<GearIcon className="w-4 h-4" />}
+                leadingIcon={<GearIcon className="h-4 w-4" />}
                 route="/settings"
               >
                 Settings

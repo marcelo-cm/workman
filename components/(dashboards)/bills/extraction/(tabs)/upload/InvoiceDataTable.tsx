@@ -153,7 +153,7 @@ const InvoiceDataTable = ({
           </TableRow>
           <TableRow>
             <TableCell colSpan={5}>
-              <div className="flex flex-row justify-between w-full">
+              <div className="flex w-full flex-row justify-between">
                 <Button
                   onClick={() => {
                     setActiveIndex(fileIndex);

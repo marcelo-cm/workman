@@ -51,7 +51,7 @@ const CompanyRules = ({ company }: { company: Company }) => {
         condition={!!company.id && !fetchingDefaultApprovers}
         ifTrue={
           <MultiComboBox
-            className="w-full mt-2"
+            className="mt-2 w-full"
             fetchValuesFunction={() =>
               getUsersByCompanyId(company.id!).then((data) =>
                 data.map((user) => new User_Nested(user)),

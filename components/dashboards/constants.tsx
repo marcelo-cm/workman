@@ -13,7 +13,7 @@ export const MENU_TABS: {
   {
     name: 'Bills',
     route: '/bills',
-    trailingIcon: <FileIcon className="w-4 h-4" />,
+    trailingIcon: <FileIcon className="h-4 w-4" />,
     disabled: false,
   },
   {

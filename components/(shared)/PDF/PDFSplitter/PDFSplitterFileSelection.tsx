@@ -92,7 +92,7 @@ const PDFSplitterFileSelection = () => {
         <DialogTitle className="h-12 border-b p-4">
           Upload Documents
         </DialogTitle>
-        <div className="h-full flex flex-col overflow-scroll p-4">
+        <div className="flex h-full flex-col overflow-scroll p-4">
           {filesToUpload.map((file, index) => (
             <div className="mb-1 flex flex-row items-center gap-2" key={index}>
               <Checkbox
@@ -115,7 +115,7 @@ const PDFSplitterFileSelection = () => {
                   onClick={() => setActiveFile(file)}
                   className={
                     activeFile === file
-                      ? 'text-wm-orange-500 border-wm-orange-300'
+                      ? 'border-wm-orange-300 text-wm-orange-500'
                       : ''
                   }
                 >
