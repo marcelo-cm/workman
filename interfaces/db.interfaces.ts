@@ -31,3 +31,18 @@ export interface Invoice {
   file_url: string;
   status: string;
 }
+
+export interface InvoiceCounts {
+  company_inbox: number;
+  awaiting_review: number;
+}
+
+export enum InvoiceCountResponseKeys {
+  COMPANY_INBOX = 'company_inbox',
+  AWAITING_REVIEW = 'awaiting_review',
+}
+
+export type InvoiceCountsResponse = {
+  [InvoiceCountResponseKeys.COMPANY_INBOX]: InvoiceCounts['company_inbox'];
+  [InvoiceCountResponseKeys.AWAITING_REVIEW]: InvoiceCounts['awaiting_review'];
+};

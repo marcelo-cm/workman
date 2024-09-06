@@ -1,4 +1,5 @@
 import { Approvable, ApprovalStatus, InvoiceStatus } from '@/constants/enums';
+import { InvoiceCountsResponse } from '@/interfaces/db.interfaces';
 import { createClient } from '@/lib/utils/supabase/client';
 import Invoice from '@/models/Invoice';
 
@@ -8,7 +9,24 @@ const supabase = createClient();
 const { fetchUserData } = useUser();
 
 export const useInvoice = () => {
-  async function getInvoicesByStates(
+  async function getInvoiceCounts() {
+    const user = await fetchUserData();
+
+    const invoiceCounts = await supabase.rpc('get_invoice_counts', {
+      requesting_user_id: user.id,
+    });
+
+    if (invoiceCounts.error) {
+      console.error('Error fetching counts');
+      return;
+    }
+
+    const data: InvoiceCountsResponse = invoiceCounts.data;
+
+    return data;
+  }
+
+  async function getCompanyInvoicesByStates(
     states: InvoiceStatus[],
     callBack?: (invoices: Invoice[]) => void,
   ) {
@@ -84,7 +102,8 @@ export const useInvoice = () => {
   }
 
   return {
-    getInvoicesByStates,
+    getInvoiceCounts,
+    getCompanyInvoicesByStates,
     getInvoicesByStateApproverAndApprovalStatus,
     getInvoicesAwaitingUserApproval,
   };

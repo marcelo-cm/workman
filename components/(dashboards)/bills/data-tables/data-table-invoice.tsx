@@ -42,6 +42,7 @@ import { useInvoice } from '@/lib/hooks/supabase/useInvoice';
 
 import { useAppContext } from '@/app/(dashboards)/context';
 import { InvoiceStatus } from '@/constants/enums';
+import { InvoiceCounts } from '@/interfaces/db.interfaces';
 import Invoice from '@/models/Invoice';
 
 import { columns as processed_columns } from './columns-invoices-processed';
@@ -57,7 +58,11 @@ interface DataTableProps {
   defaultInvoiceStatus?: InvoiceStatus;
 }
 
-const { getInvoicesByStates, getInvoicesAwaitingUserApproval } = useInvoice();
+const {
+  getCompanyInvoicesByStates,
+  getInvoicesAwaitingUserApproval,
+  getInvoiceCounts,
+} = useInvoice();
 
 export function InvoiceDataTable<TData, TValue>({
   onAction,
@@ -78,6 +83,7 @@ export function InvoiceDataTable<TData, TValue>({
   const [filteredData, setFilteredData] = useState<Invoice[]>([]);
   const [tabValue, setTabValue] = useState<TabValue>();
   const [isUploading, setIsUploading] = useState(false);
+  const [invoiceCounts, setInvoiceCounts] = useState<InvoiceCounts>();
 
   const searchFilterInputRef = useRef<HTMLInputElement>(null);
   const dateRangeRef = useRef<any>(null);
@@ -88,6 +94,10 @@ export function InvoiceDataTable<TData, TValue>({
     () => (user && INVOICE_DATA_TABLE_TABS(user)) || [],
     [user],
   );
+
+  useEffect(() => {
+    getInvoiceCounts().then(setInvoiceCounts);
+  }, []);
 
   useEffect(() => {
     if (!tabs.length) return;
@@ -105,7 +115,7 @@ export function InvoiceDataTable<TData, TValue>({
       return;
     }
 
-    getInvoicesByStates([tabValue.state].flat(), setData);
+    getCompanyInvoicesByStates([tabValue.state].flat(), setData);
   }, [JSON.stringify(tabValue)]);
 
   useEffect(() => {
@@ -176,7 +186,7 @@ export function InvoiceDataTable<TData, TValue>({
       async (file) => await Invoice.scanAndUpdate(file.fileUrl),
     );
     await Promise.all(scanPromises).then(() => {
-      tabValue && getInvoicesByStates([tabValue.state].flat(), setData);
+      tabValue && getCompanyInvoicesByStates([tabValue.state].flat(), setData);
       setRowSelection({});
       setIsUploading(false);
     });
@@ -189,7 +199,7 @@ export function InvoiceDataTable<TData, TValue>({
       await Invoice.uploadToQuickbooks(transformedData);
     });
     await Promise.all(submitPromises).then(() => {
-      tabValue && getInvoicesByStates([tabValue.state].flat(), setData);
+      tabValue && getCompanyInvoicesByStates([tabValue.state].flat(), setData);
       setRowSelection({});
       setIsUploading(false);
     });
@@ -219,7 +229,7 @@ export function InvoiceDataTable<TData, TValue>({
               disabled={canActionBeDisabled && selectedFilesUrls.length === 0}
               onClick={() => handleScanInvoices(selectedFilesUrls)}
             >
-              <ScanIcon className="w-4 h-4" />
+              <ScanIcon className="h-4 w-4" />
               Scan Selected
             </Button>
           }
@@ -239,12 +249,12 @@ export function InvoiceDataTable<TData, TValue>({
             (index) => data[Number(index)].status === InvoiceStatus.APPROVED,
           ) && (
             <Button onClick={quickSubmit}>
-              Quick Submit <PaperPlaneIcon className="w-4 h-4" />
+              Quick Submit <PaperPlaneIcon className="h-4 w-4" />
             </Button>
           )}
         <div className="flex h-full w-[300px] flex-row items-center gap-2 rounded-md border bg-transparent px-3 py-1 text-sm text-wm-white-500 transition-colors">
           <MagnifyingGlassIcon
-            className="h-5 w-5 cursor-pointer pointer-events-none"
+            className="pointer-events-none h-5 w-5 cursor-pointer"
             onClick={() => searchFilterInputRef.current?.focus()}
           />
           <input
@@ -287,16 +297,25 @@ export function InvoiceDataTable<TData, TValue>({
               }
               value={tabValue as unknown as string}
             >
-              <TabsList className="rounded-t-md rounded-b-none border border-b-0 h-fit">
+              <TabsList className="h-fit rounded-b-none rounded-t-md border border-b-0">
                 {tabs &&
                   tabs.map((tab) => (
                     <TabsTrigger
                       key={tab.title}
                       value={tab.value as unknown as string}
-                      className="flex gap-2 h-10 grow justify-start data-[state=active]:border-b data-[state=active]:border-wm-orange data-[state=active]:text-wm-orange"
+                      className="flex h-10 grow justify-start gap-2 data-[state=active]:border-b data-[state=active]:border-wm-orange data-[state=active]:text-wm-orange"
                     >
                       {tab.icon}
                       {tab.title}
+                      {tab.countKey && invoiceCounts && (
+                        <Button
+                          className={`ml-1 !h-6 !w-5 text-xs ${tabValue != tab.value ? 'bg-gray-400' : ''}`}
+                          size={'sm'}
+                          type="button"
+                        >
+                          {invoiceCounts[tab.countKey]}
+                        </Button>
+                      )}
                     </TabsTrigger>
                   ))}
               </TabsList>
@@ -304,7 +323,7 @@ export function InvoiceDataTable<TData, TValue>({
           }
           ifFalse={null}
         />
-        <div className="rounded-md border rounded-tl-none">
+        <div className="rounded-md rounded-tl-none border">
           <Table>
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
