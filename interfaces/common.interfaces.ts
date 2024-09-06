@@ -35,4 +35,6 @@ export interface LineItem {
   // polygon: Polygon;
 }
 
-export interface ReceiptData {}
+export interface ReceiptData {
+  date: string;
+}

@@ -14,13 +14,13 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
 
-import Invoice from '@/models/Invoice';
+import { Receipt } from '@/models/Receipt';
 
 export default function ForApproval() {
-  const [selectedFiles, setSelectedFiles] = useState<Invoice[]>([]); // Used for the Extraction Review component
+  const [selectedFiles, setSelectedFiles] = useState<Receipt[]>([]); // Used for the Extraction Review component
   const [review, setReview] = useState<boolean>(false);
 
-  const handleReviewSelected = async (files: Invoice[]) => {
+  const handleReviewSelected = async (files: Receipt[]) => {
     setSelectedFiles(files);
     setReview(true);
   };
@@ -28,7 +28,7 @@ export default function ForApproval() {
   return (
     <>
       {review ? (
-        <ExtractionReview files={selectedFiles} />
+        <ExtractionReview files={[]} />
       ) : (
         <div className="flex h-full w-full flex-col gap-4 px-4 py-8">
           <BreadcrumbList className="text-wm-white-400">

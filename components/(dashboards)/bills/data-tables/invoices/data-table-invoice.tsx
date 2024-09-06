@@ -45,7 +45,10 @@ import { InvoiceStatus } from '@/constants/enums';
 import { InvoiceCounts } from '@/interfaces/db.interfaces';
 import Invoice from '@/models/Invoice';
 
-import { INVOICE_DATA_TABLE_TABS, TabValue } from '../constants';
+import {
+  INVOICE_DATA_TABLE_TABS,
+  InvoiceTabValue as TabValue,
+} from '../constants';
 import { columns as processed_columns } from './columns-invoices-processed';
 import { columns as unprocessed_columns } from './columns-invoices-unprocessed';
 

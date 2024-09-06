@@ -20,6 +20,7 @@ export enum Roles {
 
 export enum Approvable {
   INVOICE = 'Invoice',
+  RECEIPT = 'Receipt',
 }
 
 export enum ApprovalStatus {

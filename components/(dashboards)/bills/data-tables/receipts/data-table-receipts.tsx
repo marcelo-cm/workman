@@ -38,30 +38,33 @@ import {
 } from '@/components/ui/table';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-import { useInvoice } from '@/lib/hooks/supabase/useInvoice';
+import { useReceipt } from '@/lib/hooks/supabase/useReceipts';
 
 import { useAppContext } from '@/app/(dashboards)/context';
-import { InvoiceStatus } from '@/constants/enums';
-import { InvoiceCounts } from '@/interfaces/db.interfaces';
-import Invoice from '@/models/Invoice';
+import { ReceiptStatus } from '@/constants/enums';
+import { ReceiptCounts } from '@/interfaces/db.interfaces';
+import { Receipt } from '@/models/Receipt';
 
-import { INVOICE_DATA_TABLE_TABS, TabValue } from '../constants';
+import {
+  RECEIPT_DATA_TABLE_TABS,
+  ReceiptTabValue as TabValue,
+} from '../constants';
 import { columns as processed_columns } from './columns-receipts-processed';
 import { columns as unprocessed_columns } from './columns-receipts-unprocessed';
 
 interface DataTableProps {
-  onAction: ((selectedFiles: Invoice[]) => void) | (() => void);
+  onAction: ((selectedFiles: Receipt[]) => void) | (() => void);
   actionOnSelectText: string;
   actionIcon: React.ReactNode;
   canActionBeDisabled?: boolean;
-  defaultInvoiceStatus?: InvoiceStatus;
+  defaultReceiptStatus?: ReceiptStatus;
 }
 
 const {
-  getCompanyInvoicesByStates,
-  getInvoicesAwaitingUserApproval,
-  getInvoiceCounts,
-} = useInvoice();
+  getCompanyReceiptsByStates,
+  getReceiptsAwaitingUserApproval,
+  getReceiptCounts,
+} = useReceipt();
 
 export function ReceiptDataTable<TData, TValue>({
   onAction,
@@ -70,7 +73,7 @@ export function ReceiptDataTable<TData, TValue>({
   canActionBeDisabled = true,
 }: DataTableProps) {
   const { user } = useAppContext();
-  const [data, setData] = useState<Invoice[]>([]);
+  const [data, setData] = useState<Receipt[]>([]);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [rowSelection, setRowSelection] = useState({});
@@ -78,23 +81,23 @@ export function ReceiptDataTable<TData, TValue>({
     from: undefined,
     to: undefined,
   });
-  const [filteredData, setFilteredData] = useState<Invoice[]>([]);
+  const [filteredData, setFilteredData] = useState<Receipt[]>([]);
   const [tabValue, setTabValue] = useState<TabValue>();
   const [isUploading, setIsUploading] = useState(false);
-  const [invoiceCounts, setInvoiceCounts] = useState<InvoiceCounts>();
+  const [receiptCounts, setReceiptCounts] = useState<ReceiptCounts>();
 
   const searchFilterInputRef = useRef<HTMLInputElement>(null);
   const dateRangeRef = useRef<any>(null);
   const selectedFilesUrls = Object.keys(rowSelection).map(
-    (key) => filteredData[parseInt(key)] as Invoice,
+    (key) => filteredData[parseInt(key)] as Receipt,
   );
   const tabs = useMemo(
-    () => (user && INVOICE_DATA_TABLE_TABS(user)) || [],
+    () => (user && RECEIPT_DATA_TABLE_TABS(user)) || [],
     [user],
   );
 
   useEffect(() => {
-    getInvoiceCounts().then(setInvoiceCounts);
+    getReceiptCounts().then(setReceiptCounts);
   }, []);
 
   useEffect(() => {
@@ -109,11 +112,11 @@ export function ReceiptDataTable<TData, TValue>({
     setRowSelection({});
 
     if (tabValue.approverId) {
-      getInvoicesAwaitingUserApproval(tabValue.approverId, setData);
+      getReceiptsAwaitingUserApproval(tabValue.approverId, setData);
       return;
     }
 
-    getCompanyInvoicesByStates([tabValue.state].flat(), setData);
+    getCompanyReceiptsByStates([tabValue.state].flat(), setData);
   }, [JSON.stringify(tabValue)]);
 
   useEffect(() => {
@@ -123,7 +126,7 @@ export function ReceiptDataTable<TData, TValue>({
   }, [dateRange, data]);
 
   const columns =
-    tabValue?.state === InvoiceStatus.UNPROCESSED
+    tabValue?.state === ReceiptStatus.UNPROCESSED
       ? unprocessed_columns
       : processed_columns;
 
@@ -151,7 +154,7 @@ export function ReceiptDataTable<TData, TValue>({
   });
 
   const { pageSize, pageIndex } = table.getState().pagination;
-  const startIndex = pageSize * pageIndex + 1; //adding 1 to start counting from 1 for the invoices user is seeing (not 0-9)
+  const startIndex = pageSize * pageIndex + 1; //adding 1 to start counting from 1 for the receipts user is seeing (not 0-9)
   const endIndex = Math.min(pageSize * (pageIndex + 1), data.length); // Ensure it doesn't exceed total rows
 
   const updateFilteredData = () => {
@@ -161,12 +164,12 @@ export function ReceiptDataTable<TData, TValue>({
     }
 
     const filtered = data.filter((item) => {
-      const invoiceDate = new Date((item as Invoice).data.date).getTime();
+      const receiptDate = new Date((item as Receipt).data.date).getTime();
       const fromTime = dateRange.from && new Date(dateRange.from).getTime();
       const toTime = dateRange.to && new Date(dateRange.to).getTime();
       return (
-        (!fromTime || invoiceDate >= fromTime) &&
-        (!toTime || invoiceDate <= toTime)
+        (!fromTime || receiptDate >= fromTime) &&
+        (!toTime || receiptDate <= toTime)
       );
     });
     setFilteredData(filtered);
@@ -178,29 +181,29 @@ export function ReceiptDataTable<TData, TValue>({
     dateRangeRef.current?.clearDate();
   };
 
-  const handleScanInvoices = async (selectedFiles: Invoice[]) => {
-    setIsUploading(true);
-    const scanPromises = selectedFiles.map(
-      async (file) => await Invoice.scanAndUpdate(file.fileUrl),
-    );
-    await Promise.all(scanPromises).then(() => {
-      tabValue && getCompanyInvoicesByStates([tabValue.state].flat(), setData);
-      setRowSelection({});
-      setIsUploading(false);
-    });
+  const handleScanReceipts = async (selectedFiles: Receipt[]) => {
+    //   setIsUploading(true);
+    //   const scanPromises = selectedFiles.map(
+    //     async (file) => await Receipt.scanAndUpdate(file.fileUrl),
+    //   );
+    //   await Promise.all(scanPromises).then(() => {
+    //     tabValue && getCompanyReceiptsByStates([tabValue.state].flat(), setData);
+    //     setRowSelection({});
+    //     setIsUploading(false);
+    //   });
   };
 
   const quickSubmit = async () => {
-    setIsUploading(true);
-    const submitPromises = selectedFilesUrls.map(async (file) => {
-      const transformedData = await Invoice.transformToQuickBooksInvoice(file);
-      await Invoice.uploadToQuickbooks(transformedData);
-    });
-    await Promise.all(submitPromises).then(() => {
-      tabValue && getCompanyInvoicesByStates([tabValue.state].flat(), setData);
-      setRowSelection({});
-      setIsUploading(false);
-    });
+    //   setIsUploading(true);
+    //   const submitPromises = selectedFilesUrls.map(async (file) => {
+    //     const transformedData = await Receipt.transformToQuickBooksReceipt(file);
+    //     await Receipt.uploadToQuickbooks(transformedData);
+    //   });
+    //   await Promise.all(submitPromises).then(() => {
+    //     tabValue && getCompanyReceiptsByStates([tabValue.state].flat(), setData);
+    //     setRowSelection({});
+    //     setIsUploading(false);
+    //   });
   };
 
   return (
@@ -220,12 +223,12 @@ export function ReceiptDataTable<TData, TValue>({
           </AlertDialogContent>
         </AlertDialog>
         <IfElseRender
-          condition={tabValue?.state === InvoiceStatus.UNPROCESSED}
+          condition={tabValue?.state === ReceiptStatus.UNPROCESSED}
           ifTrue={
             <Button
               variant="secondary"
               disabled={canActionBeDisabled && selectedFilesUrls.length === 0}
-              onClick={() => handleScanInvoices(selectedFilesUrls)}
+              onClick={() => handleScanReceipts(selectedFilesUrls)}
             >
               <ScanIcon className="h-4 w-4" />
               Scan Selected
@@ -244,7 +247,7 @@ export function ReceiptDataTable<TData, TValue>({
         />
         {Object.keys(rowSelection).length > 0 &&
           Object.keys(rowSelection).every(
-            (index) => data[Number(index)].status === InvoiceStatus.APPROVED,
+            (index) => data[Number(index)].status === ReceiptStatus.APPROVED,
           ) && (
             <Button onClick={quickSubmit}>
               Quick Submit <PaperPlaneIcon className="h-4 w-4" />
@@ -267,12 +270,12 @@ export function ReceiptDataTable<TData, TValue>({
                 .getColumn('file_name&sender')
                 ?.setFilterValue(event.target.value)
             }
-            placeholder="Filter by invoice name or sender"
+            placeholder="Filter by receipt name or sender"
             className="h-full w-full appearance-none bg-transparent text-black outline-none placeholder:text-wm-white-500 disabled:cursor-not-allowed disabled:opacity-50"
           />
         </div>
         <DatePickerWithRange
-          placeholder="Filter by Date Invoiced"
+          placeholder="Filter by Date Receiptd"
           onDateChange={setDateRange}
           ref={dateRangeRef}
         />
@@ -305,14 +308,14 @@ export function ReceiptDataTable<TData, TValue>({
                     >
                       {tab.icon}
                       {tab.title}
-                      {tab.countKey && invoiceCounts && (
+                      {tab.countKey && receiptCounts && (
                         <Button
                           asChild
                           className={`ml-1 !h-6 !w-5 text-xs ${tabValue != tab.value ? 'bg-gray-400' : ''}`}
                           size={'sm'}
                           type="button"
                         >
-                          <span>{invoiceCounts[tab.countKey]}</span>
+                          <span>{receiptCounts[tab.countKey]}</span>
                         </Button>
                       )}
                     </TabsTrigger>
@@ -377,11 +380,11 @@ export function ReceiptDataTable<TData, TValue>({
                     <div className="flex-1">
                       <div className="text-muted-foreground items-center text-sm">
                         {table.getFilteredSelectedRowModel().rows.length} of{' '}
-                        {table.getFilteredRowModel().rows.length} invoice(s)
+                        {table.getFilteredRowModel().rows.length} receipt(s)
                         selected.
                       </div>
                       <div className="text-xs font-normal">
-                        Viewing Invoices {startIndex}-{endIndex}
+                        Viewing Receipts {startIndex}-{endIndex}
                       </div>
                     </div>
                     <Button
