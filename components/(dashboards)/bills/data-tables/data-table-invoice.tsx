@@ -309,11 +309,12 @@ export function InvoiceDataTable<TData, TValue>({
                       {tab.title}
                       {tab.countKey && invoiceCounts && (
                         <Button
+                          asChild
                           className={`ml-1 !h-6 !w-5 text-xs ${tabValue != tab.value ? 'bg-gray-400' : ''}`}
                           size={'sm'}
                           type="button"
                         >
-                          {invoiceCounts[tab.countKey]}
+                          <span>{invoiceCounts[tab.countKey]}</span>
                         </Button>
                       )}
                     </TabsTrigger>

@@ -60,6 +60,7 @@ export class Invoice {
     let data, error;
     if (file instanceof File) {
       const filePath = `/${file.name}_${new Date().getTime()}`;
+
       ({ data, error } = await supabase.storage
         .from('invoices')
         .upload(filePath, file));

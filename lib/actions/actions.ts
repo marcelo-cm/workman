@@ -15,7 +15,7 @@ const nango = new Nango({
 export async function mindeeScan(fileUrl: string) {
   const mindeeClient = createMindeeClient();
 
-  const inputSource = await mindeeClient.docFromUrl(fileUrl);
+  const inputSource = await mindeeClient.docFromUrl(decodeURI(fileUrl));
   const respPromise = await mindeeClient.parse(
     mindee.product.InvoiceV4,
     inputSource,
