@@ -39,7 +39,7 @@ export default function ForApproval() {
             </BreadcrumbLink>
           </BreadcrumbList>
           <div className="flex w-full flex-row justify-between font-poppins text-4xl">
-            Bills for Approval <UploadFileButton />
+            Bills <UploadFileButton />
           </div>
           <p>
             Upload your file and we'll process it for you. Select multiple files

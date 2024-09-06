@@ -32,7 +32,7 @@ export interface LineItem {
   totalAmount: string;
   unitPrice: number;
   pageId: number;
-  polygon: Polygon;
+  // polygon: Polygon;
 }
 
 export interface ReceiptData {}

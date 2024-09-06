@@ -54,7 +54,6 @@ interface DataTableProps {
   actionOnSelectText: string;
   actionIcon: React.ReactNode;
   canActionBeDisabled?: boolean;
-  filters?: boolean;
   defaultInvoiceStatus?: InvoiceStatus;
 }
 
@@ -64,12 +63,11 @@ const {
   getInvoiceCounts,
 } = useInvoice();
 
-export function InvoiceDataTable<TData, TValue>({
+export function ReceiptDataTable<TData, TValue>({
   onAction,
   actionOnSelectText,
   actionIcon,
   canActionBeDisabled = true,
-  filters = true,
 }: DataTableProps) {
   const { user } = useAppContext();
   const [data, setData] = useState<Invoice[]>([]);

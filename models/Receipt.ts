@@ -33,11 +33,43 @@ export class Receipt {
     company: Company;
   }) {
     this._id = id;
-    this._created_at = created_at;
+    this._created_at = new Date(created_at);
     this._data = data;
     this._file_url = file_url;
     this._status = status;
     this._principal = principal;
     this._company = company;
+  }
+
+  public get id(): UUID {
+    return this._id;
+  }
+
+  public get createdAt(): Date {
+    return this._created_at;
+  }
+
+  public get data(): ReceiptData {
+    return this._data;
+  }
+
+  public get fileUrl(): string {
+    return this._file_url;
+  }
+
+  public get status(): ReceiptStatus {
+    return this._status;
+  }
+
+  public get principal(): User_Nested {
+    return this._principal;
+  }
+
+  public get company(): Company {
+    return this._company;
+  }
+
+  public set data(data: ReceiptData) {
+    this._data = data;
   }
 }
