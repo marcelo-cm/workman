@@ -5,7 +5,7 @@ import { Dialog, DialogTrigger } from '@/components/ui/dialog';
 
 import PDFSplitter from '../PDF/PDFSplitter/PDFSplitter';
 
-const UploadFileButton = () => {
+const UploadInvoiceButton = () => {
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -18,4 +18,4 @@ const UploadFileButton = () => {
   );
 };
 
-export default UploadFileButton;
+export default UploadInvoiceButton;

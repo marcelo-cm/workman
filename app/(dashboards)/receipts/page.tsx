@@ -6,7 +6,7 @@ import { Pencil2Icon } from '@radix-ui/react-icons';
 
 import { ReceiptDataTable } from '@/components/(dashboards)/bills/data-tables/receipts/data-table-receipts';
 import ExtractionReview from '@/components/(dashboards)/bills/extraction/ExtractionReview';
-import UploadFileButton from '@/components/(shared)/general/UploadFileButton';
+import UploadReceiptButton from '@/components/(shared)/general/UploadReceiptButton';
 import {
   BreadcrumbItem,
   BreadcrumbLink,
@@ -39,7 +39,7 @@ export default function ForApproval() {
             </BreadcrumbLink>
           </BreadcrumbList>
           <div className="flex w-full flex-row justify-between font-poppins text-4xl">
-            Receipts <UploadFileButton />
+            Receipts <UploadReceiptButton />
           </div>
           <p>
             Upload your file and we'll process it for you. Select multiple files

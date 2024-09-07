@@ -1,4 +1,9 @@
 import { UUID } from 'crypto';
+import { PredictResponse } from 'mindee';
+import { ReceiptV5 } from 'mindee/src/product';
+import { ReceiptV5LineItem } from 'mindee/src/product/receipt/receiptV5LineItem';
+
+import { scanReceiptByURL } from '@/lib/hooks/useMindee';
 
 import { ReceiptStatus } from '@/constants/enums';
 import { ReceiptData } from '@/interfaces/common.interfaces';
@@ -71,5 +76,36 @@ export class Receipt {
 
   public set data(data: ReceiptData) {
     this._data = data;
+  }
+
+  static async scan(fileUrl: string) {
+    const res = await scanReceiptByURL(fileUrl);
+    const data = JSON.parse(res);
+    const parsedData = await this.parse(data);
+
+    return parsedData;
+  }
+
+  static async parse(data: PredictResponse<ReceiptV5>) {
+    const prediction = data.document.inference.prediction;
+
+    const extractedData: ReceiptData = {
+      category: prediction?.category?.value || '',
+      date: prediction?.date?.value || '',
+      lineItems: prediction?.lineItems.map((item: ReceiptV5LineItem) => ({
+        confidence: item.confidence,
+        description: item?.description ?? '',
+        totalAmount: item.totalAmount?.toFixed(2) ?? '0.00',
+      })),
+      subcategory: prediction?.subcategory?.value || '',
+      supplierName: prediction?.supplierName?.value || '',
+      time: prediction?.time?.value || '',
+      tip: prediction?.tip?.value || 0,
+      totalAmount: prediction?.totalAmount?.value || 0,
+      totalNet: prediction?.totalNet?.value || 0,
+      totalTax: prediction?.totalTax?.value?.toFixed(2) || '0.00',
+    };
+
+    return extractedData;
   }
 }
