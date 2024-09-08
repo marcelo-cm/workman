@@ -16,7 +16,7 @@ import {
 import IfElseRender from '@/components/ui/if-else-renderer';
 import { Textarea } from '@/components/ui/text-area';
 
-import { useExtractionReview } from '../../InvoiceExtractionReview';
+import { useInvoiceExtractionReview } from '../../InvoiceExtractionReview';
 import BillDetails from './BillDetails';
 import LineItems from './LineItems';
 
@@ -26,7 +26,7 @@ const InvoiceDataForm = ({
   form: UseFormReturn<any, any, undefined>;
 }) => {
   const { accounts, customers, vendors, files, activeIndex } =
-    useExtractionReview();
+    useInvoiceExtractionReview();
 
   const initialLoading = !(
     form &&

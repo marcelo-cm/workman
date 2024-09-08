@@ -19,7 +19,7 @@ import { Input } from '@/components/ui/input';
 
 import { Account } from '@/interfaces/quickbooks.interfaces';
 
-import { useExtractionReview } from '../../InvoiceExtractionReview';
+import { useInvoiceExtractionReview } from '../../InvoiceExtractionReview';
 import { invoiceDataFormSchema } from '../../constants';
 
 const LineItems = ({
@@ -27,7 +27,7 @@ const LineItems = ({
 }: {
   form: UseFormReturn<z.infer<typeof invoiceDataFormSchema>, any, undefined>;
 }) => {
-  const { accounts } = useExtractionReview();
+  const { accounts } = useInvoiceExtractionReview();
   const { watch } = form;
   const { fields, append, remove } = useFieldArray({
     control: form.control,

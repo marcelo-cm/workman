@@ -20,7 +20,7 @@ import { InvoiceStatus } from '@/constants/enums';
 import { Invoice_Quickbooks } from '@/interfaces/quickbooks.interfaces';
 import Invoice from '@/models/Invoice';
 
-import { useExtractionReview } from '../../InvoiceExtractionReview';
+import { useInvoiceExtractionReview } from '../../InvoiceExtractionReview';
 
 const InvoiceDataTable = ({
   file,
@@ -38,7 +38,7 @@ const InvoiceDataTable = ({
   setUploadedFileIndexes: Dispatch<SetStateAction<number[]>>;
 }) => {
   const { accounts, customers, activeIndex, setActiveIndex } =
-    useExtractionReview();
+    useInvoiceExtractionReview();
   const [isLoading, setIsLoading] = useState(false);
 
   const handleCustomerSelect = (

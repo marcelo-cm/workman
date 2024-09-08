@@ -15,7 +15,7 @@ import { Input } from '@/components/ui/input';
 
 import { useVendor } from '@/lib/hooks/quickbooks/useVendor';
 
-import { useExtractionReview } from '../../InvoiceExtractionReview';
+import { useInvoiceExtractionReview } from '../../InvoiceExtractionReview';
 import { invoiceDataFormSchema } from '../../constants';
 
 const { getDefaultCategoryByVendorName } = useVendor();
@@ -25,7 +25,7 @@ const BillDetails = ({
 }: {
   form: UseFormReturn<z.infer<typeof invoiceDataFormSchema>, any, undefined>;
 }) => {
-  const { customers, vendors } = useExtractionReview();
+  const { customers, vendors } = useInvoiceExtractionReview();
   const { watch } = form;
   const { fields } = useFieldArray({
     control: form.control,

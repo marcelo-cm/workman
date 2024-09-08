@@ -363,7 +363,7 @@ export class Invoice {
   }
 
   get fileName(): string {
-    return this._file_url.split('/').pop() || '';
+    return this._file_url.split('/').pop()?.split('.pdf')[0] || '';
   }
 
   set data(data: InvoiceData) {

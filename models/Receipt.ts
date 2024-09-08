@@ -76,7 +76,7 @@ export class Receipt {
   }
 
   public get fileName(): string {
-    return this._file_url.split('/').pop() || '';
+    return this._file_url.split('/').pop()?.split('.')[0] || '';
   }
 
   public set data(data: ReceiptData) {

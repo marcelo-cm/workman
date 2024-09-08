@@ -8,6 +8,7 @@ import {
   useEffect,
   useState,
 } from 'react';
+import React from 'react';
 
 import {
   CaretDownIcon,
@@ -33,11 +34,12 @@ import { useVendor } from '@/lib/hooks/quickbooks/useVendor';
 
 import { Account, Customer, Vendor } from '@/interfaces/quickbooks.interfaces';
 import Invoice from '@/models/Invoice';
+import { Receipt } from '@/models/Receipt';
 
 import ExtractionTabs from './(tabs)/ExtractionTabs';
 
 interface ExtractionReviewContext {
-  files: Invoice[];
+  files: Receipt[];
   accounts: Account[];
   vendors: Vendor[];
   customers: Customer[];
@@ -58,11 +60,11 @@ const ExtractionReviewContext = createContext<ExtractionReviewContext>(
   defaultExtractionReviewContext,
 );
 
-export const useInvoiceExtractionReview = () => {
+export const useReceiptExtractionReview = () => {
   return useContext(ExtractionReviewContext);
 };
 
-const InvoiceExtractionReview = ({ files }: { files: Invoice[] }) => {
+const ReceiptExtractionReview = ({ files }: { files: Receipt[] }) => {
   const [vendors, setVendors] = useState<Vendor[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [accounts, setAccounts] = useState<Account[]>([]);
@@ -130,7 +132,9 @@ const InvoiceExtractionReview = ({ files }: { files: Invoice[] }) => {
               <DropdownMenuTrigger asChild>
                 <div className="flex h-10 min-h-10 cursor-pointer items-center justify-between border-b bg-wm-white-50 px-2 text-sm hover:bg-wm-white-100">
                   <div className="ellipsis flex items-center gap-1 ">
-                    {decodeURI(files[activeIndex].fileName)}
+                    {decodeURI(
+                      files[activeIndex].fileUrl.split('/')[8].split('.pdf')[0],
+                    )}
                     <CaretDownIcon />
                   </div>
                   <div>
@@ -155,8 +159,8 @@ const InvoiceExtractionReview = ({ files }: { files: Invoice[] }) => {
                 ))}
               </DropdownMenuContent>
             </DropdownMenu>
-            <div className="no-scrollbar h-full w-full overflow-y-scroll bg-wm-white-50 p-4">
-              <PDFViewer file={files[activeIndex].fileUrl} zoomable />
+            <div className="no-scrollbar h-full w-[545px] overflow-y-scroll bg-wm-white-50 p-4">
+              <img src={files[activeIndex].fileUrl} />
             </div>
             <div className="sticky bottom-0 flex h-14 min-h-14 items-center gap-2 border-t bg-white px-2">
               <Button
@@ -183,4 +187,4 @@ const InvoiceExtractionReview = ({ files }: { files: Invoice[] }) => {
   );
 };
 
-export default InvoiceExtractionReview;
+export default ReceiptExtractionReview;

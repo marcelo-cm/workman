@@ -61,7 +61,7 @@ export const columns: ColumnDef<Receipt>[] = [
     id: 'supplier',
     accessorKey: 'data.supplierName',
     header: ({ column }) => {
-      return <div>Invoice Name & Company</div>;
+      return <div>Vendor</div>;
     },
     cell: ({ row }) => {
       return (
