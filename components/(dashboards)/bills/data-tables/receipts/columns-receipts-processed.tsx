@@ -58,10 +58,8 @@ export const columns: ColumnDef<Receipt>[] = [
     ),
   },
   {
-    id: 'file_name&sender',
-    accessorFn: (row) => {
-      return `${row.fileName} - ${row.data.supplierName}`;
-    },
+    id: 'supplier',
+    accessorKey: 'data.supplierName',
     header: ({ column }) => {
       return <div>Invoice Name & Company</div>;
     },

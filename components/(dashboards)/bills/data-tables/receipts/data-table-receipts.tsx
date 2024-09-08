@@ -261,14 +261,10 @@ export function ReceiptDataTable<TData, TValue>({
           <input
             ref={searchFilterInputRef}
             value={
-              (table
-                .getColumn('file_name&sender')
-                ?.getFilterValue() as string) ?? ''
+              (table.getColumn('supplier')?.getFilterValue() as string) ?? ''
             }
             onChange={(event) =>
-              table
-                .getColumn('file_name&sender')
-                ?.setFilterValue(event.target.value)
+              table.getColumn('supplier')?.setFilterValue(event.target.value)
             }
             placeholder="Filter by receipt name or sender"
             className="h-full w-full appearance-none bg-transparent text-black outline-none placeholder:text-wm-white-500 disabled:cursor-not-allowed disabled:opacity-50"

@@ -42,8 +42,8 @@ export default function ForApproval() {
             Receipts <UploadReceiptButton />
           </div>
           <p>
-            Upload your file and we'll process it for you. Select multiple files
-            to below to review the scan and upload to QuickBooks.
+            Upload an image of your receipt and we'll process it for you. Select
+            multiple files to below to review the scan and upload to QuickBooks.
           </p>
           <ReceiptDataTable
             onAction={handleReviewSelected}
