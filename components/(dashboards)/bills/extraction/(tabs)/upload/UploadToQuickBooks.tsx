@@ -13,7 +13,7 @@ import { TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Invoice_Quickbooks, Vendor } from '@/interfaces/quickbooks.interfaces';
 import Invoice from '@/models/Invoice';
 
-import { useExtractionReview } from '../../ExtractionReview';
+import { useExtractionReview } from '../../InvoiceExtractionReview';
 import InvoiceDataTable from './InvoiceDataTable';
 
 const UploadToQuickBooks = () => {

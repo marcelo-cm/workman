@@ -31,7 +31,7 @@ import { ApprovalStatus, InvoiceStatus } from '@/constants/enums';
 import { InvoiceData } from '@/interfaces/common.interfaces';
 import Invoice from '@/models/Invoice';
 
-import { useExtractionReview } from '../ExtractionReview';
+import { useExtractionReview } from '../InvoiceExtractionReview';
 import { invoiceDataFormSchema } from '../constants';
 import InvoiceDataForm from './edit/InvoiceDataForm';
 import UploadToQuickBooks from './upload/UploadToQuickBooks';

@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { Pencil2Icon } from '@radix-ui/react-icons';
 
 import { InvoiceDataTable } from '@/components/(dashboards)/bills/data-tables/invoices/data-table-invoice';
-import ExtractionReview from '@/components/(dashboards)/bills/extraction/ExtractionReview';
+import InvoiceExtractionReview from '@/components/(dashboards)/bills/extraction/InvoiceExtractionReview';
 import UploadInvoiceButton from '@/components/(shared)/general/UploadInvoiceButton';
 import {
   BreadcrumbItem,
@@ -28,7 +28,7 @@ export default function ForApproval() {
   return (
     <>
       {review ? (
-        <ExtractionReview files={selectedFiles} />
+        <InvoiceExtractionReview files={selectedFiles} />
       ) : (
         <div className="flex h-full w-full flex-col gap-4 px-4 py-8">
           <BreadcrumbList className="text-wm-white-400">

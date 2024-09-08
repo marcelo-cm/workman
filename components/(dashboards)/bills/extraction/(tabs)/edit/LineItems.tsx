@@ -19,7 +19,7 @@ import { Input } from '@/components/ui/input';
 
 import { Account } from '@/interfaces/quickbooks.interfaces';
 
-import { useExtractionReview } from '../../ExtractionReview';
+import { useExtractionReview } from '../../InvoiceExtractionReview';
 import { invoiceDataFormSchema } from '../../constants';
 
 const LineItems = ({

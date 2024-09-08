@@ -16,7 +16,7 @@ import {
 import IfElseRender from '@/components/ui/if-else-renderer';
 import { Textarea } from '@/components/ui/text-area';
 
-import { useExtractionReview } from '../../ExtractionReview';
+import { useExtractionReview } from '../../InvoiceExtractionReview';
 import BillDetails from './BillDetails';
 import LineItems from './LineItems';
 

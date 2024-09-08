@@ -20,7 +20,7 @@ import { InvoiceStatus } from '@/constants/enums';
 import { Invoice_Quickbooks } from '@/interfaces/quickbooks.interfaces';
 import Invoice from '@/models/Invoice';
 
-import { useExtractionReview } from '../../ExtractionReview';
+import { useExtractionReview } from '../../InvoiceExtractionReview';
 
 const InvoiceDataTable = ({
   file,

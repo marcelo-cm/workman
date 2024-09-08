@@ -15,7 +15,7 @@ import { Input } from '@/components/ui/input';
 
 import { useVendor } from '@/lib/hooks/quickbooks/useVendor';
 
-import { useExtractionReview } from '../../ExtractionReview';
+import { useExtractionReview } from '../../InvoiceExtractionReview';
 import { invoiceDataFormSchema } from '../../constants';
 
 const { getDefaultCategoryByVendorName } = useVendor();

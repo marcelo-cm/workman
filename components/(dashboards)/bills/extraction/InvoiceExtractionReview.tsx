@@ -62,7 +62,7 @@ export const useExtractionReview = () => {
   return useContext(ExtractionReviewContext);
 };
 
-const ExtractionReview = ({ files }: { files: Invoice[] }) => {
+const InvoiceExtractionReview = ({ files }: { files: Invoice[] }) => {
   const [vendors, setVendors] = useState<Vendor[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [accounts, setAccounts] = useState<Account[]>([]);
@@ -185,4 +185,4 @@ const ExtractionReview = ({ files }: { files: Invoice[] }) => {
   );
 };
 
-export default ExtractionReview;
+export default InvoiceExtractionReview;
