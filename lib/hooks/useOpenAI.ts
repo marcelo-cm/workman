@@ -19,7 +19,7 @@ export const scanReceiptByURL = async (fileUrl: string) => {
         content: [
           {
             type: 'text',
-            text: 'Scan this receipt and return a structured JSON of the provided schema',
+            text: `Scan this receipt and return a structured JSON of the provided schema. Leave project to be 'Unassigned', and given between 1-3 categories`,
           },
           {
             type: 'image_url',

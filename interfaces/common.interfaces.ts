@@ -42,15 +42,15 @@ export const ReceiptLineItemSchema = z.object({
 });
 
 export const ReceiptDataSchema = z.object({
-  category: z.string(),
+  category: z.array(z.string()),
   date: z.string(),
   lineItems: z.array(ReceiptLineItemSchema),
-  subcategory: z.string(),
   supplierName: z.string(),
   time: z.string(),
   tip: z.number(),
   totalAmount: z.number(),
   totalTax: z.string(),
+  project: z.string(),
 });
 
 export type ReceiptData = z.infer<typeof ReceiptDataSchema>;

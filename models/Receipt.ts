@@ -112,12 +112,12 @@ export class Receipt {
         description: item?.description ?? '',
         totalAmount: item.totalAmount?.toFixed(2) ?? '0.00',
       })),
-      subcategory: prediction?.subcategory?.value || '',
       supplierName: prediction?.supplierName?.value || '',
       time: prediction?.time?.value || '',
       tip: prediction?.tip?.value || 0,
       totalAmount: prediction?.totalAmount?.value || 0,
       totalTax: prediction?.totalTax?.value?.toFixed(2) || '0.00',
+      project: prediction?.project?.value || '',
     };
     return extractedData;
   }

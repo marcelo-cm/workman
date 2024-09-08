@@ -87,7 +87,7 @@ export const columns: ColumnDef<Invoice>[] = [
   },
   {
     accessorKey: 'data.invoiceNumber',
-    header: () => <div>Invoice No.</div>,
+    header: 'Invoice No.',
     cell: ({ row }) => (
       <Badge variant="info">
         {row.original.data.invoiceNumber || (
