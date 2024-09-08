@@ -14,9 +14,7 @@ const UploadReceiptButton = () => {
     const fileList = event.target.files;
     if (!fileList) return;
 
-    const filesUploaded = Array.from(fileList) as File[];
-
-    const response = await Receipt.scan(filesUploaded[0].name);
+    const response = await Receipt.scan('https://example.com');
     console.log(response);
   };
 

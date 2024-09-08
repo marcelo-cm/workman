@@ -362,6 +362,10 @@ export class Invoice {
     return this._data.notes;
   }
 
+  get fileName(): string {
+    return this._file_url.split('/').pop() || '';
+  }
+
   set data(data: InvoiceData) {
     this._data = data;
   }

@@ -2,8 +2,9 @@ import { UUID } from 'crypto';
 import { PredictResponse } from 'mindee';
 import { ReceiptV5 } from 'mindee/src/product';
 import { ReceiptV5LineItem } from 'mindee/src/product/receipt/receiptV5LineItem';
+import { ChatCompletion } from 'openai/resources/index.mjs';
 
-import { scanReceiptByURL } from '@/lib/hooks/useMindee';
+import { scanReceiptByURL } from '@/lib/hooks/useOpenAI';
 
 import { ReceiptStatus } from '@/constants/enums';
 import { ReceiptData } from '@/interfaces/common.interfaces';
@@ -74,21 +75,35 @@ export class Receipt {
     return this._company;
   }
 
+  public get fileName(): string {
+    return this._file_url.split('/').pop() || '';
+  }
+
   public set data(data: ReceiptData) {
     this._data = data;
   }
 
   static async scan(fileUrl: string) {
-    const res = await scanReceiptByURL(fileUrl);
-    const data = JSON.parse(res);
-    const parsedData = await this.parse(data);
+    const res = await scanReceiptByURL(
+      'https://nyihnifdeasiteiwlghu.supabase.co/storage/v1/object/public/receipts/UberReceipt.png?t=2024-09-07T17%3A15%3A59.554Z',
+    );
+    const data: ChatCompletion = JSON.parse(res);
+    if (!data.choices[0].message.content) {
+      throw new Error('No response from OpenAI API');
+    }
+    const receiptData: ReceiptData = JSON.parse(
+      data.choices[0].message.content,
+    );
 
-    return parsedData;
+    return receiptData;
   }
 
-  static async parse(data: PredictResponse<ReceiptV5>) {
+  /**
+   * This is a helper function to parse the response from the Mindee API into a ReceiptData object.
+   * @param data Response from Mindee API to be parsed into a ReceiptData object
+   */
+  static async parse(data: any) {
     const prediction = data.document.inference.prediction;
-
     const extractedData: ReceiptData = {
       category: prediction?.category?.value || '',
       date: prediction?.date?.value || '',
@@ -102,10 +117,8 @@ export class Receipt {
       time: prediction?.time?.value || '',
       tip: prediction?.tip?.value || 0,
       totalAmount: prediction?.totalAmount?.value || 0,
-      totalNet: prediction?.totalNet?.value || 0,
       totalTax: prediction?.totalTax?.value?.toFixed(2) || '0.00',
     };
-
     return extractedData;
   }
 }

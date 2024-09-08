@@ -275,7 +275,7 @@ export function ReceiptDataTable<TData, TValue>({
           />
         </div>
         <DatePickerWithRange
-          placeholder="Filter by Date Receiptd"
+          placeholder="Filter by Transaction Date"
           onDateChange={setDateRange}
           ref={dateRangeRef}
         />

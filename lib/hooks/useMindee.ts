@@ -1,6 +1,6 @@
 'use server';
 
-import { InvoiceV4, ReceiptV5 } from 'mindee/src/product';
+import { InvoiceV4 } from 'mindee/src/product';
 
 import { createMindeeClient } from '../utils/mindee/client';
 
@@ -22,20 +22,3 @@ export const scanInvoiceByURL = async (fileUrl: string) => {
 };
 
 export const scanInvoiceByFile = async (file: File) => {};
-
-/**
- * RECEIPTS
- */
-
-export const scanReceiptByURL = async (fileUrl: string) => {
-  const inputSource = mindee.docFromUrl(decodeURI(fileUrl));
-  const respPromise = await mindee.parse(ReceiptV5, inputSource);
-
-  return JSON.stringify(respPromise);
-};
-
-export const scanReceiptByFile = async (file: File) => {
-  // const inputSource = mindee.docFromBuffer(file);
-  // const respPromise = await mindee.parse(ReceiptV5, inputSource);
-  // return JSON.stringify(respPromise);
-};

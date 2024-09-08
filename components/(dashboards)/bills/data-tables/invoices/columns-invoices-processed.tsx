@@ -59,12 +59,7 @@ export const columns: ColumnDef<Invoice>[] = [
   },
   {
     accessorKey: 'file_name&sender',
-    accessorFn: (row) =>
-      decodeURI(
-        row.fileUrl.split('/')[8]?.split('.pdf')[0] +
-          ' ' +
-          row.data.supplierName,
-      ),
+    accessorFn: (row) => decodeURI(row.fileName + ' ' + row.data.supplierName),
     header: ({ column }) => {
       return <div>Invoice Name & Company</div>;
     },
@@ -81,12 +76,7 @@ export const columns: ColumnDef<Invoice>[] = [
               <div className="flex w-fit flex-col">
                 <div className="w-fit">{row.original?.data?.supplierName}</div>
                 <div className="text-xs text-wm-white-300">
-                  {sliceWithEllipsis(
-                    decodeURI(
-                      row.original.fileUrl.split('/')[8].split('.pdf')[0],
-                    ),
-                    35,
-                  )}
+                  {sliceWithEllipsis(decodeURI(row.original.fileName), 35)}
                 </div>
               </div>
             </TooltipTrigger>
