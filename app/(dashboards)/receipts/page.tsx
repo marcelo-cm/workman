@@ -4,8 +4,8 @@ import { useState } from 'react';
 
 import { Pencil2Icon } from '@radix-ui/react-icons';
 
-import { ReceiptDataTable } from '@/components/(dashboards)/bills/data-tables/receipts/data-table-receipts';
 import InvoiceExtractionReview from '@/components/(dashboards)/bills/extraction/InvoiceExtractionReview';
+import { ReceiptDataTable } from '@/components/(dashboards)/receipts/data-tables/receipts/data-table-receipts';
 import UploadReceiptButton from '@/components/(shared)/general/UploadReceiptButton';
 import {
   BreadcrumbItem,
