@@ -116,7 +116,7 @@ export function ComboBox<
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className={`w-fit min-w-[200px] justify-between ${className}`}
+          className={`h-9 w-fit min-w-[200px] justify-between ${className}`}
           type="button"
         >
           <p className="w-fit min-w-[155px] overflow-hidden text-ellipsis text-nowrap break-keep text-left">

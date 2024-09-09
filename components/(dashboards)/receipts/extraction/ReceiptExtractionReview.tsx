@@ -16,7 +16,8 @@ import {
   CaretRightIcon,
 } from '@radix-ui/react-icons';
 
-import PDFViewer from '@/components/(shared)/PDF/PDFViewer';
+import Image from 'next/image';
+
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -33,7 +34,6 @@ import { useCustomer } from '@/lib/hooks/quickbooks/useCustomer';
 import { useVendor } from '@/lib/hooks/quickbooks/useVendor';
 
 import { Account, Customer, Vendor } from '@/interfaces/quickbooks.interfaces';
-import Invoice from '@/models/Invoice';
 import { Receipt } from '@/models/Receipt';
 
 import ExtractionTabs from './(tabs)/ExtractionTabs';
@@ -132,9 +132,7 @@ const ReceiptExtractionReview = ({ files }: { files: Receipt[] }) => {
               <DropdownMenuTrigger asChild>
                 <div className="flex h-10 min-h-10 cursor-pointer items-center justify-between border-b bg-wm-white-50 px-2 text-sm hover:bg-wm-white-100">
                   <div className="ellipsis flex items-center gap-1 ">
-                    {decodeURI(
-                      files[activeIndex].fileUrl.split('/')[8].split('.pdf')[0],
-                    )}
+                    {files[activeIndex].fileName}
                     <CaretDownIcon />
                   </div>
                   <div>
@@ -151,7 +149,7 @@ const ReceiptExtractionReview = ({ files }: { files: Receipt[] }) => {
                     onClick={() => setActiveIndex(index)}
                     className="hover flex cursor-pointer items-center justify-between gap-4 rounded-md hover:bg-wm-white-50"
                   >
-                    {decodeURI(file.fileUrl.split('/')[8].split('.pdf')[0])}
+                    {file.fileName}
                     {activeIndex === index ? (
                       <Badge variant="success">Active</Badge>
                     ) : null}
@@ -160,7 +158,13 @@ const ReceiptExtractionReview = ({ files }: { files: Receipt[] }) => {
               </DropdownMenuContent>
             </DropdownMenu>
             <div className="no-scrollbar h-full w-[545px] overflow-y-scroll bg-wm-white-50 p-4">
-              <img src={files[activeIndex].fileUrl} />
+              <Image
+                src={files[activeIndex].fileUrl}
+                className="border"
+                width={545}
+                height={1000}
+                alt={files[activeIndex].fileName}
+              />
             </div>
             <div className="sticky bottom-0 flex h-14 min-h-14 items-center gap-2 border-t bg-white px-2">
               <Button

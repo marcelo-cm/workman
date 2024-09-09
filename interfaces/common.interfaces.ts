@@ -36,23 +36,15 @@ export interface InvoiceLineItem {
   // polygon: Polygon;
 }
 
-export const ReceiptLineItemSchema = z.object({
-  description: z.string(),
-  totalAmount: z.string(),
-});
-
 export const ReceiptDataSchema = z.object({
-  category: z.array(z.string()),
-  date: z.string(),
-  lineItems: z.array(ReceiptLineItemSchema),
+  category: z.string(),
+  date: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format (YYYY-MM-DD)'),
   supplierName: z.string(),
-  time: z.string(),
-  tip: z.number(),
-  totalAmount: z.number(),
-  totalTax: z.string(),
-  project: z.string(),
+  totalNet: z.number(),
+  description: z.string(),
+  customerName: z.string().default('Unassigned'),
 });
 
 export type ReceiptData = z.infer<typeof ReceiptDataSchema>;
-
-export type ReceiptLineItem = z.infer<typeof ReceiptLineItemSchema>;

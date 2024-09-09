@@ -87,13 +87,7 @@ export const columns: ColumnDef<Receipt>[] = [
     accessorKey: 'data.category',
     header: 'Category',
     cell: ({ row }) => {
-      return (
-        <div className="flex gap-2">
-          {row.original.data.category.map((cat) => (
-            <Chip>{cat}</Chip>
-          ))}
-        </div>
-      );
+      return <Chip>{row.original.data.category}</Chip>;
     },
   },
   {
@@ -102,10 +96,10 @@ export const columns: ColumnDef<Receipt>[] = [
     cell: ({ row }) => {
       return (
         <span>
-          {row.original.data.project == 'Unassigned' ? (
+          {row.original.data.customerName == 'Unassigned' ? (
             <em className="text-wm-white-300">Unassigned</em>
           ) : (
-            row.original.data.project
+            row.original.data.customerName
           )}
         </span>
       );
@@ -153,7 +147,7 @@ export const columns: ColumnDef<Receipt>[] = [
       const formatted = new Intl.NumberFormat('en-US', {
         style: 'currency',
         currency: 'USD',
-      }).format(row.original.data.totalAmount);
+      }).format(row.original.data.totalNet);
 
       return <div>{formatted}</div>;
     },
