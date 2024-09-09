@@ -147,7 +147,7 @@ export const columns: ColumnDef<Receipt>[] = [
       const formatted = new Intl.NumberFormat('en-US', {
         style: 'currency',
         currency: 'USD',
-      }).format(row.original.data.totalNet);
+      }).format(parseFloat(row.original.data.totalNet));
 
       return <div>{formatted}</div>;
     },

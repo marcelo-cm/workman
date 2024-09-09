@@ -102,23 +102,5 @@ export class Receipt {
    * This is a helper function to parse the response from the Mindee API into a ReceiptData object.
    * @param data Response from Mindee API to be parsed into a ReceiptData object
    */
-  static async parse(data: any) {
-    const prediction = data.document.inference.prediction;
-    const extractedData: ReceiptData = {
-      category: prediction?.category?.value || '',
-      date: prediction?.date?.value || '',
-      lineItems: prediction?.lineItems.map((item: ReceiptV5LineItem) => ({
-        confidence: item.confidence,
-        description: item?.description ?? '',
-        totalAmount: item.totalAmount?.toFixed(2) ?? '0.00',
-      })),
-      supplierName: prediction?.supplierName?.value || '',
-      time: prediction?.time?.value || '',
-      tip: prediction?.tip?.value || 0,
-      totalAmount: prediction?.totalAmount?.value || 0,
-      totalTax: prediction?.totalTax?.value?.toFixed(2) || '0.00',
-      project: prediction?.project?.value || '',
-    };
-    return extractedData;
-  }
+  static async parse(data: any) {}
 }
