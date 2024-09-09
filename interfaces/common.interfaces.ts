@@ -42,7 +42,7 @@ export const ReceiptDataSchema = z.object({
     .string()
     .regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format (YYYY-MM-DD)'),
   supplierName: z.string(),
-  totalNet: z.number(),
+  totalNet: z.string(),
   description: z.string(),
   customerName: z.string().default('Unassigned'),
 });
