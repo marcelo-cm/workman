@@ -1,3 +1,5 @@
+import { toast } from '@/components/ui/use-toast';
+
 import { Approvable, ApprovalStatus, ReceiptStatus } from '@/constants/enums';
 import { ReceiptCountsResponse } from '@/interfaces/db.interfaces';
 import { createClient } from '@/lib/utils/supabase/client';
@@ -101,10 +103,34 @@ export const useReceipt = () => {
     );
   }
 
+  async function uploadToReceiptBucket(file: File) {
+    const { data, error } = await supabase.storage
+      .from('receipts')
+      .upload(`${file.name}_${new Date().getTime()}`, file);
+
+    if (error) {
+      toast({
+        title: `Failed to upload file ${file.name}`,
+        description: 'Please try to upload this document again',
+        variant: 'destructive',
+      });
+      throw new Error(`Failed to upload file: ${error.message}`);
+    }
+
+    toast({
+      title: `${file.name} uploaded successfully`,
+      description: 'You can now process this document',
+      variant: 'success',
+    });
+
+    return data;
+  }
+
   return {
     getReceiptCounts,
     getCompanyReceiptsByStates,
     getReceiptsByStateApproverAndApprovalStatus,
     getReceiptsAwaitingUserApproval,
+    uploadToReceiptBucket,
   };
 };

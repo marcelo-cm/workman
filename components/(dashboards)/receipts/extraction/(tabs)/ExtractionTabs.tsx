@@ -1,15 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 
-import {
-  ArrowRightIcon,
-  BookmarkIcon,
-  CheckIcon,
-  ResetIcon,
-} from '@radix-ui/react-icons';
+import { BookmarkIcon, CheckIcon, ResetIcon } from '@radix-ui/react-icons';
+import { ArrowRightIcon, HammerIcon } from 'lucide-react';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
-import { z } from 'zod';
 
 import { Button } from '@/components/ui/button';
 import IfElseRender from '@/components/ui/if-else-renderer';
@@ -41,11 +36,11 @@ const ExtractionTabs = ({
   const [originalFileData, setOriginalFileData] = useState<ReceiptData>(
     files[activeIndex].data,
   );
-  const uploadToQuickBooksTabRef = useRef<HTMLButtonElement>(null);
   const form = useForm<ReceiptData>({
     resolver: zodResolver(ReceiptDataSchema),
     defaultValues: originalFileData,
   });
+  const receipt = files[activeIndex];
   const hasDirtyFields = !!Object.keys(form.formState.dirtyFields).length;
 
   useEffect(() => {
@@ -83,37 +78,19 @@ const ExtractionTabs = ({
     );
 
     if (isAllApproved) {
+      console.log('All approved');
       receipt.status = ReceiptStatus.APPROVED;
-      setApprovedFiles((prevApprovedFiles) => {
-        const isAlreadyApproved = prevApprovedFiles.some(
-          (approvedFile) => approvedFile.id === receipt.id,
-        );
-
-        if (!isAlreadyApproved) {
-          const updatedApprovedFiles = [...prevApprovedFiles, receipt];
-          if (
-            updatedApprovedFiles.length === files.length &&
-            uploadToQuickBooksTabRef.current
-          ) {
-            uploadToQuickBooksTabRef.current.focus();
-          }
-          return updatedApprovedFiles;
-        } else {
-          if (
-            prevApprovedFiles.length === files.length &&
-            uploadToQuickBooksTabRef.current
-          ) {
-            uploadToQuickBooksTabRef.current.focus();
-          }
-          return prevApprovedFiles;
-        }
-      });
+      setApprovedFiles((prevApprovedFiles) => [...prevApprovedFiles, receipt]);
     }
   };
 
   const discardChanges = () => {
     form.reset(originalFileData);
     files[activeIndex].data = originalFileData;
+  };
+
+  const uploadToQuickBooks = () => {
+    // @todo
   };
 
   return (
@@ -123,21 +100,24 @@ const ExtractionTabs = ({
           value="1"
           className="flex h-10 w-1/2 grow justify-start border-b data-[state=active]:border-wm-orange data-[state=active]:text-wm-orange"
         >
-          1. Edit Details
+          1. Review & Submit
         </TabsTrigger>
-        <TabsTrigger
+        {/* <TabsTrigger
           value="2"
           className="flex h-10 w-1/2 grow justify-start border-b data-[state=active]:border-wm-orange data-[state=active]:text-wm-orange"
           disabled={hasDirtyFields}
           ref={uploadToQuickBooksTabRef}
         >
           2. Review & Upload to Quickbooks {hasDirtyFields && '(Save Changes)'}
-        </TabsTrigger>
+        </TabsTrigger> */}
       </TabsList>
       <div className="no-scrollbar h-full overflow-scroll">
-        <TabsContent value="1" className="w-full">
+        <TabsContent
+          value="1"
+          className="flex h-full w-full flex-col justify-between"
+        >
           <ReceiptDataForm form={form} />
-          <div className="sticky bottom-0 flex h-14 min-h-14 w-full items-center gap-2 border-t bg-white pl-2 pr-8">
+          <div className="sticky bottom-0 flex h-14  min-h-14 w-full items-center gap-2 border-t bg-white pl-2 pr-8">
             <IfElseRender
               condition={hasDirtyFields}
               ifTrue={
@@ -168,16 +148,17 @@ const ExtractionTabs = ({
                 </Button>
               }
             />
-            <TabsList className="ml-auto">
-              <TabsTrigger asChild value="2">
-                <Button disabled={form.formState.isDirty} variant={'outline'}>
-                  Continue <ArrowRightIcon />
-                </Button>
-              </TabsTrigger>
-            </TabsList>
+            <Button
+              disabled={hasDirtyFields || !receipt.isApproved}
+              variant={'outline'}
+              className="ml-auto"
+              onClick={() => uploadToQuickBooks()}
+            >
+              Submit to QuickBooks <HammerIcon className="h-4 w-4" />
+            </Button>
           </div>
         </TabsContent>
-        <TabsContent value="2">{/* <UploadToQuickBooks /> */}</TabsContent>
+        {/* <TabsContent value="2"><UploadToQuickBooks /></TabsContent> */}
       </div>
     </Tabs>
   );

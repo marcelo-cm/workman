@@ -1,3 +1,4 @@
+import { PostgrestError } from '@supabase/supabase-js';
 import { UUID } from 'crypto';
 import { PredictResponse } from 'mindee';
 import { ReceiptV5 } from 'mindee/src/product';
@@ -84,12 +85,42 @@ export class Receipt {
     return decodeURI(this._file_url.split('/').pop()?.split('.')[0] || '');
   }
 
+  public get isApproved(): boolean {
+    return this._status === ReceiptStatus.APPROVED;
+  }
+
   public set data(data: ReceiptData) {
     this._data = data;
   }
 
   public set status(status: ReceiptStatus) {
     this._status = status;
+  }
+
+  static async create(file_url: string, data?: ReceiptData): Promise<Receipt> {
+    const { data: receipt, error } = await supabase
+      .from('receipts')
+      .insert({
+        data,
+        file_url,
+      })
+      .select('*')
+      .single();
+
+    if (error || !receipt) {
+      toast({
+        title: 'Failed to create receipt',
+        variant: 'destructive',
+      });
+      throw new Error(`Failed to create receipt: ${error?.message}`);
+    }
+
+    toast({
+      title: 'Successfully created receipt',
+      variant: 'success',
+    });
+
+    return new Receipt(receipt);
   }
 
   static async scan(fileUrl: string) {
@@ -106,6 +137,7 @@ export class Receipt {
   }
 
   static async updateData(receipt: Receipt, data: ReceiptData) {
+    console.log('updating data', data);
     const { data: updatedData, error } = await supabase
       .from('receipts')
       .update({ data })

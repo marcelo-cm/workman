@@ -69,7 +69,7 @@ export const columns: ColumnDef<Receipt>[] = [
           <Tooltip>
             <TooltipContent side="right">
               <div className="no-scrollbar max-w-[600px] overflow-x-hidden overflow-y-scroll">
-                <img src={row.original.fileUrl} alt="Receipt" />
+                <img src={row?.original?.fileUrl} alt="Receipt" />
               </div>
             </TooltipContent>
             <TooltipTrigger>
@@ -87,7 +87,7 @@ export const columns: ColumnDef<Receipt>[] = [
     accessorKey: 'data.category',
     header: 'Category',
     cell: ({ row }) => {
-      return <Chip>{row.original.data.category}</Chip>;
+      return <Chip>{row?.original?.data?.category}</Chip>;
     },
   },
   {
@@ -96,10 +96,10 @@ export const columns: ColumnDef<Receipt>[] = [
     cell: ({ row }) => {
       return (
         <span>
-          {row.original.data.customerName == 'Unassigned' ? (
+          {row?.original?.data?.customerName == 'Unassigned' ? (
             <em className="text-wm-white-300">Unassigned</em>
           ) : (
-            row.original.data.customerName
+            row?.original?.data?.customerName
           )}
         </span>
       );
@@ -123,7 +123,7 @@ export const columns: ColumnDef<Receipt>[] = [
       </Button>
     ),
     cell: ({ row }) => {
-      return <div>{formatDate(new Date(row.original.data.date))}</div>;
+      return <div>{formatDate(new Date(row?.original?.data?.date))}</div>;
     },
   },
   {
@@ -147,9 +147,21 @@ export const columns: ColumnDef<Receipt>[] = [
       const formatted = new Intl.NumberFormat('en-US', {
         style: 'currency',
         currency: 'USD',
-      }).format(parseFloat(row.original.data.totalNet));
+      }).format(parseFloat(row?.original?.data?.totalNet));
 
       return <div>{formatted}</div>;
+    },
+  },
+  {
+    id: 'status',
+    accessorKey: 'data.status',
+    header: 'Status',
+    cell: ({ row }) => {
+      return (
+        <Badge variant={getBadgeType(row?.original?.status)}>
+          {row?.original?.status}
+        </Badge>
+      );
     },
   },
 ];

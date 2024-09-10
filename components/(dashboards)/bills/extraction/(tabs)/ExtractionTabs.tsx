@@ -234,7 +234,10 @@ const ExtractionTabs = ({
         </TabsTrigger>
       </TabsList>
       <div className="no-scrollbar h-full overflow-scroll">
-        <TabsContent value="1" className="w-full">
+        <TabsContent
+          value="1"
+          className="flex h-full w-full flex-col justify-between"
+        >
           <InvoiceDataForm form={form} />
           <div className="sticky bottom-0 flex h-14 min-h-14 w-full items-center gap-2 border-t bg-white pl-2 pr-8">
             <IfElseRender

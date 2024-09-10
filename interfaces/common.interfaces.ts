@@ -38,13 +38,11 @@ export interface InvoiceLineItem {
 
 export const ReceiptDataSchema = z.object({
   category: z.string(),
-  date: z
-    .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format (YYYY-MM-DD)'),
+  date: z.string(),
   supplierName: z.string(),
   totalNet: z.string(),
   description: z.string(),
-  customerName: z.string().default('Unassigned'),
+  customerName: z.string(),
 });
 
 export type ReceiptData = z.infer<typeof ReceiptDataSchema>;
