@@ -298,7 +298,7 @@ export class Invoice {
     return this._company;
   }
 
-  get status(): string {
+  get status(): InvoiceStatus {
     return this._status;
   }
 

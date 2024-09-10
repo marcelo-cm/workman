@@ -3,6 +3,7 @@ import React from 'react';
 import { UseFormReturn } from 'react-hook-form';
 
 import ExtractionFormComponent from '@/components/(dashboards)/bills/extraction/components/ExtractionFormComponent';
+import Approvals from '@/components/(shared)/invoices/Approvals';
 import Container from '@/components/ui/container';
 import LoadingState from '@/components/ui/empty-state';
 import { Form } from '@/components/ui/form';
@@ -47,6 +48,7 @@ const ReceiptDataForm = ({
                   Everybody in this list must approve your bill before it is
                   allowed to be sent to QuickBooks.
                 </p>
+                <Approvals approvable={files[activeIndex]} />
               </Container>
             </form>
           </Form>

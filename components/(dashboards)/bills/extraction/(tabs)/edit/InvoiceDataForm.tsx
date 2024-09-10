@@ -3,7 +3,7 @@ import React from 'react';
 import { UseFormReturn, useFieldArray } from 'react-hook-form';
 
 import ExtractionFormComponent from '../../components/ExtractionFormComponent';
-import InvoiceApprovals from '@/components/(shared)/invoices/InvoiceApprovals';
+import Approvals from '@/components/(shared)/invoices/Approvals';
 import LoadingState from '@/components/ui/empty-state';
 import {
   Form,
@@ -53,7 +53,7 @@ const InvoiceDataForm = ({
                   Everybody in this list must approve your bill before it is
                   allowed to be sent to QuickBooks.
                 </p>
-                <InvoiceApprovals invoice={files[activeIndex]} />
+                <Approvals approvable={files[activeIndex]} />
               </ExtractionFormComponent>
               <ExtractionFormComponent
                 label="Additional Details"

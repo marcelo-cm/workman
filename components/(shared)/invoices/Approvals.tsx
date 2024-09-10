@@ -11,9 +11,16 @@ import { useApprovals } from '@/lib/hooks/supabase/useApprovals';
 import { useUser } from '@/lib/hooks/supabase/useUser';
 
 import { useAppContext } from '@/app/(dashboards)/context';
-import { Approvable, ApprovalStatus } from '@/constants/enums';
+import {
+  Approvable,
+  ApprovalStatus,
+  InvoiceStatus,
+  ReceiptStatus,
+} from '@/constants/enums';
+import { toTitleCase } from '@/lib/utils';
 import { Approval } from '@/models/Approval';
 import Invoice from '@/models/Invoice';
+import { Receipt } from '@/models/Receipt';
 import { User, User_Nested } from '@/models/User';
 
 const { getApprovalsByApprovableId, createApproval, deleteApproval } =
@@ -27,20 +34,38 @@ interface ApprovalOption {
   removable: boolean;
 }
 
-const InvoiceApprovals = ({ invoice }: { invoice: Invoice }) => {
+interface ApprovableBasic {
+  id: UUID;
+  status: InvoiceStatus | ReceiptStatus;
+}
+
+const Approvals = <T extends ApprovableBasic>({
+  approvable,
+}: {
+  approvable: T;
+}) => {
   const { user } = useAppContext();
   const [approvals, setApprovals] = useState<Approval[]>([]);
   const [fetchingApprovals, setFetchingApprovals] = useState(true);
 
   useEffect(() => {
-    const id = invoice.id;
+    const id = approvable.id;
     getApprovalsByApprovableId(id, setApprovals).then(() =>
       setFetchingApprovals(false),
     );
-  }, [invoice]);
+  }, [approvable]);
+
+  const determineApprovableType = (approvable: T) => {
+    if (approvable instanceof Invoice) {
+      return Approvable.INVOICE;
+    }
+
+    return Approvable.RECEIPT;
+  };
 
   const handleSelect = async (newValue: ApprovalOption) => {
     const approval = approvals.find((a) => a.approver.id === newValue.id);
+    const approvableType = determineApprovableType(approvable);
 
     if (approval) {
       if (approval.removable) {
@@ -49,8 +74,8 @@ const InvoiceApprovals = ({ invoice }: { invoice: Invoice }) => {
       }
     } else {
       const createdApproval = await createApproval(
-        invoice.id,
-        Approvable.INVOICE,
+        approvable.id,
+        approvableType,
         newValue.id,
         true,
       );
@@ -94,7 +119,7 @@ const InvoiceApprovals = ({ invoice }: { invoice: Invoice }) => {
       ifTrue={
         <>
           <MultiComboBox
-            disabled={invoice.status === 'APPROVED'}
+            disabled={approvable.status === 'APPROVED'}
             className="w-full"
             fetchValuesFunction={() =>
               getUsersByCompanyId(user?.company.id!).then((users) =>
@@ -134,8 +159,7 @@ const ApprovalAuditTrail = ({ approvals }: { approvals: Approval[] }) => {
 
         return (
           <p className={`${color[approval.status as ApprovalStatus]}`}>
-            {approval.approver.name} {approval.status.toLowerCase()} this
-            invoice on{' '}
+            {toTitleCase(approval.status)} — {approval.approver.name}, on{' '}
             {approval.updatedAt.toLocaleDateString('US', {
               weekday: 'long',
               month: 'long',
@@ -153,4 +177,4 @@ const ApprovalAuditTrail = ({ approvals }: { approvals: Approval[] }) => {
   );
 };
 
-export default InvoiceApprovals;
+export default Approvals;
