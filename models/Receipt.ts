@@ -1,14 +1,12 @@
 import { PostgrestError } from '@supabase/supabase-js';
 import { UUID } from 'crypto';
-import { PredictResponse } from 'mindee';
-import { ReceiptV5 } from 'mindee/src/product';
-import { ReceiptV5LineItem } from 'mindee/src/product/receipt/receiptV5LineItem';
 import { ChatCompletion } from 'openai/resources/index.mjs';
 
 import { toast } from '@/components/ui/use-toast';
 
 import { scanReceiptByURL } from '@/lib/hooks/useOpenAI';
 
+import { Bill } from '@/app/api/v1/quickbooks/company/bill/interfaces';
 import { ReceiptStatus } from '@/constants/enums';
 import { ReceiptData } from '@/interfaces/common.interfaces';
 import { createClient } from '@/lib/utils/supabase/client';
@@ -158,6 +156,95 @@ export class Receipt {
     });
 
     return updatedData;
+  }
+
+  async updateData(data: ReceiptData) {
+    Receipt.updateData(this, data);
+  }
+
+  async approve() {
+    const { data, error } = await supabase
+      .from('receipts')
+      .update({ status: ReceiptStatus.APPROVED })
+      .eq('id', this.id)
+      .select('*')
+      .single();
+
+    if (error || !data) {
+      toast({
+        title: `Failed to approve ${this.fileName}`,
+        variant: 'destructive',
+      });
+      throw new Error(`Failed to approve receipt: ${error?.message}`);
+    }
+
+    toast({
+      title: `Successfully approved ${this.fileName}`,
+      variant: 'success',
+    });
+
+    return new Receipt(data);
+  }
+
+  async process() {
+    const { data, error } = await supabase
+      .from('receipts')
+      .update({ status: ReceiptStatus.PROCESSED })
+      .eq('id', this.id)
+      .select('*')
+      .single();
+
+    if (error || !data) {
+      toast({
+        title: `Failed to process ${this.fileName}`,
+        variant: 'destructive',
+      });
+      throw new Error(`Failed to process receipt: ${error?.message}`);
+    }
+
+    toast({
+      title: `Successfully processed ${this.fileName}`,
+      variant: 'success',
+    });
+
+    return new Receipt(data);
+  }
+
+  async uploadToQuickBooks(bill: Bill) {
+    const { data, error } = await supabase.auth.getUser();
+
+    if (error) {
+      throw new Error('User not found');
+    }
+
+    const userId = data.user.id;
+    const body = {
+      userId,
+      bill,
+    };
+
+    const response = await fetch('/api/v1/quickbooks/company/receipt', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
+    });
+
+    const responseData = await response.json();
+
+    if (response.ok) {
+      this.process();
+      return responseData;
+    } else {
+      toast({
+        title: 'Failed to upload to QuickBooks',
+        variant: 'destructive',
+      });
+      throw new Error(
+        `Failed to upload to QuickBooks: ${responseData.message}`,
+      );
+    }
   }
 
   /**

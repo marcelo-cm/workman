@@ -2,7 +2,6 @@ import React from 'react';
 
 import { UseFormReturn } from 'react-hook-form';
 
-import ExtractionFormComponent from '@/components/(dashboards)/bills/extraction/components/ExtractionFormComponent';
 import Approvals from '@/components/(shared)/Approvals';
 import Container from '@/components/ui/container';
 import LoadingState from '@/components/ui/empty-state';

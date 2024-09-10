@@ -19,7 +19,7 @@ export const scanReceiptByURL = async (fileUrl: string) => {
         content: [
           {
             type: 'text',
-            text: `Scan this receipt and return a structured JSON of the provided schema. Total Net includes the total amount and total tax and fees with no currency symbol included. customerName should always be 'Unassigned'. Description should be concise`,
+            text: `Scan this receipt and return a structured JSON of the provided schema. Total Net includes the total amount and total tax and fees with no currency symbol included. customerName should always be 'Unassigned'. Description should be concise. Date is in YYYY-MM-DD format.`,
           },
           {
             type: 'image_url',

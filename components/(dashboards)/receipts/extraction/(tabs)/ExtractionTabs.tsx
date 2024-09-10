@@ -14,6 +14,8 @@ import { useVendor } from '@/lib/hooks/quickbooks/useVendor';
 import { useApprovals } from '@/lib/hooks/supabase/useApprovals';
 
 import { useAppContext } from '@/app/(dashboards)/context';
+import Account from '@/app/(dashboards)/settings/page';
+import { Bill } from '@/app/api/v1/quickbooks/company/bill/interfaces';
 import { ApprovalStatus, ReceiptStatus } from '@/constants/enums';
 import { ReceiptData, ReceiptDataSchema } from '@/interfaces/common.interfaces';
 import { Receipt } from '@/models/Receipt';
@@ -31,7 +33,8 @@ const ExtractionTabs = ({
   handleSetActiveIndex: (index: -1 | 1) => void;
 }) => {
   const { user } = useAppContext();
-  const { files, activeIndex } = useReceiptExtractionReview();
+  const { accounts, customers, vendors, files, activeIndex } =
+    useReceiptExtractionReview();
   const [approvedFiles, setApprovedFiles] = useState<Receipt[]>([]);
   const [originalFileData, setOriginalFileData] = useState<ReceiptData>(
     files[activeIndex].data,
@@ -89,8 +92,49 @@ const ExtractionTabs = ({
     files[activeIndex].data = originalFileData;
   };
 
-  const uploadToQuickBooks = () => {
-    // @todo
+  const uploadToQuickBooks = async () => {
+    const matchingVendor = vendors.find(
+      (vendor) => vendor.DisplayName === files[activeIndex].data.supplierName,
+    );
+    const matchingCategory = accounts.find(
+      (account) => account.Name === files[activeIndex].data.category,
+    );
+    const matchingCustomer = customers.find(
+      (customer) =>
+        customer.DisplayName === files[activeIndex].data.customerName,
+    );
+
+    const bill: Bill = {
+      Line: [
+        {
+          DetailType: 'AccountBasedExpenseLineDetail',
+          Description: files[activeIndex].data.description,
+          AccountBasedExpenseLineDetail: {
+            AccountRef: {
+              value: matchingCategory!.Id,
+            },
+            BillableStatus: 'Billable',
+            CustomerRef: {
+              value: matchingCustomer!.Id,
+            },
+          },
+          Amount: parseFloat(files[activeIndex].data.totalNet),
+        },
+      ],
+      VendorRef: {
+        value: matchingVendor!.Id,
+      },
+      TotalAmt: parseFloat(files[activeIndex].data.totalNet),
+      TxnDate: files[activeIndex].data.date,
+    };
+
+    await files[activeIndex].uploadToQuickBooks(bill);
+
+    if (activeIndex < files.length - 1) {
+      handleSetActiveIndex(1);
+    } else {
+      window.location.reload();
+    }
   };
 
   return (

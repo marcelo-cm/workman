@@ -107,7 +107,7 @@ const ReceiptDetails = () => {
       />
       <FormField
         control={form.control}
-        name="project"
+        name="customerName"
         render={({ field }) => (
           <FormItem>
             <div className="my-1 flex w-full justify-between">
