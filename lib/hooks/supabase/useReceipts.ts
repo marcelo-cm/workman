@@ -104,9 +104,10 @@ export const useReceipt = () => {
   }
 
   async function uploadToReceiptBucket(file: File) {
+    const path = `/${file.name}_${new Date().getTime()}`;
     const { data, error } = await supabase.storage
       .from('receipts')
-      .upload(`${file.name}_${new Date().getTime()}`, file);
+      .upload(path, file);
 
     if (error) {
       toast({
