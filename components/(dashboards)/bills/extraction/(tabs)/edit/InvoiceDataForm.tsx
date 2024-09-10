@@ -3,7 +3,7 @@ import React from 'react';
 import { UseFormReturn, useFieldArray } from 'react-hook-form';
 
 import ExtractionFormComponent from '../../components/ExtractionFormComponent';
-import Approvals from '@/components/(shared)/invoices/Approvals';
+import Approvals from '@/components/(shared)/Approvals';
 import LoadingState from '@/components/ui/empty-state';
 import {
   Form,
