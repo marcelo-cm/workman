@@ -19,7 +19,7 @@ import { useVendor } from '@/lib/hooks/quickbooks/useVendor';
 import { useApprovals } from '@/lib/hooks/supabase/useApprovals';
 
 import { useAppContext } from '@/app/(dashboards)/context';
-import { ApprovalStatus } from '@/constants/enums';
+import { ApprovalStatus, ReceiptStatus } from '@/constants/enums';
 import { ReceiptData, ReceiptDataSchema } from '@/interfaces/common.interfaces';
 import { Receipt } from '@/models/Receipt';
 
@@ -60,7 +60,12 @@ const ExtractionTabs = ({
     files[activeIndex].data = existingFormValues;
   };
 
-  const handleUpdateReceiptData = async (receipt: Receipt) => {};
+  const handleUpdateReceiptData = async (receipt: Receipt) => {
+    const data: ReceiptData = form.getValues();
+    files[activeIndex].data = data;
+    await Receipt.updateData(receipt, data);
+    mapDataToForm(data);
+  };
 
   const handleApproveReceipt = async (receipt: Receipt) => {
     updateApprovalByApprovableAndApproverId(
@@ -72,12 +77,37 @@ const ExtractionTabs = ({
     const approvals = await getApprovalsByApprovableId(receipt.id);
 
     const isAllApproved = approvals.every(
-      (approval) => approval.status === ApprovalStatus.APPROVED,
+      (approval) =>
+        approval.status === ApprovalStatus.APPROVED ||
+        approval.principal.id === user.id,
     );
 
     if (isAllApproved) {
-      setApprovedFiles((prev) => [...prev, receipt]);
-      uploadToQuickBooksTabRef.current?.focus();
+      receipt.status = ReceiptStatus.APPROVED;
+      setApprovedFiles((prevApprovedFiles) => {
+        const isAlreadyApproved = prevApprovedFiles.some(
+          (approvedFile) => approvedFile.id === receipt.id,
+        );
+
+        if (!isAlreadyApproved) {
+          const updatedApprovedFiles = [...prevApprovedFiles, receipt];
+          if (
+            updatedApprovedFiles.length === files.length &&
+            uploadToQuickBooksTabRef.current
+          ) {
+            uploadToQuickBooksTabRef.current.focus();
+          }
+          return updatedApprovedFiles;
+        } else {
+          if (
+            prevApprovedFiles.length === files.length &&
+            uploadToQuickBooksTabRef.current
+          ) {
+            uploadToQuickBooksTabRef.current.focus();
+          }
+          return prevApprovedFiles;
+        }
+      });
     }
   };
 

@@ -4,13 +4,18 @@ import { ReceiptV5 } from 'mindee/src/product';
 import { ReceiptV5LineItem } from 'mindee/src/product/receipt/receiptV5LineItem';
 import { ChatCompletion } from 'openai/resources/index.mjs';
 
+import { toast } from '@/components/ui/use-toast';
+
 import { scanReceiptByURL } from '@/lib/hooks/useOpenAI';
 
 import { ReceiptStatus } from '@/constants/enums';
 import { ReceiptData } from '@/interfaces/common.interfaces';
+import { createClient } from '@/lib/utils/supabase/client';
 
 import { Company } from './Company';
 import { User_Nested } from './User';
+
+const supabase = createClient();
 
 export class Receipt {
   private _id: UUID;
@@ -83,10 +88,12 @@ export class Receipt {
     this._data = data;
   }
 
+  public set status(status: ReceiptStatus) {
+    this._status = status;
+  }
+
   static async scan(fileUrl: string) {
-    const res = await scanReceiptByURL(
-      'https://nyihnifdeasiteiwlghu.supabase.co/storage/v1/object/public/receipts/UberReceipt.png?t=2024-09-07T17%3A15%3A59.554Z',
-    );
+    const res = await scanReceiptByURL(fileUrl);
     const data: ChatCompletion = JSON.parse(res);
     if (!data.choices[0].message.content) {
       throw new Error('No response from OpenAI API');
@@ -96,6 +103,29 @@ export class Receipt {
     );
 
     return receiptData;
+  }
+
+  static async updateData(receipt: Receipt, data: ReceiptData) {
+    const { data: updatedData, error } = await supabase
+      .from('receipts')
+      .update({ data })
+      .eq('id', receipt.id)
+      .select('data');
+
+    if (error) {
+      toast({
+        title: `Failed to update data for ${receipt.fileName}`,
+        variant: 'destructive',
+      });
+      throw new Error(`Failed to update receipt data: ${error.message}`);
+    }
+
+    toast({
+      title: `Successfully updated data for ${receipt.fileName}`,
+      variant: 'success',
+    });
+
+    return updatedData;
   }
 
   /**
