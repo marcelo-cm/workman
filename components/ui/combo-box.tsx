@@ -18,44 +18,7 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 
-import { cn } from '@/lib/utils';
-
-function levenshtein(a: string, b: string): number {
-  const an = a ? a.length : 0;
-  const bn = b ? b.length : 0;
-  if (an === 0) {
-    return bn;
-  }
-  if (bn === 0) {
-    return an;
-  }
-  const matrix = Array(an + 1);
-  for (let i = 0; i <= an; i++) {
-    matrix[i] = Array(bn + 1).fill(0);
-    matrix[i][0] = i;
-  }
-  for (let j = 1; j <= bn; j++) {
-    matrix[0][j] = j;
-  }
-  for (let i = 1; i <= an; i++) {
-    for (let j = 1; j <= bn; j++) {
-      if (a[i - 1] === b[j - 1]) {
-        matrix[i][j] = matrix[i - 1][j - 1];
-      } else {
-        matrix[i][j] = Math.min(
-          matrix[i - 1][j - 1] + 1,
-          Math.min(matrix[i][j - 1] + 1, matrix[i - 1][j] + 1),
-        );
-      }
-    }
-  }
-  return matrix[an][bn];
-}
-
-function stringSimilarity(str1: string, str2: string): number {
-  const distance = levenshtein(str1, str2);
-  return 1 - distance / Math.max(str1.length, str2.length);
-}
+import { cn, stringSimilarity } from '@/lib/utils';
 
 export function ComboBox<
   T extends { Id?: string | number; id?: string | number },
@@ -64,16 +27,18 @@ export function ComboBox<
   valueToMatch,
   callBackFunction,
   getOptionLabel,
+  getOptionValue = (option) => String(option?.Id ?? option?.id),
   className,
 }: {
   options: T[];
   valueToMatch?: string;
   callBackFunction?: (value: T) => void;
   getOptionLabel: (option: T) => string;
+  getOptionValue?: (option: T) => string;
   className?: string;
 }) {
   const [open, setOpen] = useState(false);
-  const [value, setValue] = useState<any | null>(null);
+  const [value, setValue] = useState<T>(null!);
 
   useEffect(() => {
     if (valueToMatch) {
@@ -95,10 +60,10 @@ export function ComboBox<
     }
   }, [valueToMatch]);
 
-  const handleSelect = (currentValue: string) => {
-    if (currentValue !== getOptionLabel(value)) {
+  const handleSelect = (currentValue: string | number) => {
+    if (currentValue !== getOptionValue(value)) {
       const newValue = options.find(
-        (option) => getOptionLabel(option) === currentValue,
+        (option) => getOptionValue(option) === currentValue,
       );
 
       if (!newValue) return;
@@ -132,8 +97,8 @@ export function ComboBox<
             <CommandEmpty>No Vendor found.</CommandEmpty>
             {options.map((option) => (
               <CommandItem
-                key={option.Id ?? option.id}
-                value={getOptionLabel(option)}
+                key={getOptionValue(option)}
+                value={getOptionValue(option)}
                 onSelect={(currentValue) => {
                   handleSelect(currentValue);
                   setOpen(false);
@@ -143,7 +108,7 @@ export function ComboBox<
                 <Check
                   className={cn(
                     'mr-2 h-4 min-h-4 w-4 min-w-4',
-                    getOptionLabel(value) == getOptionLabel(option)
+                    getOptionValue(value) == getOptionValue(option)
                       ? 'opacity-100'
                       : 'opacity-0',
                   )}
