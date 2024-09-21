@@ -166,7 +166,7 @@ export function MultiComboBox<
           type="button"
           disabled={disabled}
         >
-          <p className="w-fit min-w-[155px] overflow-hidden flex flex-row gap-2 ">
+          <p className="flex w-fit min-w-[155px] flex-row gap-2 overflow-hidden ">
             {values
               ? renderValues
                 ? values.map((val) => (

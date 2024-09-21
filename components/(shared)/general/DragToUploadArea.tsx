@@ -74,7 +74,7 @@ function DragToUploadArea<T>({
   return (
     <>
       <button
-        className={`flex h-full w-full items-center justify-center rounded-lg border border-dashed border-wm-white-500 bg-wm-white-50 text-wm-white-700 hover:border-wm-orange-500 hover:bg-wm-orange-50 hover:text-wm-orange-700 ${className} ${dragActive ? (hoverClassName ? hoverClassName : 'bg-wm-orange-50 text-wm-orange-700 border-wm-orange-500') : ''}`}
+        className={`flex h-full w-full items-center justify-center rounded-lg border border-dashed border-wm-white-500 bg-wm-white-50 text-wm-white-700 hover:border-wm-orange-500 hover:bg-wm-orange-50 hover:text-wm-orange-700 ${className} ${dragActive ? (hoverClassName ? hoverClassName : 'border-wm-orange-500 bg-wm-orange-50 text-wm-orange-700') : ''}`}
         onDragOver={(event) => event.preventDefault()}
         onClick={handleButtonClick}
         onDragEnter={handleDragEnter}

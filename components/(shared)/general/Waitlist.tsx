@@ -62,7 +62,7 @@ const Waitlist = () => {
       token={process.env.NEXT_PUBLIC_LOGSNAG_API_KEY!}
       project="workman"
     >
-      <Container className="p-4 text-left w-full md:w-1/2 md:min-w-[500px] shadow-sm motion-safe:animate-bounce focus-within:animate-none hover:animate-none">
+      <Container className="w-full p-4 text-left shadow-sm focus-within:animate-none hover:animate-none motion-safe:animate-bounce md:w-1/2 md:min-w-[500px]">
         <p className="mb-2 text-center font-medium">
           Get started, we'll email you with next steps!
         </p>

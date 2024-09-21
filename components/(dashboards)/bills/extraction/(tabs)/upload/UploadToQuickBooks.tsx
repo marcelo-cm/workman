@@ -72,13 +72,13 @@ const UploadToQuickBooks = () => {
               <IfElseRender
                 condition={activeIndex == fileIndex}
                 ifTrue={
-                  <div className="text-xs px-2 py-1 text-white font-medium bg-wm-orange-500 rounded-t-md">
+                  <div className="rounded-t-md bg-wm-orange-500 px-2 py-1 text-xs font-medium text-white">
                     Currently Viewing This File
                   </div>
                 }
               />
               <div
-                className={`space-y-3 rounded-md border  ${activeIndex == fileIndex ? 'border-l-2 border-l-wm-orange-500 rounded-t-none border-t-0' : null}`}
+                className={`space-y-3 rounded-md border  ${activeIndex == fileIndex ? 'rounded-t-none border-l-2 border-t-0 border-l-wm-orange-500' : null}`}
               >
                 <div
                   className={`flex w-full items-center justify-between border-b p-2 text-sm font-medium `}
