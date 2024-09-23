@@ -5,15 +5,14 @@ import React from 'react';
 import {
   MatchMode,
   PaginatedComboBox,
+  Pagination,
 } from '@/components/ui/paginated-combo-box';
 
-const OPTIONS = [
-  { id: 1, name: 'Option 1' },
-  { id: 2, name: 'Option 2' },
-  { id: 3, name: 'Option 3' },
-  { id: 4, name: 'Option 4' },
-  { id: 5, name: 'Option 5' },
-];
+const OPTIONS = Array.from({ length: 200 }, (_, i) => ({
+  id: i + 1,
+  name: `Option ${i + 1}`,
+}));
+
 const page = () => {
   const fetchTypeaheadSearch = (query: string) => {
     // For the time being we can just filter the options array
@@ -21,15 +20,27 @@ const page = () => {
     const newOptions = OPTIONS.filter((option) =>
       option.name.toLowerCase().includes(query.toLowerCase()),
     );
-    console.log('sent', newOptions);
     return newOptions;
   };
 
   const fetchOptionById = (id: string) => {
     const option = OPTIONS.filter((option) => option.id === parseInt(id));
-    console.log('sent', option[0]);
     return option[0];
   };
+
+  const fetchNextPage = (page: number, query: string) => {
+    console.log(`%c--- Fetching Page #${page} ---`, 'color: #bada55');
+    const indices = [
+      (page - 1) * Pagination.DEFAULT_LIMIT,
+      (page - 1) * Pagination.DEFAULT_LIMIT + Pagination.DEFAULT_LIMIT,
+    ];
+    const paginatedOptions = OPTIONS.slice(indices[0], indices[1]);
+    return {
+      values: paginatedOptions,
+      canFetchMore: indices[1] < OPTIONS.length,
+    };
+  };
+
   return (
     <div>
       <PaginatedComboBox
@@ -38,10 +49,7 @@ const page = () => {
         matchOnMount
         fetchOnMount={fetchOptionById}
         isPaginated
-        fetchNextPage={(page: number) => {
-          return OPTIONS;
-        }}
-        fetchTypeaheadSearch={fetchTypeaheadSearch}
+        fetchNextPage={fetchNextPage}
         limit={10}
         threshold={5}
       />

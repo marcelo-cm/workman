@@ -28,7 +28,7 @@ export enum MatchMode {
 }
 
 export enum Pagination {
-  DEFAULT_LIMIT = 10,
+  DEFAULT_LIMIT = 25,
   DEFAULT_THRESHOLD = 5,
 }
 
@@ -84,11 +84,10 @@ interface ComboBoxPaginationProps<T> {
   /**
    * The function to fetch the next page.
    */
-  fetchNextPage?: (page: number) => T[];
-  /**
-   * The function to fetch options based on the query.
-   */
-  fetchTypeaheadSearch?: (query: string) => T[];
+  fetchNextPage?: (
+    page: number,
+    query: string,
+  ) => { values: T[]; canFetchMore: boolean };
 }
 
 interface ComboBoxProps<T>
@@ -112,7 +111,6 @@ export function PaginatedComboBox<
   limit = Pagination.DEFAULT_LIMIT,
   threshold = Pagination.DEFAULT_THRESHOLD,
   fetchNextPage,
-  fetchTypeaheadSearch,
   callBackFunction,
   getOptionLabel,
   getOptionValue = (option) => String(option?.Id ?? option?.id),
@@ -128,7 +126,7 @@ export function PaginatedComboBox<
       'If the PaginatedComboBox is matchOnMount with MatchMode.Query, then you must provide a fetchOnMount function.',
     );
   }
-  if (isPaginated && !(fetchNextPage && fetchTypeaheadSearch)) {
+  if (isPaginated && !fetchNextPage) {
     throw new Error(
       'If the PaginatedComboBox is paginated, then you must provide a fetchNextPage function.',
     );
@@ -140,16 +138,17 @@ export function PaginatedComboBox<
   }
 
   const [options, setOptions] = useState<T[]>([]);
-  const [filteredOptions, setFilteredOptions] = useState<T[]>([]);
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState<T>(null!);
   const [query, setQuery] = useState('');
+  const [prevQuery, setPrevQuery] = useState('');
   const [page, setPage] = useState(1);
   const [isPending, startTransition] = useTransition();
 
   const initialFetch = useRef(true);
-
-  const listOptions = query.length > 0 ? filteredOptions : options;
+  const canFetchMore = useRef(true);
+  const endRef = useRef<HTMLDivElement>(null);
+  const commandListRef = useRef<HTMLDivElement>(null);
 
   /**
    * Debounce search function to prevent multiple API calls.
@@ -158,23 +157,19 @@ export function PaginatedComboBox<
     () =>
       debounce((q) => {
         startTransition(() => {
-          const filteredOptions =
-            fetchTypeaheadSearch && fetchTypeaheadSearch(q);
-          console.log('received', filteredOptions);
-          setFilteredOptions(filteredOptions || []);
+          fetchNextPageHandler(q);
         });
       }, 300),
-    [fetchTypeaheadSearch],
+    [fetchNextPage],
   );
 
   /**
    * Fetch first page on mount.
    */
   useEffect(() => {
-    if (initialFetch) {
-      const values = fetchNextPage && fetchNextPage(page);
-      setOptions(values || []);
+    if (initialFetch.current) {
       initialFetch.current = false;
+      fetchNextPageHandler('');
     }
   }, [initialFetch]);
 
@@ -187,6 +182,30 @@ export function PaginatedComboBox<
     const value = fetchOnMount(getOptionValue(initialValue));
     value && setValue(value);
   }, [initialValue]);
+
+  const fetchNextPageHandler = (query: string) => {
+    if (!fetchNextPage) return;
+
+    if (prevQuery != query) {
+      console.log(`%c--- New Query: #${query} ---`, 'color: #ff8800');
+      setPage(1);
+
+      const { values, canFetchMore: isNextPageAvailable } = fetchNextPage(
+        1,
+        query,
+      );
+      setOptions(values);
+      canFetchMore.current = isNextPageAvailable;
+    } else if (canFetchMore.current) {
+      const { values, canFetchMore: isNextPageAvailable } = fetchNextPage(
+        page,
+        query,
+      );
+      setOptions((prev) => [...prev, ...values]);
+      canFetchMore.current = isNextPageAvailable;
+    }
+    setPage((prev) => prev + 1);
+  };
 
   const handleSelect = (currentValue: string | number) => {
     if (currentValue !== getOptionLabel(value)) {
@@ -205,6 +224,18 @@ export function PaginatedComboBox<
   const handleInputChange = (search: string) => {
     setQuery(search);
     debouncedSearch(search);
+  };
+
+  const handleScroll = () => {
+    const container = commandListRef.current;
+    if (container) {
+      const isAtBottom =
+        container.scrollHeight - container.scrollTop === container.clientHeight;
+
+      if (isAtBottom) {
+        fetchNextPageHandler(query);
+      }
+    }
   };
 
   return (
@@ -226,13 +257,17 @@ export function PaginatedComboBox<
       <PopoverContent className="w-max min-w-[200px] p-0">
         <Command>
           <CommandInput
-            placeholder="Search framework..."
+            placeholder="Search..."
             value={query}
             onValueChange={handleInputChange}
           />
-          <CommandList className="no-scrollbar">
+          <CommandList
+            className="no-scrollbar"
+            onScroll={handleScroll}
+            ref={commandListRef}
+          >
             <CommandEmpty>No Vendor found.</CommandEmpty>
-            {listOptions.map((option) => (
+            {options.map((option) => (
               <CommandItem
                 key={getOptionValue(option)}
                 value={getOptionLabel(option)}
@@ -256,6 +291,7 @@ export function PaginatedComboBox<
                 </p>
               </CommandItem>
             ))}
+            <div ref={endRef} className="h-1 bg-red-500 py-1" />
           </CommandList>
         </Command>
       </PopoverContent>
