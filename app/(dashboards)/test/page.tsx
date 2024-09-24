@@ -29,15 +29,25 @@ const page = () => {
   };
 
   const fetchNextPage = (page: number, query: string) => {
-    console.log(`%c--- Fetching Page #${page} ---`, 'color: #bada55');
+    console.log(
+      `%c--- Fetching Page #${page}, with query ${query} ---`,
+      'color: #bada55',
+    );
     const indices = [
       (page - 1) * Pagination.DEFAULT_LIMIT,
       (page - 1) * Pagination.DEFAULT_LIMIT + Pagination.DEFAULT_LIMIT,
     ];
-    const paginatedOptions = OPTIONS.slice(indices[0], indices[1]);
+    const paginatedOptions = OPTIONS.sort((a, b) => a.id - b.id)
+      .filter((op) => op.name.includes(query))
+      .slice(indices[0], indices[1]);
+    console.log(
+      `%c--- Fetched ${paginatedOptions.map((op) => op.name)} ---`,
+      'color: #bada55',
+    );
     return {
       values: paginatedOptions,
-      canFetchMore: indices[1] < OPTIONS.length,
+      canFetchMore:
+        indices[1] < OPTIONS.filter((op) => op.name.includes(query)).length,
     };
   };
 

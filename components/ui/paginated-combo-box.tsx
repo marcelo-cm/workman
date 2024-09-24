@@ -20,6 +20,8 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 
+import { usePrevious } from '@/lib/hooks/usePrevious';
+
 import { cn, stringSimilarity } from '@/lib/utils';
 
 export enum MatchMode {
@@ -141,7 +143,6 @@ export function PaginatedComboBox<
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState<T>(null!);
   const [query, setQuery] = useState('');
-  const [prevQuery, setPrevQuery] = useState('');
   const [page, setPage] = useState(1);
   const [isPending, startTransition] = useTransition();
 
@@ -150,6 +151,8 @@ export function PaginatedComboBox<
   const endRef = useRef<HTMLDivElement>(null);
   const commandListRef = useRef<HTMLDivElement>(null);
 
+  const prevQuery = usePrevious(query);
+
   /**
    * Debounce search function to prevent multiple API calls.
    */
@@ -157,6 +160,11 @@ export function PaginatedComboBox<
     () =>
       debounce((q) => {
         startTransition(() => {
+          if (q != query) {
+            setOptions([]);
+            setPage(1);
+            canFetchMore.current = true;
+          }
           fetchNextPageHandler(q);
         });
       }, 300),
@@ -186,25 +194,19 @@ export function PaginatedComboBox<
   const fetchNextPageHandler = (query: string) => {
     if (!fetchNextPage) return;
 
-    if (prevQuery != query) {
-      console.log(`%c--- New Query: #${query} ---`, 'color: #ff8800');
-      setPage(1);
-
-      const { values, canFetchMore: isNextPageAvailable } = fetchNextPage(
-        1,
-        query,
-      );
-      setOptions(values);
-      canFetchMore.current = isNextPageAvailable;
-    } else if (canFetchMore.current) {
+    if (canFetchMore.current) {
       const { values, canFetchMore: isNextPageAvailable } = fetchNextPage(
         page,
         query,
       );
+      console.log(
+        `%c--- More Pages? -> ${isNextPageAvailable} ---`,
+        'color: #ff8800',
+      );
       setOptions((prev) => [...prev, ...values]);
       canFetchMore.current = isNextPageAvailable;
+      setPage((prev) => prev + 1);
     }
-    setPage((prev) => prev + 1);
   };
 
   const handleSelect = (currentValue: string | number) => {
@@ -228,7 +230,7 @@ export function PaginatedComboBox<
 
   const handleScroll = () => {
     const container = commandListRef.current;
-    if (container) {
+    if (container && options.length && canFetchMore.current) {
       const isAtBottom =
         container.scrollHeight - container.scrollTop === container.clientHeight;
 
@@ -266,7 +268,6 @@ export function PaginatedComboBox<
             onScroll={handleScroll}
             ref={commandListRef}
           >
-            <CommandEmpty>No Vendor found.</CommandEmpty>
             {options.map((option) => (
               <CommandItem
                 key={getOptionValue(option)}
@@ -287,11 +288,11 @@ export function PaginatedComboBox<
                   )}
                 />
                 <p className="w-[155px] overflow-hidden text-ellipsis text-nowrap break-keep">
-                  {getOptionLabel(option)}
+                  {getOptionLabel(option)}{' '}
                 </p>
               </CommandItem>
             ))}
-            <div ref={endRef} className="h-1 bg-red-500 py-1" />
+            <CommandEmpty>No Vendor found.</CommandEmpty>
           </CommandList>
         </Command>
       </PopoverContent>
