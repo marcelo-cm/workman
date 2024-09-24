@@ -230,7 +230,7 @@ export function PaginatedComboBox<
 
   const handleScroll = () => {
     const container = commandListRef.current;
-    if (container && options.length && canFetchMore.current) {
+    if (container && options.length) {
       const isAtBottom =
         container.scrollHeight - container.scrollTop === container.clientHeight;
 
