@@ -9,7 +9,7 @@ export function PromiseWrapper({
   promise: Promise<void> | null;
   children: React.ReactNode;
 }) {
-  if (!promise) throw Promise.resolve();
+  if (!promise) return null;
 
   const [resolved, setResolved] = useState(false);
 

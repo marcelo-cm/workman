@@ -7,12 +7,12 @@ import {
   Pagination,
 } from '@/components/ui/paginated-combo-box';
 
-const OPTIONS = Array.from({ length: 200 }, (_, i) => ({
-  id: i + 1,
-  name: `Option ${i + 1}`,
-}));
-
 const page = () => {
+  const OPTIONS = Array.from({ length: 200 }, (_, i) => ({
+    id: i + 1,
+    name: `Option ${i + 1}`,
+  }));
+
   const fetchOptionById = async (id: string) => {
     await new Promise((resolve) => setTimeout(resolve, 500));
 

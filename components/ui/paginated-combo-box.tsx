@@ -117,25 +117,23 @@ export function PaginatedComboBox<
   getOptionValue = (option) => String(option?.Id ?? option?.id),
   className,
 }: ComboBoxProps<T>) {
-  {
-    if (matchOnMount && !initialValue) {
-      throw new Error(
-        'If the PaginatedComboBox is matchOnMount, then you must provide an initialValue.',
-      );
-    }
-    if (matchOnMount && !fetchOnMount) {
-      throw new Error(
-        'PaginatedCombo, then you must provide a fetchOnMount function.',
-      );
-    }
-    if (!fetchNextPage) {
-      throw new Error(
-        '"PaginatedComboBox is paginated, but fetchNextPage was not provided"',
-      );
-    }
-    if (!(threshold >= 0 && limit >= 0)) {
-      throw new Error('The threshold and limit must be a positive number.');
-    }
+  if (matchOnMount && !initialValue) {
+    throw new Error(
+      'If the PaginatedComboBox is matchOnMount, then you must provide an initialValue.',
+    );
+  }
+  if (matchOnMount && !fetchOnMount) {
+    throw new Error(
+      'PaginatedCombo, then you must provide a fetchOnMount function.',
+    );
+  }
+  if (!fetchNextPage) {
+    throw new Error(
+      '"PaginatedComboBox is paginated, but fetchNextPage was not provided"',
+    );
+  }
+  if (!(threshold >= 0 && limit >= 0)) {
+    throw new Error('The threshold and limit must be a positive number.');
   }
 
   const [options, setOptions] = useState<T[]>([]);
@@ -326,7 +324,7 @@ export function PaginatedComboBox<
                     </p>
                   </CommandItem>
                 ))}
-                {!isPending && <CommandEmpty>No Vendor found.</CommandEmpty>}
+                {!isPending && <CommandEmpty>No options found.</CommandEmpty>}
                 <LoadingState
                   isLoading={isPending}
                   className=" h-fit w-3/5 border-0 !bg-white py-2 text-xs text-wm-orange"
