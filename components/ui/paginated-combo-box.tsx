@@ -2,7 +2,6 @@
 
 import {
   Suspense,
-  memo,
   useEffect,
   useMemo,
   useRef,
@@ -30,8 +29,6 @@ import {
 
 import { cn } from '@/lib/utils';
 
-import { ComboBox } from './combo-box';
-import { Input } from './input';
 import { PromiseWrapper } from './promise-wrapper';
 import { toast } from './use-toast';
 
@@ -105,12 +102,6 @@ interface ComboBoxProps<T>
     ComboBoxMountBehaviourProps<T>,
     ComboBoxPaginationProps<T> {}
 
-/**
- * Failure to follow these rules will result in an error.
- * 1. If the PaginatedComboBox is paginated, then you must provide a fetchNextPage function and a fetchTypeaheadSearch function.
- * 3. If the PaginatedComboBox is matchOnMount, then you must provide an initialValue.
- * 4. If the PaginatedComboBox is matchOnMount with MatchMode.Query, then you must provide a fetchOnMount function.
- */
 export function PaginatedComboBox<
   T extends { Id?: string | number; id?: string | number },
 >({
@@ -125,28 +116,25 @@ export function PaginatedComboBox<
   getOptionValue = (option) => String(option?.Id ?? option?.id),
   className,
 }: ComboBoxProps<T>) {
-  if (matchOnMount && !initialValue) {
-    throw new Error(
-      'If the PaginatedComboBox is matchOnMount, then you must provide an initialValue.',
-    );
-  }
-  if (matchOnMount && !fetchOnMount) {
-    throw new Error(
-      'PaginatedCombo, then you must provide a fetchOnMount function.',
-    );
-  }
-  if (!fetchNextPage) {
-    throw new Error(
-      '"PaginatedComboBox is paginated, but fetchNextPage was not provided"',
-    );
-  }
-  if (!(threshold >= 0 && limit >= 0)) {
-    throw new Error('The threshold and limit must be a positive number.');
-  }
-  if (threshold >= limit) {
-    throw new Error(
-      'The threshold must be less than the limit to trigger the next page.',
-    );
+  {
+    if (matchOnMount && !initialValue) {
+      throw new Error(
+        'If the PaginatedComboBox is matchOnMount, then you must provide an initialValue.',
+      );
+    }
+    if (matchOnMount && !fetchOnMount) {
+      throw new Error(
+        'PaginatedCombo, then you must provide a fetchOnMount function.',
+      );
+    }
+    if (!fetchNextPage) {
+      throw new Error(
+        '"PaginatedComboBox is paginated, but fetchNextPage was not provided"',
+      );
+    }
+    if (!(threshold >= 0 && limit >= 0)) {
+      throw new Error('The threshold and limit must be a positive number.');
+    }
   }
 
   const [options, setOptions] = useState<T[]>([]);
