@@ -22,7 +22,7 @@ import {
 
 import { usePrevious } from '@/lib/hooks/usePrevious';
 
-import { cn, stringSimilarity } from '@/lib/utils';
+import { cn } from '@/lib/utils';
 
 export enum MatchMode {
   Fuzzy = 'fuzzy',
@@ -130,8 +130,11 @@ export function PaginatedComboBox<
   }
   if (isPaginated && !fetchNextPage) {
     throw new Error(
-      'If the PaginatedComboBox is paginated, then you must provide a fetchNextPage function.',
+      '"PaginatedComboBox is paginated, but fetchNextPage was not provided"',
     );
+  }
+  if (!(threshold >= 0 && limit >= 0)) {
+    throw new Error('The threshold and limit must be a positive number.');
   }
   if (threshold >= limit) {
     throw new Error(
@@ -148,27 +151,19 @@ export function PaginatedComboBox<
 
   const initialFetch = useRef(true);
   const canFetchMore = useRef(true);
-  const endRef = useRef<HTMLDivElement>(null);
   const commandListRef = useRef<HTMLDivElement>(null);
-
-  const prevQuery = usePrevious(query);
 
   /**
    * Debounce search function to prevent multiple API calls.
    */
   const debouncedSearch = useMemo(
     () =>
-      debounce((q) => {
+      debounce((q, resetPage) => {
         startTransition(() => {
-          if (q != query) {
-            setOptions([]);
-            setPage(1);
-            canFetchMore.current = true;
-          }
-          fetchNextPageHandler(q);
+          fetchNextPageHandler(q, resetPage);
         });
       }, 300),
-    [fetchNextPage],
+    [fetchNextPage, query],
   );
 
   /**
@@ -191,12 +186,18 @@ export function PaginatedComboBox<
     value && setValue(value);
   }, [initialValue]);
 
-  const fetchNextPageHandler = (query: string) => {
+  const fetchNextPageHandler = (query: string, resetPage: boolean = false) => {
     if (!fetchNextPage) return;
+
+    if (resetPage) {
+      setPage(1);
+      setOptions([]);
+      canFetchMore.current = true;
+    }
 
     if (canFetchMore.current) {
       const { values, canFetchMore: isNextPageAvailable } = fetchNextPage(
-        page,
+        resetPage ? 1 : page,
         query,
       );
       console.log(
@@ -225,7 +226,7 @@ export function PaginatedComboBox<
 
   const handleInputChange = (search: string) => {
     setQuery(search);
-    debouncedSearch(search);
+    debouncedSearch(search, true);
   };
 
   const handleScroll = () => {

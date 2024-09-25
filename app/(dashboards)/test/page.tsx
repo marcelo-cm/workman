@@ -14,15 +14,6 @@ const OPTIONS = Array.from({ length: 200 }, (_, i) => ({
 }));
 
 const page = () => {
-  const fetchTypeaheadSearch = (query: string) => {
-    // For the time being we can just filter the options array
-    // and return the filtered results
-    const newOptions = OPTIONS.filter((option) =>
-      option.name.toLowerCase().includes(query.toLowerCase()),
-    );
-    return newOptions;
-  };
-
   const fetchOptionById = (id: string) => {
     const option = OPTIONS.filter((option) => option.id === parseInt(id));
     return option[0];
@@ -38,7 +29,7 @@ const page = () => {
       (page - 1) * Pagination.DEFAULT_LIMIT + Pagination.DEFAULT_LIMIT,
     ];
     const paginatedOptions = OPTIONS.sort((a, b) => a.id - b.id)
-      .filter((op) => op.name.includes(query))
+      .filter((op) => op.name.toLowerCase().includes(query.toLocaleLowerCase()))
       .slice(indices[0], indices[1]);
     console.log(
       `%c--- Fetched ${paginatedOptions.map((op) => op.name)} ---`,
