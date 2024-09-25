@@ -20,18 +20,17 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 
-import { usePrevious } from '@/lib/hooks/usePrevious';
-
 import { cn } from '@/lib/utils';
 
-export enum MatchMode {
-  Fuzzy = 'fuzzy',
-  Query = 'query',
-}
-
 export enum Pagination {
+  /**
+   * Number of options per page.
+   */
   DEFAULT_LIMIT = 25,
-  DEFAULT_THRESHOLD = 5,
+  /**
+   * Pixels from the bottom of the list to trigger the next page.
+   */
+  DEFAULT_THRESHOLD = 10,
 }
 
 interface ComboBoxUtilityProps<T> {
@@ -72,10 +71,6 @@ interface ComboBoxMountBehaviourProps<T> {
 
 interface ComboBoxPaginationProps<T> {
   /**
-   * Boolean to determine if the PaginatedComboBox is paginated.
-   */
-  isPaginated?: boolean;
-  /**
    * Number of options per page.
    */
   limit?: number;
@@ -109,7 +104,6 @@ export function PaginatedComboBox<
   initialValue,
   matchOnMount = false,
   fetchOnMount,
-  isPaginated,
   limit = Pagination.DEFAULT_LIMIT,
   threshold = Pagination.DEFAULT_THRESHOLD,
   fetchNextPage,
@@ -125,10 +119,10 @@ export function PaginatedComboBox<
   }
   if (matchOnMount && !fetchOnMount) {
     throw new Error(
-      'If the PaginatedComboBox is matchOnMount with MatchMode.Query, then you must provide a fetchOnMount function.',
+      'PaginatedCombo, then you must provide a fetchOnMount function.',
     );
   }
-  if (isPaginated && !fetchNextPage) {
+  if (!fetchNextPage) {
     throw new Error(
       '"PaginatedComboBox is paginated, but fetchNextPage was not provided"',
     );
@@ -231,9 +225,10 @@ export function PaginatedComboBox<
 
   const handleScroll = () => {
     const container = commandListRef.current;
-    if (container && options.length) {
+    if (container && canFetchMore.current && !isPending) {
       const isAtBottom =
-        container.scrollHeight - container.scrollTop === container.clientHeight;
+        container.scrollHeight - container.scrollTop - container.clientHeight <=
+        threshold;
 
       if (isAtBottom) {
         fetchNextPageHandler(query);

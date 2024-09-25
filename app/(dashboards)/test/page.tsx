@@ -3,7 +3,6 @@
 import React from 'react';
 
 import {
-  MatchMode,
   PaginatedComboBox,
   Pagination,
 } from '@/components/ui/paginated-combo-box';
@@ -49,7 +48,6 @@ const page = () => {
         initialValue={OPTIONS[0]}
         matchOnMount
         fetchOnMount={fetchOptionById}
-        isPaginated
         fetchNextPage={fetchNextPage}
         limit={10}
         threshold={5}
