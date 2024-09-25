@@ -42,10 +42,10 @@ const page = () => {
   };
 
   return (
-    <div>
+    <div className="flex h-full w-full flex-row items-center justify-center">
       <PaginatedComboBox
         getOptionLabel={(option) => option.name}
-        initialValue={OPTIONS[0]}
+        initialValue={OPTIONS[99]}
         matchOnMount
         fetchOnMount={fetchOptionById}
         fetchNextPage={fetchNextPage}

@@ -1,6 +1,14 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState, useTransition } from 'react';
+import {
+  Suspense,
+  memo,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useTransition,
+} from 'react';
 
 import { Check, ChevronsUpDown } from 'lucide-react';
 
@@ -22,6 +30,9 @@ import {
 
 import { cn } from '@/lib/utils';
 
+import { ComboBox } from './combo-box';
+import { Input } from './input';
+import { PromiseWrapper } from './promise-wrapper';
 import { toast } from './use-toast';
 
 export enum Pagination {
@@ -144,6 +155,8 @@ export function PaginatedComboBox<
   const [query, setQuery] = useState('');
   const [page, setPage] = useState(1);
   const [isPending, startTransition] = useTransition();
+  const [initialFetchPromise, setInitialFetchPromise] =
+    useState<Promise<void> | null>(null);
 
   const initialFetch = useRef(true);
   const canFetchMore = useRef(true);
@@ -162,26 +175,27 @@ export function PaginatedComboBox<
     [fetchNextPage, query],
   );
 
-  /**
-   * Fetch first page on mount.
-   */
+  // /**
+  //  * Fetch first page on mount.
+  //  */
   useEffect(() => {
     if (!initialFetch.current) return;
 
     initialFetch.current = false;
-    fetchNextPageHandler(query);
-  }, []);
+    const promise = fetchNextPageHandler(query).then(() => {
+      /**
+       * Match initial value on mount logic.
+       */
+      if (!(matchOnMount && initialValue && fetchOnMount)) return;
 
-  /**
-   * Match initial value on mount logic.
-   */
-  useEffect(() => {
-    if (!(matchOnMount && initialValue && fetchOnMount)) return;
-
-    fetchOnMount(getOptionValue(initialValue)).then((value) => {
-      setValue(value);
+      fetchOnMount(getOptionValue(initialValue)).then((value) => {
+        console.log('--- Matched on mount ---');
+        setValue(value);
+      });
     });
-  }, [initialValue]);
+
+    setInitialFetchPromise(promise);
+  }, []);
 
   const fetchNextPageHandler = async (
     query: string,
@@ -191,7 +205,6 @@ export function PaginatedComboBox<
 
     if (resetPage) {
       setPage(1);
-      setOptions([]);
       canFetchMore.current = true;
     }
 
@@ -204,7 +217,11 @@ export function PaginatedComboBox<
           'color: #ff8800',
         );
 
-        setOptions((prev) => [...prev, ...values]);
+        if (resetPage) {
+          setOptions(values);
+        } else {
+          setOptions((prev) => [...prev, ...values]);
+        }
         canFetchMore.current = isNextPageAvailable;
         setPage((prev) => prev + 1);
       }
@@ -251,61 +268,79 @@ export function PaginatedComboBox<
   };
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
+    <Suspense
+      fallback={
         <Button
           variant="outline"
           role="combobox"
           aria-expanded={open}
           className={`w-fit min-w-[200px] justify-between ${className}`}
           type="button"
+          disabled
         >
-          <p className="w-fit min-w-[155px] overflow-hidden text-ellipsis text-nowrap break-keep text-left">
-            {value ? getOptionLabel(value) : 'Select Vendor...'}
-          </p>
+          <div className="h-2 w-full rounded bg-wm-white-300"></div>
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-max min-w-[200px] p-0">
-        <Command>
-          <CommandInput
-            placeholder="Search..."
-            value={query}
-            onValueChange={handleInputChange}
-          />
-          <CommandList
-            className="no-scrollbar"
-            onScroll={handleScroll}
-            ref={commandListRef}
-          >
-            {options.map((option) => (
-              <CommandItem
-                key={getOptionValue(option)}
-                value={getOptionLabel(option)}
-                onSelect={(currentValue) => {
-                  handleSelect(currentValue);
-                  setOpen(false);
-                }}
-                className="w-[200px] "
-                disabled={isPending}
+      }
+    >
+      <PromiseWrapper promise={initialFetchPromise}>
+        <Popover open={open} onOpenChange={setOpen}>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              role="combobox"
+              aria-expanded={open}
+              className={`w-fit min-w-[200px] justify-between ${className}`}
+              type="button"
+            >
+              <p className="w-fit min-w-[155px] overflow-hidden text-ellipsis text-nowrap break-keep text-left">
+                {value ? getOptionLabel(value) : 'Select Option...'}
+              </p>
+              <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-max min-w-[200px] p-0">
+            <Command>
+              <CommandInput
+                placeholder="Search..."
+                value={query}
+                onValueChange={handleInputChange}
+              />
+              <CommandList
+                className="no-scrollbar"
+                onScroll={handleScroll}
+                ref={commandListRef}
               >
-                <Check
-                  className={cn(
-                    'mr-2 h-4 min-h-4 w-4 min-w-4',
-                    getOptionValue(value) == getOptionValue(option)
-                      ? 'opacity-100'
-                      : 'opacity-0',
-                  )}
-                />
-                <p className="w-[155px] overflow-hidden text-ellipsis text-nowrap break-keep">
-                  {getOptionLabel(option)}{' '}
-                </p>
-              </CommandItem>
-            ))}
-            <CommandEmpty>No Vendor found.</CommandEmpty>
-          </CommandList>
-        </Command>
-      </PopoverContent>
-    </Popover>
+                {options.map((option) => (
+                  <CommandItem
+                    key={getOptionValue(option)}
+                    value={getOptionLabel(option)}
+                    onSelect={(currentValue) => {
+                      handleSelect(currentValue);
+                      setOpen(false);
+                    }}
+                    className="w-[200px] "
+                    disabled={isPending}
+                  >
+                    <Check
+                      className={cn(
+                        'mr-2 h-4 min-h-4 w-4 min-w-4',
+                        getOptionValue(value) == getOptionValue(option)
+                          ? 'opacity-100'
+                          : 'opacity-0',
+                      )}
+                    />
+                    <p className="w-[155px] overflow-hidden text-ellipsis text-nowrap break-keep">
+                      {getOptionLabel(option)}{' '}
+                    </p>
+                  </CommandItem>
+                ))}
+                <CommandEmpty>No Vendor found.</CommandEmpty>
+              </CommandList>
+            </Command>
+          </PopoverContent>
+        </Popover>
+      </PromiseWrapper>
+    </Suspense>
   );
 }
