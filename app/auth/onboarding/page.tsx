@@ -22,7 +22,7 @@ import { Input } from '@/components/ui/input';
 
 import { useUser } from '@/lib/hooks/supabase/useUser';
 
-import { handleQuickBooksIntegration } from '@/lib/utils/nango/quickbooks';
+import { handleQuickBooksIntegration } from '@/lib/utils/nango/quickbooks.client';
 import { createClient as createSupabaseClient } from '@/lib/utils/supabase/client';
 import { User } from '@/models/User';
 
