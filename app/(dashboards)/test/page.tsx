@@ -13,12 +13,12 @@ const OPTIONS = Array.from({ length: 200 }, (_, i) => ({
 }));
 
 const page = () => {
-  const fetchOptionById = (id: string) => {
+  const fetchOptionById = async (id: string) => {
     const option = OPTIONS.filter((option) => option.id === parseInt(id));
     return option[0];
   };
 
-  const fetchNextPage = (page: number, query: string) => {
+  const fetchNextPage = async (page: number, query: string) => {
     console.log(
       `%c--- Fetching Page #${page}, with query ${query} ---`,
       'color: #bada55',

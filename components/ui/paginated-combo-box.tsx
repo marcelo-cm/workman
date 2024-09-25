@@ -22,6 +22,8 @@ import {
 
 import { cn } from '@/lib/utils';
 
+import { toast } from './use-toast';
+
 export enum Pagination {
   /**
    * Number of options per page.
@@ -66,7 +68,7 @@ interface ComboBoxMountBehaviourProps<T> {
   /**
    * The API to fetch the current option from
    */
-  fetchOnMount?: (id: string) => T;
+  fetchOnMount?: (id: string) => Promise<T>;
 }
 
 interface ComboBoxPaginationProps<T> {
@@ -84,7 +86,7 @@ interface ComboBoxPaginationProps<T> {
   fetchNextPage?: (
     page: number,
     query: string,
-  ) => { values: T[]; canFetchMore: boolean };
+  ) => Promise<{ values: T[]; canFetchMore: boolean }>;
 }
 
 interface ComboBoxProps<T>
@@ -164,11 +166,11 @@ export function PaginatedComboBox<
    * Fetch first page on mount.
    */
   useEffect(() => {
-    if (initialFetch.current) {
-      initialFetch.current = false;
-      fetchNextPageHandler('');
-    }
-  }, [initialFetch]);
+    if (!initialFetch.current) return;
+
+    initialFetch.current = false;
+    fetchNextPageHandler(query);
+  }, []);
 
   /**
    * Match initial value on mount logic.
@@ -176,11 +178,15 @@ export function PaginatedComboBox<
   useEffect(() => {
     if (!(matchOnMount && initialValue && fetchOnMount)) return;
 
-    const value = fetchOnMount(getOptionValue(initialValue));
-    value && setValue(value);
+    fetchOnMount(getOptionValue(initialValue)).then((value) => {
+      setValue(value);
+    });
   }, [initialValue]);
 
-  const fetchNextPageHandler = (query: string, resetPage: boolean = false) => {
+  const fetchNextPageHandler = async (
+    query: string,
+    resetPage: boolean = false,
+  ) => {
     if (!fetchNextPage) return;
 
     if (resetPage) {
@@ -189,18 +195,26 @@ export function PaginatedComboBox<
       canFetchMore.current = true;
     }
 
-    if (canFetchMore.current) {
-      const { values, canFetchMore: isNextPageAvailable } = fetchNextPage(
-        resetPage ? 1 : page,
-        query,
-      );
-      console.log(
-        `%c--- More Pages? -> ${isNextPageAvailable} ---`,
-        'color: #ff8800',
-      );
-      setOptions((prev) => [...prev, ...values]);
-      canFetchMore.current = isNextPageAvailable;
-      setPage((prev) => prev + 1);
+    try {
+      if (canFetchMore.current) {
+        const { values, canFetchMore: isNextPageAvailable } =
+          await fetchNextPage(resetPage ? 1 : page, query);
+        console.log(
+          `%c--- More Pages? -> ${isNextPageAvailable} ---`,
+          'color: #ff8800',
+        );
+
+        setOptions((prev) => [...prev, ...values]);
+        canFetchMore.current = isNextPageAvailable;
+        setPage((prev) => prev + 1);
+      }
+    } catch (e) {
+      console.error('Error fetching next page:', e);
+      toast({
+        title: 'Error fetching next page',
+        description: 'Please try again later.',
+        variant: 'destructive',
+      });
     }
   };
 
