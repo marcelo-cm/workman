@@ -29,6 +29,7 @@ import {
 
 import { cn } from '@/lib/utils';
 
+import LoadingState from './empty-state';
 import { PromiseWrapper } from './promise-wrapper';
 import { toast } from './use-toast';
 
@@ -160,7 +161,7 @@ export function PaginatedComboBox<
           fetchNextPageHandler(q, resetPage);
         });
       }, 300),
-    [fetchNextPage, query],
+    [fetchNextPage],
   );
 
   // /**
@@ -189,30 +190,30 @@ export function PaginatedComboBox<
     query: string,
     resetPage: boolean = false,
   ) => {
-    if (!fetchNextPage) return;
-
     if (resetPage) {
       setPage(1);
       canFetchMore.current = true;
     }
 
     try {
-      if (canFetchMore.current) {
-        const { values, canFetchMore: isNextPageAvailable } =
-          await fetchNextPage(resetPage ? 1 : page, query);
-        console.log(
-          `%c--- More Pages? -> ${isNextPageAvailable} ---`,
-          'color: #ff8800',
-        );
+      startTransition(async () => {
+        if (canFetchMore.current) {
+          const { values, canFetchMore: isNextPageAvailable } =
+            await fetchNextPage(resetPage ? 1 : page, query);
+          console.log(
+            `%c--- More Pages? -> ${isNextPageAvailable} ---`,
+            'color: #ff8800',
+          );
 
-        if (resetPage) {
-          setOptions(values);
-        } else {
-          setOptions((prev) => [...prev, ...values]);
+          if (resetPage) {
+            setOptions(values);
+          } else {
+            setOptions((prev) => [...prev, ...values]);
+          }
+          canFetchMore.current = isNextPageAvailable;
+          setPage((prev) => prev + 1);
         }
-        canFetchMore.current = isNextPageAvailable;
-        setPage((prev) => prev + 1);
-      }
+      });
     } catch (e) {
       console.error('Error fetching next page:', e);
       toast({
@@ -220,6 +221,8 @@ export function PaginatedComboBox<
         description: 'Please try again later.',
         variant: 'destructive',
       });
+
+      return false;
     }
   };
 
@@ -323,7 +326,12 @@ export function PaginatedComboBox<
                     </p>
                   </CommandItem>
                 ))}
-                <CommandEmpty>No Vendor found.</CommandEmpty>
+                {!isPending && <CommandEmpty>No Vendor found.</CommandEmpty>}
+                <LoadingState
+                  isLoading={isPending}
+                  className=" h-fit w-3/5 border-0 !bg-white py-2 text-xs text-wm-orange"
+                  message="Loading Options..."
+                />
               </CommandList>
             </Command>
           </PopoverContent>

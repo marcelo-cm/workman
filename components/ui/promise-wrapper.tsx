@@ -17,7 +17,7 @@ export function PromiseWrapper({
     promise.then(() => setResolved(true));
   }, [promise]);
 
-  if (!resolved) return null; // Render nothing until the promise resolves
+  if (!resolved) return null;
 
-  return <>{children}</>; // Render the children once resolved
+  return <>{children}</>;
 }

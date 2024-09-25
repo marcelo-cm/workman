@@ -14,6 +14,8 @@ const OPTIONS = Array.from({ length: 200 }, (_, i) => ({
 
 const page = () => {
   const fetchOptionById = async (id: string) => {
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
     const option = OPTIONS.filter((option) => option.id === parseInt(id));
     return option[0];
   };
@@ -23,6 +25,9 @@ const page = () => {
       `%c--- Fetching Page #${page}, with query ${query} ---`,
       'color: #bada55',
     );
+
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
     const indices = [
       (page - 1) * Pagination.DEFAULT_LIMIT,
       (page - 1) * Pagination.DEFAULT_LIMIT + Pagination.DEFAULT_LIMIT,
@@ -34,6 +39,7 @@ const page = () => {
       `%c--- Fetched ${paginatedOptions.map((op) => op.name)} ---`,
       'color: #bada55',
     );
+
     return {
       values: paginatedOptions,
       canFetchMore:
