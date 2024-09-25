@@ -30,6 +30,7 @@ import {
 import { cn } from '@/lib/utils';
 
 import LoadingState from './empty-state';
+import IfElseRender from './if-else-renderer';
 import { PromiseWrapper } from './promise-wrapper';
 import { toast } from './use-toast';
 
@@ -142,8 +143,8 @@ export function PaginatedComboBox<
   const [query, setQuery] = useState('');
   const [page, setPage] = useState(1);
   const [isPending, startTransition] = useTransition();
-  const [initialFetchPromise, setInitialFetchPromise] =
-    useState<Promise<void> | null>(null);
+  const [initialFetchCompleted, setInitialFetchCompleted] =
+    useState<boolean>(false);
 
   const initialFetch = useRef(true);
   const canFetchMore = useRef(true);
@@ -169,19 +170,20 @@ export function PaginatedComboBox<
     if (!initialFetch.current) return;
 
     initialFetch.current = false;
-    const promise = fetchNextPageHandler(query).then(() => {
+    fetchNextPageHandler(query).then(() => {
       /**
        * Match initial value on mount logic.
        */
       if (!(matchOnMount && initialValue && fetchOnMount)) return;
 
-      fetchOnMount(getOptionValue(initialValue)).then((value) => {
-        console.log('--- Matched on mount ---');
-        setValue(value);
-      });
+      fetchOnMount(getOptionValue(initialValue))
+        .then((value) => {
+          setValue(value);
+        })
+        .finally(() => {
+          setInitialFetchCompleted(true);
+        });
     });
-
-    setInitialFetchPromise(promise);
   }, []);
 
   const fetchNextPageHandler = async (
@@ -257,22 +259,9 @@ export function PaginatedComboBox<
   };
 
   return (
-    <Suspense
-      fallback={
-        <Button
-          variant="outline"
-          role="combobox"
-          aria-expanded={open}
-          className={`w-fit min-w-[200px] justify-between ${className}`}
-          type="button"
-          disabled
-        >
-          <div className="h-2 w-full rounded bg-wm-white-300"></div>
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-        </Button>
-      }
-    >
-      <PromiseWrapper promise={initialFetchPromise}>
+    <IfElseRender
+      condition={initialFetchCompleted}
+      ifTrue={
         <Popover open={open} onOpenChange={setOpen}>
           <PopoverTrigger asChild>
             <Button
@@ -334,7 +323,20 @@ export function PaginatedComboBox<
             </Command>
           </PopoverContent>
         </Popover>
-      </PromiseWrapper>
-    </Suspense>
+      }
+      ifFalse={
+        <Button
+          variant="outline"
+          role="combobox"
+          aria-expanded={open}
+          className={`w-fit min-w-[200px] justify-between ${className}`}
+          type="button"
+          disabled
+        >
+          <div className="h-2 w-full rounded bg-wm-white-300"></div>
+          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+        </Button>
+      }
+    />
   );
 }

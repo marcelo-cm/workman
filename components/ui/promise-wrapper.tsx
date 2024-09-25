@@ -6,11 +6,9 @@ export function PromiseWrapper({
   promise,
   children,
 }: {
-  promise: Promise<void> | null;
+  promise: Promise<void>;
   children: React.ReactNode;
 }) {
-  if (!promise) return null;
-
   const [resolved, setResolved] = useState(false);
 
   useEffect(() => {
