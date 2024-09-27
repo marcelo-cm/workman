@@ -16,11 +16,12 @@ const page = () => {
 
   const fetchPaginatedVendorList = async (page: number, query: string) => {
     const columns: (keyof Vendor)[] = ['DisplayName', 'Id'];
-    const indices = [
-      (page - 1) * Pagination.DEFAULT_LIMIT,
-      (page - 1) * Pagination.DEFAULT_LIMIT + Pagination.DEFAULT_LIMIT,
-    ];
-    const sqlQuery = `DisplayName LIKE '%${query}%' LIMIT ${indices[0]}, ${indices[1]}`;
+    const startPos = (page - 1) * Pagination.DEFAULT_LIMIT;
+
+    // SELECT * FROM vendor WHERE DisplayName LIKE 'roma' ORDER BY
+    // DisplayName STARTPOSITION 25 MAXRESULTS 25
+    // const sqlQuery = `${query ? `DisplayName LIKE '${query}'` : ''} ORDER BY DisplayName STARTPOSITION ${startPos} MAXRESULTS ${Pagination.DEFAULT_LIMIT};`;
+    const sqlQuery = `ORDER BY DisplayName STARTPOSITION ${startPos} MAXRESULTS ${Pagination.DEFAULT_LIMIT}`;
     const vendors = await getVendorList(columns, sqlQuery);
 
     console.log(vendors.length, Pagination.DEFAULT_LIMIT);

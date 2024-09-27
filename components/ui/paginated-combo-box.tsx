@@ -31,7 +31,6 @@ import { cn } from '@/lib/utils';
 
 import LoadingState from './empty-state';
 import IfElseRender from './if-else-renderer';
-import { PromiseWrapper } from './promise-wrapper';
 import { toast } from './use-toast';
 
 export enum Pagination {
@@ -42,7 +41,7 @@ export enum Pagination {
   /**
    * Pixels from the bottom of the list to trigger the next page.
    */
-  DEFAULT_THRESHOLD = 10,
+  DEFAULT_THRESHOLD = 100,
 }
 
 interface ComboBoxUtilityProps<T> {
@@ -249,7 +248,8 @@ export function PaginatedComboBox<
     const container = commandListRef.current;
     if (container && canFetchMore.current && !isPending) {
       const isAtBottom =
-        container.scrollHeight - container.scrollTop <= container.clientHeight;
+        container.scrollHeight - container.scrollTop - container.clientHeight <=
+        threshold;
 
       if (isAtBottom) {
         fetchNextPageHandler(query);
