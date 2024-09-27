@@ -7,54 +7,43 @@ import {
   Pagination,
 } from '@/components/ui/paginated-combo-box';
 
+import { useVendor } from '@/lib/hooks/quickbooks/useVendor';
+
+import { Vendor } from '@/interfaces/quickbooks.interfaces';
+
 const page = () => {
-  const OPTIONS = Array.from({ length: 200 }, (_, i) => ({
-    id: i + 1,
-    name: `Option ${i + 1}`,
-  }));
+  const { getVendorList, getVendorByID } = useVendor();
 
-  const fetchOptionById = async (id: string) => {
-    await new Promise((resolve) => setTimeout(resolve, 500));
-
-    const option = OPTIONS.filter((option) => option.id === parseInt(id));
-    return option[0];
-  };
-
-  const fetchNextPage = async (page: number, query: string) => {
-    console.log(
-      `%c--- Fetching Page #${page}, with query ${query} ---`,
-      'color: #bada55',
-    );
-
-    await new Promise((resolve) => setTimeout(resolve, 500));
-
+  const fetchPaginatedVendorList = async (page: number, query: string) => {
+    const columns: (keyof Vendor)[] = ['DisplayName', 'Id'];
     const indices = [
       (page - 1) * Pagination.DEFAULT_LIMIT,
       (page - 1) * Pagination.DEFAULT_LIMIT + Pagination.DEFAULT_LIMIT,
     ];
-    const paginatedOptions = OPTIONS.sort((a, b) => a.id - b.id)
-      .filter((op) => op.name.toLowerCase().includes(query.toLocaleLowerCase()))
-      .slice(indices[0], indices[1]);
-    console.log(
-      `%c--- Fetched ${paginatedOptions.map((op) => op.name)} ---`,
-      'color: #bada55',
-    );
+    const sqlQuery = `DisplayName LIKE '%${query}%' LIMIT ${indices[0]}, ${indices[1]}`;
+    const vendors = await getVendorList(columns, sqlQuery);
 
-    return {
-      values: paginatedOptions,
-      canFetchMore:
-        indices[1] < OPTIONS.filter((op) => op.name.includes(query)).length,
+    console.log(vendors.length, Pagination.DEFAULT_LIMIT);
+
+    const response = {
+      values: vendors,
+      canFetchMore: vendors.length === Pagination.DEFAULT_LIMIT,
     };
+
+    return response;
   };
 
   return (
     <div className="flex h-full w-full flex-row items-center justify-center">
       <PaginatedComboBox
-        getOptionLabel={(option) => option.name}
-        initialValue={OPTIONS[99]}
+        getOptionLabel={(option: Vendor) => option.DisplayName}
+        getOptionValue={(option: Vendor) => option?.Id}
+        initialValue={
+          { Id: '1763', DisplayName: 'Option 1' } as unknown as Vendor
+        }
         matchOnMount
-        fetchOnMount={fetchOptionById}
-        fetchNextPage={fetchNextPage}
+        fetchOnMount={getVendorByID}
+        fetchNextPage={fetchPaginatedVendorList}
         limit={10}
         threshold={5}
       />

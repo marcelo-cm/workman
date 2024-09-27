@@ -2,6 +2,18 @@ import { Connection, Nango } from '@nangohq/node';
 import { StatusCodes } from 'http-status-codes';
 import { NextRequest, NextResponse } from 'next/server';
 
+import {
+  badRequest,
+  internalServerError,
+  ok,
+  unauthorized,
+} from '@/app/api/utils';
+import { Vendor } from '@/interfaces/quickbooks.interfaces';
+import {
+  getQuickBooksRealmId,
+  getQuickBooksToken,
+} from '@/lib/utils/nango/quickbooks.server';
+
 const nango = new Nango({
   secretKey: process.env.NANGO_SECRET_KEY!,
 });
@@ -12,28 +24,21 @@ export async function GET(req: NextRequest) {
   const select = searchParams.get('select');
   const where = searchParams.get('where');
 
+  if (!(userId && select)) {
+    return badRequest('User ID and select columns are required');
+  }
+
   try {
-    if (!userId || !select) {
-      return new NextResponse(
-        JSON.stringify('User ID and Select are both required'),
-        {
-          status: StatusCodes.BAD_REQUEST,
-        },
-      );
+    const quickbooksToken = await getQuickBooksToken(userId);
+
+    if (!quickbooksToken) {
+      return unauthorized('QuickBooks token not found');
     }
 
-    const quickbooksToken = await nango.getToken('quickbooks', userId);
-    const quickbooksConnection: Connection = await nango.getConnection(
-      'quickbooks',
-      userId,
-    );
-
-    const quickbooksRealmId = quickbooksConnection?.connection_config.realmId;
+    const quickbooksRealmId = await getQuickBooksRealmId(userId);
 
     if (!quickbooksRealmId) {
-      return new NextResponse(JSON.stringify('QuickBooks not authorized'), {
-        status: StatusCodes.UNAUTHORIZED,
-      });
+      return unauthorized('QuickBooks realm ID not found');
     }
 
     const vendorList = await getVendorList(
@@ -43,14 +48,10 @@ export async function GET(req: NextRequest) {
       where,
     );
 
-    return new NextResponse(JSON.stringify(vendorList), {
-      status: StatusCodes.OK,
-    });
+    return ok(vendorList);
   } catch (e: unknown) {
     console.error(e);
-    return new NextResponse(JSON.stringify('Internal Server Error'), {
-      status: StatusCodes.INTERNAL_SERVER_ERROR,
-    });
+    return internalServerError('Failed to fetch vendor list');
   }
 }
 
@@ -64,24 +65,20 @@ const getVendorList = async (
 
   const response = await fetch(url, {
     headers: {
-      Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
       Accept: 'application/json',
     },
   });
 
   if (!response.ok) {
     const errorText = await response.text();
-    console.error(
-      'Failed to fetch vendor list:',
-      response.status,
-      response.statusText,
-      errorText,
+    throw new Error(
+      `${response.status}: Failed to fetch vendor list, ${errorText}`,
     );
-    return [];
   }
 
-  const data = await response.json();
+  const data: Vendor[] = await response.json();
 
   return data;
 };

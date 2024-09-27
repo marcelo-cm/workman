@@ -249,8 +249,7 @@ export function PaginatedComboBox<
     const container = commandListRef.current;
     if (container && canFetchMore.current && !isPending) {
       const isAtBottom =
-        container.scrollHeight - container.scrollTop - container.clientHeight <=
-        threshold;
+        container.scrollHeight - container.scrollTop <= container.clientHeight;
 
       if (isAtBottom) {
         fetchNextPageHandler(query);

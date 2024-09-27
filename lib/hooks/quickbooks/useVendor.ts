@@ -15,7 +15,7 @@ const { fetchUserData } = useUser();
 export const useVendor = () => {
   const getVendorList = async (
     columns: (keyof Vendor)[] | ['*'] = ['*'],
-    where: string | null = null,
+    query: string | null = null,
     setVendorCallback?: Function | Dispatch<SetStateAction<Vendor[]>>,
   ): Promise<Vendor[]> => {
     try {
@@ -24,7 +24,7 @@ export const useVendor = () => {
       const columnsToSelect = columns.join(',');
 
       const response = await fetch(
-        `/api/v1/quickbooks/company/vendor?userId=${userId}&select=${columnsToSelect}${where ? `&where=${where}` : ''}`,
+        `/api/v1/quickbooks/company/vendor?userId=${userId}&select=${columnsToSelect}${query && `&where=${query}`}`,
         {
           method: 'GET',
           headers: {

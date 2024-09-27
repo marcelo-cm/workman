@@ -1,5 +1,3 @@
-import { Connection, Nango } from '@nangohq/node';
-import { StatusCodes } from 'http-status-codes';
 import { NextRequest, NextResponse } from 'next/server';
 
 import {
@@ -47,6 +45,7 @@ export async function GET(
 
     return ok(vendor);
   } catch (e: unknown) {
+    console.error(e);
     return internalServerError('Failed to fetch vendor');
   }
 }
