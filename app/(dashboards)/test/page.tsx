@@ -18,13 +18,8 @@ const page = () => {
     const columns: (keyof Vendor)[] = ['DisplayName', 'Id'];
     const startPos = (page - 1) * Pagination.DEFAULT_LIMIT;
 
-    // SELECT * FROM vendor WHERE DisplayName LIKE 'roma' ORDER BY
-    // DisplayName STARTPOSITION 25 MAXRESULTS 25
-    // const sqlQuery = `${query ? `DisplayName LIKE '${query}'` : ''} ORDER BY DisplayName STARTPOSITION ${startPos} MAXRESULTS ${Pagination.DEFAULT_LIMIT};`;
     const sqlQuery = `${query ? `WHERE DisplayName LIKE '${query}'` : ''} ORDER BY DisplayName STARTPOSITION ${startPos} MAXRESULTS ${Pagination.DEFAULT_LIMIT}`;
     const vendors = await getVendorList(columns, sqlQuery);
-
-    console.log(vendors.length, Pagination.DEFAULT_LIMIT);
 
     const response = {
       values: vendors,
