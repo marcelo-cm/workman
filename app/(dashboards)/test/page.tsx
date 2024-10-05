@@ -20,7 +20,7 @@ const page = () => {
     const columns: (keyof Vendor)[] = ['DisplayName', 'Id'];
     const startPos = (page - 1) * Pagination.DEFAULT_LIMIT;
 
-    const sqlQuery = `${query ? `WHERE DisplayName LIKE '${query}'` : ''} ORDER BY DisplayName STARTPOSITION ${startPos} MAXRESULTS ${Pagination.DEFAULT_LIMIT}`;
+    const sqlQuery = `${query ? `WHERE DisplayName LIKE '${query}'` : ''} ORDER BY DisplayName startPosition ${startPos} maxResults ${Pagination.DEFAULT_LIMIT}`;
     const vendors = await getVendorList(columns, sqlQuery);
 
     const response = {
@@ -46,8 +46,6 @@ const page = () => {
         matchOnMount
         fetchOnMount={getVendorByID}
         fetchNextPage={fetchPaginatedVendorList}
-        limit={10}
-        threshold={5}
       />
       <ComboBox
         getOptionLabel={(option: Vendor) => option.DisplayName}

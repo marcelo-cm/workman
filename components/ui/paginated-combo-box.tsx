@@ -1,13 +1,6 @@
 'use client';
 
-import {
-  Suspense,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  useTransition,
-} from 'react';
+import { useEffect, useMemo, useRef, useState, useTransition } from 'react';
 
 import { Check, ChevronsUpDown } from 'lucide-react';
 
@@ -41,7 +34,7 @@ export enum Pagination {
   /**
    * Pixels from the bottom of the list to trigger the next page.
    */
-  DEFAULT_THRESHOLD = 100,
+  DEFAULT_THRESHOLD = 300,
 }
 
 interface ComboBoxUtilityProps<T> {
@@ -248,8 +241,9 @@ export function PaginatedComboBox<
     const container = commandListRef.current;
     if (container && canFetchMore.current && !isPending) {
       const isAtBottom =
-        container.scrollHeight - container.scrollTop - container.clientHeight <=
-        threshold;
+        Math.abs(
+          container.scrollHeight - container.scrollTop - container.clientHeight,
+        ) <= threshold;
 
       if (isAtBottom) {
         fetchNextPageHandler(query);

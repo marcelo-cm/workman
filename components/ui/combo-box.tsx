@@ -98,7 +98,7 @@ export function ComboBox<
             {options.map((option) => (
               <CommandItem
                 key={getOptionValue(option)}
-                value={getOptionValue(option)}
+                value={getOptionLabel(option)}
                 onSelect={(currentValue) => {
                   handleSelect(currentValue);
                   setOpen(false);
