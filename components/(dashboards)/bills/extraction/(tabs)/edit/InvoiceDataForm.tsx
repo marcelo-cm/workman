@@ -47,9 +47,9 @@ const InvoiceDataForm = ({
               <LineItems form={form} />
               <ExtractionFormComponent
                 label="Needs Approval From"
-                className="text-sm p-4"
+                className="p-4 text-sm"
               >
-                <p className="pt-1 pb-2">
+                <p className="pb-2 pt-1">
                   Everybody in this list must approve your bill before it is
                   allowed to be sent to QuickBooks.
                 </p>

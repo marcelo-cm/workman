@@ -22,7 +22,7 @@ import { Input } from '@/components/ui/input';
 
 import { useUser } from '@/lib/hooks/supabase/useUser';
 
-import { handleQuickBooksIntegration } from '@/lib/utils/nango/quickbooks';
+import { handleQuickBooksIntegration } from '@/lib/utils/nango/quickbooks.client';
 import { createClient as createSupabaseClient } from '@/lib/utils/supabase/client';
 import { User } from '@/models/User';
 
@@ -120,7 +120,7 @@ const Onboarding = () => {
                 render={({ field }) => (
                   <FormItem className="mb-2 flex w-full items-center gap-4">
                     <FormLabel className="w-[90px]">Name</FormLabel>
-                    <div className="flex flex-col w-full">
+                    <div className="flex w-full flex-col">
                       <FormControl>
                         <Input
                           disabled={!!userData || isLoading}
@@ -137,7 +137,7 @@ const Onboarding = () => {
                           })}
                         />
                       </FormControl>
-                      <FormMessage className="text-red-500 pt-1" />
+                      <FormMessage className="pt-1 text-red-500" />
                     </div>
                   </FormItem>
                 )}
@@ -148,7 +148,7 @@ const Onboarding = () => {
                 render={({ field }) => (
                   <FormItem className="mb-2 flex w-full items-center gap-4">
                     <FormLabel className="w-[90px]">Email</FormLabel>
-                    <div className="flex flex-col w-full">
+                    <div className="flex w-full flex-col">
                       <FormControl>
                         <Input
                           disabled={!!userData || isLoading}
@@ -165,7 +165,7 @@ const Onboarding = () => {
                           })}
                         />
                       </FormControl>
-                      <FormMessage className="text-red-500 pt-1" />
+                      <FormMessage className="pt-1 text-red-500" />
                     </div>
                   </FormItem>
                 )}
@@ -178,7 +178,7 @@ const Onboarding = () => {
                     <FormLabel className="w-[90px]">
                       Password (6+ chars.)
                     </FormLabel>
-                    <div className="flex flex-col w-full">
+                    <div className="flex w-full flex-col">
                       <FormControl>
                         <Input
                           disabled={!!userData || isLoading}
@@ -195,14 +195,14 @@ const Onboarding = () => {
                           })}
                         />
                       </FormControl>
-                      <FormMessage className="text-red-500 pt-1" />
+                      <FormMessage className="pt-1 text-red-500" />
                     </div>
                   </FormItem>
                 )}
               />
               <div className="flex w-full justify-end">
                 {errorMessage && (
-                  <p className="text-red-500 text-xs">{errorMessage}</p>
+                  <p className="text-xs text-red-500">{errorMessage}</p>
                 )}
                 <Button
                   type="submit"

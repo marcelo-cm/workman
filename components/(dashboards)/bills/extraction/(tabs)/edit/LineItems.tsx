@@ -49,7 +49,7 @@ const LineItems = ({
   return (
     <Container
       header={
-        <div className="flex flex-row justify-between w-full items-center font-normal">
+        <div className="flex w-full flex-row items-center justify-between font-normal">
           <p className="text-2xl ">
             Total: ${Number(form.getValues('totalNet'))?.toFixed(2) || 0}
           </p>

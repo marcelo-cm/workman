@@ -23,16 +23,18 @@ import { useUser } from '@/lib/hooks/supabase/useUser';
 import { Label_Basic } from '@/interfaces/gmail.interfaces';
 import { Vendor } from '@/interfaces/quickbooks.interfaces';
 import { handleGoogleMailIntegration } from '@/lib/utils/nango/google';
-import { handleQuickBooksIntegration } from '@/lib/utils/nango/quickbooks';
+import { handleQuickBooksIntegration } from '@/lib/utils/nango/quickbooks.client';
 
 import { useAppContext } from '../context';
 
 const Account = () => {
-  const { getVendorList } = useVendor();
+  const { getVendorList, getVendorByID } = useVendor();
   const { user } = useAppContext();
   const { getLabels, createLabel } = useGmail();
   const { updateUser } = useUser();
   const [vendors, setVendors] = useState<Vendor[]>([]);
+  const [selectedVendor, setSelectedVendor] = useState<Vendor | null>(null);
+  const [vendorInfo, setVendorInfo] = useState<Vendor | null>(null);
   const [labels, setLabels] = useState<Label_Basic[]>([]);
 
   const fetchVendors = async () => {
@@ -136,7 +138,20 @@ const Account = () => {
             <ComboBox
               options={vendors}
               getOptionLabel={(option) => option?.DisplayName}
+              callBackFunction={(vendor: Vendor) => setSelectedVendor(vendor)}
             />
+          )}
+          {selectedVendor && (
+            <Button
+              onClick={() =>
+                getVendorByID(selectedVendor.Id).then(setVendorInfo)
+              }
+            >
+              Get Vendor Info
+            </Button>
+          )}
+          {vendorInfo && (
+            <p className="whitespace-pre-wrap">{JSON.stringify(vendorInfo)}</p>
           )}
         </div>
         <div className="flex w-fit flex-row items-center justify-between gap-4">

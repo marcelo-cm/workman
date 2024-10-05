@@ -72,7 +72,7 @@ const ManageAccount = ({
                 onClick={() => setEdit(false)}
                 appearance="destructive-strong"
               >
-                Cancel <X className="w-4 h-4" />
+                Cancel <X className="h-4 w-4" />
               </Button>
             }
             ifFalse={
@@ -153,7 +153,7 @@ const ManageAccount = ({
               </FormItem>
             )}
           />
-          <p className="text-xs pl-2">Company: {user.company.name}</p>
+          <p className="pl-2 text-xs">Company: {user.company.name}</p>
         </form>
       </Form>
     </Container>

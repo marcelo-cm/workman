@@ -32,10 +32,10 @@ const MenuItem = ({
 
   return (
     <button
-      className={`pr-4 ${leadingIcon && expanded ? 'pl-4' : 'pl-10'}  flex select-none flex-row items-center gap-2 rounded-br rounded-tr py-2 justify-between text-nowrap w-full ${
+      className={`pr-4 ${leadingIcon && expanded ? 'pl-4' : 'pl-10'}  flex w-full select-none flex-row items-center justify-between gap-2 text-nowrap rounded-br rounded-tr py-2 ${
         !disabled
           ? 'cursor-pointer hover:bg-white'
-          : 'opacity-25 cursor-not-allowed'
+          : 'cursor-not-allowed opacity-25'
       } ${activePath === route ? 'border-r-2 border-orange-500 bg-white' : 'bg-wm-white-50'}`}
       onClick={handleClick}
       disabled={disabled}
