@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server';
 
 import { badRequest, internalServerError, ok } from '@/app/api/utils';
-import { Customer } from '@/interfaces/quickbooks.interfaces';
+import { Vendor } from '@/interfaces/quickbooks.interfaces';
 import {
   getQuickBooksRealmId,
   getQuickBooksToken,
@@ -28,34 +28,31 @@ export async function GET(req: NextRequest) {
       return internalServerError('QuickBooks realm ID not found');
     }
 
-    const customers = await getAllCustomers(
+    const accounts = await getAllVendors(
       quickbooksRealmId,
       String(quickbooksToken),
     );
 
-    return ok(customers);
+    return ok(accounts);
   } catch (e: unknown) {
     console.error(e);
-    return internalServerError('Failed to fetch all customers');
+    return internalServerError('Failed to fetch all accounts');
   }
 }
 
-const getAllCustomers = async (
-  realmId: string,
-  token: string,
-): Promise<any> => {
-  console.log('--- FETCHING ALL CUSTOMERS ---');
+const getAllVendors = async (realmId: string, token: string): Promise<any> => {
+  console.log('--- FETCHING ALL VENDORS ---');
 
   let hasMore = true;
   let startPosition = 1;
   let maxResults = 1000;
   let page = `startPosition ${startPosition} maxResults ${maxResults}`;
 
-  let customers: Partial<Customer>[] = [];
+  let accounts: Partial<Vendor>[] = [];
 
   while (hasMore) {
     const response = await fetch(
-      `https://quickbooks.api.intuit.com/v3/company/${realmId}/query?query=select Id, DisplayName from Customer ${page}`,
+      `https://quickbooks.api.intuit.com/v3/company/${realmId}/query?query=select Id, Name from Account where Classification = 'Expense' ${page}`,
       {
         method: 'GET',
         headers: {
@@ -72,13 +69,13 @@ const getAllCustomers = async (
     if (!response.ok) {
       const errorText = await response.text();
       throw new Error(
-        `${response.status}: Failed to fetch customer list, ${errorText}`,
+        `${response.status}: Failed to fetch vendor list, ${errorText}`,
       );
     }
 
     const responseData = await response.json();
 
-    customers = [...customers, ...responseData.QueryResponse.Customer];
+    accounts = [...accounts, ...responseData.QueryResponse.Account];
 
     if (responseData.QueryResponse.maxResults === maxResults) {
       startPosition += maxResults;
@@ -88,5 +85,5 @@ const getAllCustomers = async (
     }
   }
 
-  return customers;
+  return accounts;
 };

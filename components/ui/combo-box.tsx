@@ -85,7 +85,7 @@ export function ComboBox<
           type="button"
         >
           <p className="w-fit min-w-[155px] overflow-hidden text-ellipsis text-nowrap break-keep text-left">
-            {value ? getOptionLabel(value) : 'Select Vendor...'}
+            {value ? getOptionLabel(value) : 'Select...'}
           </p>
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
@@ -94,7 +94,7 @@ export function ComboBox<
         <Command>
           <CommandInput placeholder="Search framework..." />
           <CommandList className="no-scrollbar">
-            <CommandEmpty>No Vendor found.</CommandEmpty>
+            <CommandEmpty>No Options found.</CommandEmpty>
             {options.map((option) => (
               <CommandItem
                 key={getOptionValue(option)}
