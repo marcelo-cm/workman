@@ -4,7 +4,7 @@ import { Loader2Icon } from 'lucide-react';
 
 const LoadingState = ({
   message = 'Loading...',
-  isLoading = false,
+  isLoading = true,
   className,
 }: {
   message?: string;
