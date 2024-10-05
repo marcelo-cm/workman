@@ -58,7 +58,7 @@ export function ComboBox<
 
       callBackFunction && callBackFunction(bestMatch);
     }
-  }, [valueToMatch]);
+  }, [valueToMatch, options]);
 
   const handleSelect = (currentValue: string | number) => {
     if (currentValue !== getOptionValue(value)) {

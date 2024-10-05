@@ -1,7 +1,8 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 
+import { ComboBox } from '@/components/ui/combo-box';
 import {
   PaginatedComboBox,
   Pagination,
@@ -12,7 +13,8 @@ import { useVendor } from '@/lib/hooks/quickbooks/useVendor';
 import { Vendor } from '@/interfaces/quickbooks.interfaces';
 
 const page = () => {
-  const { getVendorList, getVendorByID } = useVendor();
+  const { getVendorList, getVendorByID, getAllVendors } = useVendor();
+  const [vendors, setVendors] = React.useState<Vendor[]>([]);
 
   const fetchPaginatedVendorList = async (page: number, query: string) => {
     const columns: (keyof Vendor)[] = ['DisplayName', 'Id'];
@@ -29,6 +31,10 @@ const page = () => {
     return response;
   };
 
+  useEffect(() => {
+    getAllVendors(setVendors);
+  }, []);
+
   return (
     <div className="flex h-full w-full flex-row items-center justify-center">
       <PaginatedComboBox
@@ -42,6 +48,11 @@ const page = () => {
         fetchNextPage={fetchPaginatedVendorList}
         limit={10}
         threshold={5}
+      />
+      <ComboBox
+        getOptionLabel={(option: Vendor) => option.DisplayName}
+        options={vendors}
+        valueToMatch={'1forall Software'}
       />
     </div>
   );
