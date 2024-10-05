@@ -41,6 +41,8 @@ export async function GET(req: NextRequest) {
       return unauthorized('QuickBooks realm ID not found');
     }
 
+    console.log('%c ---- select', 'color: #b0c4de', select, '----');
+
     const vendorList = await getVendorList(
       quickbooksRealmId,
       String(quickbooksToken),

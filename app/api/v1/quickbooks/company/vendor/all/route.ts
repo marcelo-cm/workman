@@ -63,7 +63,6 @@ const getAllVendors = async (realmId: string, token: string): Promise<any> => {
         next: {
           revalidate: 600,
         },
-        cache: 'force-cache',
       },
     );
 

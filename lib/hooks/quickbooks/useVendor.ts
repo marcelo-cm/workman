@@ -24,7 +24,7 @@ export const useVendor = () => {
       const columnsToSelect = columns.join(',');
 
       const response = await fetch(
-        `/api/v1/quickbooks/company/vendor?userId=${userId}&select=${columnsToSelect}${query && `&where=${query}`}`,
+        `/api/v1/quickbooks/company/vendor?userId=${userId}&select=${columnsToSelect}${query ? `&where=${query}` : ''}`,
         {
           method: 'GET',
           headers: {
@@ -72,7 +72,6 @@ export const useVendor = () => {
           next: {
             revalidate: 900,
           },
-          cache: 'force-cache',
         },
       );
 
