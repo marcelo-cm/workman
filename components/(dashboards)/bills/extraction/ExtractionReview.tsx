@@ -68,7 +68,7 @@ const ExtractionReview = ({ files }: { files: Invoice[] }) => {
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [activeIndex, setActiveIndex] = useState(0);
   const { getVendorList, getAllVendors } = useVendor();
-  const { getCustomerList } = useCustomer();
+  const { getCustomerList, getAllCustomers } = useCustomer();
   const { getAccountList } = useAccount();
 
   useEffect(() => {
@@ -79,13 +79,15 @@ const ExtractionReview = ({ files }: { files: Invoice[] }) => {
   }, [files]);
 
   const fetchVendors = async () => {
-    const columns: (keyof Vendor)[] = ['DisplayName', 'Id'];
+    // const columns: (keyof Vendor)[] = ['DisplayName', 'Id'];
+    // await getVendorList(columns, null, setVendors);
     await getAllVendors(setVendors);
   };
 
   const fetchCustomers = async () => {
-    const columns: (keyof Customer)[] = ['DisplayName', 'Id'];
-    await getCustomerList(columns, null, setCustomers);
+    // const columns: (keyof Customer)[] = ['DisplayName', 'Id'];
+    // await getCustomerList(columns, null, setCustomers);
+    await getAllCustomers(setCustomers);
   };
 
   const fetchAccounts = async () => {
