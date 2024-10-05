@@ -41,7 +41,7 @@ export function ComboBox<
   const [value, setValue] = useState<T>(null!);
 
   useEffect(() => {
-    if (valueToMatch) {
+    if (valueToMatch && options.length) {
       const bestMatch = options.reduce((prev, curr) => {
         const prevSimilarity = stringSimilarity(
           getOptionLabel(prev) || '',
@@ -61,9 +61,9 @@ export function ComboBox<
   }, [valueToMatch, options]);
 
   const handleSelect = (currentValue: string | number) => {
-    if (currentValue !== getOptionValue(value)) {
+    if (currentValue !== getOptionLabel(value)) {
       const newValue = options.find(
-        (option) => getOptionValue(option) === currentValue,
+        (option) => getOptionLabel(option) === currentValue,
       );
 
       if (!newValue) return;

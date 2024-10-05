@@ -37,7 +37,7 @@ export const sliceWithEllipsis = (
 };
 
 export function stringSimilarity(str1: string, str2: string): number {
-  const distance = levenshtein(str1, str2);
+  const distance = levenshtein(str1.toLowerCase(), str2.toLowerCase());
   return 1 - distance / Math.max(str1.length, str2.length);
 }
 
