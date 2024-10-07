@@ -2,9 +2,14 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { MagnifyingGlassIcon, PaperPlaneIcon } from '@radix-ui/react-icons';
+import {
+  MagnifyingGlassIcon,
+  PaperPlaneIcon,
+  TrashIcon,
+} from '@radix-ui/react-icons';
 import { Ellipsis, ScanIcon } from 'lucide-react';
 
+import { PopoverTrigger } from '@radix-ui/react-popover';
 import {
   ColumnFiltersState,
   SortingState,
@@ -27,7 +32,19 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { DatePickerWithRange } from '@/components/ui/date-range-picker';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import IfElseRender from '@/components/ui/if-else-renderer';
+import {
+  Popover,
+  PopoverAnchor,
+  PopoverContent,
+} from '@/components/ui/popover';
 import {
   Table,
   TableBody,
@@ -248,6 +265,50 @@ export function InvoiceDataTable<TData, TValue>({
       });
     };
 
+    const MoreOptionsButton = () => {
+      return (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              size={'icon'}
+              variant={'outline'}
+              disabled={!Object.keys(rowSelection).length}
+            >
+              <Ellipsis className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="mr-4">
+            <DropdownMenuItem onClick={quickSubmit} asChild>
+              <Button
+                size={'sm'}
+                className="!h-fit w-48 justify-start gap-2 p-2"
+                variant={'ghost'}
+                disabled={
+                  !(Object.values(rowSelection) as Invoice[]).every(
+                    (inv) => inv.status == InvoiceStatus.APPROVED,
+                  )
+                }
+              >
+                <PaperPlaneIcon className="size-4" />
+                Quick Submit
+              </Button>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={quickSubmit} asChild>
+              <Button
+                size={'sm'}
+                className="!h-fit w-48 justify-start gap-2 p-2"
+                variant={'ghost'}
+                appearance={'destructive-strong'}
+              >
+                <TrashIcon className="size-4" />
+                Delete
+              </Button>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      );
+    };
+
     return (
       <div className="flex flex-row gap-2">
         <IfElseRender
@@ -273,17 +334,7 @@ export function InvoiceDataTable<TData, TValue>({
             </Button>
           }
         />
-        <Button size={'icon'} variant={'outline'}>
-          <Ellipsis className="h-4 w-4" />
-        </Button>
-        {Object.keys(rowSelection).length > 0 &&
-          Object.keys(rowSelection).every(
-            (index) => data[Number(index)].status === InvoiceStatus.APPROVED,
-          ) && (
-            <Button onClick={quickSubmit}>
-              Quick Submit <PaperPlaneIcon className="h-4 w-4" />
-            </Button>
-          )}
+        <MoreOptionsButton />
       </div>
     );
   };
