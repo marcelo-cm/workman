@@ -8,6 +8,7 @@ import { ScanIcon } from 'lucide-react';
 import {
   ColumnFiltersState,
   SortingState,
+  Table as TableType,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
@@ -69,7 +70,6 @@ export function InvoiceDataTable<TData, TValue>({
   actionOnSelectText,
   actionIcon,
   canActionBeDisabled = true,
-  filters = true,
 }: DataTableProps) {
   const { user } = useAppContext();
   const [data, setData] = useState<Invoice[]>([]);
@@ -152,10 +152,6 @@ export function InvoiceDataTable<TData, TValue>({
     },
   });
 
-  const { pageSize, pageIndex } = table.getState().pagination;
-  const startIndex = pageSize * pageIndex + 1; //adding 1 to start counting from 1 for the invoices user is seeing (not 0-9)
-  const endIndex = Math.min(pageSize * (pageIndex + 1), data.length); // Ensure it doesn't exceed total rows
-
   const updateFilteredData = () => {
     if (!dateRange.from && !dateRange.to) {
       setFilteredData(data);
@@ -207,85 +203,11 @@ export function InvoiceDataTable<TData, TValue>({
 
   return (
     <>
-      <div className="flex flex-row gap-4">
-        <AlertDialog open={isUploading}>
-          <AlertDialogContent className="justify-center">
-            <AlertDialogHeader className="items-center">
-              <WorkmanLogo className="w-32 animate-pulse" />
-              <AlertDialogTitle>Uploading your Data Now!</AlertDialogTitle>
-            </AlertDialogHeader>
-            <AlertDialogDescription className="text-center">
-              It's important that you don't close this window while we're
-              uploading your data. We are uploading {selectedFilesUrls.length}{' '}
-              files.
-            </AlertDialogDescription>
-          </AlertDialogContent>
-        </AlertDialog>
-        <IfElseRender
-          condition={tabValue?.state === InvoiceStatus.UNPROCESSED}
-          ifTrue={
-            <Button
-              variant="secondary"
-              disabled={canActionBeDisabled && selectedFilesUrls.length === 0}
-              onClick={() => handleScanInvoices(selectedFilesUrls)}
-            >
-              <ScanIcon className="h-4 w-4" />
-              Scan Selected
-            </Button>
-          }
-          ifFalse={
-            <Button
-              variant="secondary"
-              disabled={canActionBeDisabled && selectedFilesUrls.length === 0}
-              onClick={() => onAction(selectedFilesUrls)}
-            >
-              {actionIcon}
-              {actionOnSelectText}
-            </Button>
-          }
-        />
-        {Object.keys(rowSelection).length > 0 &&
-          Object.keys(rowSelection).every(
-            (index) => data[Number(index)].status === InvoiceStatus.APPROVED,
-          ) && (
-            <Button onClick={quickSubmit}>
-              Quick Submit <PaperPlaneIcon className="h-4 w-4" />
-            </Button>
-          )}
-        <div className="flex h-full w-[300px] flex-row items-center gap-2 rounded-md border bg-transparent px-3 py-1 text-sm text-wm-white-500 transition-colors">
-          <MagnifyingGlassIcon
-            className="pointer-events-none h-5 w-5 cursor-pointer"
-            onClick={() => searchFilterInputRef.current?.focus()}
-          />
-          <input
-            ref={searchFilterInputRef}
-            value={
-              (table
-                .getColumn('file_name&sender')
-                ?.getFilterValue() as string) ?? ''
-            }
-            onChange={(event) =>
-              table
-                .getColumn('file_name&sender')
-                ?.setFilterValue(event.target.value)
-            }
-            placeholder="Filter by invoice name or sender"
-            className="h-full w-full appearance-none bg-transparent text-black outline-none placeholder:text-wm-white-500 disabled:cursor-not-allowed disabled:opacity-50"
-          />
-        </div>
-        <DatePickerWithRange
-          placeholder="Filter by Date Invoiced"
-          onDateChange={setDateRange}
-          ref={dateRangeRef}
-        />
-        <Button
-          variant="outline"
-          disabled={columnFilters.length === 0 && !dateRange.from}
-          onClick={handleClearFilters}
-        >
-          Clear Filters
-        </Button>
-      </div>
+      <UploadingAlertDialog
+        isUploading={isUploading}
+        n={selectedFilesUrls.length}
+      />
+
       <div>
         <IfElseRender
           condition={tabs.length > 0}
@@ -324,7 +246,82 @@ export function InvoiceDataTable<TData, TValue>({
           }
           ifFalse={null}
         />
-        <div className="rounded-md rounded-tl-none border">
+        <div className="flex w-full flex-row items-center justify-between gap-4 rounded-tr-md border-x border-t p-2">
+          <div className="flex flex-row gap-4">
+            <div className="flex h-10 w-[300px] flex-row items-center gap-2 rounded-md border bg-transparent px-3 py-1 text-sm text-wm-white-500 transition-colors">
+              <MagnifyingGlassIcon
+                className="h-5 w-5 cursor-pointer"
+                onClick={() => searchFilterInputRef.current?.focus()}
+              />
+              <input
+                ref={searchFilterInputRef}
+                value={
+                  (table
+                    .getColumn('file_name&sender')
+                    ?.getFilterValue() as string) ?? ''
+                }
+                onChange={(event) =>
+                  table
+                    .getColumn('file_name&sender')
+                    ?.setFilterValue(event.target.value)
+                }
+                placeholder="Filter by invoice name or sender"
+                className="h-full w-full appearance-none bg-transparent text-black outline-none placeholder:text-wm-white-500 disabled:cursor-not-allowed disabled:opacity-50"
+              />
+            </div>
+            <DatePickerWithRange
+              placeholder="Filter by Date Invoiced"
+              onDateChange={setDateRange}
+              ref={dateRangeRef}
+            />
+            <Button
+              variant="outline"
+              disabled={columnFilters.length === 0 && !dateRange.from}
+              onClick={handleClearFilters}
+            >
+              Clear Filters
+            </Button>
+          </div>
+          <div className="flex flex-row gap-4">
+            <IfElseRender
+              condition={tabValue?.state === InvoiceStatus.UNPROCESSED}
+              ifTrue={
+                <Button
+                  variant="secondary"
+                  disabled={
+                    canActionBeDisabled && selectedFilesUrls.length === 0
+                  }
+                  onClick={() => handleScanInvoices(selectedFilesUrls)}
+                >
+                  <ScanIcon className="h-4 w-4" />
+                  Scan Selected
+                </Button>
+              }
+              ifFalse={
+                <Button
+                  variant="secondary"
+                  disabled={
+                    canActionBeDisabled && selectedFilesUrls.length === 0
+                  }
+                  onClick={() => onAction(selectedFilesUrls)}
+                >
+                  {actionIcon}
+                  {actionOnSelectText}
+                </Button>
+              }
+            />
+            {Object.keys(rowSelection).length > 0 &&
+              Object.keys(rowSelection).every(
+                (index) =>
+                  data[Number(index)].status === InvoiceStatus.APPROVED,
+              ) && (
+                <Button onClick={quickSubmit}>
+                  Quick Submit <PaperPlaneIcon className="h-4 w-4" />
+                </Button>
+              )}
+          </div>
+        </div>
+        <div className="rounded-b-md border">
           <Table>
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
@@ -372,46 +369,88 @@ export function InvoiceDataTable<TData, TValue>({
                 </TableRow>
               )}
             </TableBody>
-            <TableFooter>
-              <TableRow>
-                <TableCell colSpan={columns.length}>
-                  <div className="flex items-center justify-end space-x-2 ">
-                    <div className="flex-1">
-                      <div className="text-muted-foreground items-center text-sm">
-                        {table.getFilteredSelectedRowModel().rows.length} of{' '}
-                        {table.getFilteredRowModel().rows.length} invoice(s)
-                        selected.
-                      </div>
-                      <div className="text-xs font-normal">
-                        Viewing Invoices {startIndex}-{endIndex}
-                      </div>
-                    </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => table.previousPage()}
-                      disabled={!table.getCanPreviousPage()}
-                    >
-                      Previous
-                    </Button>
-                    <div className="w-4 text-center">
-                      {table.getState().pagination.pageIndex + 1}
-                    </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => table.nextPage()}
-                      disabled={!table.getCanNextPage()}
-                    >
-                      Next
-                    </Button>
-                  </div>
-                </TableCell>
-              </TableRow>
-            </TableFooter>
+            <DataTableFooter
+              table={table}
+              numCols={columns.length}
+              numInvoices={data.length}
+            />
           </Table>
         </div>
       </div>
     </>
   );
 }
+
+const UploadingAlertDialog = ({
+  isUploading,
+  n,
+}: {
+  isUploading: boolean;
+  n: number;
+}) => (
+  <AlertDialog open={isUploading}>
+    <AlertDialogContent className="justify-center">
+      <AlertDialogHeader className="items-center">
+        <WorkmanLogo className="w-32 animate-pulse" />
+        <AlertDialogTitle>Uploading your Data Now!</AlertDialogTitle>
+      </AlertDialogHeader>
+      <AlertDialogDescription className="text-center">
+        It's important that you don't close this window while we're uploading
+        your data. We are uploading {n} files.
+      </AlertDialogDescription>
+    </AlertDialogContent>
+  </AlertDialog>
+);
+
+const DataTableFooter = ({
+  table,
+  numCols,
+  numInvoices,
+}: {
+  table: TableType<Invoice>;
+  numCols: number;
+  numInvoices: number;
+}) => {
+  const { pageSize, pageIndex } = table.getState().pagination;
+  const startIndex = pageSize * pageIndex + 1; //adding 1 to start counting from 1 for the invoices user is seeing (not 0-9)
+  const endIndex = Math.min(pageSize * (pageIndex + 1), numInvoices); // Ensure it doesn't exceed total rows
+
+  return (
+    <TableFooter>
+      <TableRow>
+        <TableCell colSpan={numCols}>
+          <div className="flex items-center justify-end space-x-2 ">
+            <div className="flex-1">
+              <div className="text-muted-foreground items-center text-sm">
+                {table.getFilteredSelectedRowModel().rows.length} of{' '}
+                {table.getFilteredRowModel().rows.length} invoice(s) selected.
+              </div>
+              <div className="text-xs font-normal">
+                Viewing Invoices {startIndex}-{endIndex}
+              </div>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => table.previousPage()}
+              disabled={!table.getCanPreviousPage()}
+            >
+              Previous
+            </Button>
+            <div className="w-4 text-center">
+              {table.getState().pagination.pageIndex + 1}
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => table.nextPage()}
+              disabled={!table.getCanNextPage()}
+            >
+              Next
+            </Button>
+          </div>
+        </TableCell>
+      </TableRow>
+    </TableFooter>
+  );
+};
