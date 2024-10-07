@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { MagnifyingGlassIcon, PaperPlaneIcon } from '@radix-ui/react-icons';
-import { ScanIcon } from 'lucide-react';
+import { Ellipsis, ScanIcon } from 'lucide-react';
 
 import {
   ColumnFiltersState,
@@ -108,6 +108,7 @@ export function InvoiceDataTable<TData, TValue>({
   useEffect(() => {
     if (!tabValue) return;
 
+    setData([]);
     setRowSelection({});
 
     if (tabValue.approverId) {
@@ -170,35 +171,121 @@ export function InvoiceDataTable<TData, TValue>({
     setFilteredData(filtered);
   };
 
-  const handleClearFilters = () => {
-    setColumnFilters([]);
-    setDateRange({ from: undefined, to: undefined });
-    dateRangeRef.current?.clearDate();
-  };
+  const FilterBar = () => {
+    const handleClearFilters = () => {
+      setColumnFilters([]);
+      setDateRange({ from: undefined, to: undefined });
+      dateRangeRef.current?.clearDate();
+    };
 
-  const handleScanInvoices = async (selectedFiles: Invoice[]) => {
-    setIsUploading(true);
-    const scanPromises = selectedFiles.map(
-      async (file) => await Invoice.scanAndUpdate(file.fileUrl),
+    return (
+      <div className="flex flex-row gap-2">
+        <div className="flex h-10 w-[300px] flex-row items-center gap-2 rounded-md border bg-transparent px-3 py-1 text-sm text-wm-white-500 transition-colors">
+          <MagnifyingGlassIcon
+            className="h-5 w-5 cursor-pointer"
+            onClick={() => searchFilterInputRef.current?.focus()}
+          />
+          <input
+            ref={searchFilterInputRef}
+            value={
+              (table
+                .getColumn('file_name&sender')
+                ?.getFilterValue() as string) ?? ''
+            }
+            onChange={(event) =>
+              table
+                .getColumn('file_name&sender')
+                ?.setFilterValue(event.target.value)
+            }
+            placeholder="Filter by invoice name or sender"
+            className="h-full w-full appearance-none bg-transparent text-black outline-none placeholder:text-wm-white-500 disabled:cursor-not-allowed disabled:opacity-50"
+          />
+        </div>
+        <DatePickerWithRange
+          placeholder="Filter by Date Invoiced"
+          onDateChange={setDateRange}
+          ref={dateRangeRef}
+        />
+        <Button
+          variant="ghost"
+          onClick={handleClearFilters}
+          className={
+            columnFilters.length === 0 && !dateRange.from ? 'hidden' : ''
+          }
+        >
+          Clear Filters
+        </Button>
+      </div>
     );
-    await Promise.all(scanPromises).then(() => {
-      tabValue && getCompanyInvoicesByStates([tabValue.state].flat(), setData);
-      setRowSelection({});
-      setIsUploading(false);
-    });
   };
 
-  const quickSubmit = async () => {
-    setIsUploading(true);
-    const submitPromises = selectedFilesUrls.map(async (file) => {
-      const transformedData = await Invoice.transformToQuickBooksInvoice(file);
-      await Invoice.uploadToQuickbooks(transformedData);
-    });
-    await Promise.all(submitPromises).then(() => {
-      tabValue && getCompanyInvoicesByStates([tabValue.state].flat(), setData);
-      setRowSelection({});
-      setIsUploading(false);
-    });
+  const ActionBar = () => {
+    const handleScanInvoices = async (selectedFiles: Invoice[]) => {
+      setIsUploading(true);
+      const scanPromises = selectedFiles.map(
+        async (file) => await Invoice.scanAndUpdate(file.fileUrl),
+      );
+      await Promise.all(scanPromises).then(() => {
+        tabValue &&
+          getCompanyInvoicesByStates([tabValue.state].flat(), setData);
+        setRowSelection({});
+        setIsUploading(false);
+      });
+    };
+
+    const quickSubmit = async () => {
+      setIsUploading(true);
+      const submitPromises = selectedFilesUrls.map(async (file) => {
+        const transformedData =
+          await Invoice.transformToQuickBooksInvoice(file);
+        await Invoice.uploadToQuickbooks(transformedData);
+      });
+      await Promise.all(submitPromises).then(() => {
+        tabValue &&
+          getCompanyInvoicesByStates([tabValue.state].flat(), setData);
+        setRowSelection({});
+        setIsUploading(false);
+      });
+    };
+
+    return (
+      <div className="flex flex-row gap-2">
+        <IfElseRender
+          condition={tabValue?.state === InvoiceStatus.UNPROCESSED}
+          ifTrue={
+            <Button
+              variant="secondary"
+              disabled={canActionBeDisabled && selectedFilesUrls.length === 0}
+              onClick={() => handleScanInvoices(selectedFilesUrls)}
+            >
+              <ScanIcon className="h-4 w-4" />
+              Scan Selected
+            </Button>
+          }
+          ifFalse={
+            <Button
+              variant="secondary"
+              disabled={canActionBeDisabled && selectedFilesUrls.length === 0}
+              onClick={() => onAction(selectedFilesUrls)}
+            >
+              {actionIcon}
+              {actionOnSelectText}
+            </Button>
+          }
+        />
+        <Button size={'icon'} variant={'outline'}>
+          <Ellipsis className="h-4 w-4" />
+        </Button>
+        {Object.keys(rowSelection).length > 0 &&
+          Object.keys(rowSelection).every(
+            (index) => data[Number(index)].status === InvoiceStatus.APPROVED,
+          ) && (
+            <Button onClick={quickSubmit}>
+              Quick Submit <PaperPlaneIcon className="h-4 w-4" />
+            </Button>
+          )}
+      </div>
+    );
   };
 
   return (
@@ -209,117 +296,38 @@ export function InvoiceDataTable<TData, TValue>({
       />
 
       <div>
-        <IfElseRender
-          condition={tabs.length > 0}
-          ifTrue={
-            <Tabs
-              defaultValue={tabs && (tabs[0]?.value as unknown as string)}
-              onValueChange={(value) =>
-                setTabValue(value as unknown as TabValue)
-              }
-              value={tabValue as unknown as string}
-            >
-              <TabsList className="h-fit rounded-b-none rounded-t-md border border-b-0">
-                {tabs &&
-                  tabs.map((tab) => (
-                    <TabsTrigger
-                      key={tab.title}
-                      value={tab.value as unknown as string}
-                      className="flex h-10 grow justify-start gap-2 data-[state=active]:border-b data-[state=active]:border-wm-orange data-[state=active]:text-wm-orange"
+        <Tabs
+          defaultValue={tabs && (tabs[0]?.value as unknown as string)}
+          onValueChange={(value) => setTabValue(value as unknown as TabValue)}
+          value={tabValue as unknown as string}
+        >
+          <TabsList className="h-fit rounded-b-none rounded-t-md border border-b-0">
+            {tabs &&
+              tabs.map((tab) => (
+                <TabsTrigger
+                  key={tab.title}
+                  value={tab.value as unknown as string}
+                  className="flex h-10 grow justify-start gap-2 data-[state=active]:border-b data-[state=active]:border-wm-orange data-[state=active]:text-wm-orange"
+                >
+                  {tab.icon}
+                  {tab.title}
+                  {tab.countKey && invoiceCounts && (
+                    <Button
+                      asChild
+                      className={`ml-1 !h-6 !w-5 text-xs ${tabValue != tab.value ? 'bg-gray-400' : ''}`}
+                      size={'sm'}
+                      type="button"
                     >
-                      {tab.icon}
-                      {tab.title}
-                      {tab.countKey && invoiceCounts && (
-                        <Button
-                          asChild
-                          className={`ml-1 !h-6 !w-5 text-xs ${tabValue != tab.value ? 'bg-gray-400' : ''}`}
-                          size={'sm'}
-                          type="button"
-                        >
-                          <span>{invoiceCounts[tab.countKey]}</span>
-                        </Button>
-                      )}
-                    </TabsTrigger>
-                  ))}
-              </TabsList>
-            </Tabs>
-          }
-          ifFalse={null}
-        />
-        <div className="flex w-full flex-row items-center justify-between gap-4 rounded-tr-md border-x border-t p-2">
-          <div className="flex flex-row gap-4">
-            <div className="flex h-10 w-[300px] flex-row items-center gap-2 rounded-md border bg-transparent px-3 py-1 text-sm text-wm-white-500 transition-colors">
-              <MagnifyingGlassIcon
-                className="h-5 w-5 cursor-pointer"
-                onClick={() => searchFilterInputRef.current?.focus()}
-              />
-              <input
-                ref={searchFilterInputRef}
-                value={
-                  (table
-                    .getColumn('file_name&sender')
-                    ?.getFilterValue() as string) ?? ''
-                }
-                onChange={(event) =>
-                  table
-                    .getColumn('file_name&sender')
-                    ?.setFilterValue(event.target.value)
-                }
-                placeholder="Filter by invoice name or sender"
-                className="h-full w-full appearance-none bg-transparent text-black outline-none placeholder:text-wm-white-500 disabled:cursor-not-allowed disabled:opacity-50"
-              />
-            </div>
-            <DatePickerWithRange
-              placeholder="Filter by Date Invoiced"
-              onDateChange={setDateRange}
-              ref={dateRangeRef}
-            />
-            <Button
-              variant="outline"
-              disabled={columnFilters.length === 0 && !dateRange.from}
-              onClick={handleClearFilters}
-            >
-              Clear Filters
-            </Button>
-          </div>
-          <div className="flex flex-row gap-4">
-            <IfElseRender
-              condition={tabValue?.state === InvoiceStatus.UNPROCESSED}
-              ifTrue={
-                <Button
-                  variant="secondary"
-                  disabled={
-                    canActionBeDisabled && selectedFilesUrls.length === 0
-                  }
-                  onClick={() => handleScanInvoices(selectedFilesUrls)}
-                >
-                  <ScanIcon className="h-4 w-4" />
-                  Scan Selected
-                </Button>
-              }
-              ifFalse={
-                <Button
-                  variant="secondary"
-                  disabled={
-                    canActionBeDisabled && selectedFilesUrls.length === 0
-                  }
-                  onClick={() => onAction(selectedFilesUrls)}
-                >
-                  {actionIcon}
-                  {actionOnSelectText}
-                </Button>
-              }
-            />
-            {Object.keys(rowSelection).length > 0 &&
-              Object.keys(rowSelection).every(
-                (index) =>
-                  data[Number(index)].status === InvoiceStatus.APPROVED,
-              ) && (
-                <Button onClick={quickSubmit}>
-                  Quick Submit <PaperPlaneIcon className="h-4 w-4" />
-                </Button>
-              )}
-          </div>
+                      <span>{invoiceCounts[tab.countKey]}</span>
+                    </Button>
+                  )}
+                </TabsTrigger>
+              ))}
+          </TabsList>
+        </Tabs>
+        <div className="flex w-full flex-row items-center justify-between rounded-tr-md border-x border-t p-2">
+          <FilterBar />
+          <ActionBar />
         </div>
         <div className="rounded-b-md border">
           <Table>
