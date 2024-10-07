@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useEffect, useMemo, useRef, useState } from 'react';
 
 import {
   MagnifyingGlassIcon,
@@ -182,52 +182,10 @@ export function InvoiceDataTable<TData, TValue>({
     setFilteredData(filtered);
   };
 
-  const FilterBar = () => {
-    const handleClearFilters = () => {
-      setColumnFilters([]);
-      setDateRange({ from: undefined, to: undefined });
-      dateRangeRef.current?.clearDate();
-    };
-
-    return (
-      <div className="flex flex-row gap-2">
-        <div className="flex h-10 w-[300px] flex-row items-center gap-2 rounded-md border bg-transparent px-3 py-1 text-sm text-wm-white-500 transition-colors">
-          <MagnifyingGlassIcon
-            className="h-5 w-5 cursor-pointer"
-            onClick={() => searchFilterInputRef.current?.focus()}
-          />
-          <input
-            ref={searchFilterInputRef}
-            value={
-              (table
-                .getColumn('file_name&sender')
-                ?.getFilterValue() as string) ?? ''
-            }
-            onChange={(event) =>
-              table
-                .getColumn('file_name&sender')
-                ?.setFilterValue(event.target.value)
-            }
-            placeholder="Filter by invoice name or sender"
-            className="h-full w-full appearance-none bg-transparent text-black outline-none placeholder:text-wm-white-500 disabled:cursor-not-allowed disabled:opacity-50"
-          />
-        </div>
-        <DatePickerWithRange
-          placeholder="Filter by Date Invoiced"
-          onDateChange={setDateRange}
-          ref={dateRangeRef}
-        />
-        <Button
-          variant="ghost"
-          onClick={handleClearFilters}
-          className={
-            columnFilters.length === 0 && !dateRange.from ? 'hidden' : ''
-          }
-        >
-          Clear Filters
-        </Button>
-      </div>
-    );
+  const handleClearFilters = () => {
+    setColumnFilters([]);
+    setDateRange({ from: undefined, to: undefined });
+    dateRangeRef.current?.clearDate();
   };
 
   const ActionBar = () => {
@@ -382,7 +340,43 @@ export function InvoiceDataTable<TData, TValue>({
           </TabsList>
         </Tabs>
         <div className="flex w-full flex-row items-center justify-between rounded-tr-md border-x border-t p-2">
-          <FilterBar />
+          <div className="flex flex-row gap-2">
+            <div className="flex h-10 w-[300px] flex-row items-center gap-2 rounded-md border bg-transparent px-3 py-1 text-sm text-wm-white-500 transition-colors">
+              <MagnifyingGlassIcon
+                className="pointer-events-none h-5 w-5 cursor-pointer"
+                onClick={() => searchFilterInputRef.current?.focus()}
+              />
+              <input
+                ref={searchFilterInputRef}
+                value={
+                  (table
+                    .getColumn('file_name&sender')
+                    ?.getFilterValue() as string) ?? ''
+                }
+                onChange={(event) =>
+                  table
+                    .getColumn('file_name&sender')
+                    ?.setFilterValue(event.target.value)
+                }
+                placeholder="Filter by invoice name or sender"
+                className="h-full w-full appearance-none bg-transparent text-black outline-none placeholder:text-wm-white-500 disabled:cursor-not-allowed disabled:opacity-50"
+              />
+            </div>
+            <DatePickerWithRange
+              placeholder="Filter by Date Invoiced"
+              onDateChange={setDateRange}
+              ref={dateRangeRef}
+            />
+            <Button
+              variant="ghost"
+              onClick={handleClearFilters}
+              className={
+                columnFilters.length === 0 && !dateRange.from ? 'hidden' : ''
+              }
+            >
+              Clear Filters
+            </Button>
+          </div>
           <ActionBar />
         </div>
         <div className="rounded-b-md border">
