@@ -265,6 +265,17 @@ export function InvoiceDataTable<TData, TValue>({
       });
     };
 
+    const deleteInvoicesBulk = async () => {
+      setIsUploading(true);
+      const invoiceIds = selectedFilesUrls.map((inv) => inv.id);
+      await Invoice.deleteBulk(invoiceIds).then(() => {
+        tabValue &&
+          getCompanyInvoicesByStates([tabValue.state].flat(), setData);
+        setRowSelection({});
+        setIsUploading(false);
+      });
+    };
+
     const MoreOptionsButton = () => {
       return (
         <DropdownMenu>
@@ -293,7 +304,7 @@ export function InvoiceDataTable<TData, TValue>({
                 Quick Submit
               </Button>
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={quickSubmit} asChild>
+            <DropdownMenuItem onClick={deleteInvoicesBulk} asChild>
               <Button
                 size={'sm'}
                 className="!h-fit w-48 justify-start gap-2 p-2"

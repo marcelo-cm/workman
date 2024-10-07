@@ -34,8 +34,9 @@ const buttonVariants = cva(
 const appearanceVariants = cva('', {
   variants: {
     appearance: {
-      destructive: 'hover:text-red-500',
-      'destructive-strong': 'text-red-500 hover:text-red-700',
+      destructive: 'hover:text-red-500 ring-red-500 hover:bg-red-100 ',
+      'destructive-strong':
+        'text-red-500 hover:text-red-700 hover:bg-red-100 ring-red-500',
     },
   },
 });
