@@ -280,6 +280,45 @@ export class Invoice {
     return mappedData;
   }
 
+  async delete() {
+    const { error } = await supabase
+      .from('invoices')
+      .delete()
+      .eq('id', this.id);
+
+    if (error) {
+      toast({
+        title: `Failed to delete invoice`,
+        description: 'Please try again later',
+        variant: 'destructive',
+      });
+      throw new Error(`Failed to delete invoice: ${error.message}`);
+    }
+
+    toast({
+      title: `Invoice deleted`,
+      variant: 'success',
+    });
+  }
+
+  static async deleteBulk(ids: UUID[]) {
+    const { error } = await supabase.from('invoices').delete().in('id', ids);
+
+    if (error) {
+      toast({
+        title: `Failed to delete invoices`,
+        description: 'Please try again later',
+        variant: 'destructive',
+      });
+      throw new Error(`Failed to delete invoices: ${error.message}`);
+    }
+
+    toast({
+      title: `Invoices deleted`,
+      variant: 'success',
+    });
+  }
+
   get id(): UUID {
     return this._id;
   }
