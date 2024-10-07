@@ -110,36 +110,38 @@ export function PaginatedComboBox<
   getOptionValue = (option) => String(option?.Id ?? option?.id),
   className,
 }: ComboBoxProps<T>) {
-  if (matchOnMount && !initialValue) {
-    throw new Error(
-      'If the PaginatedComboBox is matchOnMount, then you must provide an initialValue.',
-    );
-  }
-  if (matchOnMount && !fetchOnMount) {
-    throw new Error(
-      'PaginatedCombo, then you must provide a fetchOnMount function.',
-    );
-  }
-  if (!fetchNextPage) {
-    throw new Error(
-      '"PaginatedComboBox is paginated, but fetchNextPage was not provided"',
-    );
-  }
-  if (!(threshold >= 0 && limit >= 0)) {
-    throw new Error('The threshold and limit must be a positive number.');
+  {
+    if (matchOnMount && !initialValue) {
+      throw new Error(
+        'If the PaginatedComboBox is matchOnMount, then you must provide an initialValue.',
+      );
+    }
+    if (matchOnMount && !fetchOnMount) {
+      throw new Error(
+        'PaginatedCombo, then you must provide a fetchOnMount function.',
+      );
+    }
+    if (!fetchNextPage) {
+      throw new Error(
+        '"PaginatedComboBox is paginated, but fetchNextPage was not provided"',
+      );
+    }
+    if (!(threshold >= 0 && limit >= 0)) {
+      throw new Error('The threshold and limit must be a positive number.');
+    }
   }
 
   const [options, setOptions] = useState<T[]>([]);
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState<boolean>(false);
   const [value, setValue] = useState<T>(null!);
-  const [query, setQuery] = useState('');
-  const [page, setPage] = useState(1);
+  const [query, setQuery] = useState<string>('');
+  const [page, setPage] = useState<number>(1);
   const [isPending, startTransition] = useTransition();
   const [initialFetchCompleted, setInitialFetchCompleted] =
     useState<boolean>(false);
 
-  const initialFetch = useRef(true);
-  const canFetchMore = useRef(true);
+  const initialFetch = useRef<boolean>(true);
+  const canFetchMore = useRef<boolean>(true);
   const commandListRef = useRef<HTMLDivElement>(null);
 
   /**
@@ -155,9 +157,9 @@ export function PaginatedComboBox<
     [fetchNextPage],
   );
 
-  // /**
-  //  * Fetch first page on mount.
-  //  */
+  /**
+   * Fetch first page on mount.
+   */
   useEffect(() => {
     if (!initialFetch.current) return;
 
@@ -213,8 +215,6 @@ export function PaginatedComboBox<
         description: 'Please try again later.',
         variant: 'destructive',
       });
-
-      return false;
     }
   };
 
