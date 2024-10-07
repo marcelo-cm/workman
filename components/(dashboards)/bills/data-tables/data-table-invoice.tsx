@@ -274,6 +274,7 @@ export function InvoiceDataTable<TData, TValue>({
         setRowSelection({});
         setIsUploading(false);
       });
+      getInvoiceCounts().then(setInvoiceCounts);
     };
 
     const MoreOptionsButton = () => {
