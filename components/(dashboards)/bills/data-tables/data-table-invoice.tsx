@@ -9,7 +9,6 @@ import {
 } from '@radix-ui/react-icons';
 import { Ellipsis, ScanIcon } from 'lucide-react';
 
-import { PopoverTrigger } from '@radix-ui/react-popover';
 import {
   ColumnFiltersState,
   SortingState,
@@ -40,11 +39,6 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import IfElseRender from '@/components/ui/if-else-renderer';
-import {
-  Popover,
-  PopoverAnchor,
-  PopoverContent,
-} from '@/components/ui/popover';
 import {
   Table,
   TableBody,
@@ -357,7 +351,6 @@ export function InvoiceDataTable<TData, TValue>({
         isUploading={isUploading}
         n={selectedFilesUrls.length}
       />
-
       <div>
         <Tabs
           defaultValue={tabs && (tabs[0]?.value as unknown as string)}
