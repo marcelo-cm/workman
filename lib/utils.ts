@@ -41,7 +41,7 @@ export function stringSimilarity(str1: string, str2: string): number {
   return 1 - distance / Math.max(str1.length, str2.length);
 }
 
-function levenshtein(a: string, b: string): number {
+export function levenshtein(a: string, b: string): number {
   const an = a ? a.length : 0;
   const bn = b ? b.length : 0;
   if (an === 0) {
@@ -71,4 +71,16 @@ function levenshtein(a: string, b: string): number {
     }
   }
   return matrix[an][bn];
+}
+
+export function findMostSimilar<T>(
+  target: string,
+  options: T[],
+  getOptionValue: (option: T) => string = (option) => String(option),
+) {
+  return options.reduce((prev, curr) => {
+    const prevSimilarity = stringSimilarity(getOptionValue(prev), target);
+    const currSimilarity = stringSimilarity(getOptionValue(curr), target);
+    return currSimilarity > prevSimilarity ? curr : prev;
+  }, options[0]);
 }

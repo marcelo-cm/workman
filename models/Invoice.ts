@@ -330,7 +330,17 @@ export class Invoice {
   }
 
   async process() {
+    const { id } = await fetchUserData();
     const fileUrl = this.fileUrl;
+
+    if (!id) {
+      toast({
+        title: 'User ID not found',
+        description: 'Please try again later',
+        variant: 'destructive',
+      });
+      throw new Error('User ID not found');
+    }
 
     if (!fileUrl) {
       toast({
@@ -338,6 +348,7 @@ export class Invoice {
         description: 'Please try again later',
         variant: 'destructive',
       });
+      throw new Error('File URL not found');
     }
 
     const response = await fetch(`/api/v1/quickbooks/company/bill/process`, {
@@ -345,7 +356,7 @@ export class Invoice {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ fileUrl, invoiceId: this.id }),
+      body: JSON.stringify({ fileUrl, invoiceId: this.id, id }),
     });
 
     if (!response.ok) {
