@@ -44,13 +44,7 @@ pdfjs.GlobalWorkerOptions.workerSrc =
   'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.js';
 
 const PDFSplitterFileSplit = () => {
-  const {
-    filesToUpload,
-    setFilesToUpload,
-    filesToSplit,
-    setFilesToSplit,
-    setStage,
-  } = usePDFSplitter();
+  const { setFilesToUpload, filesToSplit, setStage } = usePDFSplitter();
   const PDFViewerParentRef = useRef<null | HTMLDivElement>(null);
   const PDFViewerRef = useRef<any>(null);
   const form = useForm<z.infer<typeof fileSpitSchema>>({
@@ -71,7 +65,6 @@ const PDFSplitterFileSplit = () => {
   const [currentlySelectedPage, setCurrentlySelectedPage] = useState<
     number | null
   >(null);
-  const [newPDFs, setNewPDFs] = useState<any[]>([]);
 
   useEffect(() => {
     function updatePDFViewerWidth() {

@@ -46,3 +46,18 @@ export type InvoiceCountsResponse = {
   [InvoiceCountResponseKeys.COMPANY_INBOX]: InvoiceCounts['company_inbox'];
   [InvoiceCountResponseKeys.AWAITING_REVIEW]: InvoiceCounts['awaiting_review'];
 };
+
+export interface ReceiptCounts {
+  company_inbox: number;
+  awaiting_review: number;
+}
+
+export enum ReceiptCountResponseKeys {
+  COMPANY_INBOX = 'company_inbox',
+  AWAITING_REVIEW = 'awaiting_review',
+}
+
+export type ReceiptCountsResponse = {
+  [ReceiptCountResponseKeys.COMPANY_INBOX]: ReceiptCounts['company_inbox'];
+  [ReceiptCountResponseKeys.AWAITING_REVIEW]: ReceiptCounts['awaiting_review'];
+};

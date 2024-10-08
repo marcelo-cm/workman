@@ -3,7 +3,7 @@ import React from 'react';
 import { UseFormReturn, useFieldArray } from 'react-hook-form';
 
 import ExtractionFormComponent from '../../components/ExtractionFormComponent';
-import InvoiceApprovals from '@/components/(shared)/invoices/InvoiceApprovals';
+import Approvals from '@/components/(shared)/Approvals';
 import LoadingState from '@/components/ui/empty-state';
 import {
   Form,
@@ -16,7 +16,7 @@ import {
 import IfElseRender from '@/components/ui/if-else-renderer';
 import { Textarea } from '@/components/ui/text-area';
 
-import { useExtractionReview } from '../../ExtractionReview';
+import { useInvoiceExtractionReview } from '../../InvoiceExtractionReview';
 import BillDetails from './BillDetails';
 import LineItems from './LineItems';
 
@@ -26,7 +26,7 @@ const InvoiceDataForm = ({
   form: UseFormReturn<any, any, undefined>;
 }) => {
   const { accounts, customers, vendors, files, activeIndex } =
-    useExtractionReview();
+    useInvoiceExtractionReview();
 
   const initialLoading = !(
     form &&
@@ -53,7 +53,7 @@ const InvoiceDataForm = ({
                   Everybody in this list must approve your bill before it is
                   allowed to be sent to QuickBooks.
                 </p>
-                <InvoiceApprovals invoice={files[activeIndex]} />
+                <Approvals approvable={files[activeIndex]} />
               </ExtractionFormComponent>
               <ExtractionFormComponent
                 label="Additional Details"

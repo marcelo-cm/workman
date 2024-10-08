@@ -4,9 +4,9 @@ import { useState } from 'react';
 
 import { Pencil2Icon } from '@radix-ui/react-icons';
 
-import { InvoiceDataTable } from '@/components/(dashboards)/bills/data-tables/invoices/data-table-invoice';
-import InvoiceExtractionReview from '@/components/(dashboards)/bills/extraction/InvoiceExtractionReview';
-import UploadInvoiceButton from '@/components/(shared)/general/UploadInvoiceButton';
+import { ReceiptDataTable } from '@/components/(dashboards)/receipts/data-tables/receipts/data-table-receipts';
+import ReceiptExtractionReview from '@/components/(dashboards)/receipts/extraction/ReceiptExtractionReview';
+import UploadReceiptButton from '@/components/(shared)/general/UploadReceiptButton';
 import {
   BreadcrumbItem,
   BreadcrumbLink,
@@ -14,13 +14,13 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
 
-import Invoice from '@/models/Invoice';
+import { Receipt } from '@/models/Receipt';
 
 export default function ForApproval() {
-  const [selectedFiles, setSelectedFiles] = useState<Invoice[]>([]); // Used for the Extraction Review component
+  const [selectedFiles, setSelectedFiles] = useState<Receipt[]>([]); // Used for the Extraction Review component
   const [review, setReview] = useState<boolean>(false);
 
-  const handleReviewSelected = async (files: Invoice[]) => {
+  const handleReviewSelected = async (files: Receipt[]) => {
     setSelectedFiles(files);
     setReview(true);
   };
@@ -28,24 +28,24 @@ export default function ForApproval() {
   return (
     <>
       {review ? (
-        <InvoiceExtractionReview files={selectedFiles} />
+        <ReceiptExtractionReview files={selectedFiles} />
       ) : (
         <div className="flex h-full w-full flex-col gap-4 px-4 py-8">
           <BreadcrumbList className="text-wm-white-400">
             <BreadcrumbItem>Dashboard</BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbLink className="text-black" href="/bills">
-              Bills
+              Receipts
             </BreadcrumbLink>
           </BreadcrumbList>
           <div className="flex w-full flex-row justify-between font-poppins text-4xl">
-            Bills <UploadInvoiceButton />
+            Receipts <UploadReceiptButton />
           </div>
           <p>
-            Upload your file and we'll process it for you. Select multiple files
-            to below to review the scan and upload to QuickBooks.
+            Upload an image of your receipt and we'll process it for you. Select
+            multiple files to below to review the scan and upload to QuickBooks.
           </p>
-          <InvoiceDataTable
+          <ReceiptDataTable
             onAction={handleReviewSelected}
             actionIcon={<Pencil2Icon />}
             actionOnSelectText="Review Selected"

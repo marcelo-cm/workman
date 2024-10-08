@@ -8,6 +8,7 @@ import {
   useEffect,
   useState,
 } from 'react';
+import React from 'react';
 
 import {
   CaretDownIcon,
@@ -15,7 +16,8 @@ import {
   CaretRightIcon,
 } from '@radix-ui/react-icons';
 
-import PDFViewer from '@/components/(shared)/PDF/PDFViewer';
+import Image from 'next/image';
+
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -32,12 +34,12 @@ import { useCustomer } from '@/lib/hooks/quickbooks/useCustomer';
 import { useVendor } from '@/lib/hooks/quickbooks/useVendor';
 
 import { Account, Customer, Vendor } from '@/interfaces/quickbooks.interfaces';
-import Invoice from '@/models/Invoice';
+import { Receipt } from '@/models/Receipt';
 
 import ExtractionTabs from './(tabs)/ExtractionTabs';
 
 interface ExtractionReviewContext {
-  files: Invoice[];
+  files: Receipt[];
   accounts: Account[];
   vendors: Vendor[];
   customers: Customer[];
@@ -58,18 +60,18 @@ const ExtractionReviewContext = createContext<ExtractionReviewContext>(
   defaultExtractionReviewContext,
 );
 
-export const useExtractionReview = () => {
+export const useReceiptExtractionReview = () => {
   return useContext(ExtractionReviewContext);
 };
 
-const ExtractionReview = ({ files }: { files: Invoice[] }) => {
+const ReceiptExtractionReview = ({ files }: { files: Receipt[] }) => {
   const [vendors, setVendors] = useState<Vendor[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [activeIndex, setActiveIndex] = useState(0);
-  const { getVendorList, getAllVendors } = useVendor();
-  const { getCustomerList, getAllCustomers } = useCustomer();
-  const { getAccountList, getAllAccounts } = useAccount();
+  const { getVendorList } = useVendor();
+  const { getCustomerList } = useCustomer();
+  const { getAccountList } = useAccount();
 
   useEffect(() => {
     if (!files) return;
@@ -79,22 +81,19 @@ const ExtractionReview = ({ files }: { files: Invoice[] }) => {
   }, [files]);
 
   const fetchVendors = async () => {
-    // const columns: (keyof Vendor)[] = ['DisplayName', 'Id'];
-    // await getVendorList(columns, null, setVendors);
-    await getAllVendors(setVendors);
+    const columns: (keyof Vendor)[] = ['DisplayName', 'Id'];
+    await getVendorList(columns, null, setVendors);
   };
 
   const fetchCustomers = async () => {
-    // const columns: (keyof Customer)[] = ['DisplayName', 'Id'];
-    // await getCustomerList(columns, null, setCustomers);
-    await getAllCustomers(setCustomers);
+    const columns: (keyof Customer)[] = ['DisplayName', 'Id'];
+    await getCustomerList(columns, null, setCustomers);
   };
 
   const fetchAccounts = async () => {
-    // const columns: (keyof Account)[] = ['Name', 'Id'];
-    // const where = "Classification = 'Expense'";
-    // await getAccountList(columns, where, setAccounts);
-    await getAllAccounts(setAccounts);
+    const columns: (keyof Account)[] = ['Name', 'Id'];
+    const where = "Classification = 'Expense'";
+    await getAccountList(columns, where, setAccounts);
   };
 
   const handleSetActiveIndex = (increment: 1 | -1) => {
@@ -133,9 +132,7 @@ const ExtractionReview = ({ files }: { files: Invoice[] }) => {
               <DropdownMenuTrigger asChild>
                 <div className="flex h-10 min-h-10 cursor-pointer items-center justify-between border-b bg-wm-white-50 px-2 text-sm hover:bg-wm-white-100">
                   <div className="ellipsis flex items-center gap-1 ">
-                    {decodeURI(
-                      files[activeIndex].fileUrl.split('/')[8].split('.pdf')[0],
-                    )}
+                    {files[activeIndex].fileName}
                     <CaretDownIcon />
                   </div>
                   <div>
@@ -150,9 +147,9 @@ const ExtractionReview = ({ files }: { files: Invoice[] }) => {
                   <DropdownMenuItem
                     key={index}
                     onClick={() => setActiveIndex(index)}
-                    className="flex cursor-pointer items-center justify-between gap-4 rounded-md hover:bg-wm-white-50"
+                    className="hover flex cursor-pointer items-center justify-between gap-4 rounded-md hover:bg-wm-white-50"
                   >
-                    {decodeURI(file.fileUrl.split('/')[8].split('.pdf')[0])}
+                    {file.fileName}
                     {activeIndex === index ? (
                       <Badge variant="success">Active</Badge>
                     ) : null}
@@ -160,8 +157,14 @@ const ExtractionReview = ({ files }: { files: Invoice[] }) => {
                 ))}
               </DropdownMenuContent>
             </DropdownMenu>
-            <div className="no-scrollbar h-full w-full overflow-y-scroll bg-wm-white-50 p-4">
-              <PDFViewer file={files[activeIndex].fileUrl} zoomable />
+            <div className="no-scrollbar h-full w-[545px] overflow-y-scroll bg-wm-white-50 p-4">
+              <Image
+                src={files[activeIndex].fileUrl}
+                className="border"
+                width={545}
+                height={1000}
+                alt={files[activeIndex].fileName}
+              />
             </div>
             <div className="sticky bottom-0 flex h-14 min-h-14 items-center gap-2 border-t bg-white px-2">
               <Button
@@ -188,4 +191,4 @@ const ExtractionReview = ({ files }: { files: Invoice[] }) => {
   );
 };
 
-export default ExtractionReview;
+export default ReceiptExtractionReview;

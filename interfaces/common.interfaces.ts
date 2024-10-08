@@ -1,3 +1,6 @@
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+
 /**
  * This is the data we save from the API call to the OCR service. It's achieved by parsing the JSON response using Invoice.parse.
  */
@@ -15,14 +18,14 @@ export interface InvoiceData {
   totalNet: number;
   totalAmount: number;
   totalTax: string;
-  lineItems: LineItem[];
+  lineItems: InvoiceLineItem[];
   notes: string;
 }
 
 /**
  * Represents a line item in an invoice as it's saved in the database.
  */
-export interface LineItem {
+export interface InvoiceLineItem {
   confidence: number;
   description: string;
   productCode?: string;
@@ -30,4 +33,16 @@ export interface LineItem {
   totalAmount: string;
   unitPrice: number;
   pageId: number;
+  // polygon: Polygon;
 }
+
+export const ReceiptDataSchema = z.object({
+  category: z.string(),
+  date: z.string(),
+  supplierName: z.string(),
+  totalNet: z.string(),
+  description: z.string(),
+  customerName: z.string(),
+});
+
+export type ReceiptData = z.infer<typeof ReceiptDataSchema>;

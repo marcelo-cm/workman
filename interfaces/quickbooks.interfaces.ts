@@ -1,4 +1,4 @@
-import { LineItem } from './common.interfaces';
+import { InvoiceLineItem } from './common.interfaces';
 import { Invoice } from './db.interfaces';
 
 export interface Vendor {
@@ -85,7 +85,7 @@ export interface Invoice_Quickbooks extends Omit<Invoice, 'data'> {
   };
 }
 
-export interface LineItem_QuickBooks extends LineItem {
+export interface LineItem_QuickBooks extends InvoiceLineItem {
   customerId: string;
   billable: boolean;
   accountId: string;

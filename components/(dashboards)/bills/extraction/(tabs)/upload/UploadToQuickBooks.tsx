@@ -13,12 +13,12 @@ import { TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Invoice_Quickbooks, Vendor } from '@/interfaces/quickbooks.interfaces';
 import Invoice from '@/models/Invoice';
 
-import { useExtractionReview } from '../../ExtractionReview';
+import { useInvoiceExtractionReview } from '../../InvoiceExtractionReview';
 import InvoiceDataTable from './InvoiceDataTable';
 
 const UploadToQuickBooks = () => {
   const { files, accounts, vendors, customers, activeIndex, setActiveIndex } =
-    useExtractionReview();
+    useInvoiceExtractionReview();
   const [uploadedFileIndexes, setUploadedFileIndexes] = useState<number[]>([]);
   const [transformedFiles, setTransformedFiles] = useState<
     Invoice_Quickbooks[]

@@ -8,6 +8,7 @@ import PDFViewer from '@/components/(shared)/PDF/PDFViewer';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+import Chip from '@/components/ui/chip';
 import {
   Tooltip,
   TooltipContent,
@@ -16,7 +17,7 @@ import {
 } from '@/components/ui/tooltip';
 
 import { formatDate, sliceWithEllipsis } from '@/lib/utils';
-import Invoice from '@/models/Invoice';
+import { Receipt } from '@/models/Receipt';
 
 // define badge type by status type
 type BadgeType = 'success' | 'destructive' | 'warning' | 'info';
@@ -35,7 +36,7 @@ function getBadgeType(status: string): BadgeType {
   }
 }
 
-export const columns: ColumnDef<Invoice>[] = [
+export const columns: ColumnDef<Receipt>[] = [
   {
     id: 'select',
     header: ({ table }) => (
@@ -55,39 +56,25 @@ export const columns: ColumnDef<Invoice>[] = [
         aria-label="Select row"
       />
     ),
-    enableSorting: false,
   },
   {
-    accessorKey: 'file_name&sender',
-    accessorFn: (row) =>
-      decodeURI(
-        row.fileUrl.split('/')[8]?.split('.pdf')[0] +
-          ' ' +
-          row.data.supplierName,
-      ),
+    id: 'supplier',
+    accessorKey: 'data.supplierName',
     header: ({ column }) => {
-      return <div>Invoice Name & Company</div>;
+      return <div>Vendor</div>;
     },
     cell: ({ row }) => {
       return (
         <TooltipProvider>
           <Tooltip>
             <TooltipContent side="right">
-              <div className="no-scrollbar max-h-[600px] overflow-x-hidden overflow-y-scroll">
-                <PDFViewer file={row.original.fileUrl} width={400} />
+              <div className="no-scrollbar max-w-[600px] overflow-x-hidden overflow-y-scroll">
+                <img src={row?.original?.fileUrl} alt="Receipt" />
               </div>
             </TooltipContent>
-            <TooltipTrigger asChild>
+            <TooltipTrigger>
               <div className="flex w-fit flex-col">
                 <div className="w-fit">{row.original?.data?.supplierName}</div>
-                <div className="text-xs text-wm-white-300">
-                  {sliceWithEllipsis(
-                    decodeURI(
-                      row.original.fileUrl.split('/')[8].split('.pdf')[0],
-                    ),
-                    35,
-                  )}
-                </div>
               </div>
             </TooltipTrigger>
           </Tooltip>
@@ -96,26 +83,38 @@ export const columns: ColumnDef<Invoice>[] = [
     },
   },
   {
-    accessorKey: 'data.invoiceNumber',
-    header: () => <div>Invoice No.</div>,
-    cell: ({ row }) => (
-      <Badge variant="info">
-        {row.original.data.invoiceNumber || (
-          <em className="text-wm-white-300">None</em>
-        )}
-      </Badge>
-    ),
+    id: 'category',
+    accessorKey: 'data.category',
+    header: 'Category',
+    cell: ({ row }) => {
+      return <Chip>{row?.original?.data?.category}</Chip>;
+    },
   },
   {
-    accessorKey: 'date_due',
-    accessorFn: (row) => new Date(row.data.dueDate),
+    id: 'project',
+    header: 'Project / Customer',
+    cell: ({ row }) => {
+      return (
+        <span>
+          {row?.original?.data?.customerName == 'Unassigned' ? (
+            <em className="text-wm-white-300">Unassigned</em>
+          ) : (
+            row?.original?.data?.customerName
+          )}
+        </span>
+      );
+    },
+  },
+  {
+    id: 'date',
+    accessorKey: 'data.date',
     header: ({ column }) => (
       <Button
         variant="ghost"
         onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
         className="-translate-x-2 px-2 py-0"
       >
-        Date Due
+        Transaction Date
         {column.getIsSorted() === 'asc' ? (
           <CaretUpIcon className="h-4 w-4" />
         ) : (
@@ -123,34 +122,13 @@ export const columns: ColumnDef<Invoice>[] = [
         )}
       </Button>
     ),
-    cell: ({ row }) => (
-      <div>{formatDate(new Date(row.original.data.dueDate))}</div>
-    ),
+    cell: ({ row }) => {
+      return <div>{formatDate(new Date(row?.original?.data?.date))}</div>;
+    },
   },
   {
-    accessorKey: 'date_invoiced',
-    accessorFn: (row) => new Date(row.data.date),
-    header: ({ column }) => (
-      <Button
-        variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        className="-translate-x-2 px-2 py-0"
-      >
-        Date Invoiced
-        {column.getIsSorted() === 'asc' ? (
-          <CaretUpIcon className="h-4 w-4" />
-        ) : (
-          <CaretDownIcon className="h-4 w-4" />
-        )}
-      </Button>
-    ),
-    cell: ({ row }) => (
-      <div>{formatDate(new Date(row.original.data.date))}</div>
-    ),
-  },
-  {
-    accessorKey: 'balance',
-    accessorFn: (row) => row.data.totalNet,
+    id: 'total_amount',
+    accessorKey: 'data.totalAmount',
     header: ({ column }) => (
       <Button
         variant="ghost"
@@ -169,18 +147,20 @@ export const columns: ColumnDef<Invoice>[] = [
       const formatted = new Intl.NumberFormat('en-US', {
         style: 'currency',
         currency: 'USD',
-      }).format(row.original.data.totalNet);
+      }).format(parseFloat(row?.original?.data?.totalNet));
 
       return <div>{formatted}</div>;
     },
   },
   {
-    accessorKey: 'status',
-    header: () => <div>Status</div>,
+    id: 'status',
+    accessorKey: 'data.status',
+    header: 'Status',
     cell: ({ row }) => {
-      const status = row.original.status;
       return (
-        <Badge variant={getBadgeType(status)}>{status.replace('_', ' ')}</Badge>
+        <Badge variant={getBadgeType(row?.original?.status)}>
+          {row?.original?.status}
+        </Badge>
       );
     },
   },

@@ -1,5 +1,7 @@
 import { decode } from 'base64-arraybuffer';
 import { UUID } from 'crypto';
+import { PredictResponse } from 'mindee';
+import { InvoiceV4 } from 'mindee/src/product';
 
 import { toast } from '@/components/ui/use-toast';
 
@@ -60,7 +62,6 @@ export class Invoice {
     let data, error;
     if (file instanceof File) {
       const filePath = `/${file.name}_${new Date().getTime()}`;
-
       ({ data, error } = await supabase.storage
         .from('invoices')
         .upload(filePath, file));
@@ -187,7 +188,7 @@ export class Invoice {
     });
   }
 
-  static async update(fileUrl: string, data: any) {
+  static async update(fileUrl: string, data: InvoiceData) {
     const { data: updatedData, error } = await supabase
       .from('invoices')
       .update({ data, status: 'FOR_REVIEW' })
@@ -213,7 +214,7 @@ export class Invoice {
 
   static async scanAndUpdate(fileUrl: string) {
     const apiResponse = await mindeeScan(fileUrl);
-    const parsedResponse = JSON.parse(apiResponse);
+    const parsedResponse: PredictResponse<InvoiceV4> = JSON.parse(apiResponse);
     const parsedData = await Invoice.parse(parsedResponse);
     const updatedData = await Invoice.update(fileUrl, parsedData);
     return parsedData;
@@ -237,7 +238,9 @@ export class Invoice {
     return data[0];
   }
 
-  static async parse(parsedApiResponse: any) {
+  static async parse(
+    parsedApiResponse: PredictResponse<InvoiceV4>,
+  ): Promise<InvoiceData> {
     const prediction = parsedApiResponse.document.inference.prediction;
 
     const mappedData = {
@@ -253,31 +256,22 @@ export class Invoice {
       shippingAddress: prediction.shippingAddress?.value || '',
       totalNet: prediction.totalNet?.value || 0,
       totalAmount: prediction.totalAmount?.value || 0,
-      totalTax: prediction.totalTax?.value || 0,
+      totalTax: prediction.totalTax?.value?.toFixed(2) || '0',
       lineItems:
-        prediction.lineItems?.map(
-          (item: {
-            confidence: number;
-            description: string;
-            productCode: string;
-            quantity: number;
-            totalAmount: number;
-            unitPrice: number;
-            pageId: number;
-          }) => ({
-            confidence: item.confidence || 0,
-            description: item.description || '',
-            productCode: item.productCode || '',
-            quantity: item.quantity || 0,
-            totalAmount: item.totalAmount.toFixed(2) || 0,
-            unitPrice: item.unitPrice || 0,
-            pageId: item.pageId || 0,
-          }),
-        ) || [],
+        prediction.lineItems?.map((item) => ({
+          confidence: item.confidence || 0,
+          description: item.description || '',
+          productCode: item.productCode || '',
+          quantity: item.quantity || 0,
+          totalAmount: item?.totalAmount?.toFixed(2) || '0',
+          unitPrice: item.unitPrice || 0,
+          pageId: item.pageId || 0,
+          polygon: item.polygon,
+        })) || [],
       notes: '',
     };
 
-    return mappedData;
+    return mappedData as InvoiceData;
   }
 
   async delete() {
@@ -343,7 +337,7 @@ export class Invoice {
     return this._company;
   }
 
-  get status(): string {
+  get status(): InvoiceStatus {
     return this._status;
   }
 
@@ -407,6 +401,10 @@ export class Invoice {
     return this._data.notes;
   }
 
+  get fileName(): string {
+    return this._file_url.split('/').pop()?.split('.pdf')[0] || '';
+  }
+
   set data(data: InvoiceData) {
     this._data = data;
   }
@@ -433,9 +431,9 @@ export class Invoice {
         notes: invoice.notes,
         lineItems: invoice.lineItems.map((item: LineItem_QuickBooks) => ({
           ...item,
-          customerId: item.customerId,
+          customerId: '',
           billable: false,
-          accountId: item.accountId,
+          accountId: '',
         })),
       },
     };
