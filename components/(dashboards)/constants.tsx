@@ -20,6 +20,6 @@ export const MENU_TABS: {
     name: 'Receipts',
     route: '/receipts',
     trailingIcon: <ReceiptIcon className="h-4 w-4" />,
-    disabled: false,
+    disabled: true,
   },
 ];
