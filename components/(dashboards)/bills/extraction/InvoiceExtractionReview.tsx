@@ -148,7 +148,7 @@ const InvoiceExtractionReview = ({ files }: { files: Invoice[] }) => {
                   <DropdownMenuItem
                     key={index}
                     onClick={() => setActiveIndex(index)}
-                    className="hover flex cursor-pointer items-center justify-between gap-4 rounded-md hover:bg-wm-white-50"
+                    className="flex cursor-pointer items-center justify-between gap-4 rounded-md hover:bg-wm-white-50"
                   >
                     {decodeURI(file.fileUrl.split('/')[8].split('.pdf')[0])}
                     {activeIndex === index ? (
