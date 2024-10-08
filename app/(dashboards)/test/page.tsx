@@ -40,14 +40,33 @@ const page = () => {
   };
 
   useEffect(() => {
-    getAllVendors(setVendors);
+    // getAllVendors(setVendors);
   }, []);
 
   const onInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files) return;
+    const fileList = e.target.files;
+    if (!fileList) return;
 
-    console.log(e.target.files[0]);
-    setFile(e.target.files[0]);
+    const file = fileList[0];
+
+    console.log(file);
+    setFile(file);
+  };
+
+  const uploadInvoice = async () => {
+    if (!file) return;
+
+    const fileUrl = await Invoice.uploadToStorage(file);
+    const invoice = await Invoice.create(fileUrl);
+    setInvoice(invoice);
+  };
+
+  const processInvoice = async () => {
+    if (!invoice) return;
+
+    const { data } = await invoice.process();
+    console.log(data[0]);
+    setInvoice(data[0]);
   };
 
   return (
@@ -65,7 +84,7 @@ const page = () => {
       </TabsList>
       <section className="flex h-full w-full flex-col items-center justify-center">
         <TabsContent value="1">
-          <PaginatedComboBox
+          {/* <PaginatedComboBox
             getOptionLabel={(option: Vendor) => option.DisplayName}
             getOptionValue={(option: Vendor) => option?.Id}
             initialValue={
@@ -79,19 +98,32 @@ const page = () => {
             getOptionLabel={(option: Vendor) => option.DisplayName}
             options={vendors}
             valueToMatch={'1forall Software'}
-          />
+          /> */}
         </TabsContent>
         <TabsContent value="2" className="flex flex-col items-center gap-8">
           <Container className="p-4">
-            {file?.name ?? 'No file selected'}
-            {file && <PDFViewer file={file} />}
+            <PDFViewer
+              file={file ? file : ''}
+              customPageHeader={
+                <p className="text-xs">{file?.name ?? 'No file selected'}</p>
+              }
+              width={250}
+            />
           </Container>
           <Input
             type="file"
             onChange={onInputChange}
             accept="application/pdf"
           />
-          <Button>Upload</Button>
+          <Button onClick={uploadInvoice} disabled={!file || !!invoice}>
+            Upload
+          </Button>
+          <Button onClick={processInvoice} disabled={!invoice}>
+            Process
+          </Button>
+          <Container className="w-96 max-w-96 p-4 ">
+            <p>{JSON.stringify(invoice)}</p>
+          </Container>
         </TabsContent>
       </section>
     </Tabs>

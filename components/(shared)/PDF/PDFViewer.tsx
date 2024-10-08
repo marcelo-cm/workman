@@ -3,12 +3,12 @@ import React, { forwardRef, useImperativeHandle, useState } from 'react';
 import { MinusIcon, PlusIcon } from '@radix-ui/react-icons';
 import { Loader2Icon } from 'lucide-react';
 
-import { Document, Page } from 'react-pdf';
+import { Document, Page, pdfjs } from 'react-pdf';
 
 import Container from '@/components/ui/container';
 
-// pdfjs.GlobalWorkerOptions.workerSrc =
-//   'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.js';
+pdfjs.GlobalWorkerOptions.workerSrc =
+  'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.js';
 
 const MIN_ZOOM = 1;
 const MAX_ZOOM = 2;

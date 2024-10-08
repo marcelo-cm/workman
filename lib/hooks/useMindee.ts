@@ -20,5 +20,3 @@ export const scanInvoiceByURL = async (fileUrl: string) => {
 
   return JSON.stringify(respPromise);
 };
-
-export const scanInvoiceByFile = async (file: File) => {};

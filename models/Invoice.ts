@@ -58,60 +58,14 @@ export class Invoice {
     this._company = new Company(company);
   }
 
+  /**
+   * Should be deprecated in favor of `uploadToStorage` and `create`
+   */
   static async upload(file: File | PDFData) {
-    let data, error;
-    if (file instanceof File) {
-      const filePath = `/${file.name}_${new Date().getTime()}`;
-      ({ data, error } = await supabase.storage
-        .from('invoices')
-        .upload(filePath, file));
-
-      if (error) {
-        toast({
-          title: `Failed to upload file ${file.name}`,
-          description: 'Please try to upload this document again',
-          variant: 'destructive',
-        });
-        throw new Error(`Failed to upload file: ${error.message}`);
-      }
-
-      toast({
-        title: `${file.name} uploaded to storage successfully`,
-        variant: 'success',
-      });
-    } else {
-      const filePath = `/${file.filename}_${new Date().getTime()}`;
-      ({ data, error } = await supabase.storage
-        .from('invoices')
-        .upload(filePath, decode(file.base64), {
-          contentType: 'application/pdf',
-        }));
-
-      if (error) {
-        toast({
-          title: `Failed to upload file ${file.filename}`,
-          description: 'Please try to upload this document again',
-          variant: 'destructive',
-        });
-        throw new Error(`Failed to upload file: ${error.message}`);
-      }
-    }
-
-    if (!data) {
-      toast({
-        title: `Failed to upload file`,
-        description: 'Please try to upload this document again',
-        variant: 'destructive',
-      });
-      throw new Error(`Failed to upload file`);
-    }
+    const publicUrl = await Invoice.uploadToStorage(file);
 
     const user = await fetchUserData();
     const id = user.id;
-
-    const {
-      data: { publicUrl },
-    } = await supabase.storage.from('invoices').getPublicUrl(data.path);
 
     const { error: invoiceError } = await supabase.from('invoices').insert([
       {
@@ -134,6 +88,68 @@ export class Invoice {
     toast({
       title: `${file instanceof File ? file.name : file.filename} uploaded to database`,
     });
+
+    return publicUrl;
+  }
+
+  static async create(file_url: string, data?: InvoiceData): Promise<Invoice> {
+    const { data: invoice, error } = await supabase
+      .from('invoices')
+      .insert({
+        data,
+        file_url,
+      })
+      .select('*, principal: users(name, email, id), company: companies(*)')
+      .single();
+
+    if (error || !invoice) {
+      toast({
+        title: 'Failed to create invoice',
+        variant: 'destructive',
+      });
+      throw new Error(`Failed to create invoice: ${error?.message}`);
+    }
+
+    toast({
+      title: 'Invoice created',
+      variant: 'success',
+    });
+
+    return new Invoice(invoice);
+  }
+
+  static async uploadToStorage(file: File | PDFData): Promise<string> {
+    let filePath, fileBody: File | ArrayBuffer;
+
+    if (file instanceof File) {
+      filePath = `/${file.name}_${new Date().getTime()}`;
+      fileBody = file;
+    } else {
+      filePath = `/${file.filename}_${new Date().getTime()}`;
+      fileBody = decode(file.base64);
+    }
+
+    const { data, error } = await supabase.storage
+      .from('invoices')
+      .upload(filePath, fileBody);
+
+    if (error) {
+      toast({
+        title: `Failed to upload ${file instanceof File ? file.name : decodeURI(file.filename)}`,
+        description: 'Please try to upload this document again',
+        variant: 'destructive',
+      });
+      throw new Error(`Failed to upload file: ${error.message}`);
+    }
+
+    toast({
+      title: `${file instanceof File ? file.name : decodeURI(file.filename)} uploaded to storage successfully`,
+      variant: 'success',
+    });
+
+    const {
+      data: { publicUrl },
+    } = await supabase.storage.from('invoices').getPublicUrl(data.path);
 
     return publicUrl;
   }
