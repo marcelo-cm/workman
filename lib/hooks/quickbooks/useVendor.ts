@@ -15,7 +15,7 @@ const { fetchUserData } = useUser();
 export const useVendor = () => {
   const getVendorList = async (
     columns: (keyof Vendor)[] | ['*'] = ['*'],
-    where: string | null = null,
+    query: string | null = null,
     setVendorCallback?: Function | Dispatch<SetStateAction<Vendor[]>>,
   ): Promise<Vendor[]> => {
     try {
@@ -24,7 +24,7 @@ export const useVendor = () => {
       const columnsToSelect = columns.join(',');
 
       const response = await fetch(
-        `/api/v1/quickbooks/company/vendor?userId=${userId}&select=${columnsToSelect}${where ? `&where=${where}` : ''}`,
+        `/api/v1/quickbooks/company/vendor?userId=${userId}&select=${columnsToSelect}${query ? `&where=${query}` : ''}`,
         {
           method: 'GET',
           headers: {
@@ -52,6 +52,44 @@ export const useVendor = () => {
       return vendors;
     } catch (error) {
       throw new Error(`Failed to get vendor list ${error}`);
+    }
+  };
+
+  const getAllVendors = async (
+    setVendorCallback?: Function | Dispatch<SetStateAction<Vendor[]>>,
+  ): Promise<Vendor[]> => {
+    try {
+      const userData = await fetchUserData();
+      const userId = userData.id;
+
+      const response = await fetch(
+        `/api/v1/quickbooks/company/vendor/all?userId=${userId}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          next: {
+            revalidate: 900,
+          },
+        },
+      );
+
+      if (!response.ok) {
+        toast({
+          title: 'Error fetching vendors',
+          description: response.statusText,
+          variant: 'destructive',
+        });
+        throw new Error('Failed to fetch vendors');
+      }
+
+      const vendors = await response.json();
+
+      setVendorCallback && setVendorCallback(vendors);
+      return vendors;
+    } catch (error) {
+      throw new Error(`Failed to get all vendors ${error}`);
     }
   };
 
@@ -150,6 +188,7 @@ export const useVendor = () => {
 
   return {
     getVendorList,
+    getAllVendors,
     getVendorByID,
     getDefaultCategoryByVendorName,
     saveDefaultCategory,

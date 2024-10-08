@@ -4,6 +4,10 @@ import { toast } from '@/components/ui/use-toast';
 
 import { createClient as createSupabaseClient } from '@/lib/utils/supabase/client';
 
+import { useUser } from '../supabase/useUser';
+
+const { fetchUserData } = useUser();
+
 export const useAccount = () => {
   const supabase = createSupabaseClient();
 
@@ -62,5 +66,40 @@ export const useAccount = () => {
     }
   };
 
-  return { getAccountList };
+  const getAllAccounts = async (
+    setAccountCallback?: React.Dispatch<SetStateAction<any[]>>,
+  ): Promise<any[]> => {
+    try {
+      const userData = await fetchUserData();
+      const userId = userData.id;
+
+      const response = await fetch(
+        `/api/v1/quickbooks/company/account/all?userId=${userId}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        },
+      );
+
+      if (!response.ok) {
+        toast({
+          title: 'Error fetching accounts',
+          description: response.statusText,
+          variant: 'destructive',
+        });
+        throw new Error('Failed to fetch accounts');
+      }
+
+      const accounts = await response.json();
+
+      setAccountCallback && setAccountCallback(accounts);
+      return accounts;
+    } catch (error) {
+      throw new Error(`Failed to get Account list ${error}`);
+    }
+  };
+
+  return { getAccountList, getAllAccounts };
 };

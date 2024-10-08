@@ -4,11 +4,15 @@ import { Loader2Icon } from 'lucide-react';
 
 const LoadingState = ({
   message = 'Loading...',
+  isLoading = true,
   className,
 }: {
   message?: string;
+  isLoading?: boolean;
   className?: string;
 }) => {
+  if (!isLoading) return null;
+
   return (
     <div
       className={`flex h-96 w-full animate-pulse items-center justify-center rounded-md border bg-wm-white-50 ${className}`}

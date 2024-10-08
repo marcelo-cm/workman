@@ -12,8 +12,7 @@
     "lint:fix": "prettier --write . && type",
     "format": "prettier --write .",
     "analyze": "ANALYZE=true next build",
-    "clean": "rm -rf .next/ && next build",
-    "db:generate": "npx supabase gen types typescript --project-id nyihnifdeasiteiwlghu > lib/database.types.ts"
+    "clean": "rm -rf .next/ && next build"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.3.4",
@@ -43,6 +42,7 @@
     "cmdk": "^1.0.0",
     "date-fns": "^3.6.0",
     "http-status-codes": "^2.3.0",
+    "lodash": "^4.17.21",
     "lucide-react": "^0.378.0",
     "mindee": "^4.11.0",
     "next": "14.2.3",
@@ -61,6 +61,7 @@
     "@testing-library/react": "^16.0.0",
     "@trivago/prettier-plugin-sort-imports": "^4.3.0",
     "@types/jest": "^29.5.12",
+    "@types/lodash": "^4.17.7",
     "@types/node": "^20.14.15",
     "@types/react": "^18",
     "@types/react-dom": "^18",

@@ -5,6 +5,10 @@ import { toast } from '@/components/ui/use-toast';
 import { Customer } from '@/interfaces/quickbooks.interfaces';
 import { createClient as createSupabaseClient } from '@/lib/utils/supabase/client';
 
+import { useUser } from '../supabase/useUser';
+
+const { fetchUserData } = useUser();
+
 export const useCustomer = () => {
   const supabase = createSupabaseClient();
 
@@ -63,5 +67,39 @@ export const useCustomer = () => {
     }
   };
 
-  return { getCustomerList };
+  const getAllCustomers = async (
+    setCustomerCallback?: React.Dispatch<SetStateAction<Customer[]>>,
+  ) => {
+    const userData = await fetchUserData();
+    const userId = userData.id;
+
+    const response = await fetch(
+      `/api/v1/quickbooks/company/customer/all?userId=${userId}`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        next: {
+          revalidate: 900,
+        },
+      },
+    );
+
+    if (!response.ok) {
+      toast({
+        title: 'Error fetching customers',
+        description: response.statusText,
+        variant: 'destructive',
+      });
+      throw new Error('Failed to fetch customers');
+    }
+
+    const customers = await response.json();
+
+    setCustomerCallback && setCustomerCallback(customers);
+    return customers;
+  };
+
+  return { getCustomerList, getAllCustomers };
 };
