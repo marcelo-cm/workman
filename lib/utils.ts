@@ -77,7 +77,7 @@ export function findMostSimilar<T>(
   target: string,
   options: T[],
   getOptionValue: (option: T) => string = (option) => String(option),
-) {
+): T {
   return options.reduce((prev, curr) => {
     const prevSimilarity = stringSimilarity(getOptionValue(prev), target);
     const currSimilarity = stringSimilarity(getOptionValue(curr), target);

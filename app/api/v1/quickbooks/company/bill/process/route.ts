@@ -45,24 +45,25 @@ async function processBill(fileUrl: string, userId: string) {
     throw new Error('Failed to process the invoice');
   }
 
-  return parseMindeeResponse(response);
+  return parseMindeeResponse(response, userId);
 }
 
 const parseMindeeResponse = (
   response: PredictResponse<InvoiceV4>,
-): InvoiceData => {
+  userId: string,
+) => {
   const prediction = response.document.inference.prediction;
 
   return {
     date: prediction.date?.value || '',
     dueDate: prediction.dueDate?.value || '',
     invoiceNumber: prediction.invoiceNumber?.value || '',
-    supplierName: prediction.supplierName?.value || '',
+    supplierName: matchVendor(prediction.supplierName?.value || '', userId),
     supplierAddress: prediction.supplierAddress?.value || '',
     supplierEmail: prediction.supplierEmail?.value || '',
     supplierPhoneNumber: prediction.supplierPhoneNumber?.value || '',
     customerAddress: prediction.customerAddress?.value || '',
-    customerName: prediction.customerName?.value || '',
+    customerName: matchCustomer(prediction.customerName?.value || '', userId),
     shippingAddress: prediction.shippingAddress?.value || '',
     totalNet: prediction.totalNet?.value || 0,
     totalAmount: prediction.totalAmount?.value || 0,
@@ -82,7 +83,10 @@ const parseMindeeResponse = (
   };
 };
 
-const matchVendor = async (vendorName: string, userId: string) => {
+const matchVendor = async (
+  vendorName: string,
+  userId: string,
+): Promise<Vendor> => {
   const response = await fetch(
     `/api/v1/quickbooks/company/vendor/all?userId=${userId}`,
     {
@@ -97,7 +101,11 @@ const matchVendor = async (vendorName: string, userId: string) => {
     throw new Error('Failed to fetch vendors');
   }
 
-  const vendors = await response.json();
+  const vendors: Vendor[] = await response.json();
+
+  if (!vendorName) {
+    return vendors[0];
+  }
 
   return findMostSimilar(
     vendorName,
@@ -106,43 +114,29 @@ const matchVendor = async (vendorName: string, userId: string) => {
   );
 };
 
-const matchCustomer = async (customerName: string) => {
-  const response = await fetch(`/api/v1/quickbooks/company/customer/all`, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
+const matchCustomer = async (customerName: string, userId: string) => {
+  const response = await fetch(
+    `/api/v1/quickbooks/company/customer/all?userId=${userId}`,
+    {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
     },
-  });
+  );
   if (!response.ok) {
     throw new Error('Failed to fetch customers');
   }
 
   const customers = await response.json();
 
+  if (!customerName) {
+    return customers[0];
+  }
+
   return findMostSimilar(
     customerName,
     customers,
     (customer: Customer) => customer.DisplayName,
-  );
-};
-
-const matchAccount = async (accountName: string) => {
-  const response = await fetch(`/api/v1/quickbooks/company/account/all`, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
-
-  if (!response.ok) {
-    throw new Error('Failed to fetch accounts');
-  }
-
-  const accounts = await response.json();
-
-  return findMostSimilar(
-    accountName,
-    accounts,
-    (account: Account) => account.Name,
   );
 };
