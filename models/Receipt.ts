@@ -1,4 +1,3 @@
-import { PostgrestError } from '@supabase/supabase-js';
 import { UUID } from 'crypto';
 import { ChatCompletion } from 'openai/resources/index.mjs';
 

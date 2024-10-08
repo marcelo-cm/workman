@@ -5,15 +5,14 @@ import { badRequest, internalServerError, ok } from '@/app/api/utils';
 import { createMindeeClient } from '@/lib/utils/mindee/client';
 import { createClient } from '@/lib/utils/supabase/server';
 
-const supabase = createClient();
-const mindee = createMindeeClient();
-
 export async function POST(req: NextRequest) {
   const { fileUrl, invoiceId } = await req.json();
 
   if (!fileUrl || !invoiceId) {
     return badRequest('User ID, File URL, and the Invoice ID are required');
   }
+
+  const supabase = createClient();
 
   try {
     const data = await processBill(fileUrl, invoiceId);
@@ -31,6 +30,8 @@ export async function POST(req: NextRequest) {
 }
 
 async function processBill(fileUrl: string, invoiceId: string) {
+  const mindee = createMindeeClient();
+
   const input = mindee.docFromUrl(decodeURI(fileUrl));
   const response = await mindee.parse(InvoiceV4, input);
 

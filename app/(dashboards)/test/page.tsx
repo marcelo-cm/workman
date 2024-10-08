@@ -1,9 +1,12 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
+import PDFViewer from '@/components/(shared)/PDF/PDFViewer';
+import { Button } from '@/components/ui/button';
 import { ComboBox } from '@/components/ui/combo-box';
-import IfElseRender from '@/components/ui/if-else-renderer';
+import Container from '@/components/ui/container';
+import { Input } from '@/components/ui/input';
 import {
   PaginatedComboBox,
   Pagination,
@@ -13,10 +16,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useVendor } from '@/lib/hooks/quickbooks/useVendor';
 
 import { Vendor } from '@/interfaces/quickbooks.interfaces';
+import Invoice from '@/models/Invoice';
 
 const page = () => {
   const { getVendorList, getVendorByID, getAllVendors } = useVendor();
   const [vendors, setVendors] = React.useState<Vendor[]>([]);
+  const [file, setFile] = useState<File>();
+  const [invoice, setInvoice] = React.useState<Invoice>();
 
   const fetchPaginatedVendorList = async (page: number, query: string) => {
     const columns: (keyof Vendor)[] = ['DisplayName', 'Id'];
@@ -36,6 +42,13 @@ const page = () => {
   useEffect(() => {
     getAllVendors(setVendors);
   }, []);
+
+  const onInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files) return;
+
+    console.log(e.target.files[0]);
+    setFile(e.target.files[0]);
+  };
 
   return (
     <Tabs className="flex h-full w-full flex-col" defaultValue="2">
@@ -68,8 +81,17 @@ const page = () => {
             valueToMatch={'1forall Software'}
           />
         </TabsContent>
-        <TabsContent value="2">
-          <p>Tab 2 content</p>
+        <TabsContent value="2" className="flex flex-col items-center gap-8">
+          <Container className="p-4">
+            {file?.name ?? 'No file selected'}
+            {file && <PDFViewer file={file} />}
+          </Container>
+          <Input
+            type="file"
+            onChange={onInputChange}
+            accept="application/pdf"
+          />
+          <Button>Upload</Button>
         </TabsContent>
       </section>
     </Tabs>
