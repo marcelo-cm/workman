@@ -356,7 +356,7 @@ export class Invoice {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ fileUrl, invoiceId: this.id, id }),
+      body: JSON.stringify({ fileUrl, invoiceId: this.id, userId: id }),
     });
 
     if (!response.ok) {
@@ -376,7 +376,7 @@ export class Invoice {
       variant: 'success',
     });
 
-    this.updateStatus(InvoiceStatus.PROCESSED);
+    this.updateStatus(InvoiceStatus.FOR_REVIEW);
 
     return responseData;
   }

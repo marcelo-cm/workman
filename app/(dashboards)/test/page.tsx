@@ -64,9 +64,9 @@ const page = () => {
   const processInvoice = async () => {
     if (!invoice) return;
 
-    const { data } = await invoice.process();
-    console.log(data[0]);
-    setInvoice(data[0]);
+    const data = await invoice.process();
+    console.log(data);
+    setInvoice(data);
   };
 
   return (
