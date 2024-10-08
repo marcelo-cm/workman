@@ -1,7 +1,7 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { BookmarkIcon, CheckIcon, ResetIcon } from '@radix-ui/react-icons';
-import { ArrowRightIcon, HammerIcon } from 'lucide-react';
+import { HammerIcon } from 'lucide-react';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
@@ -10,11 +10,9 @@ import { Button } from '@/components/ui/button';
 import IfElseRender from '@/components/ui/if-else-renderer';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-import { useVendor } from '@/lib/hooks/quickbooks/useVendor';
 import { useApprovals } from '@/lib/hooks/supabase/useApprovals';
 
 import { useAppContext } from '@/app/(dashboards)/context';
-import Account from '@/app/(dashboards)/settings/page';
 import { Bill } from '@/app/api/v1/quickbooks/company/bill/interfaces';
 import { ApprovalStatus, ReceiptStatus } from '@/constants/enums';
 import { ReceiptData, ReceiptDataSchema } from '@/interfaces/common.interfaces';
@@ -23,7 +21,6 @@ import { Receipt } from '@/models/Receipt';
 import { useReceiptExtractionReview } from '../ReceiptExtractionReview';
 import ReceiptDataForm from './edit/ReceiptDataForm';
 
-const { getDefaultCategoryByVendorName, saveDefaultCategory } = useVendor();
 const { updateApprovalByApprovableAndApproverId, getApprovalsByApprovableId } =
   useApprovals();
 

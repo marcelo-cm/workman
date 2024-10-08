@@ -288,7 +288,7 @@ const ExtractionTabs = ({
             <DialogDescription>
               Would you like to set the default category for{' '}
               <strong>{watchVendorName}</strong>
-              to <strong>{watchLineItems[0].productCode}</strong>? This will
+              to <strong>{watchLineItems[0]?.productCode}</strong>? This will
               overwrite the existing default category.
             </DialogDescription>
             <DialogFooter>

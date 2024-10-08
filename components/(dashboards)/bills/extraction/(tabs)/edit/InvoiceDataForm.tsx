@@ -42,7 +42,7 @@ const InvoiceDataForm = ({
         ifTrue={<LoadingState />}
         ifFalse={
           <Form {...form}>
-            <form className="space-y-4">
+            <form className="space-y-2">
               <BillDetails form={form} />
               <LineItems form={form} />
               <ExtractionFormComponent
