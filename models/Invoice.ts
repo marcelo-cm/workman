@@ -274,6 +274,24 @@ export class Invoice {
     return mappedData as InvoiceData;
   }
 
+  static async deleteBulk(ids: UUID[]) {
+    const { error } = await supabase.from('invoices').delete().in('id', ids);
+
+    if (error) {
+      toast({
+        title: `Failed to delete invoices`,
+        description: 'Please try again later',
+        variant: 'destructive',
+      });
+      throw new Error(`Failed to delete invoices: ${error.message}`);
+    }
+
+    toast({
+      title: `Invoices deleted`,
+      variant: 'success',
+    });
+  }
+
   async delete() {
     const { error } = await supabase
       .from('invoices')
@@ -295,22 +313,65 @@ export class Invoice {
     });
   }
 
-  static async deleteBulk(ids: UUID[]) {
-    const { error } = await supabase.from('invoices').delete().in('id', ids);
+  async process() {
+    const fileUrl = this.fileUrl;
 
-    if (error) {
+    if (!fileUrl) {
       toast({
-        title: `Failed to delete invoices`,
+        title: 'File URL not found',
         description: 'Please try again later',
         variant: 'destructive',
       });
-      throw new Error(`Failed to delete invoices: ${error.message}`);
     }
 
+    const response = await fetch(`/api/v1/quickbooks/company/bill/process`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ fileUrl, invoiceId: this.id }),
+    });
+
+    if (!response.ok) {
+      toast({
+        title: 'Failed to process invoice',
+        description: 'Please try again later',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    const responseData = await response.json();
+
     toast({
-      title: `Invoices deleted`,
+      title: 'Invoice processed',
+      description: responseData.message,
       variant: 'success',
     });
+
+    this.updateStatus(InvoiceStatus.PROCESSED);
+
+    return responseData;
+  }
+
+  async updateStatus(status: InvoiceStatus) {
+    if (status === this.status) {
+      return;
+    }
+
+    const { data, error } = await supabase
+      .from('invoices')
+      .update({ status })
+      .eq('id', this.id)
+      .select('*');
+
+    if (error) {
+      toast({
+        title: `Failed to update invoice status`,
+        description: 'Please try again later',
+        variant: 'destructive',
+      });
+    }
   }
 
   get id(): UUID {
