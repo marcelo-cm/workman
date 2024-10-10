@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
 async function processBill(
   fileUrl: string,
   userId: string,
-): Promise<NewInvoiceData> {
+): Promise<InvoiceData> {
   const startTime = Date.now();
   const mindee = createMindeeClient();
 
@@ -73,25 +73,19 @@ async function processBill(
 const parseMindeeResponse = async (
   response: PredictResponse<InvoiceV4>,
   userId: string,
-): Promise<NewInvoiceData> => {
+): Promise<InvoiceData> => {
   const prediction = response.document.inference.prediction;
 
   return {
     date: prediction.date?.value || '',
     dueDate: prediction.dueDate?.value || '',
     invoiceNumber: prediction.invoiceNumber?.value || '',
-    supplierName: await matchVendor(
-      prediction.supplierName?.value || '',
-      userId,
-    ),
+    supplierName: prediction.supplierName?.value || '',
     supplierAddress: prediction.supplierAddress?.value || '',
     supplierEmail: prediction.supplierEmail?.value || '',
     supplierPhoneNumber: prediction.supplierPhoneNumber?.value || '',
     customerAddress: prediction.customerAddress?.value || '',
-    customerName: await matchCustomer(
-      prediction.customerName?.value || '',
-      userId,
-    ),
+    customerName: prediction.customerName?.value || '',
     shippingAddress: prediction.shippingAddress?.value || '',
     totalNet: prediction.totalNet?.value || 0,
     totalAmount: prediction.totalAmount?.value || 0,
