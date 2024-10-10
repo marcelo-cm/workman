@@ -144,7 +144,7 @@ const ExtractionTabs = ({
 
     const data: InvoiceData = form.getValues();
     files[activeIndex].data = data;
-    await Invoice.update(file.fileUrl, data);
+    await file.update(data);
     mapDataToForm(data);
   };
 

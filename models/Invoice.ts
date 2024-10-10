@@ -1,3 +1,4 @@
+import { PostgrestSingleResponse } from '@supabase/supabase-js';
 import { decode } from 'base64-arraybuffer';
 import { UUID } from 'crypto';
 import { PredictResponse } from 'mindee';
@@ -59,66 +60,6 @@ export class Invoice {
   }
 
   /**
-   * Should be deprecated in favor of `uploadToStorage` and `create`
-   */
-  static async upload(file: File | PDFData) {
-    const publicUrl = await Invoice.uploadToStorage(file);
-
-    const user = await fetchUserData();
-    const id = user.id;
-
-    const { error: invoiceError } = await supabase.from('invoices').insert([
-      {
-        principal_id: id,
-        status: 'UNPROCESSED',
-        file_url: publicUrl,
-        company_id: user.company.id,
-      },
-    ]);
-
-    if (invoiceError) {
-      toast({
-        title: `Failed to upload invoice ${file instanceof File ? file.name : file.filename} to database`,
-        description: 'Please try to upload this document again',
-        variant: 'destructive',
-      });
-      throw new Error(`Failed to create invoice: ${invoiceError.message}`);
-    }
-
-    toast({
-      title: `${file instanceof File ? file.name : file.filename} uploaded to database`,
-    });
-
-    return publicUrl;
-  }
-
-  static async create(file_url: string, data?: InvoiceData): Promise<Invoice> {
-    const { data: invoice, error } = await supabase
-      .from('invoices')
-      .insert({
-        data,
-        file_url,
-      })
-      .select('*, principal: users(name, email, id), company: companies(*)')
-      .single();
-
-    if (error || !invoice) {
-      toast({
-        title: 'Failed to create invoice',
-        variant: 'destructive',
-      });
-      throw new Error(`Failed to create invoice: ${error?.message}`);
-    }
-
-    toast({
-      title: 'Invoice created',
-      variant: 'success',
-    });
-
-    return new Invoice(invoice);
-  }
-
-  /**
    * This function uploads a file to the storage bucket in supabase
    * @param file The file to upload to storage
    * @returns The public URL of the uploaded file
@@ -157,6 +98,32 @@ export class Invoice {
     } = await supabase.storage.from('invoices').getPublicUrl(data.path);
 
     return publicUrl;
+  }
+
+  static async create(file_url: string, data?: InvoiceData): Promise<Invoice> {
+    const { data: invoice, error } = await supabase
+      .from('invoices')
+      .insert({
+        data,
+        file_url,
+      })
+      .select('*, principal: users(name, email, id), company: companies(*)')
+      .single();
+
+    if (error || !invoice) {
+      toast({
+        title: 'Failed to create invoice',
+        variant: 'destructive',
+      });
+      throw new Error(`Failed to create invoice: ${error?.message}`);
+    }
+
+    toast({
+      title: 'Invoice created',
+      variant: 'success',
+    });
+
+    return new Invoice(invoice);
   }
 
   static async uploadToQuickbooks(file: Invoice_Quickbooks) {
@@ -209,108 +176,29 @@ export class Invoice {
     });
   }
 
-  static async update(fileUrl: string, data: InvoiceData) {
-    const { data: updatedData, error } = await supabase
-      .from('invoices')
-      .update({ data, status: 'FOR_REVIEW' })
-      .eq('file_url', fileUrl) // why fileUrl and not id?
-      .select('*');
+  async update(data: InvoiceData) {
+    const { data: updatedInvoice, error }: PostgrestSingleResponse<Invoice> =
+      await supabase
+        .from('invoices')
+        .update({ data })
+        .eq('id', this.id)
+        .select('*, principal: users(name, email, id), company: companies(*)')
+        .single();
 
     if (error) {
       toast({
-        title: `Failed to updating or scanning ${decodeURI(fileUrl.split('/')[8].split('.pdf')[0])}`,
-        description: 'Please scan this document again unprocessed',
+        title: `Failed to updating file`,
         variant: 'destructive',
       });
       throw new Error(`Failed to update invoice: ${error.message}`);
     }
 
     toast({
-      title: `Invoice ${fileUrl.split('/')[8].split('.pdf')[0]} has been updated`,
+      title: `Invoice ${updatedInvoice.fileName} has been updated`,
       variant: 'success',
     });
 
-    return updatedData;
-  }
-
-  static async scanAndUpdate(fileUrl: string) {
-    const apiResponse = await mindeeScan(fileUrl);
-    const parsedResponse: PredictResponse<InvoiceV4> = JSON.parse(apiResponse);
-    const parsedData = await Invoice.parse(parsedResponse);
-    const updatedData = await Invoice.update(fileUrl, parsedData);
-    return parsedData;
-  }
-
-  static async getByUrl(url: string) {
-    const { data, error } = await supabase
-      .from('invoices')
-      .select('*')
-      .eq('file_url', url);
-
-    if (error) {
-      toast({
-        title: `Failed to fetch invoice`,
-        description: 'Please try again later',
-        variant: 'destructive',
-      });
-      throw new Error(`Failed to get invoice: ${error.message}`);
-    }
-
-    return data[0];
-  }
-
-  static async parse(
-    parsedApiResponse: PredictResponse<InvoiceV4>,
-  ): Promise<InvoiceData> {
-    const prediction = parsedApiResponse.document.inference.prediction;
-
-    const mappedData = {
-      date: prediction.date?.value || '',
-      dueDate: prediction.dueDate?.value || '',
-      invoiceNumber: prediction.invoiceNumber?.value || '',
-      supplierName: prediction.supplierName?.value || '',
-      supplierAddress: prediction.supplierAddress?.value || '',
-      supplierEmail: prediction.supplierEmail?.value || '',
-      supplierPhoneNumber: prediction.supplierPhoneNumber?.value || '',
-      customerAddress: prediction.customerAddress?.value || '',
-      customerName: prediction.customerName?.value || '',
-      shippingAddress: prediction.shippingAddress?.value || '',
-      totalNet: prediction.totalNet?.value || 0,
-      totalAmount: prediction.totalAmount?.value || 0,
-      totalTax: prediction.totalTax?.value?.toFixed(2) || '0',
-      lineItems:
-        prediction.lineItems?.map((item) => ({
-          confidence: item.confidence || 0,
-          description: item.description || '',
-          productCode: item.productCode || '',
-          quantity: item.quantity || 0,
-          totalAmount: item?.totalAmount?.toFixed(2) || '0',
-          unitPrice: item.unitPrice || 0,
-          pageId: item.pageId || 0,
-          polygon: item.polygon,
-        })) || [],
-      notes: '',
-    };
-
-    return mappedData as InvoiceData;
-  }
-
-  static async deleteBulk(ids: UUID[]) {
-    const { error } = await supabase.from('invoices').delete().in('id', ids);
-
-    if (error) {
-      toast({
-        title: `Failed to delete invoices`,
-        description: 'Please try again later',
-        variant: 'destructive',
-      });
-      throw new Error(`Failed to delete invoices: ${error.message}`);
-    }
-
-    toast({
-      title: `Invoices deleted`,
-      variant: 'success',
-    });
+    return updatedInvoice;
   }
 
   async delete() {
@@ -361,7 +249,11 @@ export class Invoice {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ fileUrl, invoiceId: this.id, userId: id }),
+      body: JSON.stringify({
+        fileURLs: [fileUrl],
+        invoiceId: this.id,
+        userId: id,
+      }),
     });
 
     if (!response.ok) {

@@ -1,3 +1,5 @@
+import { toast } from '@/components/ui/use-toast';
+
 import { Approvable, ApprovalStatus, InvoiceStatus } from '@/constants/enums';
 import { InvoiceCountsResponse } from '@/interfaces/db.interfaces';
 import { createClient } from '@/lib/utils/supabase/client';
@@ -101,7 +103,6 @@ export const useInvoice = () => {
     );
   }
 
-  // @todo
   async function processInvoicesByFileURLs(fileURLs: string[]) {
     const { id } = await fetchUserData();
     const res = await fetch('/api/v1/workman/bill', {
@@ -117,11 +118,31 @@ export const useInvoice = () => {
     return response;
   }
 
+  async function deleteInvoices(invoiceIds: string[]) {
+    const { data, error } = await supabase
+      .from('invoices')
+      .delete()
+      .in('id', invoiceIds);
+
+    if (error) {
+      console.error('Error deleting invoices:', error);
+      toast({
+        title: 'Error',
+        description: 'Error deleting invoices',
+        variant: 'destructive',
+      });
+      return false;
+    } else {
+      return data;
+    }
+  }
+
   return {
     getInvoiceCounts,
     getCompanyInvoicesByStates,
     getInvoicesByStateApproverAndApprovalStatus,
     getInvoicesAwaitingUserApproval,
     processInvoicesByFileURLs,
+    deleteInvoices,
   };
 };

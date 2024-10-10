@@ -5,6 +5,7 @@ import { InvoiceV4 } from 'mindee/src/product';
 import { NextRequest, NextResponse } from 'next/server';
 
 import { badRequest, internalServerError, ok } from '@/app/api/utils';
+import { InvoiceStatus } from '@/constants/enums';
 import { InvoiceData } from '@/interfaces/common.interfaces';
 import { Customer, Vendor } from '@/interfaces/quickbooks.interfaces';
 import { findMostSimilar } from '@/lib/utils';
@@ -78,10 +79,16 @@ async function processBill(fileURL: string, userId: string): Promise<Invoice> {
 
   const { data: invoice } = await supabase
     .from('invoices')
-    .insert({
-      data: invoiceData,
-      file_url: fileURL,
-    })
+    .upsert(
+      {
+        data: invoiceData,
+        file_url: fileURL,
+        status: InvoiceStatus.FOR_REVIEW,
+      },
+      {
+        onConflict: 'file_url',
+      },
+    )
     .select('*, principal: users(name, email, id), company: companies(*)')
     .single();
 

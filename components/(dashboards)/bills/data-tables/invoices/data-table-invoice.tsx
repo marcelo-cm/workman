@@ -76,6 +76,7 @@ const {
   getCompanyInvoicesByStates,
   getInvoicesAwaitingUserApproval,
   getInvoiceCounts,
+  deleteInvoices,
 } = useInvoice();
 
 export function InvoiceDataTable<TData, TValue>({
@@ -191,10 +192,10 @@ export function InvoiceDataTable<TData, TValue>({
   };
 
   const ActionBar = () => {
-    const handleScanInvoices = async (selectedFiles: Invoice[]) => {
+    const handleScanInvoices = async (selectedInvoices: Invoice[]) => {
       setIsUploading(true);
-      const scanPromises = selectedFiles.map(
-        async (file) => await Invoice.scanAndUpdate(file.fileUrl),
+      const scanPromises = selectedInvoices.map(
+        async (invoice) => await invoice.process(),
       );
       await Promise.all(scanPromises).then(() => {
         tabValue &&
@@ -202,6 +203,7 @@ export function InvoiceDataTable<TData, TValue>({
         setRowSelection({});
         setIsUploading(false);
       });
+      getInvoiceCounts().then(setInvoiceCounts);
     };
 
     const quickSubmit = async () => {
@@ -217,12 +219,13 @@ export function InvoiceDataTable<TData, TValue>({
         setRowSelection({});
         setIsUploading(false);
       });
+      getInvoiceCounts().then(setInvoiceCounts);
     };
 
     const deleteInvoicesBulk = async () => {
       setIsUploading(true);
       const invoiceIds = selectedFilesUrls.map((inv) => inv.id);
-      await Invoice.deleteBulk(invoiceIds).then(() => {
+      await deleteInvoices(invoiceIds).then(() => {
         tabValue &&
           getCompanyInvoicesByStates([tabValue.state].flat(), setData);
         setRowSelection({});
