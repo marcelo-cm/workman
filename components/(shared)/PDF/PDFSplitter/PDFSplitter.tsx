@@ -97,7 +97,11 @@ const PDFSplitter = () => {
           files.map(async (file) => await Invoice.uploadToStorage(file)),
         );
 
-        processInvoicesByFileURLs(fileUrls);
+        await processInvoicesByFileURLs(fileUrls).then(() => {
+          setTimeout(() => {
+            window.location.reload();
+          }, 500);
+        });
       });
     } catch (error: unknown) {
       console.error('Error uploading files:', error);
