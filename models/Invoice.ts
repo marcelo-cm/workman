@@ -118,6 +118,11 @@ export class Invoice {
     return new Invoice(invoice);
   }
 
+  /**
+   * This function uploads a file to the storage bucket in supabase
+   * @param file The file to upload to storage
+   * @returns The public URL of the uploaded file
+   */
   static async uploadToStorage(file: File | PDFData): Promise<string> {
     let filePath, fileBody: File | ArrayBuffer;
 

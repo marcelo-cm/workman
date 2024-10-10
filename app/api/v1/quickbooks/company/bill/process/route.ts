@@ -2,7 +2,7 @@
 
 import { PredictResponse } from 'mindee';
 import { InvoiceV4 } from 'mindee/src/product';
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 import { badRequest, internalServerError, ok } from '@/app/api/utils';
 import { InvoiceData } from '@/interfaces/common.interfaces';
@@ -19,7 +19,9 @@ interface NewInvoiceData
 
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
 
-export async function POST(req: NextRequest) {
+export async function POST(
+  req: NextRequest,
+): Promise<NextResponse<InvoiceData | unknown>> {
   const { fileUrl, invoiceId, userId } = await req.json();
 
   if (!fileUrl || !invoiceId || !userId) {
