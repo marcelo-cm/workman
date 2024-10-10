@@ -31,9 +31,6 @@ export async function POST(
     userId: string;
   } = await req.json();
 
-  console.log('Processing invoices:', fileURLs);
-  console.log('User ID:', userId);
-
   if (!fileURLs || !userId) {
     return badRequest('User ID and File URL are required');
   }
@@ -52,6 +49,8 @@ export async function POST(
       'Time taken to process and update invoice:',
       endTime - startTime,
     );
+
+    console.log('Response:', response);
 
     return ok(response);
   } catch (e: unknown) {

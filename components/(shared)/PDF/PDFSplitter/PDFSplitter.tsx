@@ -93,7 +93,6 @@ const PDFSplitter = () => {
 
     try {
       startUploading(async () => {
-        // Upload all files to storage
         const fileUrls = await Promise.all(
           files.map(async (file) => await Invoice.uploadToStorage(file)),
         );
