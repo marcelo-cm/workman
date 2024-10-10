@@ -48,7 +48,7 @@ const getAllVendors = async (realmId: string, token: string): Promise<any> => {
   let maxResults = 1000;
   let page = `startPosition ${startPosition} maxResults ${maxResults}`;
 
-  let vendors: Partial<Vendor>[] = [];
+  let vendors: Vendor[] = [];
 
   while (hasMore) {
     const response = await fetch(

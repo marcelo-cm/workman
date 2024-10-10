@@ -18,7 +18,7 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 
-import { cn, stringSimilarity } from '@/lib/utils';
+import { cn, findMostSimilar, stringSimilarity } from '@/lib/utils';
 
 export function ComboBox<
   T extends { Id?: string | number; id?: string | number },
@@ -42,17 +42,7 @@ export function ComboBox<
 
   useEffect(() => {
     if (valueToMatch && options.length) {
-      const bestMatch = options.reduce((prev, curr) => {
-        const prevSimilarity = stringSimilarity(
-          getOptionLabel(prev) || '',
-          valueToMatch,
-        );
-        const currSimilarity = stringSimilarity(
-          getOptionLabel(curr) || '',
-          valueToMatch,
-        );
-        return currSimilarity > prevSimilarity ? curr : prev;
-      }, options[0]);
+      const bestMatch = findMostSimilar(valueToMatch, options, getOptionLabel);
 
       if (bestMatch && getOptionLabel(bestMatch)) setValue(bestMatch);
 

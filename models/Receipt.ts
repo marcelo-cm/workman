@@ -1,4 +1,3 @@
-import { PostgrestError } from '@supabase/supabase-js';
 import { UUID } from 'crypto';
 import { ChatCompletion } from 'openai/resources/index.mjs';
 
@@ -47,7 +46,7 @@ export class Receipt {
     this._data = data;
     this._file_url = file_url;
     this._status = status;
-    this._principal = principal;
+    this._principal = new User_Nested(principal);
     this._company = company;
   }
 
@@ -102,7 +101,7 @@ export class Receipt {
         data,
         file_url,
       })
-      .select('*')
+      .select('*, principal: users(name, email, id), company: companies(*)')
       .single();
 
     if (error || !receipt) {

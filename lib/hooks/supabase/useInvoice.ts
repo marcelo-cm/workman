@@ -101,10 +101,27 @@ export const useInvoice = () => {
     );
   }
 
+  // @todo
+  async function processInvoicesByFileURLs(fileURLs: string[]) {
+    const { id } = await fetchUserData();
+    const res = await fetch('/api/v1/workman/bill', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ fileURLs, userId: id }),
+    });
+
+    const response = await res.json();
+
+    return response;
+  }
+
   return {
     getInvoiceCounts,
     getCompanyInvoicesByStates,
     getInvoicesByStateApproverAndApprovalStatus,
     getInvoicesAwaitingUserApproval,
+    processInvoicesByFileURLs,
   };
 };

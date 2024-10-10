@@ -5,6 +5,7 @@ import {
   useContext,
   useEffect,
   useState,
+  useTransition,
 } from 'react';
 
 import WorkmanLogo from '@/components/molecules/WorkmanLogo';
@@ -17,6 +18,9 @@ import {
 } from '@/components/ui/alert-dialog';
 import { DialogContent } from '@/components/ui/dialog';
 
+import { useInvoice } from '@/lib/hooks/supabase/useInvoice';
+
+import { InvoiceData } from '@/interfaces/common.interfaces';
 import Invoice from '@/models/Invoice';
 
 import PDFSplitterFileSelection from './PDFSplitterFileSelection';
@@ -58,11 +62,13 @@ export const usePDFSplitter = () => {
   return useContext(PDFSplitterContext);
 };
 
+const { processInvoicesByFileURLs } = useInvoice();
+
 const PDFSplitter = () => {
   const [filesToUpload, setFilesToUpload] = useState<File[]>([]);
   const [filesToSplit, setFilesToSplit] = useState<File[]>([]);
   const [stage, setStage] = useState<keyof typeof STAGES>('UPLOADING');
-  const [isUploading, setIsUploading] = useState(false);
+  const [isUploading, startUploading] = useTransition();
 
   useEffect(() => {
     if (filesToUpload.length > 0) {
@@ -74,12 +80,11 @@ const PDFSplitter = () => {
 
   useEffect(() => {
     if (stage === 'FINISHED') {
-      handleUpload();
+      handleProcessFiles();
     }
   }, [stage]);
 
-  const handleUpload = async () => {
-    setIsUploading(true);
+  const handleProcessFiles = async () => {
     if (!filesToUpload) {
       return;
     }
@@ -87,24 +92,20 @@ const PDFSplitter = () => {
     const files = Array.from(filesToUpload) as File[];
 
     try {
-      const allFileUrlPromises = files.map(
-        async (file) => await Invoice.upload(file),
-      );
-      const fileUrls = await Promise.all(allFileUrlPromises);
+      startUploading(async () => {
+        const fileUrls = await Promise.all(
+          files.map(async (file) => await Invoice.uploadToStorage(file)),
+        );
 
-      const scanAllFilePromises = fileUrls.map(async (fileUrl) => {
-        await Invoice.scanAndUpdate(fileUrl);
+        await processInvoicesByFileURLs(fileUrls).then(() => {
+          setTimeout(() => {
+            window.location.reload();
+          }, 500);
+        });
       });
-
-      await Promise.all(scanAllFilePromises);
-
-      setTimeout(() => {
-        window.location.reload();
-      }, 500);
-    } catch (error) {
+    } catch (error: unknown) {
       console.error('Error uploading files:', error);
     }
-    setIsUploading(false);
   };
 
   return (
@@ -117,7 +118,7 @@ const PDFSplitter = () => {
             filesToSplit,
             setFilesToSplit,
             setStage,
-            handleUpload,
+            handleUpload: handleProcessFiles,
             isUploading,
           }}
         >

@@ -58,60 +58,14 @@ export class Invoice {
     this._company = new Company(company);
   }
 
+  /**
+   * Should be deprecated in favor of `uploadToStorage` and `create`
+   */
   static async upload(file: File | PDFData) {
-    let data, error;
-    if (file instanceof File) {
-      const filePath = `/${file.name}_${new Date().getTime()}`;
-      ({ data, error } = await supabase.storage
-        .from('invoices')
-        .upload(filePath, file));
-
-      if (error) {
-        toast({
-          title: `Failed to upload file ${file.name}`,
-          description: 'Please try to upload this document again',
-          variant: 'destructive',
-        });
-        throw new Error(`Failed to upload file: ${error.message}`);
-      }
-
-      toast({
-        title: `${file.name} uploaded to storage successfully`,
-        variant: 'success',
-      });
-    } else {
-      const filePath = `/${file.filename}_${new Date().getTime()}`;
-      ({ data, error } = await supabase.storage
-        .from('invoices')
-        .upload(filePath, decode(file.base64), {
-          contentType: 'application/pdf',
-        }));
-
-      if (error) {
-        toast({
-          title: `Failed to upload file ${file.filename}`,
-          description: 'Please try to upload this document again',
-          variant: 'destructive',
-        });
-        throw new Error(`Failed to upload file: ${error.message}`);
-      }
-    }
-
-    if (!data) {
-      toast({
-        title: `Failed to upload file`,
-        description: 'Please try to upload this document again',
-        variant: 'destructive',
-      });
-      throw new Error(`Failed to upload file`);
-    }
+    const publicUrl = await Invoice.uploadToStorage(file);
 
     const user = await fetchUserData();
     const id = user.id;
-
-    const {
-      data: { publicUrl },
-    } = await supabase.storage.from('invoices').getPublicUrl(data.path);
 
     const { error: invoiceError } = await supabase.from('invoices').insert([
       {
@@ -134,6 +88,73 @@ export class Invoice {
     toast({
       title: `${file instanceof File ? file.name : file.filename} uploaded to database`,
     });
+
+    return publicUrl;
+  }
+
+  static async create(file_url: string, data?: InvoiceData): Promise<Invoice> {
+    const { data: invoice, error } = await supabase
+      .from('invoices')
+      .insert({
+        data,
+        file_url,
+      })
+      .select('*, principal: users(name, email, id), company: companies(*)')
+      .single();
+
+    if (error || !invoice) {
+      toast({
+        title: 'Failed to create invoice',
+        variant: 'destructive',
+      });
+      throw new Error(`Failed to create invoice: ${error?.message}`);
+    }
+
+    toast({
+      title: 'Invoice created',
+      variant: 'success',
+    });
+
+    return new Invoice(invoice);
+  }
+
+  /**
+   * This function uploads a file to the storage bucket in supabase
+   * @param file The file to upload to storage
+   * @returns The public URL of the uploaded file
+   */
+  static async uploadToStorage(file: File | PDFData): Promise<string> {
+    let filePath, fileBody: File | ArrayBuffer;
+
+    if (file instanceof File) {
+      filePath = `/${file.name}_${new Date().getTime()}`;
+      fileBody = file;
+    } else {
+      filePath = `/${file.filename}_${new Date().getTime()}`;
+      fileBody = decode(file.base64);
+    }
+
+    const { data, error } = await supabase.storage
+      .from('invoices')
+      .upload(filePath, fileBody);
+
+    if (error) {
+      toast({
+        title: `Failed to upload ${file instanceof File ? file.name : decodeURI(file.filename)}`,
+        description: 'Please try to upload this document again',
+        variant: 'destructive',
+      });
+      throw new Error(`Failed to upload file: ${error.message}`);
+    }
+
+    toast({
+      title: `${file instanceof File ? file.name : decodeURI(file.filename)} uploaded to storage successfully`,
+      variant: 'success',
+    });
+
+    const {
+      data: { publicUrl },
+    } = await supabase.storage.from('invoices').getPublicUrl(data.path);
 
     return publicUrl;
   }
@@ -274,6 +295,24 @@ export class Invoice {
     return mappedData as InvoiceData;
   }
 
+  static async deleteBulk(ids: UUID[]) {
+    const { error } = await supabase.from('invoices').delete().in('id', ids);
+
+    if (error) {
+      toast({
+        title: `Failed to delete invoices`,
+        description: 'Please try again later',
+        variant: 'destructive',
+      });
+      throw new Error(`Failed to delete invoices: ${error.message}`);
+    }
+
+    toast({
+      title: `Invoices deleted`,
+      variant: 'success',
+    });
+  }
+
   async delete() {
     const { error } = await supabase
       .from('invoices')
@@ -295,22 +334,76 @@ export class Invoice {
     });
   }
 
-  static async deleteBulk(ids: UUID[]) {
-    const { error } = await supabase.from('invoices').delete().in('id', ids);
+  async process() {
+    const { id } = await fetchUserData();
+    const fileUrl = this.fileUrl;
 
-    if (error) {
+    if (!id) {
       toast({
-        title: `Failed to delete invoices`,
+        title: 'User ID not found',
         description: 'Please try again later',
         variant: 'destructive',
       });
-      throw new Error(`Failed to delete invoices: ${error.message}`);
+      throw new Error('User ID not found');
     }
 
+    if (!fileUrl) {
+      toast({
+        title: 'File URL not found',
+        description: 'Please try again later',
+        variant: 'destructive',
+      });
+      throw new Error('File URL not found');
+    }
+
+    const response = await fetch(`/api/v1/workman/bill`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ fileUrl, invoiceId: this.id, userId: id }),
+    });
+
+    if (!response.ok) {
+      toast({
+        title: 'Failed to process invoice',
+        description: 'Please try again later',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    const responseData = await response.json();
+
     toast({
-      title: `Invoices deleted`,
+      title: 'Invoice processed',
+      description: responseData.message,
       variant: 'success',
     });
+
+    this.updateStatus(InvoiceStatus.FOR_REVIEW);
+
+    return responseData;
+  }
+
+  async updateStatus(status: InvoiceStatus) {
+    if (status === this.status) {
+      return;
+    }
+
+    const { data, error } = await supabase
+      .from('invoices')
+      .update({ status })
+      .eq('id', this.id)
+      .select('*');
+
+    if (error) {
+      toast({
+        title: `Failed to update invoice status`,
+        description: 'Please try again later',
+        variant: 'destructive',
+      });
+    }
   }
 
   get id(): UUID {
