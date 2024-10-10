@@ -356,7 +356,7 @@ export class Invoice {
       throw new Error('File URL not found');
     }
 
-    const response = await fetch(`/api/v1/quickbooks/company/bill/process`, {
+    const response = await fetch(`/api/v1/workman/bill`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

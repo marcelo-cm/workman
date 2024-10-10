@@ -101,10 +101,23 @@ export const useInvoice = () => {
     );
   }
 
+  // @todo
+  async function processInvoicesByFileURLs(fileURLs: string[]) {
+    const res = await fetch('/api/v1/quickbooks/company/bill', {
+      method: 'POST',
+      body: JSON.stringify({ fileURLs }),
+    });
+
+    const response = await res.json();
+
+    return response;
+  }
+
   return {
     getInvoiceCounts,
     getCompanyInvoicesByStates,
     getInvoicesByStateApproverAndApprovalStatus,
     getInvoicesAwaitingUserApproval,
+    processInvoicesByFileURLs,
   };
 };

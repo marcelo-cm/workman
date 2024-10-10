@@ -106,9 +106,6 @@ const PDFSplitter = () => {
 
         console.log('Invoice Data:', invoiceData);
       });
-      setTimeout(() => {
-        window.location.reload();
-      }, 500);
     } catch (error: unknown) {
       console.error('Error uploading files:', error);
     }
