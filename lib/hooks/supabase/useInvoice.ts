@@ -103,9 +103,13 @@ export const useInvoice = () => {
 
   // @todo
   async function processInvoicesByFileURLs(fileURLs: string[]) {
-    const res = await fetch('/api/v1/quickbooks/company/bill', {
+    const { id } = await fetchUserData();
+    const res = await fetch('/api/v1/workman/bill', {
       method: 'POST',
-      body: JSON.stringify({ fileURLs }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ fileURLs, userId: id }),
     });
 
     const response = await res.json();

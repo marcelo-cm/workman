@@ -10,6 +10,7 @@ import { Customer, Vendor } from '@/interfaces/quickbooks.interfaces';
 import { findMostSimilar } from '@/lib/utils';
 import { createMindeeClient } from '@/lib/utils/mindee/client';
 import { createClient } from '@/lib/utils/supabase/server';
+import Invoice from '@/models/Invoice';
 
 interface NewInvoiceData
   extends Omit<InvoiceData, 'supplierName' | 'customerName'> {
@@ -22,29 +23,36 @@ const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
 export async function POST(
   req: NextRequest,
 ): Promise<NextResponse<InvoiceData | unknown>> {
-  const { fileUrl, invoiceId, userId } = await req.json();
+  const {
+    fileURLs,
+    userId,
+  }: {
+    fileURLs: string[];
+    userId: string;
+  } = await req.json();
 
-  if (!fileUrl || !invoiceId || !userId) {
-    return badRequest('User ID, File URL, and the Invoice ID are required');
+  console.log('Processing invoices:', fileURLs);
+  console.log('User ID:', userId);
+
+  if (!fileURLs || !userId) {
+    return badRequest('User ID and File URL are required');
   }
-
-  const supabase = createClient();
 
   try {
     const startTime = Date.now();
-    const data = await processBill(fileUrl, userId);
-    const { data: response } = await supabase
-      .from('invoices')
-      .update({ data })
-      .eq('id', invoiceId)
-      .select('data')
-      .single();
+    const response = [];
+
+    for (const fileURL of fileURLs) {
+      const processedBill = await processBill(fileURL, userId);
+      response.push(processedBill);
+    }
 
     const endTime = Date.now();
     console.log(
       'Time taken to process and update invoice:',
       endTime - startTime,
     );
+
     return ok(response);
   } catch (e: unknown) {
     console.error(e);
@@ -52,14 +60,12 @@ export async function POST(
   }
 }
 
-async function processBill(
-  fileUrl: string,
-  userId: string,
-): Promise<InvoiceData> {
+async function processBill(fileURL: string, userId: string): Promise<Invoice> {
+  const supabase = createClient();
   const startTime = Date.now();
   const mindee = createMindeeClient();
 
-  const input = mindee.docFromUrl(decodeURI(fileUrl));
+  const input = mindee.docFromUrl(decodeURI(fileURL));
   const response = await mindee.parse(InvoiceV4, input);
 
   if (!response) {
@@ -69,7 +75,18 @@ async function processBill(
   const endTime = Date.now();
 
   console.log('Time taken to process invoice:', endTime - startTime);
-  return await parseMindeeResponse(response, userId);
+  const invoiceData = await parseMindeeResponse(response, userId);
+
+  const { data: invoice } = await supabase
+    .from('invoices')
+    .insert({
+      data: invoiceData,
+      file_url: fileURL,
+    })
+    .select('*, principal: users(name, email, id), company: companies(*)')
+    .single();
+
+  return invoice;
 }
 
 const parseMindeeResponse = async (

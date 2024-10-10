@@ -18,6 +18,8 @@ import {
 } from '@/components/ui/alert-dialog';
 import { DialogContent } from '@/components/ui/dialog';
 
+import { useInvoice } from '@/lib/hooks/supabase/useInvoice';
+
 import { InvoiceData } from '@/interfaces/common.interfaces';
 import Invoice from '@/models/Invoice';
 
@@ -60,6 +62,8 @@ export const usePDFSplitter = () => {
   return useContext(PDFSplitterContext);
 };
 
+const { processInvoicesByFileURLs } = useInvoice();
+
 const PDFSplitter = () => {
   const [filesToUpload, setFilesToUpload] = useState<File[]>([]);
   const [filesToSplit, setFilesToSplit] = useState<File[]>([]);
@@ -94,17 +98,7 @@ const PDFSplitter = () => {
           files.map(async (file) => await Invoice.uploadToStorage(file)),
         );
 
-        // Create an invoice for each file in the storage
-        const invoices = await Promise.all(
-          fileUrls.map(async (fileUrl) => await Invoice.create(fileUrl)),
-        );
-
-        // Process each invoice
-        const invoiceData: InvoiceData[] = await Promise.all(
-          invoices.map(async (invoice) => await invoice.process()),
-        );
-
-        console.log('Invoice Data:', invoiceData);
+        processInvoicesByFileURLs(fileUrls);
       });
     } catch (error: unknown) {
       console.error('Error uploading files:', error);
