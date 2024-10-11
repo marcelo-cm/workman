@@ -216,7 +216,7 @@ const ExtractionTabs = ({
   };
 
   return (
-    <Tabs defaultValue="1" className="relative flex h-full w-full flex-col">
+    <Tabs defaultValue="1" className="relative flex h-full w-full flex-col ">
       <TabsList className="sticky top-0 flex h-fit w-full rounded-none bg-white">
         <TabsTrigger
           value="1"
@@ -236,7 +236,7 @@ const ExtractionTabs = ({
       <div className="no-scrollbar h-full overflow-scroll">
         <TabsContent
           value="1"
-          className="flex h-full w-full flex-col justify-between"
+          className="flex h-full w-full flex-col justify-between data-[state=inactive]:hidden"
         >
           <InvoiceDataForm form={form} />
           <div className="sticky bottom-0 flex h-14 min-h-14 w-full items-center gap-2 border-t bg-white pl-2 pr-8">
@@ -279,48 +279,69 @@ const ExtractionTabs = ({
             </TabsList>
           </div>
         </TabsContent>
-        <TabsContent value="2">
+        <TabsContent
+          value="2"
+          className="flex h-full w-full flex-col justify-between data-[state=inactive]:hidden"
+        >
           <UploadToQuickBooks />
         </TabsContent>
-        <Dialog open={isSaveDefaultCategoryDialogOpen}>
-          <DialogContent>
-            <DialogTitle>Save Default Category</DialogTitle>
-            <DialogDescription>
-              Would you like to set the default category for{' '}
-              <strong>{watchVendorName}</strong>
-              to <strong>{watchLineItems[0]?.productCode}</strong>? This will
-              overwrite the existing default category.
-            </DialogDescription>
-            <DialogFooter>
-              <DialogClose asChild>
-                <Button
-                  variant={'secondary'}
-                  type="button"
-                  onClick={() => setIsSaveDefaultCategoryDialogOpen(false)}
-                >
-                  No
-                </Button>
-              </DialogClose>
-              <DialogClose asChild>
-                <Button
-                  type="button"
-                  onClick={() => {
-                    saveDefaultCategory(
-                      watchVendorName,
-                      watchLineItems[0]?.productCode as string,
-                    );
-                    setIsSaveDefaultCategoryDialogOpen(false);
-                  }}
-                >
-                  Set Default Category
-                </Button>
-              </DialogClose>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        <SaveDefaultCategoryPopup
+          isOpen={isSaveDefaultCategoryDialogOpen}
+          vendorName={watchVendorName}
+          category={watchLineItems[0]?.productCode as string}
+          onClose={() => setIsSaveDefaultCategoryDialogOpen(false)}
+        />
       </div>
     </Tabs>
   );
 };
 
 export default ExtractionTabs;
+
+const SaveDefaultCategoryPopup = ({
+  isOpen,
+  vendorName,
+  category,
+  onClose,
+}: {
+  isOpen: boolean;
+  vendorName: string;
+  category: string;
+  onClose: Function;
+}) => {
+  return (
+    <Dialog open={isOpen}>
+      <DialogContent>
+        <DialogTitle>Save Default Category</DialogTitle>
+        <DialogDescription>
+          Would you like to set the default category for{' '}
+          <strong>{vendorName}</strong>
+          to <strong>{category}</strong>? This will overwrite the existing
+          default category.
+        </DialogDescription>
+        <DialogFooter>
+          <DialogClose asChild>
+            <Button
+              variant={'secondary'}
+              type="button"
+              onClick={() => onClose()}
+            >
+              No
+            </Button>
+          </DialogClose>
+          <DialogClose asChild>
+            <Button
+              type="button"
+              onClick={() => {
+                saveDefaultCategory(vendorName, category as string);
+                onClose();
+              }}
+            >
+              Set Default Category
+            </Button>
+          </DialogClose>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+};
