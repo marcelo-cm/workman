@@ -1,8 +1,6 @@
 import { PostgrestSingleResponse } from '@supabase/supabase-js';
 import { decode } from 'base64-arraybuffer';
 import { UUID } from 'crypto';
-import { PredictResponse } from 'mindee';
-import { InvoiceV4 } from 'mindee/src/product';
 
 import { toast } from '@/components/ui/use-toast';
 
@@ -177,6 +175,7 @@ export class Invoice {
   }
 
   async update(data: InvoiceData) {
+    console.log('c% ---- Updating invoice ----', 'color: #ff0088');
     const { data: updatedInvoice, error }: PostgrestSingleResponse<Invoice> =
       await supabase
         .from('invoices')
@@ -193,8 +192,10 @@ export class Invoice {
       throw new Error(`Failed to update invoice: ${error.message}`);
     }
 
+    console.log('updatedInvoice', updatedInvoice);
+
     toast({
-      title: `Invoice ${updatedInvoice.fileName} has been updated`,
+      title: `Invoice has been updated`,
       variant: 'success',
     });
 
