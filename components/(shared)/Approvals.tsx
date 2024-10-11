@@ -151,14 +151,14 @@ const ApprovalAuditTrail = ({ approvals }: { approvals: Approval[] }) => {
   return (
     <div className="pt-2">
       {approvals.map((approval) => {
-        const color: Record<ApprovalStatus, string> = {
+        const style: Record<ApprovalStatus, string> = {
           [ApprovalStatus.APPROVED]: 'text-green-500',
           [ApprovalStatus.REJECTED]: 'text-red-500',
-          [ApprovalStatus.PENDING]: 'text-black',
+          [ApprovalStatus.PENDING]: 'hidden',
         };
 
         return (
-          <p className={`${color[approval.status as ApprovalStatus]}`}>
+          <p className={`${style[approval.status as ApprovalStatus]}`}>
             {toTitleCase(approval.status)} — {approval.approver.name}, on{' '}
             {approval.updatedAt.toLocaleDateString('US', {
               weekday: 'long',
