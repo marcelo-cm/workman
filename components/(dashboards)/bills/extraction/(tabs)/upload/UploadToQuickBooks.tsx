@@ -20,7 +20,6 @@ import Invoice from '@/models/Invoice';
 
 import { useInvoiceExtractionReview } from '../../InvoiceExtractionReview';
 import InvoiceDataTable from './InvoiceDataTable';
-import InvoiceLineItemTable from './InvoiceLineItemTable';
 
 const UploadToQuickBooks = () => {
   const { files, accounts, vendors, customers, activeIndex, setActiveIndex } =
