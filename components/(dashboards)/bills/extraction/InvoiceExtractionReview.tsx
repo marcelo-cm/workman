@@ -99,9 +99,7 @@ const InvoiceExtractionReview = ({ files }: { files: Invoice[] }) => {
 
   const handleSetActiveIndex = (increment: 1 | -1) => {
     setActiveIndex((prev: number) => {
-      const nextValue = prev + increment;
-      if (nextValue < 0) return files.length - 1;
-      if (nextValue >= files.length) return 0;
+      const nextValue = (prev + increment) % files.length;
       return nextValue;
     });
   };
@@ -142,7 +140,7 @@ const InvoiceExtractionReview = ({ files }: { files: Invoice[] }) => {
                 </div>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="bg-white">
-                <DropdownMenuLabel>Queue ({files.length})</DropdownMenuLabel>
+                <DropdownMenuLabel>Bills ({files.length})</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 {files.map((file, index) => (
                   <DropdownMenuItem
@@ -150,9 +148,9 @@ const InvoiceExtractionReview = ({ files }: { files: Invoice[] }) => {
                     onClick={() => setActiveIndex(index)}
                     className="flex cursor-pointer items-center justify-between gap-4 rounded-md hover:bg-wm-white-50"
                   >
-                    {decodeURI(file.fileUrl.split('/')[8].split('.pdf')[0])}
+                    {decodeURI(file.fileName)}
                     {activeIndex === index ? (
-                      <Badge variant="success">Active</Badge>
+                      <Badge variant="success">Viewing</Badge>
                     ) : null}
                   </DropdownMenuItem>
                 ))}

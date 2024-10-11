@@ -10,11 +10,17 @@ import LoadingState from '@/components/ui/empty-state';
 import IfElseRender from '@/components/ui/if-else-renderer';
 import { TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-import { Invoice_Quickbooks, Vendor } from '@/interfaces/quickbooks.interfaces';
+import {
+  Account,
+  Invoice_Quickbooks,
+  LineItem_QuickBooks,
+  Vendor,
+} from '@/interfaces/quickbooks.interfaces';
 import Invoice from '@/models/Invoice';
 
 import { useInvoiceExtractionReview } from '../../InvoiceExtractionReview';
 import InvoiceDataTable from './InvoiceDataTable';
+import InvoiceLineItemTable from './InvoiceLineItemTable';
 
 const UploadToQuickBooks = () => {
   const { files, accounts, vendors, customers, activeIndex, setActiveIndex } =
@@ -78,7 +84,7 @@ const UploadToQuickBooks = () => {
                 }
               />
               <div
-                className={`space-y-3 rounded-md border  ${activeIndex == fileIndex ? 'rounded-t-none border-l-2 border-t-0 border-l-wm-orange-500' : null}`}
+                className={`rounded-md border  ${activeIndex == fileIndex ? 'rounded-t-none border-l-2 border-t-0 border-l-wm-orange-500' : null}`}
               >
                 <div
                   className={`flex w-full items-center justify-between border-b p-2 text-sm font-medium `}
@@ -112,17 +118,15 @@ const UploadToQuickBooks = () => {
                       {file.data.dueDate}
                     </div>
                   </div>
-                </div>
-                <div className={`gap-3 !pt-0`}>
-                  <InvoiceDataTable
-                    file={file}
-                    fileIndex={fileIndex}
-                    transformedFiles={transformedFiles}
-                    setTransformedFiles={setTransformedFiles}
-                    uploadedFileIndexes={uploadedFileIndexes}
-                    setUploadedFileIndexes={setUploadedFileIndexes}
-                  />
-                </div>
+                </div>{' '}
+                <InvoiceDataTable
+                  file={file}
+                  fileIndex={fileIndex}
+                  transformedFiles={transformedFiles}
+                  setTransformedFiles={setTransformedFiles}
+                  uploadedFileIndexes={uploadedFileIndexes}
+                  setUploadedFileIndexes={setUploadedFileIndexes}
+                />
               </div>
             </div>
           ))}
