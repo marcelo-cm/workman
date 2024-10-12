@@ -1,17 +1,12 @@
-import React, { useEffect, useState, useTransition } from 'react';
+import React, { useEffect, useState } from 'react';
 
-import {
-  ArrowLeftIcon,
-  BookmarkIcon,
-  EyeOpenIcon,
-} from '@radix-ui/react-icons';
-import { HammerIcon, Loader2Icon } from 'lucide-react';
+import { ArrowLeftIcon } from '@radix-ui/react-icons';
+import { HammerIcon } from 'lucide-react';
 
 import { UUID } from 'crypto';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ComboBox } from '@/components/ui/combo-box';
 import Container from '@/components/ui/container';
 import LoadingState from '@/components/ui/empty-state';
 import IfElseRender from '@/components/ui/if-else-renderer';
@@ -21,11 +16,12 @@ import { toast } from '@/components/ui/use-toast';
 import { useUser } from '@/lib/hooks/supabase/useUser';
 
 import { InvoiceStatus } from '@/constants/enums';
-import { InvoiceData } from '@/interfaces/common.interfaces';
 import { findMostSimilar } from '@/lib/utils';
 import Invoice from '@/models/Invoice';
 
 import { useInvoiceExtractionReview } from '../../InvoiceExtractionReview';
+import InvoiceActionBar from './InvoiceActionBar';
+import InvoiceDetails from './InvoiceDetails';
 import InvoiceLineItems from './InvoiceLineItems';
 
 const UploadToQuickBooks = () => {
@@ -189,85 +185,3 @@ const UploadToQuickBooks = () => {
 };
 
 export default UploadToQuickBooks;
-
-const InvoiceActionBar = ({
-  invoice,
-  idx,
-  onUpload,
-  onSaveAsDraft,
-}: {
-  invoice: Invoice;
-  idx: number;
-  onUpload: (invoice: Invoice, idx: number) => void;
-  onSaveAsDraft: (idx: number) => void;
-}) => {
-  const [isSubmitting, startSubmitting] = useTransition();
-  const { setActiveIndex } = useInvoiceExtractionReview();
-
-  return (
-    <div className="flex w-full flex-row justify-between border-t p-2">
-      <Button variant={'outline'} onClick={() => setActiveIndex(idx)}>
-        <EyeOpenIcon className="h-4 w-4" /> View
-      </Button>
-      <div className="flex flex-row gap-2">
-        <Button
-          variant={'ghost'}
-          onClick={() => startSubmitting(async () => onSaveAsDraft(idx))}
-          disabled={isSubmitting}
-        >
-          <BookmarkIcon /> Save as Draft
-        </Button>
-        <Button
-          variant={'secondary'}
-          disabled={isSubmitting || invoice.status !== InvoiceStatus.APPROVED}
-          onClick={() => startSubmitting(async () => onUpload(invoice, idx))}
-        >
-          <IfElseRender
-            condition={isSubmitting}
-            ifTrue={
-              <>
-                <Loader2Icon className="h-4 w-4 animate-spin" /> Submitting...
-              </>
-            }
-            ifFalse={
-              <>
-                <HammerIcon className="h-4 w-4" /> Submit
-              </>
-            }
-          />
-        </Button>
-      </div>
-    </div>
-  );
-};
-
-const InvoiceDetails = ({ invoice }: { invoice: InvoiceData }) => {
-  return (
-    <div className="flex w-full flex-row p-2">
-      <div className="mr-auto flex flex-col leading-tight">
-        <p>
-          <span className="font-medium">Total: </span>
-          {invoice.totalNet} (incl. tax)
-        </p>
-        <p>
-          <span className="font-medium">Vendor: </span>
-          {invoice.supplierName}
-        </p>
-        <p>
-          <span className="font-medium">Customer: </span>
-          {invoice.customerAddress}
-        </p>
-      </div>
-      <div className="ml-auto flex flex-col text-right leading-tight">
-        <p>
-          <span className="font-medium">Transaction Date: </span>
-          {invoice.date}
-        </p>
-        <p>
-          <span className="font-medium">Date Due: </span>
-          {invoice.dueDate}
-        </p>
-      </div>
-    </div>
-  );
-};
