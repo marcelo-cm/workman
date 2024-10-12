@@ -8,7 +8,7 @@ import { useUser } from '@/lib/hooks/supabase/useUser';
 
 import { PDFData } from '@/app/api/v1/gmail/messages/route';
 import { InvoiceStatus } from '@/constants/enums';
-import { InvoiceData } from '@/interfaces/common.interfaces';
+import { InvoiceData, InvoiceLineItem } from '@/interfaces/common.interfaces';
 import {
   Invoice_Quickbooks,
   LineItem_QuickBooks,
@@ -124,6 +124,9 @@ export class Invoice {
     return new Invoice(invoice);
   }
 
+  /**
+   * @deprecated Use a instance method instead, if bulk uploads then use a hook.
+   */
   static async uploadToQuickbooks(file: Invoice_Quickbooks) {
     const { data, error } = await supabase.auth.getUser();
 
@@ -175,7 +178,6 @@ export class Invoice {
   }
 
   async update(data: InvoiceData) {
-    console.log('c% ---- Updating invoice ----', 'color: #ff0088');
     const { data: updatedInvoice, error }: PostgrestSingleResponse<Invoice> =
       await supabase
         .from('invoices')
@@ -191,8 +193,6 @@ export class Invoice {
       });
       throw new Error(`Failed to update invoice: ${error.message}`);
     }
-
-    console.log('updatedInvoice', updatedInvoice);
 
     toast({
       title: `Invoice has been updated`,
@@ -223,7 +223,7 @@ export class Invoice {
     });
   }
 
-  async process() {
+  async scan() {
     const { id } = await fetchUserData();
     const fileUrl = this.fileUrl;
 
@@ -277,6 +277,21 @@ export class Invoice {
     this.updateStatus(InvoiceStatus.FOR_REVIEW);
 
     return responseData;
+  }
+
+  async submit() {
+    const { id } = await fetchUserData();
+
+    const response = await fetch(`/api/v1/quickbooks/company/bill`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        invoice: this,
+        userId: id,
+      }),
+    });
   }
 
   async updateStatus(status: InvoiceStatus) {
@@ -379,7 +394,7 @@ export class Invoice {
     return this._data.shippingAddress;
   }
 
-  get lineItems(): any {
+  get lineItems(): InvoiceLineItem[] {
     return this._data.lineItems;
   }
 
@@ -415,7 +430,7 @@ export class Invoice {
         dueDate: invoice.dueDate,
         customerAddress: invoice.customerAddress,
         notes: invoice.notes,
-        lineItems: invoice.lineItems.map((item: LineItem_QuickBooks) => ({
+        lineItems: invoice.lineItems.map((item: InvoiceLineItem) => ({
           ...item,
           customerId: '',
           billable: false,

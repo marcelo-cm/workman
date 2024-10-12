@@ -62,10 +62,10 @@ const page = () => {
     setInvoice(invoice);
   };
 
-  const processInvoice = async () => {
+  const scanInvoice = async () => {
     if (!invoice) return;
 
-    const data = await invoice.process();
+    const data = await invoice.scan();
     console.log(data);
     setInvoice(data);
   };
@@ -119,8 +119,8 @@ const page = () => {
           <Button onClick={uploadInvoice} disabled={!file || !!invoice}>
             Upload
           </Button>
-          <Button onClick={processInvoice} disabled={!invoice}>
-            Process
+          <Button onClick={scanInvoice} disabled={!invoice}>
+            Scan
           </Button>
           <Container className="w-96 max-w-96 p-4 ">
             <p>{JSON.stringify(invoice)}</p>

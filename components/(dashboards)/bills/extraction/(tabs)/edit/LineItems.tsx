@@ -222,21 +222,19 @@ const LineItems = ({
                 <FormItem className="flex h-full w-full flex-row items-center justify-center gap-2">
                   <FormLabel>Billable</FormLabel>
                   <FormControl>
-                    <>
-                      <Checkbox
-                        {...field}
-                        {...form.register(field.name)}
-                        onClick={(e) => {
-                          e.preventDefault();
-                          form.setValue(field.name, !field.value, {
-                            shouldValidate: true,
-                            shouldDirty: true,
-                          });
-                        }}
-                        value={field.value ? 1 : 0}
-                        checked={field.value}
-                      />
-                    </>
+                    <Checkbox
+                      {...field}
+                      {...form.register(field.name)}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        form.setValue(field.name, !field.value, {
+                          shouldValidate: true,
+                          shouldDirty: true,
+                        });
+                      }}
+                      value={field.value ? 1 : 0}
+                      checked={field.value}
+                    />
                   </FormControl>
                   <Button
                     type="button"
