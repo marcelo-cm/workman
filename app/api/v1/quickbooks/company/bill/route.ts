@@ -27,7 +27,7 @@ interface InvoiceDataWithMatchedValues extends Omit<InvoiceData, 'lineItems'> {
  */
 interface InvoiceWithMatchedValues
   extends Omit<Invoice, 'data' | 'supplierName' | 'customerAddress'> {
-  _data: InvoiceDataWithMatchedValues;
+  data: InvoiceDataWithMatchedValues;
   _file_url: string;
   supplierName: Vendor;
   customerAddress: Customer;
@@ -49,6 +49,9 @@ export async function POST(req: NextRequest) {
   }
 
   const { realmId, token } = await getCredentials(userId);
+
+  console.log('realmId:', realmId);
+  console.log('token:', token);
 
   if (!realmId || !token) {
     return new NextResponse(JSON.stringify('QuickBooks not authorized'), {
@@ -78,7 +81,7 @@ const getCredentials = async (userId: string) => {
 
 const preparePayload = (invoice: InvoiceWithMatchedValues) => {
   try {
-    const lineItems: LineItem[] = invoice._data.lineItems.map((item) => ({
+    const lineItems: LineItem[] = invoice.data.lineItems.map((item) => ({
       DetailType: 'AccountBasedExpenseLineDetail',
       Amount: parseFloat(item.totalAmount),
       AccountBasedExpenseLineDetail: {
@@ -98,13 +101,13 @@ const preparePayload = (invoice: InvoiceWithMatchedValues) => {
       VendorRef: {
         value: invoice.supplierName.Id,
       },
-      TxnDate: invoice._data.date,
-      DueDate: invoice._data.dueDate,
+      TxnDate: invoice.data.date,
+      DueDate: invoice.data.dueDate,
       CurrencyRef: {
         value: 'USD', // Assuming the currency is USD; replace if needed
       },
       PrivateNote:
-        invoice._data.notes +
+        invoice.data.notes +
         '\n\n' +
         invoice._file_url +
         '\n\n Filed by Workman',
@@ -115,8 +118,7 @@ const preparePayload = (invoice: InvoiceWithMatchedValues) => {
 
     return bill;
   } catch (e: unknown) {
-    console.log('---ERROR---', e);
-    throw new Error('The file is incomplete or invalid');
+    throw new Error(`The file is incomplete or invalid, ${String(e)}`);
   }
 };
 
@@ -125,9 +127,6 @@ const sendBillToQuickBooks = async (
   token: string,
   bill: Bill,
 ) => {
-  console.log('---BILL---', bill);
-  return;
-  console.log('submitted');
   const url = `https://quickbooks.api.intuit.com/v3/company/${realmId}/bill`;
 
   const response = await fetch(url, {

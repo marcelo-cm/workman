@@ -140,20 +140,23 @@ const InvoiceActionBar = ({
         ...invoice,
         customerAddress: matchedCustomer,
         supplierName: matchedVendor,
-        lineItems: invoice.lineItems.map((lineItem) => {
-          const matchedAccount = lineItem.productCode
-            ? findMostSimilar(
-                lineItem.productCode,
-                accounts,
-                (account) => account.Name,
-              )
-            : null;
+        data: {
+          ...invoice.data,
+          lineItems: invoice.lineItems.map((lineItem) => {
+            const matchedAccount = lineItem.productCode
+              ? findMostSimilar(
+                  lineItem.productCode,
+                  accounts,
+                  (account) => account.Name,
+                )
+              : null;
 
-          return {
-            ...lineItem,
-            productCode: matchedAccount,
-          };
-        }),
+            return {
+              ...lineItem,
+              productCode: matchedAccount,
+            };
+          }),
+        },
       };
 
       const response = await fetch('/api/v1/quickbooks/company/bill', {
@@ -168,6 +171,7 @@ const InvoiceActionBar = ({
       });
 
       if (response.ok) {
+        // invoice.updateStatus(InvoiceStatus.PROCESSED);
         onProcess(idx);
       } else {
         toast({
