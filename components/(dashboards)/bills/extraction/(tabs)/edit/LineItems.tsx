@@ -6,6 +6,7 @@ import { UseFormReturn, useFieldArray } from 'react-hook-form';
 import { z } from 'zod';
 
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { ComboBox } from '@/components/ui/combo-box';
 import Container from '@/components/ui/container';
 import {
@@ -43,6 +44,7 @@ const LineItems = ({
       totalAmount: '',
       unitPrice: 0,
       pageId: 0,
+      billable: true,
     });
   };
 
@@ -213,17 +215,40 @@ const LineItems = ({
                 </FormItem>
               )}
             />
-            <div className="flex items-center justify-end gap-4 self-end text-xs">
-              Confidence: {Number(lineItem?.confidence) * 100}%
-              <Button
-                type="button"
-                onClick={() => remove(index)}
-                variant={'ghost'}
-                className="h-8 w-8 p-0 hover:bg-wm-white-50 hover:text-red-500"
-              >
-                <TrashIcon />
-              </Button>
-            </div>
+            <FormField
+              control={form.control}
+              name={`lineItems.${index}.billable`}
+              render={({ field }) => (
+                <FormItem className="flex h-full w-full flex-row items-center justify-center gap-2">
+                  <FormLabel>Billable</FormLabel>
+                  <FormControl>
+                    <>
+                      <Checkbox
+                        {...field}
+                        {...form.register(field.name)}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          form.setValue(field.name, !field.value, {
+                            shouldValidate: true,
+                            shouldDirty: true,
+                          });
+                        }}
+                        value={field.value ? 1 : 0}
+                        checked={field.value}
+                      />
+                    </>
+                  </FormControl>
+                  <Button
+                    type="button"
+                    onClick={() => remove(index)}
+                    variant={'ghost'}
+                    className="ml-auto mt-auto h-8 w-8 p-0 hover:bg-wm-white-50 hover:text-red-500"
+                  >
+                    <TrashIcon />
+                  </Button>
+                </FormItem>
+              )}
+            />
           </div>
         ))) || (
         <p className="border-b px-2 pb-3 text-center text-wm-white-300">

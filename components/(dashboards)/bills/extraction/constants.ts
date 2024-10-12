@@ -37,6 +37,7 @@ export const invoiceDataFormSchema = z.object({
           .regex(/^\d+(\.\d+)?$/, 'Number must be positive and decimal'),
         unitPrice: z.number().min(0, 'Unit price should be a positive number'),
         pageId: z.number().min(0, 'Page ID should be a positive number'),
+        billable: z.boolean(),
       }),
     )
     .min(1, 'At least one line item is required'),

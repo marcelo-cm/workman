@@ -124,7 +124,7 @@ const parseMindeeResponse = async (
         totalAmount: item?.totalAmount?.toFixed(2) || '0',
         unitPrice: item.unitPrice || 0,
         pageId: item.pageId || 0,
-        polygon: item.polygon,
+        billable: true,
       })) || [],
     notes: '',
   };
