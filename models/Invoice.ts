@@ -279,21 +279,6 @@ export class Invoice {
     return responseData;
   }
 
-  async submit() {
-    const { id } = await fetchUserData();
-
-    const response = await fetch(`/api/v1/quickbooks/company/bill`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        invoice: this,
-        userId: id,
-      }),
-    });
-  }
-
   async updateStatus(status: InvoiceStatus) {
     if (status === this.status) {
       return;

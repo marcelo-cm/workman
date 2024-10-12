@@ -22,9 +22,13 @@ interface InvoiceDataWithMatchedValues extends Omit<InvoiceData, 'lineItems'> {
   lineItems: LineItemWithMatchedAccount[];
 }
 
+/**
+ * Invoice with matched values,
+ */
 interface InvoiceWithMatchedValues
   extends Omit<Invoice, 'data' | 'supplierName' | 'customerAddress'> {
-  data: InvoiceDataWithMatchedValues;
+  _data: InvoiceDataWithMatchedValues;
+  _file_url: string;
   supplierName: Vendor;
   customerAddress: Customer;
 }
@@ -73,10 +77,6 @@ const getCredentials = async (userId: string) => {
 };
 
 const preparePayload = (invoice: InvoiceWithMatchedValues) => {
-  console.log('---INVOICE---', invoice);
-  console.log('---INVOICE DATA---', invoice._data!);
-  console.log('---INVOICE LINE ITEMS---', invoice._data.lineItems);
-
   try {
     const lineItems: LineItem[] = invoice._data.lineItems.map((item) => ({
       DetailType: 'AccountBasedExpenseLineDetail',
@@ -92,9 +92,6 @@ const preparePayload = (invoice: InvoiceWithMatchedValues) => {
       },
       Description: item.description,
     }));
-
-    console.log('TxnDate', invoice._data.date);
-    console.log('DueDate', invoice._data.dueDate);
 
     const bill: Bill = {
       Line: lineItems,
