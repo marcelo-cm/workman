@@ -50,9 +50,6 @@ export async function POST(req: NextRequest) {
 
   const { realmId, token } = await getCredentials(userId);
 
-  console.log('realmId:', realmId);
-  console.log('token:', token);
-
   if (!realmId || !token) {
     return new NextResponse(JSON.stringify('QuickBooks not authorized'), {
       status: StatusCodes.UNAUTHORIZED,
@@ -127,6 +124,8 @@ const sendBillToQuickBooks = async (
   token: string,
   bill: Bill,
 ) => {
+  console.log('Sending bill to QuickBooks:', bill);
+
   const url = `https://quickbooks.api.intuit.com/v3/company/${realmId}/bill`;
 
   const response = await fetch(url, {

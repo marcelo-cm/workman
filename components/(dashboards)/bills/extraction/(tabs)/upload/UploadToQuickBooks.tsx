@@ -7,6 +7,8 @@ import {
 } from '@radix-ui/react-icons';
 import { HammerIcon, Loader2Icon } from 'lucide-react';
 
+import { UUID } from 'crypto';
+
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ComboBox } from '@/components/ui/combo-box';
@@ -29,6 +31,7 @@ import InvoiceLineItems from './InvoiceLineItems';
 const UploadToQuickBooks = () => {
   const { files, accounts, vendors, customers, activeIndex, setActiveIndex } =
     useInvoiceExtractionReview();
+  const { fetchUserData } = useUser();
   const [uploadedFileIndexes, setUploadedFileIndexes] = useState<number[]>([]);
 
   const initialLoading = !(
@@ -49,6 +52,85 @@ const UploadToQuickBooks = () => {
 
   const handleProcess = async (fileIndex: number) => {
     setUploadedFileIndexes([...uploadedFileIndexes, fileIndex]);
+  };
+
+  const handleUploadToQuickBooks = async (
+    invoice: Invoice,
+    idx: number,
+    userId?: UUID,
+  ) => {
+    let id = userId;
+
+    if (!id) {
+      const userData = await fetchUserData();
+      id = userData.id;
+    }
+
+    const matchedCustomer = findMostSimilar(
+      invoice.customerAddress,
+      customers,
+      (customer) => customer.DisplayName,
+    );
+
+    const matchedVendor = findMostSimilar(
+      invoice.supplierName,
+      vendors,
+      (vendor) => vendor.DisplayName,
+    );
+
+    const invoiceWithMatchedValues = {
+      ...invoice,
+      customerAddress: matchedCustomer,
+      supplierName: matchedVendor,
+      data: {
+        ...invoice.data,
+        lineItems: invoice.lineItems.map((lineItem) => {
+          const matchedAccount = lineItem.productCode
+            ? findMostSimilar(
+                lineItem.productCode,
+                accounts,
+                (account) => account.Name,
+              )
+            : null;
+
+          return {
+            ...lineItem,
+            productCode: matchedAccount,
+          };
+        }),
+      },
+    };
+
+    const response = await fetch('/api/v1/quickbooks/company/bill', {
+      method: 'POST',
+      body: JSON.stringify({
+        userId: id,
+        invoice: invoiceWithMatchedValues,
+      }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (response.ok) {
+      invoice.updateStatus(InvoiceStatus.PROCESSED);
+      handleProcess(idx);
+    } else {
+      toast({
+        title: 'Error',
+        description: 'Failed to send the bill to QuickBooks',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleUploadAllToQuickBooks = async () => {
+    const { id } = await fetchUserData();
+    await Promise.all(
+      files.map((file, idx) => handleUploadToQuickBooks(file, idx, id)),
+    ).then(() => {
+      console.log('All files uploaded');
+    });
   };
 
   return (
@@ -82,7 +164,8 @@ const UploadToQuickBooks = () => {
                 <InvoiceActionBar
                   invoice={file}
                   idx={fileIndex}
-                  onProcess={handleProcess}
+                  onUpload={handleUploadToQuickBooks}
+                  onSaveAsDraft={handleProcess}
                 />
               </Container>
             </div>
@@ -97,8 +180,8 @@ const UploadToQuickBooks = () => {
             </Button>
           </TabsTrigger>
         </TabsList>
-        <Button onClick={() => window.location.reload()}>
-          <HammerIcon className="h-4 w-4" /> Done
+        <Button onClick={() => handleUploadAllToQuickBooks()}>
+          <HammerIcon className="h-4 w-4" /> Submit All
         </Button>
       </div>
     </>
@@ -110,78 +193,16 @@ export default UploadToQuickBooks;
 const InvoiceActionBar = ({
   invoice,
   idx,
-  onProcess,
+  onUpload,
+  onSaveAsDraft,
 }: {
   invoice: Invoice;
   idx: number;
-  onProcess: (idx: number) => void;
+  onUpload: (invoice: Invoice, idx: number) => void;
+  onSaveAsDraft: (idx: number) => void;
 }) => {
   const [isSubmitting, startSubmitting] = useTransition();
-  const { fetchUserData } = useUser();
-  const { files, accounts, vendors, customers, activeIndex, setActiveIndex } =
-    useInvoiceExtractionReview();
-
-  const handleProcess = async () => {
-    startSubmitting(async () => {
-      const { id } = await fetchUserData();
-      const matchedCustomer = findMostSimilar(
-        invoice.customerAddress,
-        customers,
-        (customer) => customer.DisplayName,
-      );
-
-      const matchedVendor = findMostSimilar(
-        invoice.supplierName,
-        vendors,
-        (vendor) => vendor.DisplayName,
-      );
-
-      const invoiceWithMatchedValues = {
-        ...invoice,
-        customerAddress: matchedCustomer,
-        supplierName: matchedVendor,
-        data: {
-          ...invoice.data,
-          lineItems: invoice.lineItems.map((lineItem) => {
-            const matchedAccount = lineItem.productCode
-              ? findMostSimilar(
-                  lineItem.productCode,
-                  accounts,
-                  (account) => account.Name,
-                )
-              : null;
-
-            return {
-              ...lineItem,
-              productCode: matchedAccount,
-            };
-          }),
-        },
-      };
-
-      const response = await fetch('/api/v1/quickbooks/company/bill', {
-        method: 'POST',
-        body: JSON.stringify({
-          userId: id,
-          invoice: invoiceWithMatchedValues,
-        }),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (response.ok) {
-        // invoice.updateStatus(InvoiceStatus.PROCESSED);
-        onProcess(idx);
-      } else {
-        toast({
-          title: 'Error',
-          description: 'Failed to send the bill to QuickBooks',
-          variant: 'destructive',
-        });
-      }
-    });
-  };
+  const { setActiveIndex } = useInvoiceExtractionReview();
 
   return (
     <div className="flex w-full flex-row justify-between border-t p-2">
@@ -191,7 +212,7 @@ const InvoiceActionBar = ({
       <div className="flex flex-row gap-2">
         <Button
           variant={'ghost'}
-          onClick={() => startSubmitting(() => onProcess(idx))}
+          onClick={() => startSubmitting(async () => onSaveAsDraft(idx))}
           disabled={isSubmitting}
         >
           <BookmarkIcon /> Save as Draft
@@ -199,7 +220,7 @@ const InvoiceActionBar = ({
         <Button
           variant={'secondary'}
           disabled={isSubmitting || invoice.status !== InvoiceStatus.APPROVED}
-          onClick={() => handleProcess()}
+          onClick={() => startSubmitting(async () => onUpload(invoice, idx))}
         >
           <IfElseRender
             condition={isSubmitting}

@@ -30,7 +30,7 @@ export const invoiceDataFormSchema = z.object({
       z.object({
         confidence: z.number().min(0, 'Confidence should be a positive number'),
         description: z.string().min(1, 'Description is required'),
-        productCode: z.string().optional(),
+        productCode: z.string(),
         quantity: z.number().min(0, 'Quantity should be a positive number'),
         totalAmount: z
           .string()
