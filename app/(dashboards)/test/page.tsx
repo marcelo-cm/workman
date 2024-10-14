@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 
 import PDFViewer from '@/components/(shared)/PDF/PDFViewer';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { ComboBox } from '@/components/ui/combo-box';
 import Container from '@/components/ui/container';
 import { Input } from '@/components/ui/input';
@@ -61,10 +62,10 @@ const page = () => {
     setInvoice(invoice);
   };
 
-  const processInvoice = async () => {
+  const scanInvoice = async () => {
     if (!invoice) return;
 
-    const data = await invoice.process();
+    const data = await invoice.scan();
     console.log(data);
     setInvoice(data);
   };
@@ -118,12 +119,15 @@ const page = () => {
           <Button onClick={uploadInvoice} disabled={!file || !!invoice}>
             Upload
           </Button>
-          <Button onClick={processInvoice} disabled={!invoice}>
-            Process
+          <Button onClick={scanInvoice} disabled={!invoice}>
+            Scan
           </Button>
           <Container className="w-96 max-w-96 p-4 ">
             <p>{JSON.stringify(invoice)}</p>
           </Container>
+        </TabsContent>
+        <TabsContent value="3">
+          <Checkbox checked={true} />
         </TabsContent>
       </section>
     </Tabs>

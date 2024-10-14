@@ -1,4 +1,3 @@
-import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 
 /**
@@ -33,7 +32,7 @@ export interface InvoiceLineItem {
   totalAmount: string;
   unitPrice: number;
   pageId: number;
-  // polygon: Polygon;
+  billable: boolean;
 }
 
 export const ReceiptDataSchema = z.object({

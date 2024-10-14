@@ -195,7 +195,7 @@ export function InvoiceDataTable<TData, TValue>({
     const handleScanInvoices = async (selectedInvoices: Invoice[]) => {
       setIsUploading(true);
       const scanPromises = selectedInvoices.map(
-        async (invoice) => await invoice.process(),
+        async (invoice) => await invoice.scan(),
       );
       await Promise.all(scanPromises).then(() => {
         tabValue &&

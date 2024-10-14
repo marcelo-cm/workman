@@ -30,13 +30,14 @@ export const invoiceDataFormSchema = z.object({
       z.object({
         confidence: z.number().min(0, 'Confidence should be a positive number'),
         description: z.string().min(1, 'Description is required'),
-        productCode: z.string().optional(),
+        productCode: z.string(),
         quantity: z.number().min(0, 'Quantity should be a positive number'),
         totalAmount: z
           .string()
           .regex(/^\d+(\.\d+)?$/, 'Number must be positive and decimal'),
         unitPrice: z.number().min(0, 'Unit price should be a positive number'),
         pageId: z.number().min(0, 'Page ID should be a positive number'),
+        billable: z.boolean(),
       }),
     )
     .min(1, 'At least one line item is required'),

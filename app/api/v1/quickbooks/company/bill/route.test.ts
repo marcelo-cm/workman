@@ -51,10 +51,15 @@ describe('POST /api/bills', () => {
     });
 
     it('should throw an error if the file is invalid', async () => {
-      const req = mockRequest({ userId: 'mock-user-id', file: INVALID_FILE });
+      const req = mockRequest({
+        userId: 'mock-user-id',
+        invoice: INVALID_FILE,
+      });
 
       await expect(POST(req)).rejects.toThrow(
-        new Error('The file is incomplete or invalid'),
+        new Error(
+          `The file is incomplete or invalid, TypeError: Cannot read properties of undefined (reading 'Id')`,
+        ),
       );
     });
   });
@@ -63,7 +68,7 @@ describe('POST /api/bills', () => {
     it('should return 200 and response data if QuickBooks is authorized', async () => {
       const req = mockRequest({
         userId: 'some-user-id',
-        file: VALID_FILE,
+        invoice: VALID_FILE,
       });
 
       const result = await POST(req);
@@ -96,7 +101,7 @@ describe('POST /api/bills', () => {
         };
       });
 
-      const req = mockRequest({ userId: 'some-user-id', file: VALID_FILE });
+      const req = mockRequest({ userId: 'some-user-id', invoice: VALID_FILE });
 
       const result = await POST(req);
 
