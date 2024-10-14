@@ -288,7 +288,7 @@ const ExtractionTabs = ({
         <SaveDefaultCategoryPopup
           isOpen={isSaveDefaultCategoryDialogOpen}
           vendorName={watchVendorName}
-          category={watchLineItems[0]?.productCode as string}
+          category={(watchLineItems[0]?.productCode as string) ?? 'None'}
           onClose={() => setIsSaveDefaultCategoryDialogOpen(false)}
         />
       </div>

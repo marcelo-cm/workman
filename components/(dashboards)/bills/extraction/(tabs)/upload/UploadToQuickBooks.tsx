@@ -3,37 +3,37 @@ import React, { useEffect, useState } from 'react';
 import { ArrowLeftIcon } from '@radix-ui/react-icons';
 import { HammerIcon } from 'lucide-react';
 
+import { UUID } from 'crypto';
+
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ComboBox } from '@/components/ui/combo-box';
+import Container from '@/components/ui/container';
 import LoadingState from '@/components/ui/empty-state';
 import IfElseRender from '@/components/ui/if-else-renderer';
 import { TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { toast } from '@/components/ui/use-toast';
 
-import {
-  Account,
-  Invoice_Quickbooks,
-  LineItem_QuickBooks,
-  Vendor,
-} from '@/interfaces/quickbooks.interfaces';
+import { useUser } from '@/lib/hooks/supabase/useUser';
+
+import { InvoiceStatus } from '@/constants/enums';
+import { findMostSimilar } from '@/lib/utils';
 import Invoice from '@/models/Invoice';
 
 import { useInvoiceExtractionReview } from '../../InvoiceExtractionReview';
-import InvoiceDataTable from './InvoiceDataTable';
+import InvoiceActionBar from './InvoiceActionBar';
+import InvoiceDetails from './InvoiceDetails';
+import InvoiceLineItems from './InvoiceLineItems';
 
 const UploadToQuickBooks = () => {
   const { files, accounts, vendors, customers, activeIndex, setActiveIndex } =
     useInvoiceExtractionReview();
+  const { fetchUserData } = useUser();
   const [uploadedFileIndexes, setUploadedFileIndexes] = useState<number[]>([]);
-  const [transformedFiles, setTransformedFiles] = useState<
-    Invoice_Quickbooks[]
-  >([]);
 
   const initialLoading = !(
     vendors.length &&
     customers.length &&
-    accounts.length &&
-    transformedFiles.length
+    accounts.length
   );
 
   useEffect(() => {
@@ -41,29 +41,92 @@ const UploadToQuickBooks = () => {
   }, []);
 
   useEffect(() => {
-    transformData();
-  }, [files]);
-
-  useEffect(() => {
     if (uploadedFileIndexes.length === files.length) {
       window.location.reload();
     }
   }, [uploadedFileIndexes]);
 
-  const transformData = async () => {
-    const transformed: Invoice_Quickbooks[] = await Promise.all(
-      files.map(async (file) => {
-        const parsedInvoice = await Invoice.transformToQuickBooksInvoice(file);
-        return parsedInvoice;
-      }),
-    );
-    setTransformedFiles(transformed as unknown as Invoice_Quickbooks[]);
+  const handleProcess = async (fileIndex: number) => {
+    setUploadedFileIndexes([...uploadedFileIndexes, fileIndex]);
   };
 
-  const handleVendorSelect = (value: Vendor, fileIndex: number) => {
-    const updatedFiles = [...transformedFiles];
-    updatedFiles[fileIndex].data.vendorId = value.Id;
-    setTransformedFiles(updatedFiles);
+  const handleUploadToQuickBooks = async (
+    invoice: Invoice,
+    idx: number,
+    userId?: UUID,
+  ) => {
+    let id = userId;
+
+    if (!id) {
+      const userData = await fetchUserData();
+      id = userData.id;
+    }
+
+    const matchedCustomer = findMostSimilar(
+      invoice.customerAddress,
+      customers,
+      (customer) => customer.DisplayName,
+    );
+
+    const matchedVendor = findMostSimilar(
+      invoice.supplierName,
+      vendors,
+      (vendor) => vendor.DisplayName,
+    );
+
+    const invoiceWithMatchedValues = {
+      ...invoice,
+      customerAddress: matchedCustomer,
+      supplierName: matchedVendor,
+      data: {
+        ...invoice.data,
+        lineItems: invoice.lineItems.map((lineItem) => {
+          const matchedAccount = lineItem.productCode
+            ? findMostSimilar(
+                lineItem.productCode,
+                accounts,
+                (account) => account.Name,
+              )
+            : null;
+
+          return {
+            ...lineItem,
+            productCode: matchedAccount,
+          };
+        }),
+      },
+    };
+
+    const response = await fetch('/api/v1/quickbooks/company/bill', {
+      method: 'POST',
+      body: JSON.stringify({
+        userId: id,
+        invoice: invoiceWithMatchedValues,
+      }),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (response.ok) {
+      invoice.updateStatus(InvoiceStatus.PROCESSED);
+      handleProcess(idx);
+    } else {
+      toast({
+        title: 'Error',
+        description: 'Failed to send the bill to QuickBooks',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleUploadAllToQuickBooks = async () => {
+    const { id } = await fetchUserData();
+    await Promise.all(
+      files.map((file, idx) => handleUploadToQuickBooks(file, idx, id)),
+    ).then(() => {
+      console.log('All files uploaded');
+    });
   };
 
   return (
@@ -82,51 +145,25 @@ const UploadToQuickBooks = () => {
                   </div>
                 }
               />
-              <div
-                className={`rounded-md border  ${activeIndex == fileIndex ? 'rounded-t-none border-l-2 border-t-0 border-l-wm-orange-500' : null}`}
+              <Container
+                className={`rounded-md border ${activeIndex == fileIndex ? 'rounded-t-none border-l-2 border-t-0 border-l-wm-orange-500' : null}`}
+                innerClassName=" text-sm flex flex-col justify-between"
+                header={
+                  <>
+                    {file.fileName}
+                    <Badge className="ml-auto">No. {file.invoiceNumber}</Badge>
+                  </>
+                }
               >
-                <div
-                  className={`flex w-full items-center justify-between border-b p-2 text-sm font-medium `}
-                >
-                  <div className="flex flex-col gap-1">
-                    <ComboBox
-                      options={vendors}
-                      valueToMatch={file.data.supplierName}
-                      callBackFunction={(value) =>
-                        handleVendorSelect(value, fileIndex)
-                      }
-                      getOptionLabel={(option) => option?.DisplayName}
-                    />{' '}
-                    <p className="ml-2 mt-1 text-xs leading-none text-wm-white-500">
-                      {file.data.supplierName}
-                    </p>
-                    <p className="ml-2 text-xs leading-none text-wm-white-500">
-                      {file.data.customerAddress}
-                    </p>
-                  </div>
-                  <div className="flex flex-col items-end font-normal">
-                    <Badge className="text-wm-black-500 mb-1 font-medium">
-                      No. {file.data.invoiceNumber}
-                    </Badge>
-                    <div>
-                      <p className="inline font-medium">Txn Date: </p>
-                      {file.data.date}
-                    </div>
-                    <div>
-                      <p className="inline font-medium">Due Date: </p>
-                      {file.data.dueDate}
-                    </div>
-                  </div>
-                </div>{' '}
-                <InvoiceDataTable
-                  file={file}
-                  fileIndex={fileIndex}
-                  transformedFiles={transformedFiles}
-                  setTransformedFiles={setTransformedFiles}
-                  uploadedFileIndexes={uploadedFileIndexes}
-                  setUploadedFileIndexes={setUploadedFileIndexes}
+                <InvoiceDetails invoice={file} />
+                <InvoiceLineItems invoice={file} />
+                <InvoiceActionBar
+                  invoice={file}
+                  idx={fileIndex}
+                  onUpload={handleUploadToQuickBooks}
+                  onSaveAsDraft={handleProcess}
                 />
-              </div>
+              </Container>
             </div>
           ))}
         />
@@ -139,8 +176,8 @@ const UploadToQuickBooks = () => {
             </Button>
           </TabsTrigger>
         </TabsList>
-        <Button onClick={() => window.location.reload()}>
-          <HammerIcon className="h-4 w-4" /> Done
+        <Button onClick={() => handleUploadAllToQuickBooks()}>
+          <HammerIcon className="h-4 w-4" /> Submit All
         </Button>
       </div>
     </>
