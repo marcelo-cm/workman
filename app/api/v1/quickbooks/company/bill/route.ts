@@ -1,37 +1,14 @@
-import { Nango } from '@nangohq/node';
 import { StatusCodes } from 'http-status-codes';
 import { NextRequest, NextResponse } from 'next/server';
 
-import { InvoiceData, InvoiceLineItem } from '@/interfaces/common.interfaces';
-import { Account, Customer, Vendor } from '@/interfaces/quickbooks.interfaces';
-import Invoice from '@/models/Invoice';
+import { internalServerError, ok } from '@/app/api/utils';
+import {
+  getQuickBooksRealmId,
+  getQuickBooksToken,
+} from '@/lib/utils/nango/quickbooks.server';
 
-import { BillSchema, LineItemSchema } from './constants';
-import { Bill, LineItem } from './interfaces';
-
-const nango = new Nango({
-  secretKey: process.env.NANGO_SECRET_KEY!,
-});
-
-interface LineItemWithMatchedAccount
-  extends Omit<InvoiceLineItem, 'productCode'> {
-  productCode: Account;
-}
-
-interface InvoiceDataWithMatchedValues extends Omit<InvoiceData, 'lineItems'> {
-  lineItems: LineItemWithMatchedAccount[];
-}
-
-/**
- * Invoice with matched values,
- */
-interface InvoiceWithMatchedValues
-  extends Omit<Invoice, 'data' | 'supplierName' | 'customerAddress'> {
-  data: InvoiceDataWithMatchedValues;
-  _file_url: string;
-  supplierName: Vendor;
-  customerAddress: Customer;
-}
+import { BillSchema } from './constants';
+import { Bill, InvoiceWithMatchedValues, LineItem } from './interfaces';
 
 export async function POST(req: NextRequest) {
   const {
@@ -48,33 +25,32 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const { realmId, token } = await getCredentials(userId);
+  try {
+    const quickbooksToken = await getQuickBooksToken(userId);
 
-  if (!realmId || !token) {
-    return new NextResponse(JSON.stringify('QuickBooks not authorized'), {
-      status: StatusCodes.UNAUTHORIZED,
-    });
+    if (!quickbooksToken) {
+      return internalServerError('QuickBooks token not found');
+    }
+
+    const quickbooksRealmId = await getQuickBooksRealmId(userId);
+
+    if (!quickbooksRealmId) {
+      return internalServerError('QuickBooks realm ID not found');
+    }
+
+    const bill = preparePayload(invoice);
+    const response = await sendBillToQuickBooks(
+      quickbooksRealmId,
+      String(quickbooksToken),
+      bill,
+    );
+
+    return ok(response);
+  } catch (e: unknown) {
+    console.log(e);
+    return internalServerError('Failed to upload bill to QuickBooks');
   }
-
-  const bill = preparePayload(invoice);
-  const response = await sendBillToQuickBooks(realmId, String(token), bill);
-
-  return new NextResponse(JSON.stringify(response), {
-    status: StatusCodes.OK,
-  });
 }
-
-const getCredentials = async (userId: string) => {
-  const token = await nango.getToken('quickbooks', userId);
-  const connection = await nango.getConnection('quickbooks', userId);
-  const realmId = connection?.connection_config.realmId;
-
-  if (!token || !realmId) {
-    return { token: undefined, realmId: undefined };
-  }
-
-  return { token, realmId };
-};
 
 const preparePayload = (invoice: InvoiceWithMatchedValues) => {
   try {
@@ -140,13 +116,9 @@ const sendBillToQuickBooks = async (
 
   if (!response.ok) {
     const errorText = await response.text();
-    console.error(
-      'Failed to create bill in QuickBooks:',
-      response.status,
-      response.statusText,
-      errorText,
+    throw new Error(
+      `${response.status}: Failed to fetch customer list, ${errorText}`,
     );
-    return [];
   }
 
   const data = await response.json();

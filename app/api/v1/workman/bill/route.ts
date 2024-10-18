@@ -13,12 +13,6 @@ import { createMindeeClient } from '@/lib/utils/mindee/client';
 import { createClient } from '@/lib/utils/supabase/server';
 import Invoice from '@/models/Invoice';
 
-interface NewInvoiceData
-  extends Omit<InvoiceData, 'supplierName' | 'customerName'> {
-  supplierName: Vendor;
-  customerName: Customer;
-}
-
 const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
 
 export async function POST(
