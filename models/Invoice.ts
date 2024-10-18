@@ -9,11 +9,7 @@ import { useUser } from '@/lib/hooks/supabase/useUser';
 import { PDFData } from '@/app/api/v1/gmail/messages/route';
 import { InvoiceStatus } from '@/constants/enums';
 import { InvoiceData, InvoiceLineItem } from '@/interfaces/common.interfaces';
-import {
-  Invoice_Quickbooks,
-  LineItem_QuickBooks,
-} from '@/interfaces/quickbooks.interfaces';
-import { mindeeScan } from '@/lib/actions/actions';
+import { Invoice_Quickbooks } from '@/interfaces/quickbooks.interfaces';
 import { createClient } from '@/lib/utils/supabase/client';
 
 import { Company } from './Company';
