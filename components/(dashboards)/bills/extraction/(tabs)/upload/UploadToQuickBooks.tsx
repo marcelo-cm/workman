@@ -15,12 +15,8 @@ import { toast } from '@/components/ui/use-toast';
 
 import { useUser } from '@/lib/hooks/supabase/useUser';
 
-import {
-  Account,
-  Invoice_Quickbooks,
-  LineItem_QuickBooks,
-  Vendor,
-} from '@/interfaces/quickbooks.interfaces';
+import { InvoiceStatus } from '@/constants/enums';
+import { findMostSimilar } from '@/lib/utils';
 import Invoice from '@/models/Invoice';
 
 import { useInvoiceExtractionReview } from '../../InvoiceExtractionReview';

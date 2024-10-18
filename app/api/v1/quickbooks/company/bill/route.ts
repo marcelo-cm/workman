@@ -1,7 +1,11 @@
-import { StatusCodes } from 'http-status-codes';
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 
-import { internalServerError, ok } from '@/app/api/utils';
+import {
+  badRequest,
+  internalServerError,
+  ok,
+  unauthorized,
+} from '@/app/api/utils';
 import {
   getQuickBooksRealmId,
   getQuickBooksToken,
@@ -17,25 +21,20 @@ export async function POST(req: NextRequest) {
   }: { userId: string; invoice: InvoiceWithMatchedValues } = await req.json();
 
   if (!userId || !invoice) {
-    return new NextResponse(
-      JSON.stringify({ message: 'User ID and File are required' }),
-      {
-        status: StatusCodes.BAD_REQUEST,
-      },
-    );
+    return badRequest('User ID and Invoice are required.');
   }
 
   try {
     const quickbooksToken = await getQuickBooksToken(userId);
 
     if (!quickbooksToken) {
-      return internalServerError('QuickBooks token not found');
+      return unauthorized('QuickBooks token not found');
     }
 
     const quickbooksRealmId = await getQuickBooksRealmId(userId);
 
     if (!quickbooksRealmId) {
-      return internalServerError('QuickBooks realm ID not found');
+      return unauthorized('QuickBooks realm ID not found');
     }
 
     const bill = preparePayload(invoice);
@@ -91,6 +90,7 @@ const preparePayload = (invoice: InvoiceWithMatchedValues) => {
 
     return bill;
   } catch (e: unknown) {
+    console.log(e);
     throw new Error(`The file is incomplete or invalid, ${String(e)}`);
   }
 };

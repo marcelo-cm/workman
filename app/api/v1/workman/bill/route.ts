@@ -45,8 +45,6 @@ export async function POST(
       endTime - startTime,
     );
 
-    console.log('Response:', response);
-
     return ok(response);
   } catch (e: unknown) {
     console.error(e);

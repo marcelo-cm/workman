@@ -1,6 +1,11 @@
 import { NextRequest } from 'next/server';
 
-import { badRequest, internalServerError, ok } from '@/app/api/utils';
+import {
+  badRequest,
+  internalServerError,
+  ok,
+  unauthorized,
+} from '@/app/api/utils';
 import { Customer } from '@/interfaces/quickbooks.interfaces';
 import {
   getQuickBooksRealmId,
@@ -19,13 +24,13 @@ export async function GET(req: NextRequest) {
     const quickbooksToken = await getQuickBooksToken(userId);
 
     if (!quickbooksToken) {
-      return internalServerError('QuickBooks token not found');
+      return unauthorized('QuickBooks token not found');
     }
 
     const quickbooksRealmId = await getQuickBooksRealmId(userId);
 
     if (!quickbooksRealmId) {
-      return internalServerError('QuickBooks realm ID not found');
+      return unauthorized('QuickBooks realm ID not found');
     }
 
     const customers = await getAllCustomers(

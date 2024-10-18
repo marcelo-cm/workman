@@ -1,10 +1,11 @@
-import { Connection, Nango } from '@nangohq/node';
 import { StatusCodes } from 'http-status-codes';
 import { NextRequest, NextResponse } from 'next/server';
 
-const nango = new Nango({
-  secretKey: process.env.NANGO_SECRET_KEY!,
-});
+import { badRequest, internalServerError, unauthorized } from '@/app/api/utils';
+import {
+  getQuickBooksRealmId,
+  getQuickBooksToken,
+} from '@/lib/utils/nango/quickbooks.server';
 
 export async function GET(req: NextRequest) {
   const searchParams = req.nextUrl.searchParams;
@@ -12,28 +13,21 @@ export async function GET(req: NextRequest) {
   const select = searchParams.get('select');
   const where = searchParams.get('where');
 
+  if (!userId || !select) {
+    return badRequest('User ID and columns to select are required.');
+  }
+
   try {
-    if (!userId || !select) {
-      return new NextResponse(
-        JSON.stringify('User ID and Select are both required'),
-        {
-          status: StatusCodes.BAD_REQUEST,
-        },
-      );
+    const quickbooksToken = await getQuickBooksToken(userId);
+
+    if (!quickbooksToken) {
+      return unauthorized('QuickBooks token not found');
     }
 
-    const quickbooksToken = await nango.getToken('quickbooks', userId);
-    const quickbooksConnection: Connection = await nango.getConnection(
-      'quickbooks',
-      userId,
-    );
-
-    const quickbooksRealmId = quickbooksConnection?.connection_config.realmId;
+    const quickbooksRealmId = await getQuickBooksRealmId(userId);
 
     if (!quickbooksRealmId) {
-      return new NextResponse(JSON.stringify('QuickBooks not authorized'), {
-        status: StatusCodes.UNAUTHORIZED,
-      });
+      return unauthorized('QuickBooks realm ID not found');
     }
 
     const accountList = await getAccountList(
@@ -48,9 +42,7 @@ export async function GET(req: NextRequest) {
     });
   } catch (e: unknown) {
     console.error(e);
-    return new NextResponse(JSON.stringify('Internal Server Error'), {
-      status: StatusCodes.INTERNAL_SERVER_ERROR,
-    });
+    return internalServerError(`Failed to fetch account: ${String(e)}`);
   }
 }
 
@@ -72,16 +64,11 @@ const getAccountList = async (
 
   if (!response.ok) {
     const errorText = await response.text();
-    console.error(
-      'Failed to fetch account list:',
-      response.status,
-      response.statusText,
-      errorText,
+    throw new Error(
+      `${response.status}: Failed to fetch customer list, ${errorText}`,
     );
-    return [];
   }
 
   const data = await response.json();
-
   return data;
 };
