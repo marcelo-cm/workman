@@ -1,6 +1,5 @@
-import { Connection, Nango } from '@nangohq/node';
-import { StatusCodes } from 'http-status-codes';
-import { NextRequest, NextResponse } from 'next/server';
+import { Nango } from '@nangohq/node';
+import { NextRequest } from 'next/server';
 
 import {
   badRequest,
