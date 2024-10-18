@@ -9,11 +9,7 @@ import { useUser } from '@/lib/hooks/supabase/useUser';
 import { PDFData } from '@/app/api/v1/gmail/messages/route';
 import { InvoiceStatus } from '@/constants/enums';
 import { InvoiceData, InvoiceLineItem } from '@/interfaces/common.interfaces';
-import {
-  Invoice_Quickbooks,
-  LineItem_QuickBooks,
-} from '@/interfaces/quickbooks.interfaces';
-import { mindeeScan } from '@/lib/actions/actions';
+import { Invoice_Quickbooks } from '@/interfaces/quickbooks.interfaces';
 import { createClient } from '@/lib/utils/supabase/client';
 
 import { Company } from './Company';
@@ -178,6 +174,7 @@ export class Invoice {
   }
 
   async update(data: InvoiceData) {
+    console.log('c% ---- Updating invoice ----', 'color: #ff0088');
     const { data: updatedInvoice, error }: PostgrestSingleResponse<Invoice> =
       await supabase
         .from('invoices')
@@ -193,6 +190,8 @@ export class Invoice {
       });
       throw new Error(`Failed to update invoice: ${error.message}`);
     }
+
+    console.log('updatedInvoice', updatedInvoice);
 
     toast({
       title: `Invoice has been updated`,
