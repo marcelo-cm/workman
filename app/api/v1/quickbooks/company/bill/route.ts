@@ -36,15 +36,15 @@ export async function POST(req: NextRequest) {
     if (!quickbooksRealmId) {
       return unauthorized('QuickBooks realm ID not found');
     }
-
     const bill = preparePayload(invoice);
     const billResponse = await sendBillToQuickBooks(
       quickbooksRealmId,
       String(quickbooksToken),
       bill,
     );
-
     const attachmentBase64 = await getBase64FromURL(invoice._file_url);
+
+    debugger;
     const attachmentResponse = await sendAttachableToQuickBooks(
       quickbooksRealmId,
       String(quickbooksToken),
@@ -176,9 +176,7 @@ const sendAttachableToQuickBooks = async (
   });
 
   const responseData = await response.json();
-  const responseText = await response.text();
   console.log('Attachable Response', responseData);
-  console.log('Attachable Headers', responseText);
 
   if (!response.ok) {
     const errorText = await response.text();
@@ -187,8 +185,7 @@ const sendAttachableToQuickBooks = async (
     );
   }
 
-  const data = await response.json();
-  return data;
+  return responseData;
 };
 
 const getBase64FromURL = async (invoiceURL: string) => {
