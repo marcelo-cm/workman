@@ -44,8 +44,6 @@ export async function POST(req: NextRequest) {
       bill,
     );
 
-    console.log('Bill response:', billResponse);
-
     const attachmentBase64 = await getBase64FromURL(invoice._file_url);
     const attachmentResponse = await sendAttachableToQuickBooks(
       quickbooksRealmId,
@@ -170,10 +168,6 @@ const sendAttachableToQuickBooks = async (
   const headers = new Headers();
   headers.append('Authorization', `Bearer ${token}`);
   headers.append('Accept', 'application/json');
-  headers.append(
-    'Content-Type',
-    'multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW;',
-  );
 
   const response = await fetch(url, {
     method: 'POST',
@@ -181,7 +175,10 @@ const sendAttachableToQuickBooks = async (
     body: form,
   });
 
-  console.log(response);
+  const responseData = await response.json();
+  const responseText = await response.text();
+  console.log('Attachable Response', responseData);
+  console.log('Attachable Headers', responseText);
 
   if (!response.ok) {
     const errorText = await response.text();
