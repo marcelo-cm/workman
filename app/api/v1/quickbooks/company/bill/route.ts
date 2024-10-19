@@ -38,13 +38,24 @@ export async function POST(req: NextRequest) {
     }
 
     const bill = preparePayload(invoice);
-    const response = await sendBillToQuickBooks(
+    const billResponse = await sendBillToQuickBooks(
       quickbooksRealmId,
       String(quickbooksToken),
       bill,
     );
 
-    return ok(response);
+    console.log('Bill response:', billResponse);
+
+    const attachmentBase64 = await getBase64FromURL(invoice._file_url);
+    const attachmentResponse = await sendAttachableToQuickBooks(
+      quickbooksRealmId,
+      String(quickbooksToken),
+      attachmentBase64 as string,
+      billResponse.Bill.Id,
+      invoice.fileName,
+    );
+
+    return ok(billResponse);
   } catch (e: unknown) {
     console.log(e);
     return internalServerError('Failed to upload bill to QuickBooks');
@@ -58,7 +69,7 @@ const preparePayload = (invoice: InvoiceWithMatchedValues) => {
       Amount: parseFloat(item.totalAmount),
       AccountBasedExpenseLineDetail: {
         AccountRef: {
-          value: item?.productCode.Id ?? '',
+          value: item?.productCode?.Id ?? '',
         },
         BillableStatus: item.billable ? 'Billable' : 'NotBillable',
         CustomerRef: {
@@ -100,8 +111,6 @@ const sendBillToQuickBooks = async (
   token: string,
   bill: Bill,
 ) => {
-  console.log('Sending bill to QuickBooks:', bill);
-
   const url = `https://quickbooks.api.intuit.com/v3/company/${realmId}/bill`;
 
   const response = await fetch(url, {
@@ -123,4 +132,79 @@ const sendBillToQuickBooks = async (
 
   const data = await response.json();
   return data;
+};
+
+const sendAttachableToQuickBooks = async (
+  realmId: string,
+  token: string,
+  base64: string,
+  attachableId: string,
+  attachableName: string,
+) => {
+  console.log('Attaching file to QuickBook Bill');
+
+  const url = `https://quickbooks.api.intuit.com/v3/company/${realmId}/upload`;
+
+  // Create a FormData object to handle the multipart/form-data request
+  const form = new FormData();
+
+  // Convert base64 to binary Blob
+  const binaryData = Buffer.from(base64, 'base64');
+  const blob = new Blob([binaryData], { type: 'application/pdf' });
+
+  form.append('file', blob, attachableName);
+  form.append(
+    'AttachableRef',
+    JSON.stringify([
+      {
+        EntityRef: {
+          type: 'Bill',
+          value: attachableId,
+        },
+      },
+    ]),
+  );
+  form.append('ContentType', 'application/pdf');
+  form.append('FileName', attachableName);
+
+  const headers = new Headers();
+  headers.append('Authorization', `Bearer ${token}`);
+  headers.append('Accept', 'application/json');
+  headers.append(
+    'Content-Type',
+    'multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW;',
+  );
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: headers,
+    body: form,
+  });
+
+  console.log(response);
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(
+      `${response.status}: Failed to attach PDF to Bill, ${errorText}`,
+    );
+  }
+
+  const data = await response.json();
+  return data;
+};
+
+const getBase64FromURL = async (invoiceURL: string) => {
+  const response = await fetch(invoiceURL);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch the PDF: ${response.statusText}`);
+  }
+
+  // Convert the response into an ArrayBuffer
+  const arrayBuffer = await response.arrayBuffer();
+
+  // Convert the ArrayBuffer to a base64 string using Buffer
+  const base64String = Buffer.from(arrayBuffer).toString('base64');
+
+  return base64String;
 };
