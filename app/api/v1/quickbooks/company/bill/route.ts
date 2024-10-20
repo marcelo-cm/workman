@@ -1,4 +1,6 @@
 import { NextRequest } from 'next/server';
+import FormData from 'form-data';
+import axios from 'axios';
 
 import {
   badRequest,
@@ -44,7 +46,7 @@ export async function POST(req: NextRequest) {
     );
     const attachmentBase64 = await getBase64FromURL(invoice._file_url);
 
-    debugger;
+
     const attachmentResponse = await sendAttachableToQuickBooks(
       quickbooksRealmId,
       String(quickbooksToken),
@@ -149,43 +151,51 @@ const sendAttachableToQuickBooks = async (
   // Convert base64 to binary Blob
   const binaryData = Buffer.from(base64, 'base64');
   const blob = new Blob([binaryData], { type: 'application/pdf' });
-
-  form.append('file', blob, attachableName);
-  form.append(
-    'AttachableRef',
-    JSON.stringify([
+  const object = {
+    'AttachableRef': [
       {
+        IncludeOnSend: true,
         EntityRef: {
-          type: 'Bill',
+          type: "Bill",
           value: attachableId,
         },
       },
-    ]),
-  );
-  form.append('ContentType', 'application/pdf');
-  form.append('FileName', attachableName);
+    ],
+    'FileName': attachableName,
+    'ContentType': 'application/pdf'
+  }
+  /*form.append(
+    'file_metadata_01',
+    blob,
+    {'filename': "file.json",contentType:'text/json'})
+    */
+  form.append('file_metadata_01', JSON.stringify(object), {
+    filename: 'attachment.json',
+    contentType: 'application/json; charset=UTF-8'
+  });
+ // const fileContent = fs.readFileSync(pdfFilePath);
+  form.append('file_content_01', binaryData, {
+    filename: 'attachment.pdf',
+    contentType: 'application/pdf'
+  });
+  
 
-  const headers = new Headers();
-  headers.append('Authorization', `Bearer ${token}`);
-  headers.append('Accept', 'application/json');
-
-  const response = await fetch(url, {
+  const response = await axios.post(url, form, {
+    headers: {
+      ...form.getHeaders(),
+      'Authorization': `Bearer ${token}`
+    }
+  });
+  console.log(response);
+  /*const response = await fetch(url, {
     method: 'POST',
     headers: headers,
     body: form,
   });
+*/
+  
 
-  const responseData = await response.json();
-  console.log('Attachable Response', responseData);
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    throw new Error(
-      `${response.status}: Failed to attach PDF to Bill, ${errorText}`,
-    );
-  }
-
-  return responseData;
+  return response;
 };
 
 const getBase64FromURL = async (invoiceURL: string) => {
