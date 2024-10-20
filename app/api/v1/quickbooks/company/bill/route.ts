@@ -1,5 +1,6 @@
 import axios from 'axios';
 import FormData from 'form-data';
+import { StatusCodes } from 'http-status-codes';
 import { NextRequest } from 'next/server';
 
 import {
@@ -51,7 +52,7 @@ export async function POST(req: NextRequest) {
       String(quickbooksToken),
       attachmentBase64 as string,
       billResponse.Bill.Id,
-      invoice.fileName,
+      invoice._file_url.split('/').pop()?.split('.')[0] as string,
     );
 
     return ok(billResponse);
@@ -146,6 +147,8 @@ const sendAttachableToQuickBooks = async (
 
   const form = new FormData();
 
+  console.log('attachableName', attachableName);
+
   const binaryData = Buffer.from(base64, 'base64');
   const object = {
     AttachableRef: [
@@ -157,15 +160,15 @@ const sendAttachableToQuickBooks = async (
         },
       },
     ],
-    FileName: attachableName,
+    FileName: `${attachableName}.pdf`,
     ContentType: 'application/pdf',
   };
   form.append('file_metadata_01', JSON.stringify(object), {
-    filename: attachableName,
+    filename: `${attachableName}.pdf`,
     contentType: 'application/json; charset=UTF-8',
   });
   form.append('file_content_01', binaryData, {
-    filename: attachableName,
+    filename: `${attachableName}.pdf`,
     contentType: 'application/pdf',
   });
 
@@ -175,7 +178,12 @@ const sendAttachableToQuickBooks = async (
       Authorization: `Bearer ${token}`,
     },
   });
-  console.log(response);
+
+  if (!(response.status === StatusCodes.OK)) {
+    throw new Error(
+      `${response.status}: Failed to attach file to QuickBooks Bill.`,
+    );
+  }
 
   return response;
 };

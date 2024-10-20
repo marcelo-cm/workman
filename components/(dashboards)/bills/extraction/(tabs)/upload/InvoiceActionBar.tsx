@@ -40,7 +40,7 @@ const InvoiceActionBar = ({
         </Button>
         <Button
           variant={'secondary'}
-          disabled={isSubmitting || invoice.status !== InvoiceStatus.APPROVED}
+          disabled={isSubmitting}
           onClick={() => startSubmitting(async () => onUpload(invoice, idx))}
         >
           <IfElseRender
