@@ -24,6 +24,8 @@ const page = () => {
   const [vendors, setVendors] = React.useState<Vendor[]>([]);
   const [file, setFile] = useState<File>();
   const [invoice, setInvoice] = React.useState<Invoice>();
+  const [invoiceURL, setInvoiceURL] = React.useState<string>();
+  const [base64, setBase64] = React.useState<string>();
 
   const fetchPaginatedVendorList = async (page: number, query: string) => {
     const columns: (keyof Vendor)[] = ['DisplayName', 'Id'];
@@ -69,6 +71,48 @@ const page = () => {
     console.log(data);
     setInvoice(data);
   };
+
+  const fetchBlob = async () => {
+    if (!invoiceURL) return;
+
+    const response = await fetch(invoiceURL);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch the PDF: ${response.statusText}`);
+    }
+
+    // Convert the response into a Blob
+    const blob = await response.blob();
+
+    // Create a FileReader to convert Blob to Base64
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+
+      // Once reading is complete, get the Base64 result
+      reader.onloadend = () => resolve(reader.result as string);
+
+      // On error, reject the promise
+      reader.onerror = reject;
+
+      // Read the Blob as a Base64 string
+      reader.readAsDataURL(blob);
+    });
+  };
+
+  const handleFetchingBlob = async () => {
+    try {
+      const data = await fetchBlob();
+      console.log('UNSTRIPPED', data);
+      // const base64 = stripBase64Prefix(data as string);
+      // console.log('STRIPPED', base64);
+      setBase64(data as string);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  function stripBase64Prefix(base64: string): string {
+    return base64.split(',')[1]; // Removes the 'data:application/pdf;base64,' prefix
+  }
 
   return (
     <Tabs className="flex h-full w-full flex-col" defaultValue="2">
@@ -127,7 +171,16 @@ const page = () => {
           </Container>
         </TabsContent>
         <TabsContent value="3">
-          <Checkbox checked={true} />
+          <PDFViewer file={invoiceURL || ''} width={250} />
+          <Input
+            type="text"
+            value={invoiceURL}
+            onInput={(e) => setInvoiceURL(e.currentTarget.value)}
+          />
+          <Button onClick={handleFetchingBlob} disabled={!invoiceURL}>
+            Fetch Blob
+          </Button>
+          <iframe src={base64} className="h-96 w-96" />
         </TabsContent>
       </section>
     </Tabs>
