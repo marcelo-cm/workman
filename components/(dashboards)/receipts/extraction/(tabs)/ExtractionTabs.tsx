@@ -123,6 +123,7 @@ const ExtractionTabs = ({
       },
       TotalAmt: parseFloat(files[activeIndex].data.totalNet),
       TxnDate: files[activeIndex].data.date,
+      DocNumber: '',
     };
 
     await files[activeIndex].uploadToQuickBooks(bill);
