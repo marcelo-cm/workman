@@ -68,6 +68,8 @@ const preparePayload = (invoice: InvoiceWithMatchedValues) => {
       Description: item.description,
     }));
 
+    console.log('Invoice', invoice);
+
     const bill: Bill = {
       Line: lineItems,
       VendorRef: {
@@ -83,9 +85,10 @@ const preparePayload = (invoice: InvoiceWithMatchedValues) => {
         '\n\n' +
         invoice._file_url +
         '\n\n Filed by Workman',
-      DocNumber: invoice?.invoiceNumber ?? '',
+      DocNumber: invoice?.data.invoiceNumber ?? '',
     };
 
+    console.log('Bill', bill);
     BillSchema.parse(bill);
 
     return bill;

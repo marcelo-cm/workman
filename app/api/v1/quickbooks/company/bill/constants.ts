@@ -114,7 +114,7 @@ export const BillSchema = z.object({
   /**
    * Reference number for the transaction. Throws an error when duplicate DocNumber is sent in the request.
    */
-  DocNumber: z.string().optional(),
+  DocNumber: z.string(),
   /**
    * Memo field
    */
