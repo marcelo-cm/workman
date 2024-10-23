@@ -18,13 +18,13 @@ import { useVendor } from '@/lib/hooks/quickbooks/useVendor';
 import { useInvoiceExtractionReview } from '../../InvoiceExtractionReview';
 import { invoiceDataFormSchema } from '../../constants';
 
-const { getDefaultCategoryByVendorName } = useVendor();
-
 const BillDetails = ({
   form,
 }: {
   form: UseFormReturn<z.infer<typeof invoiceDataFormSchema>, any, undefined>;
 }) => {
+  const { getDefaultCategoryByVendorName } = useVendor();
+
   const { customers, vendors } = useInvoiceExtractionReview();
   const { watch } = form;
   const { fields } = useFieldArray({

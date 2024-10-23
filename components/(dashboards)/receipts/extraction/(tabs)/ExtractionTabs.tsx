@@ -21,14 +21,15 @@ import { Receipt } from '@/models/Receipt';
 import { useReceiptExtractionReview } from '../ReceiptExtractionReview';
 import ReceiptDataForm from './edit/ReceiptDataForm';
 
-const { updateApprovalByApprovableAndApproverId, getApprovalsByApprovableId } =
-  useApprovals();
-
 const ExtractionTabs = ({
   handleSetActiveIndex,
 }: {
   handleSetActiveIndex: (index: -1 | 1) => void;
 }) => {
+  const {
+    updateApprovalByApprovableAndApproverId,
+    getApprovalsByApprovableId,
+  } = useApprovals();
   const { user } = useAppContext();
   const { accounts, customers, vendors, files, activeIndex } =
     useReceiptExtractionReview();

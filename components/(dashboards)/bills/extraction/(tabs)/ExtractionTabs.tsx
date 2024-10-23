@@ -36,15 +36,16 @@ import { invoiceDataFormSchema } from '../constants';
 import InvoiceDataForm from './edit/InvoiceDataForm';
 import UploadToQuickBooks from './upload/UploadToQuickBooks';
 
-const { getDefaultCategoryByVendorName, saveDefaultCategory } = useVendor();
-const { updateApprovalByApprovableAndApproverId, getApprovalsByApprovableId } =
-  useApprovals();
-
 const ExtractionTabs = ({
   handleSetActiveIndex,
 }: {
   handleSetActiveIndex: (index: 1 | -1) => void;
 }) => {
+  const { getDefaultCategoryByVendorName } = useVendor();
+  const {
+    updateApprovalByApprovableAndApproverId,
+    getApprovalsByApprovableId,
+  } = useApprovals();
   const { user } = useAppContext();
   const { files, activeIndex } = useInvoiceExtractionReview();
   const [isSaveDefaultCategoryDialogOpen, setIsSaveDefaultCategoryDialogOpen] =
@@ -309,6 +310,8 @@ const SaveDefaultCategoryPopup = ({
   category: string;
   onClose: Function;
 }) => {
+  const { saveDefaultCategory } = useVendor();
+
   return (
     <Dialog open={isOpen}>
       <DialogContent>

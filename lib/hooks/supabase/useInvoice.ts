@@ -1,5 +1,6 @@
 import { toast } from '@/components/ui/use-toast';
 
+import { useAppContext } from '@/app/(dashboards)/context';
 import { Approvable, ApprovalStatus, InvoiceStatus } from '@/constants/enums';
 import { InvoiceCountsResponse } from '@/interfaces/db.interfaces';
 import { createClient } from '@/lib/utils/supabase/client';
@@ -11,9 +12,8 @@ const supabase = createClient();
 const { fetchUserData } = useUser();
 
 export const useInvoice = () => {
+  const { user } = useAppContext();
   async function getInvoiceCounts() {
-    const user = await fetchUserData();
-
     const invoiceCounts = await supabase.rpc('get_invoice_counts', {
       requesting_user_id: user.id,
     });
@@ -32,7 +32,6 @@ export const useInvoice = () => {
     states: InvoiceStatus[],
     callBack?: (invoices: Invoice[]) => void,
   ) {
-    const user = await fetchUserData();
     const companyId = user.company.id;
 
     //@todo implement a store to cache this call

@@ -72,19 +72,18 @@ interface DataTableProps {
   defaultInvoiceStatus?: InvoiceStatus;
 }
 
-const {
-  getCompanyInvoicesByStates,
-  getInvoicesAwaitingUserApproval,
-  getInvoiceCounts,
-  deleteInvoices,
-} = useInvoice();
-
 export function InvoiceDataTable<TData, TValue>({
   onAction,
   actionOnSelectText,
   actionIcon,
   canActionBeDisabled = true,
 }: DataTableProps) {
+  const {
+    getCompanyInvoicesByStates,
+    getInvoicesAwaitingUserApproval,
+    getInvoiceCounts,
+    deleteInvoices,
+  } = useInvoice();
   const { user } = useAppContext();
   const [data, setData] = useState<Invoice[]>([]);
   const [sorting, setSorting] = useState<SortingState>([]);

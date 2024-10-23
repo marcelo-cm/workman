@@ -10,9 +10,8 @@ import { User } from '@/models/User';
 
 import { AppContext } from './context';
 
-const { fetchUserData } = useUser();
-
 const AppLayout = ({ children }: Readonly<{ children: React.ReactNode }>) => {
+  const { fetchUserData } = useUser();
   const [user, setUser] = useState<User>({} as User);
 
   useEffect(() => {
@@ -27,9 +26,11 @@ const AppLayout = ({ children }: Readonly<{ children: React.ReactNode }>) => {
     <div className="flex h-dvh w-dvw flex-row overflow-x-hidden bg-white text-black">
       <AppContext.Provider value={{ user, refetchUser }}>
         <SideBar />
-        <main className="no-scrollbar flex h-dvh w-full items-center overflow-scroll">
-          {children}
-        </main>
+        {user.id && (
+          <main className="no-scrollbar flex h-dvh w-full items-center overflow-scroll">
+            {children}
+          </main>
+        )}
       </AppContext.Provider>
     </div>
   );

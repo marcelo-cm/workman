@@ -61,9 +61,9 @@ export const usePDFSplitter = () => {
   return useContext(PDFSplitterContext);
 };
 
-const { processInvoicesByFileURLs } = useInvoice();
-
 const PDFSplitter = () => {
+  const { processInvoicesByFileURLs } = useInvoice();
+
   const [filesToUpload, setFilesToUpload] = useState<File[]>([]);
   const [filesToSplit, setFilesToSplit] = useState<File[]>([]);
   const [stage, setStage] = useState<keyof typeof STAGES>('UPLOADING');
