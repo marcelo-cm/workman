@@ -20,7 +20,6 @@ import { DialogContent } from '@/components/ui/dialog';
 
 import { useInvoice } from '@/lib/hooks/supabase/useInvoice';
 
-import { InvoiceData } from '@/interfaces/common.interfaces';
 import Invoice from '@/models/Invoice';
 
 import PDFSplitterFileSelection from './PDFSplitterFileSelection';
@@ -97,7 +96,11 @@ const PDFSplitter = () => {
           files.map(async (file) => await Invoice.uploadToStorage(file)),
         );
 
-        await processInvoicesByFileURLs(fileUrls).then(() => {
+        const processedInvoices = await Promise.all(
+          fileUrls.map(
+            async (fileUrl) => await processInvoicesByFileURLs([fileUrl]),
+          ),
+        ).then(() => {
           setTimeout(() => {
             window.location.reload();
           }, 500);
