@@ -17,7 +17,9 @@ const AppLayout = ({ children }: Readonly<{ children: React.ReactNode }>) => {
   const [user, setUser] = useState<User>(null as unknown as User);
 
   useEffect(() => {
-    refetchUser();
+    if (!user) {
+      refetchUser();
+    }
   }, []);
 
   const refetchUser = () => {
