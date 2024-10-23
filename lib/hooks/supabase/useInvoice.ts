@@ -2,6 +2,7 @@ import { toast } from '@/components/ui/use-toast';
 
 import { Approvable, ApprovalStatus, InvoiceStatus } from '@/constants/enums';
 import { InvoiceCountsResponse } from '@/interfaces/db.interfaces';
+import { fetchWithTimeout } from '@/lib/utils';
 import { createClient } from '@/lib/utils/supabase/client';
 import Invoice from '@/models/Invoice';
 
@@ -105,13 +106,17 @@ export const useInvoice = () => {
 
   async function processInvoicesByFileURLs(fileURLs: string[]) {
     const { id } = await fetchUserData();
-    const res = await fetch('/api/v1/workman/bill', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
+    const res = await fetchWithTimeout(
+      '/api/v1/workman/bill',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ fileURLs, userId: id }),
       },
-      body: JSON.stringify({ fileURLs, userId: id }),
-    });
+      30000,
+    );
 
     const response = await res.json();
 

@@ -84,3 +84,17 @@ export function findMostSimilar<T>(
     return currSimilarity > prevSimilarity ? curr : prev;
   }, options[0]);
 }
+
+export function fetchWithTimeout(
+  url: string,
+  options: RequestInit,
+  timeout = 15000,
+): Promise<Response> {
+  // Set a timeout of 15 seconds
+  return Promise.race([
+    fetch(url, options),
+    new Promise<Response>((_, reject) =>
+      setTimeout(() => reject(new Error('Request timed out')), timeout),
+    ),
+  ]);
+}
