@@ -23,10 +23,6 @@ import Invoice from '@/models/Invoice';
 import { Receipt } from '@/models/Receipt';
 import { User, User_Nested } from '@/models/User';
 
-const { getApprovalsByApprovableId, createApproval, deleteApproval } =
-  useApprovals();
-const { getUsersByCompanyId } = useUser();
-
 interface ApprovalOption {
   id: UUID;
   status: string;
@@ -44,6 +40,9 @@ const Approvals = <T extends ApprovableBasic>({
 }: {
   approvable: T;
 }) => {
+  const { getApprovalsByApprovableId, createApproval, deleteApproval } =
+    useApprovals();
+  const { getUsersByCompanyId } = useUser();
   const { user } = useAppContext();
   const [approvals, setApprovals] = useState<Approval[]>([]);
   const [fetchingApprovals, setFetchingApprovals] = useState(true);

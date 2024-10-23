@@ -15,6 +15,7 @@ import { toast } from '@/components/ui/use-toast';
 
 import { useUser } from '@/lib/hooks/supabase/useUser';
 
+import { useAppContext } from '@/app/(dashboards)/context';
 import { InvoiceStatus } from '@/constants/enums';
 import { findMostSimilar } from '@/lib/utils';
 import Invoice from '@/models/Invoice';
@@ -27,7 +28,7 @@ import InvoiceLineItems from './InvoiceLineItems';
 const UploadToQuickBooks = () => {
   const { files, accounts, vendors, customers, activeIndex, setActiveIndex } =
     useInvoiceExtractionReview();
-  const { fetchUserData } = useUser();
+  const { user } = useAppContext();
   const [uploadedFileIndexes, setUploadedFileIndexes] = useState<number[]>([]);
 
   const initialLoading = !(
@@ -58,8 +59,7 @@ const UploadToQuickBooks = () => {
     let id = userId;
 
     if (!id) {
-      const userData = await fetchUserData();
-      id = userData.id;
+      id = user.id;
     }
 
     const matchedCustomer = findMostSimilar(
@@ -121,9 +121,8 @@ const UploadToQuickBooks = () => {
   };
 
   const handleUploadAllToQuickBooks = async () => {
-    const { id } = await fetchUserData();
     await Promise.all(
-      files.map((file, idx) => handleUploadToQuickBooks(file, idx, id)),
+      files.map((file, idx) => handleUploadToQuickBooks(file, idx, user.id)),
     ).then(() => {
       console.log('All files uploaded');
     });

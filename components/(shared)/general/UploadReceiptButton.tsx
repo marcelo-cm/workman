@@ -14,7 +14,6 @@ import { Button } from '@/components/ui/button';
 
 import { useReceipt } from '@/lib/hooks/supabase/useReceipts';
 
-import { useAppContext } from '@/app/(dashboards)/context';
 import { createClient } from '@/lib/utils/supabase/client';
 import { Receipt } from '@/models/Receipt';
 
@@ -22,7 +21,6 @@ const supabase = createClient();
 
 const UploadReceiptButton = () => {
   const { uploadToReceiptBucket } = useReceipt();
-  const { user } = useAppContext();
   const [isUploading, setIsUploading] = useState<[boolean, number]>([false, 0]);
   const fileInputRef = useRef<null | HTMLInputElement>(null);
 

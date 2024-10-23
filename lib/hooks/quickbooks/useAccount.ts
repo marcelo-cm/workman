@@ -2,13 +2,13 @@ import { SetStateAction } from 'react';
 
 import { toast } from '@/components/ui/use-toast';
 
+import { useAppContext } from '@/app/(dashboards)/context';
 import { createClient as createSupabaseClient } from '@/lib/utils/supabase/client';
 
 import { useUser } from '../supabase/useUser';
 
-const { fetchUserData } = useUser();
-
 export const useAccount = () => {
+  const { user } = useAppContext();
   const supabase = createSupabaseClient();
 
   const getAccountList = async (
@@ -70,8 +70,7 @@ export const useAccount = () => {
     setAccountCallback?: React.Dispatch<SetStateAction<any[]>>,
   ): Promise<any[]> => {
     try {
-      const userData = await fetchUserData();
-      const userId = userData.id;
+      const userId = user.id;
 
       const response = await fetch(
         `/api/v1/quickbooks/company/account/all?userId=${userId}`,

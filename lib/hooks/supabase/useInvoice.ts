@@ -1,19 +1,16 @@
 import { toast } from '@/components/ui/use-toast';
 
+import { useAppContext } from '@/app/(dashboards)/context';
 import { Approvable, ApprovalStatus, InvoiceStatus } from '@/constants/enums';
 import { InvoiceCountsResponse } from '@/interfaces/db.interfaces';
 import { createClient } from '@/lib/utils/supabase/client';
 import Invoice from '@/models/Invoice';
 
-import { useUser } from './useUser';
-
 const supabase = createClient();
-const { fetchUserData } = useUser();
 
 export const useInvoice = () => {
+  const { user } = useAppContext();
   async function getInvoiceCounts() {
-    const user = await fetchUserData();
-
     const invoiceCounts = await supabase.rpc('get_invoice_counts', {
       requesting_user_id: user.id,
     });
@@ -32,7 +29,6 @@ export const useInvoice = () => {
     states: InvoiceStatus[],
     callBack?: (invoices: Invoice[]) => void,
   ) {
-    const user = await fetchUserData();
     const companyId = user.company.id;
 
     //@todo implement a store to cache this call
@@ -104,13 +100,12 @@ export const useInvoice = () => {
   }
 
   async function processInvoicesByFileURLs(fileURLs: string[]) {
-    const { id } = await fetchUserData();
     const res = await fetch('/api/v1/workman/bill', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ fileURLs, userId: id }),
+      body: JSON.stringify({ fileURLs, userId: user.id }),
     });
 
     const response = await res.json();

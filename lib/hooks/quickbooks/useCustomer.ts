@@ -2,15 +2,13 @@ import { SetStateAction } from 'react';
 
 import { toast } from '@/components/ui/use-toast';
 
+import { useAppContext } from '@/app/(dashboards)/context';
 import { Customer } from '@/interfaces/quickbooks.interfaces';
 import { createClient as createSupabaseClient } from '@/lib/utils/supabase/client';
 
-import { useUser } from '../supabase/useUser';
-
-const { fetchUserData } = useUser();
-
 export const useCustomer = () => {
   const supabase = createSupabaseClient();
+  const { user } = useAppContext();
 
   const getCustomerList = async (
     columns: (keyof Customer)[] | ['*'] = ['*'],
@@ -70,8 +68,7 @@ export const useCustomer = () => {
   const getAllCustomers = async (
     setCustomerCallback?: React.Dispatch<SetStateAction<Customer[]>>,
   ) => {
-    const userData = await fetchUserData();
-    const userId = userData.id;
+    const userId = user.id;
 
     const response = await fetch(
       `/api/v1/quickbooks/company/customer/all?userId=${userId}`,

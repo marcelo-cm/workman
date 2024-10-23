@@ -30,8 +30,6 @@ const accountFormSchema = z.object({
   email: z.string().email().min(1),
 });
 
-const { updateUser } = useUser();
-
 const ManageAccount = ({
   user,
   defaultEdit = false,
@@ -39,6 +37,7 @@ const ManageAccount = ({
   user: User;
   defaultEdit?: boolean;
 }) => {
+  const { updateUser } = useUser();
   const { refetchUser } = useAppContext();
   const [edit, setEdit] = useState(defaultEdit);
   const form = useForm<z.infer<typeof accountFormSchema>>({

@@ -2,14 +2,13 @@ import { SetStateAction } from 'react';
 
 import { toast } from '@/components/ui/use-toast';
 
+import { useAppContext } from '@/app/(dashboards)/context';
 import { Email } from '@/app/api/v1/gmail/messages/route';
 import { Label, Label_Basic } from '@/interfaces/gmail.interfaces';
 import { createClient as createSupabaseClient } from '@/lib/utils/supabase/client';
 
-import { useUser } from '../supabase/useUser';
-
 export const useGmail = () => {
-  const { fetchUserData } = useUser();
+  const { user } = useAppContext();
   const supabase = createSupabaseClient();
 
   const getLabelbyID = async (labelId: string) => {
@@ -206,8 +205,6 @@ export const useGmail = () => {
         throw new Error('User ID not found');
       }
 
-      const user = await fetchUserData();
-
       const response = await fetch(`/api/v1/gmail/messages/batchModify`, {
         method: 'POST',
         headers: {
@@ -252,8 +249,6 @@ export const useGmail = () => {
       if (!userId) {
         throw new Error('User ID not found');
       }
-
-      const user = await fetchUserData();
 
       const response = await fetch(`/api/v1/gmail/messages/batchModify`, {
         method: 'POST',

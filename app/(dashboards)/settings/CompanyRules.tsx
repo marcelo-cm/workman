@@ -12,12 +12,12 @@ import { useUser } from '@/lib/hooks/supabase/useUser';
 import { Company } from '@/models/Company';
 import { User_Nested } from '@/models/User';
 
-const { getUsersByCompanyId } = useUser();
-const { getDefaultApprovers } = useCompany();
-const { createDefaultApprover, deleteDefaultApproverByCompanyAndApproverId } =
-  useApprovals();
-
 const CompanyRules = ({ company }: { company: Company }) => {
+  const { getUsersByCompanyId } = useUser();
+  const { getDefaultApprovers } = useCompany();
+  const { createDefaultApprover, deleteDefaultApproverByCompanyAndApproverId } =
+    useApprovals();
+
   const [defaultApprovers, setDefaultApprovers] = useState<User_Nested[]>([]);
   const [fetchingDefaultApprovers, setFetchingDefaultApprovers] =
     useState(true);
