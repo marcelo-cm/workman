@@ -20,7 +20,7 @@ const AppLayout = ({ children }: Readonly<{ children: React.ReactNode }>) => {
     if (!user) {
       refetchUser();
     }
-  }, []);
+  }, [user]);
 
   const refetchUser = () => {
     fetchUserData().then(setUser);
