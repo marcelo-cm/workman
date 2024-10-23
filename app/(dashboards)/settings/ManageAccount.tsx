@@ -24,8 +24,6 @@ import { useUser } from '@/lib/hooks/supabase/useUser';
 
 import { User } from '@/models/User';
 
-import { useAppContext } from '../context';
-
 const accountFormSchema = z.object({
   name: z.string().min(1),
   email: z.string().email().min(1),
@@ -40,7 +38,6 @@ const ManageAccount = ({
   user: User;
   defaultEdit?: boolean;
 }) => {
-  const { refetchUser } = useAppContext();
   const [edit, setEdit] = useState(defaultEdit);
   const form = useForm<z.infer<typeof accountFormSchema>>({
     resolver: zodResolver(accountFormSchema),
@@ -50,13 +47,15 @@ const ManageAccount = ({
     },
   });
 
-  const handleUpdateAccount = () => {
+  const handleUpdateAccount = async () => {
     updateUser({
       name: form.getValues('name'),
       email: form.getValues('email'),
     });
     setEdit(false);
-    refetchUser();
+    setTimeout(() => {
+      window.location.reload();
+    }, 1000);
   };
 
   return (

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
 import { UUID } from 'crypto';
+import { useSelector } from 'react-redux';
 
 import Chip, { STATUS_CHIP_VARIANTS } from '@/components/ui/chip';
 import LoadingState from '@/components/ui/empty-state';
@@ -10,7 +11,6 @@ import { MultiComboBox } from '@/components/ui/multi-combo-box';
 import { useApprovals } from '@/lib/hooks/supabase/useApprovals';
 import { useUser } from '@/lib/hooks/supabase/useUser';
 
-import { useAppContext } from '@/app/(dashboards)/context';
 import {
   Approvable,
   ApprovalStatus,
@@ -22,6 +22,7 @@ import { Approval } from '@/models/Approval';
 import Invoice from '@/models/Invoice';
 import { Receipt } from '@/models/Receipt';
 import { User, User_Nested } from '@/models/User';
+import { RootState } from '@/store/store';
 
 const { getApprovalsByApprovableId, createApproval, deleteApproval } =
   useApprovals();
@@ -44,9 +45,9 @@ const Approvals = <T extends ApprovableBasic>({
 }: {
   approvable: T;
 }) => {
-  const { user } = useAppContext();
   const [approvals, setApprovals] = useState<Approval[]>([]);
   const [fetchingApprovals, setFetchingApprovals] = useState(true);
+  const user = useSelector((state: RootState) => state.user.user);
 
   useEffect(() => {
     const id = approvable.id;

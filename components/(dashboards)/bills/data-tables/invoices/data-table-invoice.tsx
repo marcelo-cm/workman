@@ -20,6 +20,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table';
+import { useSelector } from 'react-redux';
 
 import WorkmanLogo from '@/components/molecules/WorkmanLogo';
 import {
@@ -52,10 +53,10 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 import { useInvoice } from '@/lib/hooks/supabase/useInvoice';
 
-import { useAppContext } from '@/app/(dashboards)/context';
 import { InvoiceStatus } from '@/constants/enums';
 import { InvoiceCounts } from '@/interfaces/db.interfaces';
 import Invoice from '@/models/Invoice';
+import { RootState } from '@/store/store';
 
 import {
   INVOICE_DATA_TABLE_TABS,
@@ -85,7 +86,6 @@ export function InvoiceDataTable<TData, TValue>({
   actionIcon,
   canActionBeDisabled = true,
 }: DataTableProps) {
-  const { user } = useAppContext();
   const [data, setData] = useState<Invoice[]>([]);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -99,6 +99,7 @@ export function InvoiceDataTable<TData, TValue>({
   const [isUploading, setIsUploading] = useState(false);
   const [invoiceCounts, setInvoiceCounts] = useState<InvoiceCounts>();
 
+  const user = useSelector((state: RootState) => state.user.user);
   const searchFilterInputRef = useRef<HTMLInputElement>(null);
   const dateRangeRef = useRef<any>(null);
   const selectedFilesUrls = Object.keys(rowSelection).map(

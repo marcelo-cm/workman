@@ -6,12 +6,15 @@ import { ExitIcon, GearIcon } from '@radix-ui/react-icons';
 import { ArrowLeftToLine, ArrowRightToLine } from 'lucide-react';
 
 import { usePathname } from 'next/navigation';
+import { useDispatch } from 'react-redux';
 
 import IfElseRender from '../../ui/if-else-renderer';
 
+import { useUser } from '@/lib/hooks/supabase/useUser';
 import useLocalStorage from '@/lib/hooks/useLocalStorage';
 
 import { createClient } from '@/lib/utils/supabase/client';
+import { setUser } from '@/store/user';
 
 import WorkmanLogo from '../../molecules/WorkmanLogo';
 import { MENU_TABS } from '../constants';
@@ -38,6 +41,9 @@ async function handleSignOut() {
 }
 
 const SideBar = () => {
+  const dispatch = useDispatch();
+
+  const { fetchUserData } = useUser();
   const { getItem, setItem } = useLocalStorage();
 
   const [expanded, setExpanded] = useState(false);
@@ -56,6 +62,10 @@ const SideBar = () => {
   useEffect(() => {
     setItem('sidebar-expanded', expanded);
   }, [expanded]);
+
+  useEffect(() => {
+    fetchUserData().then((value) => dispatch(setUser(value)));
+  }, []);
 
   const context = { activePath, expanded };
 

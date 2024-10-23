@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 
+import { useSelector } from 'react-redux';
+
 import CompanyRules from '@/components/(dashboards)/settings/CompanyRules';
 import ManageAccount from '@/components/(dashboards)/settings/ManageAccount';
 import Gmail from '@/components/molecules/Gmail';
@@ -24,18 +26,18 @@ import { Label_Basic } from '@/interfaces/gmail.interfaces';
 import { Vendor } from '@/interfaces/quickbooks.interfaces';
 import { handleGoogleMailIntegration } from '@/lib/utils/nango/google';
 import { handleQuickBooksIntegration } from '@/lib/utils/nango/quickbooks.client';
-
-import { useAppContext } from '../context';
+import { RootState } from '@/store/store';
 
 const Account = () => {
   const { getVendorList, getVendorByID } = useVendor();
-  const { user } = useAppContext();
+
   const { getLabels, createLabel } = useGmail();
   const { updateUser } = useUser();
   const [vendors, setVendors] = useState<Vendor[]>([]);
   const [selectedVendor, setSelectedVendor] = useState<Vendor | null>(null);
   const [vendorInfo, setVendorInfo] = useState<Vendor | null>(null);
   const [labels, setLabels] = useState<Label_Basic[]>([]);
+  const user = useSelector((state: RootState) => state.user.user);
 
   const fetchVendors = async () => {
     const columns: (keyof Vendor)[] = ['DisplayName', 'Id'];

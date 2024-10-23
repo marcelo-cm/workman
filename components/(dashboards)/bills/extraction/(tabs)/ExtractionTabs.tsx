@@ -9,6 +9,7 @@ import {
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, useWatch } from 'react-hook-form';
+import { useSelector } from 'react-redux';
 import { z } from 'zod';
 
 import { Button } from '@/components/ui/button';
@@ -26,10 +27,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useVendor } from '@/lib/hooks/quickbooks/useVendor';
 import { useApprovals } from '@/lib/hooks/supabase/useApprovals';
 
-import { useAppContext } from '@/app/(dashboards)/context';
 import { ApprovalStatus, InvoiceStatus } from '@/constants/enums';
 import { InvoiceData } from '@/interfaces/common.interfaces';
 import Invoice from '@/models/Invoice';
+import { RootState } from '@/store/store';
 
 import { useInvoiceExtractionReview } from '../InvoiceExtractionReview';
 import { invoiceDataFormSchema } from '../constants';
@@ -45,7 +46,6 @@ const ExtractionTabs = ({
 }: {
   handleSetActiveIndex: (index: 1 | -1) => void;
 }) => {
-  const { user } = useAppContext();
   const { files, activeIndex } = useInvoiceExtractionReview();
   const [isSaveDefaultCategoryDialogOpen, setIsSaveDefaultCategoryDialogOpen] =
     useState(false);
@@ -53,6 +53,8 @@ const ExtractionTabs = ({
   const [originalFileData, setOriginalFileData] = useState<InvoiceData>(
     files[activeIndex].data,
   );
+
+  const user = useSelector((state: RootState) => state.user.user);
   const uploadToQuickBooksTabRef = useRef<HTMLButtonElement>(null);
   const form = useForm<z.infer<typeof invoiceDataFormSchema>>({
     resolver: zodResolver(invoiceDataFormSchema),

@@ -5,6 +5,7 @@ import { HammerIcon } from 'lucide-react';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
+import { useSelector } from 'react-redux';
 
 import { Button } from '@/components/ui/button';
 import IfElseRender from '@/components/ui/if-else-renderer';
@@ -12,11 +13,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 import { useApprovals } from '@/lib/hooks/supabase/useApprovals';
 
-import { useAppContext } from '@/app/(dashboards)/context';
 import { Bill } from '@/app/api/v1/quickbooks/company/bill/interfaces';
 import { ApprovalStatus, ReceiptStatus } from '@/constants/enums';
 import { ReceiptData, ReceiptDataSchema } from '@/interfaces/common.interfaces';
 import { Receipt } from '@/models/Receipt';
+import { RootState } from '@/store/store';
 
 import { useReceiptExtractionReview } from '../ReceiptExtractionReview';
 import ReceiptDataForm from './edit/ReceiptDataForm';
@@ -29,7 +30,7 @@ const ExtractionTabs = ({
 }: {
   handleSetActiveIndex: (index: -1 | 1) => void;
 }) => {
-  const { user } = useAppContext();
+  const user = useSelector((state: RootState) => state.user.user);
   const { accounts, customers, vendors, files, activeIndex } =
     useReceiptExtractionReview();
   const [approvedFiles, setApprovedFiles] = useState<Receipt[]>([]);

@@ -15,6 +15,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table';
+import { useSelector } from 'react-redux';
 
 import WorkmanLogo from '@/components/molecules/WorkmanLogo';
 import {
@@ -40,10 +41,10 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 import { useReceipt } from '@/lib/hooks/supabase/useReceipts';
 
-import { useAppContext } from '@/app/(dashboards)/context';
 import { ReceiptStatus } from '@/constants/enums';
 import { ReceiptCounts } from '@/interfaces/db.interfaces';
 import { Receipt } from '@/models/Receipt';
+import { RootState } from '@/store/store';
 
 import {
   RECEIPT_DATA_TABLE_TABS,
@@ -72,7 +73,6 @@ export function ReceiptDataTable<TData, TValue>({
   actionIcon,
   canActionBeDisabled = true,
 }: DataTableProps) {
-  const { user } = useAppContext();
   const [data, setData] = useState<Receipt[]>([]);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -86,6 +86,7 @@ export function ReceiptDataTable<TData, TValue>({
   const [isUploading, setIsUploading] = useState(false);
   const [receiptCounts, setReceiptCounts] = useState<ReceiptCounts>();
 
+  const user = useSelector((state: RootState) => state.user.user);
   const searchFilterInputRef = useRef<HTMLInputElement>(null);
   const dateRangeRef = useRef<any>(null);
   const selectedFilesUrls = Object.keys(rowSelection).map(
