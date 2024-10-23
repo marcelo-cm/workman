@@ -7,8 +7,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { badRequest, internalServerError, ok } from '@/app/api/utils';
 import { InvoiceStatus } from '@/constants/enums';
 import { InvoiceData } from '@/interfaces/common.interfaces';
-import { Customer, Vendor } from '@/interfaces/quickbooks.interfaces';
-import { findMostSimilar } from '@/lib/utils';
 import { createMindeeClient } from '@/lib/utils/mindee/client';
 import { createClient } from '@/lib/utils/supabase/server';
 import Invoice from '@/models/Invoice';
@@ -35,7 +33,7 @@ export async function POST(
     const response = [];
 
     for (const fileURL of fileURLs) {
-      const processedBill = await processBill(fileURL, userId);
+      const processedBill = await processBill(fileURL);
       response.push(processedBill);
     }
 
@@ -52,7 +50,7 @@ export async function POST(
   }
 }
 
-async function processBill(fileURL: string, userId: string): Promise<Invoice> {
+async function processBill(fileURL: string): Promise<Invoice> {
   const supabase = createClient();
   const startTime = Date.now();
   const mindee = createMindeeClient();
@@ -66,8 +64,8 @@ async function processBill(fileURL: string, userId: string): Promise<Invoice> {
 
   const endTime = Date.now();
 
-  console.log('Time taken to process invoice:', endTime - startTime);
-  const invoiceData = await parseMindeeResponse(response, userId);
+  console.log('Time taken to process invoices:', endTime - startTime);
+  const invoiceData = await parseMindeeResponse(response);
 
   const { data: invoice } = await supabase
     .from('invoices')
@@ -89,7 +87,6 @@ async function processBill(fileURL: string, userId: string): Promise<Invoice> {
 
 const parseMindeeResponse = async (
   response: PredictResponse<InvoiceV4>,
-  userId: string,
 ): Promise<InvoiceData> => {
   const prediction = response.document.inference.prediction;
 
@@ -120,81 +117,4 @@ const parseMindeeResponse = async (
       })) || [],
     notes: '',
   };
-};
-
-const matchVendor = async (
-  vendorName: string,
-  userId: string,
-): Promise<Vendor> => {
-  console.log('Matching vendor:', vendorName);
-  const startTime = Date.now();
-  const response = await fetch(
-    `${BASE_URL}/api/v1/quickbooks/company/vendor/all?userId=${userId}`,
-    {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      next: {
-        revalidate: 600,
-      },
-    },
-  );
-
-  if (!response.ok) {
-    throw new Error('Failed to fetch vendors');
-  }
-
-  const vendors: Vendor[] = await response.json();
-
-  if (!vendorName) {
-    return vendors[0];
-  }
-
-  const endTime = Date.now();
-
-  console.log('Time taken to fetch vendors:', endTime - startTime);
-
-  return findMostSimilar(
-    vendorName,
-    vendors,
-    (vendor: Vendor) => vendor.DisplayName,
-  );
-};
-
-const matchCustomer = async (customerName: string, userId: string) => {
-  console.log('Matching customer:', customerName);
-  const startTime = Date.now();
-  const response = await fetch(
-    `${BASE_URL}/api/v1/quickbooks/company/customer/all?userId=${userId}`,
-    {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      next: {
-        revalidate: 600,
-      },
-    },
-  );
-
-  if (!response.ok) {
-    throw new Error('Failed to fetch customers');
-  }
-
-  const customers = await response.json();
-
-  if (!customerName) {
-    return customers[0];
-  }
-
-  const endTime = Date.now();
-
-  console.log('Time taken to fetch customers:', endTime - startTime);
-
-  return findMostSimilar(
-    customerName,
-    customers,
-    (customer: Customer) => customer.DisplayName,
-  );
 };
