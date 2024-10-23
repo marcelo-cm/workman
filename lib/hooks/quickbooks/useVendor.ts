@@ -2,25 +2,22 @@ import { Dispatch, SetStateAction } from 'react';
 
 import { toast } from '@/components/ui/use-toast';
 
+import { useAppContext } from '@/app/(dashboards)/context';
 import { Default_Vendor_Category } from '@/interfaces/db.interfaces';
 import { Vendor } from '@/interfaces/quickbooks.interfaces';
 import { createClient as createSupabaseClient } from '@/lib/utils/supabase/client';
 
-import { useUser } from '../supabase/useUser';
-
 const supabase = createSupabaseClient();
 
-const { fetchUserData } = useUser();
-
 export const useVendor = () => {
+  const { user } = useAppContext();
   const getVendorList = async (
     columns: (keyof Vendor)[] | ['*'] = ['*'],
     query: string | null = null,
     setVendorCallback?: Function | Dispatch<SetStateAction<Vendor[]>>,
   ): Promise<Vendor[]> => {
     try {
-      const userData = await fetchUserData();
-      const userId = userData.id;
+      const userId = user.id;
       const columnsToSelect = columns.join(',');
 
       const response = await fetch(
@@ -59,8 +56,7 @@ export const useVendor = () => {
     setVendorCallback?: Function | Dispatch<SetStateAction<Vendor[]>>,
   ): Promise<Vendor[]> => {
     try {
-      const userData = await fetchUserData();
-      const userId = userData.id;
+      const userId = user.id;
 
       const response = await fetch(
         `/api/v1/quickbooks/company/vendor/all?userId=${userId}`,
@@ -98,8 +94,7 @@ export const useVendor = () => {
     vendorCallback?: Function | Dispatch<SetStateAction<Vendor>>,
   ): Promise<Vendor> => {
     try {
-      const userData = await fetchUserData();
-      const userId = userData.id;
+      const userId = user.id;
 
       const response = await fetch(
         `/api/v1/quickbooks/company/vendor/${vendorId}?userId=${userId}`,
@@ -135,8 +130,6 @@ export const useVendor = () => {
       | Function
       | Dispatch<SetStateAction<Default_Vendor_Category>>,
   ): Promise<Default_Vendor_Category | null> => {
-    const user = await fetchUserData();
-
     if (!user.company) throw new Error('Company ID not found');
 
     const { data, error } = await supabase
@@ -158,7 +151,7 @@ export const useVendor = () => {
     vendor_name: string,
     category: string,
   ): Promise<Default_Vendor_Category> => {
-    const { company } = await fetchUserData();
+    const company = user.company;
 
     if (!company) {
       throw new Error(

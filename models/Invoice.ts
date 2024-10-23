@@ -6,6 +6,7 @@ import { toast } from '@/components/ui/use-toast';
 
 import { useUser } from '@/lib/hooks/supabase/useUser';
 
+import { useAppContext } from '@/app/(dashboards)/context';
 import { PDFData } from '@/app/api/v1/gmail/messages/route';
 import { InvoiceStatus } from '@/constants/enums';
 import { InvoiceData, InvoiceLineItem } from '@/interfaces/common.interfaces';
@@ -16,7 +17,6 @@ import { Company } from './Company';
 import { User_Nested } from './User';
 
 const supabase = createClient();
-const { fetchUserData } = useUser();
 
 export class Invoice {
   private _id: UUID;
@@ -223,7 +223,8 @@ export class Invoice {
   }
 
   async scan() {
-    const { id } = await fetchUserData();
+    const { user } = useAppContext();
+    const id = user?.id;
     const fileUrl = this.fileUrl;
 
     if (!id) {
