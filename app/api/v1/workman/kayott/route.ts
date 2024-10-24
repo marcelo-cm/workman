@@ -5,7 +5,7 @@ import { createClient } from '@/lib/utils/supabase/server';
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
   const supabase = createClient();
-  const data = req.body;
+  const data = req;
 
   const response = await supabase
     .from('temp')
