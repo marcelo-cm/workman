@@ -216,6 +216,8 @@ const ExtractionTabs = ({
     files[activeIndex].data = originalFileData;
   };
 
+  console.log(form.formState['errors']);
+
   return (
     <Tabs defaultValue="1" className="relative flex h-full w-full flex-col ">
       <TabsList className="sticky top-0 flex h-fit w-full rounded-none bg-white">

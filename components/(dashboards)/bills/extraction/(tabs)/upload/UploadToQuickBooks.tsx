@@ -178,7 +178,10 @@ const UploadToQuickBooks = () => {
         </TabsList>
         <Button
           onClick={() => handleUploadAllToQuickBooks()}
-          disabled={uploading}
+          disabled={
+            uploading ||
+            files.some((file) => file.status !== InvoiceStatus.APPROVED)
+          }
         >
           <IfElseRender
             condition={uploading}

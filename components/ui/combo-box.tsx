@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 
 import { Check, ChevronsUpDown } from 'lucide-react';
 
+import { useFormContext } from 'react-hook-form';
+
 import { Button } from '@/components/ui/button';
 import {
   Command,
@@ -18,7 +20,7 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 
-import { cn, findMostSimilar, stringSimilarity } from '@/lib/utils';
+import { cn, findMostSimilar } from '@/lib/utils';
 
 export function ComboBox<
   T extends { Id?: string | number; id?: string | number },
@@ -29,6 +31,7 @@ export function ComboBox<
   getOptionLabel,
   getOptionValue = (option) => String(option?.Id ?? option?.id),
   className,
+  name,
 }: {
   options: T[];
   valueToMatch?: string;
@@ -36,9 +39,20 @@ export function ComboBox<
   getOptionLabel: (option: T) => string;
   getOptionValue?: (option: T) => string;
   className?: string;
+  name?: string;
 }) {
+  const form = useFormContext();
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState<T>(null!);
+
+  useEffect(() => {
+    if (!value && form && name) {
+      form.setError(name, {
+        message: 'Please select a valid product code.',
+        type: 'required',
+      });
+    }
+  }, [value, name]);
 
   useEffect(() => {
     if (valueToMatch && options.length) {
