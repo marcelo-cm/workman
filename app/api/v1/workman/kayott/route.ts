@@ -7,7 +7,10 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   const supabase = createClient();
   const data = req;
 
-  const response = await supabase.from('temp').insert({ payload: data });
+  const response = await supabase
+    .from('temp')
+    .insert({ payload: data })
+    .select('*');
 
-  return ok('Received');
+  return ok(response);
 }
