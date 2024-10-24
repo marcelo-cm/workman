@@ -17,9 +17,12 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { DialogContent } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Progress } from '@/components/ui/progress';
 
 import { useInvoice } from '@/lib/hooks/supabase/useInvoice';
 
+import { sliceWithEllipsis } from '@/lib/utils';
 import Invoice from '@/models/Invoice';
 
 import PDFSplitterFileSelection from './PDFSplitterFileSelection';
@@ -61,6 +64,11 @@ export const usePDFSplitter = () => {
   return useContext(PDFSplitterContext);
 };
 
+const UPLOAD_PROGRESS = 65;
+const PROCESS_PROGRESS = 100;
+const PROGRESS_INCREMENT = 1;
+const INTERVAL_TIME = 200;
+
 const PDFSplitter = () => {
   const { processInvoicesByFileURLs } = useInvoice();
 
@@ -68,6 +76,7 @@ const PDFSplitter = () => {
   const [filesToSplit, setFilesToSplit] = useState<File[]>([]);
   const [stage, setStage] = useState<keyof typeof STAGES>('UPLOADING');
   const [isUploading, startUploading] = useTransition();
+  const [progress, setProgress] = useState<number[]>([]);
 
   useEffect(() => {
     if (filesToUpload.length > 0) {
@@ -89,25 +98,70 @@ const PDFSplitter = () => {
     }
 
     const files = Array.from(filesToUpload) as File[];
+    setProgress(new Array(files.length).fill(0));
 
     try {
       startUploading(async () => {
         const fileUrls = await Promise.all(
-          files.map(async (file) => await Invoice.uploadToStorage(file)),
+          files.map((file, index) => uploadFile(file, index)),
         );
 
-        const processedInvoices = await Promise.all(
-          fileUrls.map(
-            async (fileUrl) => await processInvoicesByFileURLs([fileUrl]),
-          ),
-        ).then(() => {
-          setTimeout(() => {
-            window.location.reload();
-          }, 500);
-        });
+        await Promise.all(
+          fileUrls.map((url, index) => processFile(url, index)),
+        );
+
+        setTimeout(() => window.location.reload(), 500);
       });
     } catch (error: unknown) {
       console.error('Error uploading files:', error);
+    }
+  };
+
+  const startSmoothProgress = (index: number, target: number) => {
+    return setInterval(() => {
+      setProgress((prevProgress) =>
+        prevProgress.map((p, i) => {
+          if (i === index && p < target) {
+            return Math.min(p + PROGRESS_INCREMENT, target);
+          }
+          return p;
+        }),
+      );
+    }, INTERVAL_TIME);
+  };
+
+  const updateProgress = (index: number, value: number) => {
+    setProgress((prevProgress) =>
+      prevProgress.map((p, i) => (i === index ? value : p)),
+    );
+  };
+
+  const uploadFile = async (file: File, index: number): Promise<string> => {
+    const smoothIncrement = startSmoothProgress(index, UPLOAD_PROGRESS);
+
+    try {
+      const url = await Invoice.uploadToStorage(file);
+      updateProgress(index, UPLOAD_PROGRESS);
+      return url;
+    } catch (error) {
+      clearInterval(smoothIncrement);
+      setProgress((prevProgress) =>
+        prevProgress.map((p, i) => (i === index ? 0 : p)),
+      );
+      console.error(`Error uploading file at index ${index}:`, error);
+      throw error;
+    }
+  };
+
+  const processFile = async (fileUrl: string, index: number) => {
+    const smoothIncrement = startSmoothProgress(index, PROCESS_PROGRESS - 10);
+
+    try {
+      await processInvoicesByFileURLs([fileUrl]);
+      updateProgress(index, PROCESS_PROGRESS);
+    } catch (error) {
+      console.error(`Error processing file at index ${index}:`, error);
+      throw error;
     }
   };
 
@@ -136,8 +190,16 @@ const PDFSplitter = () => {
           </AlertDialogHeader>
           <AlertDialogDescription className="text-center">
             It's important that you don't close this window while we're
-            uploading your data. We are uploading {filesToUpload.length} files.
+            uploading your data.
           </AlertDialogDescription>
+          {progress.map((p, idx) => (
+            <div className="flex flex-row items-center justify-center gap-8">
+              <Label className="w-[100px] text-nowrap">
+                {sliceWithEllipsis(filesToUpload[idx].name, 15)}
+              </Label>
+              <Progress key={idx} value={p} />
+            </div>
+          ))}
         </AlertDialogContent>
       </AlertDialog>
     </>
