@@ -25,35 +25,35 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       'ReceiptData',
     );
 
-    // const scanResponse = await openai.chat.completions.create({
-    //   model: 'gpt-4o-2024-08-06',
-    //   messages: [
-    //     {
-    //       role: 'user',
-    //       content: [
-    //         {
-    //           type: 'text',
-    //           text: `Scan this receipt and return a structured JSON of the provided schema. Total Net includes the total amount and total tax and fees with no currency symbol included. customerName should always be 'Unassigned'. Description should be concise. Date is in YYYY-MM-DD format.`,
-    //         },
-    //         {
-    //           type: 'image_url',
-    //           image_url: {
-    //             url: fileURL,
-    //             detail: 'low',
-    //           },
-    //         },
-    //       ],
-    //     },
-    //   ],
-    //   response_format: ReceiptDataFormat,
-    // });
+    const scanResponse = await openai.chat.completions.create({
+      model: 'gpt-4o-2024-08-06',
+      messages: [
+        {
+          role: 'user',
+          content: [
+            {
+              type: 'text',
+              text: `Scan this receipt and return a structured JSON of the provided schema. Total Net includes the total amount and total tax and fees with no currency symbol included. customerName should always be 'Unassigned'. Description should be concise. Date is in YYYY-MM-DD format.`,
+            },
+            {
+              type: 'image_url',
+              image_url: {
+                url: fileURL,
+                detail: 'low',
+              },
+            },
+          ],
+        },
+      ],
+      response_format: ReceiptDataFormat,
+    });
 
-    // const uploadScan = await supabase
-    //   .from('temp')
-    //   .insert({ data_scan: scanResponse })
-    //   .select('*');
+    const uploadScan = await supabase
+      .from('temp')
+      .insert({ data_scan: scanResponse })
+      .select('*');
 
-    return ok(response);
+    return ok({ payload: response, scan: uploadScan });
   } catch (error) {
     return internalServerError(`${error}`);
   }
