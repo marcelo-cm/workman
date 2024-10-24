@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useTransition } from 'react';
 
 import { ArrowLeftIcon } from '@radix-ui/react-icons';
-import { HammerIcon } from 'lucide-react';
+import { HammerIcon, Loader2Icon } from 'lucide-react';
 
 import { UUID } from 'crypto';
 
@@ -12,8 +12,6 @@ import LoadingState from '@/components/ui/empty-state';
 import IfElseRender from '@/components/ui/if-else-renderer';
 import { TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from '@/components/ui/use-toast';
-
-import { useUser } from '@/lib/hooks/supabase/useUser';
 
 import { useAppContext } from '@/app/(dashboards)/context';
 import { InvoiceStatus } from '@/constants/enums';
@@ -30,6 +28,7 @@ const UploadToQuickBooks = () => {
     useInvoiceExtractionReview();
   const { user } = useAppContext();
   const [uploadedFileIndexes, setUploadedFileIndexes] = useState<number[]>([]);
+  const [uploading, startBulkUpload] = useTransition();
 
   const initialLoading = !(
     vendors.length &&
@@ -121,10 +120,12 @@ const UploadToQuickBooks = () => {
   };
 
   const handleUploadAllToQuickBooks = async () => {
-    await Promise.all(
-      files.map((file, idx) => handleUploadToQuickBooks(file, idx, user.id)),
-    ).then(() => {
-      console.log('All files uploaded');
+    startBulkUpload(async () => {
+      await Promise.all(
+        files.map((file, idx) => handleUploadToQuickBooks(file, idx, user.id)),
+      ).then(() => {
+        console.log('All files uploaded');
+      });
     });
   };
 
@@ -175,8 +176,23 @@ const UploadToQuickBooks = () => {
             </Button>
           </TabsTrigger>
         </TabsList>
-        <Button onClick={() => handleUploadAllToQuickBooks()}>
-          <HammerIcon className="h-4 w-4" /> Submit All
+        <Button
+          onClick={() => handleUploadAllToQuickBooks()}
+          disabled={uploading}
+        >
+          <IfElseRender
+            condition={uploading}
+            ifFalse={
+              <>
+                <HammerIcon className="h-4 w-4" /> Submit All
+              </>
+            }
+            ifTrue={
+              <>
+                <Loader2Icon className="h-4 w-4 animate-spin" /> Submitting...
+              </>
+            }
+          />
         </Button>
       </div>
     </>
