@@ -21,15 +21,10 @@ export const useCompany = () => {
     return data;
   };
 
-  const fetchCompanyData = async (
-    columns: (keyof Company)[] | ['*'] = ['*'],
-  ): Promise<Company> => {
-    const { data, error } = await supabase
-      .from('companies')
-      .select('*')
-      .single();
-
+  const fetchCompanyData = async () => {
+    const { data, error } = await supabase.from('companies').select('*');
     if (error) {
+      console.error('Error fetching company data: ', error);
       throw new Error('Failed to fetch company data');
     }
 

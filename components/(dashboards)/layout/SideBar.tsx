@@ -1,8 +1,6 @@
-'use client';
-
 import React, { useEffect, useState } from 'react';
 
-import { ExitIcon, GearIcon } from '@radix-ui/react-icons';
+import { ExitIcon, GearIcon, PersonIcon } from '@radix-ui/react-icons';
 import { ArrowLeftToLine, ArrowRightToLine } from 'lucide-react';
 
 import { usePathname } from 'next/navigation';
@@ -87,6 +85,17 @@ const SideBar = () => {
                 route="/settings"
               >
                 Settings
+                <IfElseRender
+                  condition={expanded}
+                  ifTrue={<div className="w-full" />}
+                  ifFalse={null}
+                />
+              </MenuItem>
+              <MenuItem
+                leadingIcon={<PersonIcon className="h-4 w-4" />}
+                route="/team"
+              >
+                Team
                 <IfElseRender
                   condition={expanded}
                   ifTrue={<div className="w-full" />}
