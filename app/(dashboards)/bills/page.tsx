@@ -13,11 +13,12 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
+import IfElseRender from '@/components/ui/if-else-renderer';
 
 import Invoice from '@/models/Invoice';
 
 export default function ForApproval() {
-  const [selectedFiles, setSelectedFiles] = useState<Invoice[]>([]); // Used for the Extraction Review component
+  const [selectedFiles, setSelectedFiles] = useState<Invoice[]>([]);
   const [review, setReview] = useState<boolean>(false);
 
   const handleReviewSelected = async (files: Invoice[]) => {
@@ -26,10 +27,10 @@ export default function ForApproval() {
   };
 
   return (
-    <>
-      {review ? (
-        <InvoiceExtractionReview files={selectedFiles} />
-      ) : (
+    <IfElseRender
+      condition={review}
+      ifTrue={<InvoiceExtractionReview files={selectedFiles} />}
+      ifFalse={
         <div className="flex h-full w-full flex-col gap-4 px-4 py-8">
           <BreadcrumbList className="text-wm-white-400">
             <BreadcrumbItem>Dashboard</BreadcrumbItem>
@@ -51,7 +52,7 @@ export default function ForApproval() {
             actionOnSelectText="Review Selected"
           />
         </div>
-      )}
-    </>
+      }
+    />
   );
 }

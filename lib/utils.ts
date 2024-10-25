@@ -1,9 +1,27 @@
+import { useLayoutEffect, useState } from 'react';
+
 import { type ClassValue, clsx } from 'clsx';
+import debounce from 'lodash/debounce';
 import { twMerge } from 'tailwind-merge';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
+
+export const useIsMobile = (): boolean => {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useLayoutEffect(() => {
+    const updateSize = (): void => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    window.addEventListener('resize', debounce(updateSize, 250));
+    // updateSize();
+    return (): void => window.removeEventListener('resize', updateSize);
+  }, []);
+
+  return isMobile;
+};
 
 export function formatDate(date: Date) {
   return date.toLocaleDateString('en-US', {
