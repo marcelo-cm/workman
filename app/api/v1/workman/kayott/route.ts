@@ -12,11 +12,12 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   const supabase = createSupabaseClient();
   const openai = createOpenAIClient();
   const data = await req.json();
+  const parsed = getHtml(data);
 
   try {
     const response = await supabase
       .from('temp')
-      .insert({ payload: data })
+      .insert({ payload: parsed })
       .select('*');
 
     const fileURL = data.file;
@@ -57,4 +58,70 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   } catch (error) {
     return internalServerError(`${error}`);
   }
+
+
+  function getHtml(res: any) {
+    var parts = [res.payload];
+    while (parts.length) {
+      var part = parts.shift();
+      if (part.parts) {
+        parts = parts.concat(part.parts);
+      }
+  
+      if(part.mimeType === 'text/html') {
+        const decoded =  decodeURIComponent(escape(atob(part.body.data.replace(/\-/g, '+').replace(/\_/g, '/'))));
+        return extractAfterHeaders(decoded)
+
+      }
+    }
+    return '';
+  }
+  
+  function extractAfterHeaders(htmlContent: string) {
+    // First normalize line breaks to make it easier to work with
+    const normalizedHtml = htmlContent.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+    
+    // Find the last occurrence of common header patterns
+    const headerPatterns = [
+      /[Ff]rom:\s*.*?\n/,
+      /[Ss]ent:\s*.*?\n/,
+      /[Tt]o:\s*.*?\n/,
+      /[Ss]ubject:\s*.*?\n/,
+      /[Cc]c:\s*.*?\n/,
+      /[Bb]cc:\s*.*?\n/
+    ];
+  
+    let lastHeaderIndex = -1;
+  
+    // Find all occurrences of headers and get the last one
+    headerPatterns.forEach(pattern => {
+      let match;
+      let lastIndex = 0;
+      
+      // Use a regex with the 'g' flag to find all matches
+      const globalPattern = new RegExp(pattern.source, 'g');
+      while ((match = globalPattern.exec(normalizedHtml)) !== null) {
+        lastIndex = match.index + match[0].length;
+        if (lastIndex > lastHeaderIndex) {
+          lastHeaderIndex = lastIndex;
+        }
+      }
+    });
+  
+    // If we found headers, take everything after the last one
+    if (lastHeaderIndex !== -1) {
+      // Find the first newline after the last header
+      const contentStart = normalizedHtml.indexOf('\n', lastHeaderIndex);
+      if (contentStart !== -1) {
+        // Return everything after that newline, trimmed
+        return normalizedHtml.slice(contentStart + 1).trim();
+      }
+    }
+  
+    // If no headers found, return the original content
+    return normalizedHtml.trim();
+  }
+
+  
+
 }
