@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { zodResponseFormat } from 'openai/helpers/zod.mjs';
 
 import { scanReceiptByURL } from '@/lib/hooks/useOpenAI';
+import {generatePdf} from 'html-pdf-node';
+import html_to_pdf from 'html-pdf-node';
+
 
 import { internalServerError, ok } from '@/app/api/utils';
 import { ReceiptDataSchema } from '@/interfaces/common.interfaces';
@@ -122,6 +125,29 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     return normalizedHtml.trim();
   }
 
-  
 
+  /* 
+  GENERATE PDF FUNCTION for some reason its throwing
+  an error on api router. Maybe because it doesn't work on serverless???
+   Haven't gotten a chance to look at it on the route but it did create a pdf on local
+  async function htmlToPdf(htmlString: string) {
+    const file = { content: htmlString };
+    const options = {
+      format: 'A4',
+      printBackground: true, // Important for background colors/images
+      margin: { top: 20, right: 20, bottom: 20, left: 20 },
+      waitForNetworkIdle: true, // Wait for network requests to complete
+      waitForTimeout: 3000, // Give extra time for styles to apply
+    };
+    try {
+      // Generate the PDF
+      const pdfBuffer = await generatePdf(file, options);
+      console.log(`PDF saved successfully at: ${pdfPath}`);
+    } catch (err) {
+      console.error('Error generating or saving PDF:', err);
+    }
+  }
+
+  
+*/
 }
