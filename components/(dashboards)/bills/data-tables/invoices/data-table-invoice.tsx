@@ -80,6 +80,7 @@ export function InvoiceDataTable<TData, TValue>({
 }: DataTableProps) {
   const {
     getCompanyInvoicesByStates,
+    getCompanyInvoicesFromGmailInbox,
     getInvoicesAwaitingUserApproval,
     getInvoiceCounts,
     deleteInvoices,
@@ -129,7 +130,11 @@ export function InvoiceDataTable<TData, TValue>({
       return;
     }
 
-    getCompanyInvoicesByStates([tabValue.state].flat(), setData);
+    if (tabValue.state) {
+      getCompanyInvoicesByStates([tabValue.state].flat(), setData);
+    } else if (tabValue.companyId) {
+      getCompanyInvoicesFromGmailInbox(tabValue.companyId, setData);
+    }
   }, [JSON.stringify(tabValue)]);
 
   useEffect(() => {
@@ -197,23 +202,7 @@ export function InvoiceDataTable<TData, TValue>({
         async (invoice) => await invoice.scan(),
       );
       await Promise.all(scanPromises).then(() => {
-        tabValue &&
-          getCompanyInvoicesByStates([tabValue.state].flat(), setData);
-        setRowSelection({});
-        setIsUploading(false);
-      });
-      getInvoiceCounts().then(setInvoiceCounts);
-    };
-
-    const quickSubmit = async () => {
-      setIsUploading(true);
-      const submitPromises = selectedFilesUrls.map(async (file) => {
-        const transformedData =
-          await Invoice.transformToQuickBooksInvoice(file);
-        await Invoice.uploadToQuickbooks(transformedData);
-      });
-      await Promise.all(submitPromises).then(() => {
-        tabValue &&
+        tabValue?.state &&
           getCompanyInvoicesByStates([tabValue.state].flat(), setData);
         setRowSelection({});
         setIsUploading(false);
@@ -225,7 +214,7 @@ export function InvoiceDataTable<TData, TValue>({
       setIsUploading(true);
       const invoiceIds = selectedFilesUrls.map((inv) => inv.id);
       await deleteInvoices(invoiceIds).then(() => {
-        tabValue &&
+        tabValue?.state &&
           getCompanyInvoicesByStates([tabValue.state].flat(), setData);
         setRowSelection({});
         setIsUploading(false);
@@ -246,20 +235,9 @@ export function InvoiceDataTable<TData, TValue>({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="mr-4">
-            <DropdownMenuItem onClick={quickSubmit} asChild>
-              <Button
-                size={'sm'}
-                className="!h-fit w-48 justify-start gap-2 p-2"
-                variant={'ghost'}
-                disabled={
-                  !(Object.values(rowSelection) as Invoice[]).every(
-                    (inv) => inv.status == InvoiceStatus.APPROVED,
-                  )
-                }
-              >
-                <PaperPlaneIcon className="size-4" />
-                Quick Submit
-              </Button>
+            {/* @todo implement ignore email label */}
+            <DropdownMenuItem asChild>
+              <Button>Ignore Email</Button>
             </DropdownMenuItem>
             <DropdownMenuItem onClick={deleteInvoicesBulk} asChild>
               <Button

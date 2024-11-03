@@ -1,17 +1,15 @@
 import { ReactNode } from 'react';
 
-import { Check, Inbox, Scan } from 'lucide-react';
+import { Check, Inbox, Mail, Scan } from 'lucide-react';
 
-import { InvoiceStatus, ReceiptStatus } from '@/constants/enums';
-import {
-  InvoiceCountResponseKeys,
-  ReceiptCountResponseKeys,
-} from '@/interfaces/db.interfaces';
+import { InvoiceStatus } from '@/constants/enums';
+import { InvoiceCountResponseKeys } from '@/interfaces/db.interfaces';
 import { User } from '@/models/User';
 
 export interface InvoiceTabValue {
-  state: InvoiceStatus | InvoiceStatus[];
-  approverId: string | null;
+  state?: InvoiceStatus | InvoiceStatus[];
+  approverId?: string;
+  companyId?: string;
 }
 
 export const INVOICE_DATA_TABLE_TABS = (
@@ -28,7 +26,6 @@ export const INVOICE_DATA_TABLE_TABS = (
       icon: <Inbox className="h-4 w-4" />,
       value: {
         state: [InvoiceStatus.FOR_REVIEW, InvoiceStatus.APPROVED],
-        approverId: null,
       },
       countKey: InvoiceCountResponseKeys.COMPANY_INBOX,
     },
@@ -42,11 +39,17 @@ export const INVOICE_DATA_TABLE_TABS = (
       countKey: InvoiceCountResponseKeys.AWAITING_REVIEW,
     },
     {
+      title: 'Email Inbox',
+      icon: <Mail className="h-4 w-4" />,
+      value: {
+        companyId: user.company.id,
+      },
+    },
+    {
       title: 'Awaiting Scan',
       icon: <Scan className="h-4 w-4" />,
       value: {
         state: InvoiceStatus.UNPROCESSED,
-        approverId: null,
       },
     },
     {
@@ -54,7 +57,6 @@ export const INVOICE_DATA_TABLE_TABS = (
       icon: <Check className="h-4 w-4" />,
       value: {
         state: InvoiceStatus.PROCESSED,
-        approverId: null,
       },
     },
   ];

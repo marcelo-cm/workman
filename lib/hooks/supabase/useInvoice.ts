@@ -1,3 +1,5 @@
+import { UUID } from 'crypto';
+
 import { toast } from '@/components/ui/use-toast';
 
 import { useAppContext } from '@/app/(dashboards)/context';
@@ -46,6 +48,38 @@ export const useInvoice = () => {
       const parsedData = data.map((invoice) => new Invoice(invoice));
       callBack && callBack(parsedData);
       return parsedData;
+    }
+  }
+
+  async function getCompanyInvoicesFromGmailInbox(
+    companyId: string,
+    callBack?: (invoices: Invoice[]) => void,
+  ) {
+    const userId = user.id;
+
+    try {
+      const response = await fetch(`/api/v1/gmail/messages?userId=${userId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        cache: 'no-cache',
+      });
+
+      if (!response.ok) {
+        toast({
+          title: 'Error fetching emails',
+          description: response.statusText,
+          variant: 'destructive',
+        });
+        throw new Error('Failed to fetch mail');
+      }
+
+      const emails = await response.json();
+
+      callBack?.(emails);
+    } catch (error) {
+      throw new Error(`Failed to get emails, ${error}`);
     }
   }
 
@@ -135,6 +169,7 @@ export const useInvoice = () => {
   return {
     getInvoiceCounts,
     getCompanyInvoicesByStates,
+    getCompanyInvoicesFromGmailInbox,
     getInvoicesByStateApproverAndApprovalStatus,
     getInvoicesAwaitingUserApproval,
     processInvoicesByFileURLs,

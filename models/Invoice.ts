@@ -4,8 +4,6 @@ import { UUID } from 'crypto';
 
 import { toast } from '@/components/ui/use-toast';
 
-import { useUser } from '@/lib/hooks/supabase/useUser';
-
 import { useAppContext } from '@/app/(dashboards)/context';
 import { PDFData } from '@/app/api/v1/gmail/messages/route';
 import { InvoiceStatus } from '@/constants/enums';

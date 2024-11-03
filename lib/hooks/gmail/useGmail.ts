@@ -191,102 +191,102 @@ export const useGmail = () => {
     }
   };
 
-  const markAsIgnore = async (emailId: string) => {
-    try {
-      const { data: userData, error } = await supabase.auth.getUser();
+  // const markAsIgnore = async (emailId: string) => {
+  //   try {
+  //     const { data: userData, error } = await supabase.auth.getUser();
 
-      if (error) {
-        throw new Error('Failed to get user');
-      }
+  //     if (error) {
+  //       throw new Error('Failed to get user');
+  //     }
 
-      const userId = userData?.user?.id;
+  //     const userId = userData?.user?.id;
 
-      if (!userId) {
-        throw new Error('User ID not found');
-      }
+  //     if (!userId) {
+  //       throw new Error('User ID not found');
+  //     }
 
-      const response = await fetch(`/api/v1/gmail/messages/batchModify`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          userId,
-          emailIds: [emailId],
-          addLabelIds: [user.ignoreLabelId],
-          removeLabelIds: [],
-        }),
-      });
+  //     const response = await fetch(`/api/v1/gmail/messages/batchModify`, {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify({
+  //         userId,
+  //         emailIds: [emailId],
+  //         addLabelIds: [user.ignoreLabelId],
+  //         removeLabelIds: [],
+  //       }),
+  //     });
 
-      if (!response.ok) {
-        toast({
-          title: 'Error marking email as ignore',
-          description: response.statusText,
-          variant: 'destructive',
-        });
-      }
+  //     if (!response.ok) {
+  //       toast({
+  //         title: 'Error marking email as ignore',
+  //         description: response.statusText,
+  //         variant: 'destructive',
+  //       });
+  //     }
 
-      toast({
-        title: 'Email marked as ignore',
-      });
+  //     toast({
+  //       title: 'Email marked as ignore',
+  //     });
 
-      return response;
-    } catch (error) {
-      throw new Error(`Failed to mark email as ignore, ${error}`);
-    }
-  };
+  //     return response;
+  //   } catch (error) {
+  //     throw new Error(`Failed to mark email as ignore, ${error}`);
+  //   }
+  // };
 
-  const markAsScanned = async (emailId: string) => {
-    try {
-      const { data: userData, error } = await supabase.auth.getUser();
+  // const markAsScanned = async (emailId: string) => {
+  //   try {
+  //     const { data: userData, error } = await supabase.auth.getUser();
 
-      if (error) {
-        throw new Error('Failed to get user');
-      }
+  //     if (error) {
+  //       throw new Error('Failed to get user');
+  //     }
 
-      const userId = userData?.user?.id;
+  //     const userId = userData?.user?.id;
 
-      if (!userId) {
-        throw new Error('User ID not found');
-      }
+  //     if (!userId) {
+  //       throw new Error('User ID not found');
+  //     }
 
-      const response = await fetch(`/api/v1/gmail/messages/batchModify`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          userId,
-          emailIds: [emailId],
-          addLabelIds: [user.scannedLabelId],
-          removeLabelIds: [],
-        }),
-      });
+  //     const response = await fetch(`/api/v1/gmail/messages/batchModify`, {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify({
+  //         userId,
+  //         emailIds: [emailId],
+  //         addLabelIds: [user.scannedLabelId],
+  //         removeLabelIds: [],
+  //       }),
+  //     });
 
-      if (!response.ok) {
-        toast({
-          title: 'Error marking email as scanned',
-          description: response.statusText,
-          variant: 'destructive',
-        });
-      }
+  //     if (!response.ok) {
+  //       toast({
+  //         title: 'Error marking email as scanned',
+  //         description: response.statusText,
+  //         variant: 'destructive',
+  //       });
+  //     }
 
-      toast({
-        title: 'Email marked as scanned',
-      });
+  //     toast({
+  //       title: 'Email marked as scanned',
+  //     });
 
-      return response;
-    } catch (error) {
-      throw new Error(`Failed to mark email as scanned, ${error}`);
-    }
-  };
+  //     return response;
+  //   } catch (error) {
+  //     throw new Error(`Failed to mark email as scanned, ${error}`);
+  //   }
+  // };
 
   return {
     getEmails,
     getLabels,
     getLabelbyID,
     createLabel,
-    markAsIgnore,
-    markAsScanned,
+    // markAsIgnore,
+    // markAsScanned,
   };
 };
