@@ -1,11 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { zodResponseFormat } from 'openai/helpers/zod.mjs';
-
 import { scanReceiptByURL } from '@/lib/hooks/useOpenAI';
-import {generatePdf} from 'html-pdf-node';
-import html_to_pdf from 'html-pdf-node';
-
-
 import { internalServerError, ok } from '@/app/api/utils';
 import { ReceiptDataSchema } from '@/interfaces/common.interfaces';
 import { createClient as createOpenAIClient } from '@/lib/utils/openai/client';
@@ -15,7 +10,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   const supabase = createSupabaseClient();
   const openai = createOpenAIClient();
   const data = await req.json();
-  const parsed = getHtml(data);
+  const parsed = extractAfterHeaders(data.body.body_html);
 
   try {
     const response = await supabase
@@ -63,22 +58,6 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   }
 
 
-  function getHtml(res: any) {
-    var parts = [res.payload];
-    while (parts.length) {
-      var part = parts.shift();
-      if (part.parts) {
-        parts = parts.concat(part.parts);
-      }
-  
-      if(part.mimeType === 'text/html') {
-        const decoded =  decodeURIComponent(escape(atob(part.body.data.replace(/\-/g, '+').replace(/\_/g, '/'))));
-        return extractAfterHeaders(decoded)
-
-      }
-    }
-    return '';
-  }
   
   function extractAfterHeaders(htmlContent: string) {
     // First normalize line breaks to make it easier to work with
@@ -124,30 +103,4 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     // If no headers found, return the original content
     return normalizedHtml.trim();
   }
-
-
-  /* 
-  GENERATE PDF FUNCTION for some reason its throwing
-  an error on api router. Maybe because it doesn't work on serverless???
-   Haven't gotten a chance to look at it on the route but it did create a pdf on local
-  async function htmlToPdf(htmlString: string) {
-    const file = { content: htmlString };
-    const options = {
-      format: 'A4',
-      printBackground: true, // Important for background colors/images
-      margin: { top: 20, right: 20, bottom: 20, left: 20 },
-      waitForNetworkIdle: true, // Wait for network requests to complete
-      waitForTimeout: 3000, // Give extra time for styles to apply
-    };
-    try {
-      // Generate the PDF
-      const pdfBuffer = await generatePdf(file, options);
-      console.log(`PDF saved successfully at: ${pdfPath}`);
-    } catch (err) {
-      console.error('Error generating or saving PDF:', err);
-    }
-  }
-
-  
-*/
 }
