@@ -58,7 +58,7 @@ export const columns: ColumnDef<Invoice>[] = [
     enableSorting: false,
   },
   {
-    accessorKey: 'file_name&sender',
+    accessorKey: 'filterable',
     accessorFn: (row) =>
       decodeURI(row?.fileName + ' ' + row.data?.supplierName),
     header: ({ column }) => {

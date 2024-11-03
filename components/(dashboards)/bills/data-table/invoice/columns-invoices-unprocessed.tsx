@@ -42,7 +42,7 @@ export const columns: ColumnDef<Invoice>[] = [
     enableSorting: false,
   },
   {
-    accessorKey: 'file_name',
+    accessorKey: 'filterable',
     accessorFn: (row) =>
       decodeURI(
         row.fileUrl.split('/')[8]?.split('.pdf')[0] +

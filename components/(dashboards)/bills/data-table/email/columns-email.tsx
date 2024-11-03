@@ -36,7 +36,7 @@ export const columns: ColumnDef<Email>[] = [
     enableSorting: false,
   },
   {
-    accessorKey: 'subject,from',
+    accessorKey: 'filterable',
     accessorFn: (data) => data.subject + ' ' + data.from,
     header: 'Subject and Sender',
     cell: ({ row }) => {

@@ -7,6 +7,7 @@ import { InvoiceCountResponseKeys } from '@/interfaces/db.interfaces';
 import { User } from '@/models/User';
 
 export interface InvoiceTabValue {
+  type: 'Invoice' | 'Email';
   state?: InvoiceStatus | InvoiceStatus[];
   approverId?: string;
   companyId?: string;
@@ -25,6 +26,7 @@ export const BILLS_DATA_TABLE_TABS = (
       title: 'Company Inbox',
       icon: <Inbox className="h-4 w-4" />,
       value: {
+        type: 'Invoice',
         state: [InvoiceStatus.FOR_REVIEW, InvoiceStatus.APPROVED],
       },
       countKey: InvoiceCountResponseKeys.COMPANY_INBOX,
@@ -33,6 +35,7 @@ export const BILLS_DATA_TABLE_TABS = (
       title: 'Awaiting Your Review',
       icon: <Inbox className="h-4 w-4" />,
       value: {
+        type: 'Invoice',
         state: InvoiceStatus.FOR_REVIEW,
         approverId: user.id,
       },
@@ -42,20 +45,15 @@ export const BILLS_DATA_TABLE_TABS = (
       title: 'Email Inbox',
       icon: <Mail className="h-4 w-4" />,
       value: {
+        type: 'Email',
         companyId: user.company.id,
-      },
-    },
-    {
-      title: 'Awaiting Scan',
-      icon: <Scan className="h-4 w-4" />,
-      value: {
-        state: InvoiceStatus.UNPROCESSED,
       },
     },
     {
       title: 'Completed',
       icon: <Check className="h-4 w-4" />,
       value: {
+        type: 'Invoice',
         state: InvoiceStatus.PROCESSED,
       },
     },

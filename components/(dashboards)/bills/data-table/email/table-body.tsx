@@ -2,8 +2,8 @@
 
 import { Table as TableType, flexRender } from '@tanstack/react-table';
 
+import Container from '@/components/ui/container';
 import {
-  Table,
   TableBody,
   TableCell,
   TableHead,
@@ -11,9 +11,9 @@ import {
   TableRow,
 } from '@/components/ui/table';
 
-import Invoice from '@/models/Invoice';
+import { Email } from '@/app/api/v1/gmail/messages/route';
 
-export const InvoiceTableBody = ({ table }: { table: TableType<Invoice> }) => {
+export const EmailTableBody = ({ table }: { table: TableType<Email> }) => {
   const columns = table.getAllColumns();
 
   return (
@@ -38,17 +38,31 @@ export const InvoiceTableBody = ({ table }: { table: TableType<Invoice> }) => {
       </TableHeader>
       <TableBody>
         {table.getRowModel().rows?.length ? (
-          table.getRowModel().rows.map((row) => (
-            <TableRow
-              key={row.id}
-              data-state={row.getIsSelected() && 'selected'}
-            >
-              {row.getVisibleCells().map((cell) => (
-                <TableCell key={cell.id}>
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
+          table.getRowModel().rows?.map((row) => (
+            <>
+              <TableRow
+                key={row.id}
+                data-state={row.getIsSelected() && 'selected'}
+                className="border-none"
+              >
+                {row.getVisibleCells().map((cell) => (
+                  <TableCell key={cell.id}>
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </TableCell>
+                ))}
+              </TableRow>
+              <TableRow>
+                <TableCell colSpan={columns.length} className="pt-0">
+                  <Container innerClassName="py-2 px-4">
+                    {row.original?.attachments?.map((attachment, index) => (
+                      <div key={index}>
+                        {attachment.filename} {String(row.getIsSelected())}
+                      </div>
+                    ))}
+                  </Container>
                 </TableCell>
-              ))}
-            </TableRow>
+              </TableRow>
+            </>
           ))
         ) : (
           <TableRow>

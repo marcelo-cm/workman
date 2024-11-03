@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, useTransition } from 'react';
 
 import { MagnifyingGlassIcon, TrashIcon } from '@radix-ui/react-icons';
-import { Ellipsis, ScanIcon } from 'lucide-react';
+import { BellOffIcon, Ellipsis, ScanIcon } from 'lucide-react';
 
 import {
   ColumnDef,
@@ -37,6 +37,7 @@ import IfElseRender from '@/components/ui/if-else-renderer';
 import { Table } from '@/components/ui/table';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
+import { useGmail } from '@/lib/hooks/gmail/useGmail';
 import { useInvoice } from '@/lib/hooks/supabase/useInvoice';
 
 import { useAppContext } from '@/app/(dashboards)/context';
@@ -51,6 +52,7 @@ import {
 } from './constants';
 import { DataTableFooter } from './data-table-footer';
 import { columns as email_columns } from './email/columns-email';
+import { EmailTableBody } from './email/table-body';
 import { columns as processed_columns } from './invoice/columns-invoices-processed';
 import { columns as unprocessed_columns } from './invoice/columns-invoices-unprocessed';
 import { InvoiceTableBody } from './invoice/table-body';
@@ -87,14 +89,15 @@ export function InvoiceDataTable<TData, TValue>({
   });
   const [filteredData, setFilteredData] = useState<Invoice[] | Email[]>([]);
   const [tabValue, setTabValue] = useState<TabValue>();
-  const [isUploading, setIsUploading] = useState(false);
+  const [isUploading, startUploading] = useTransition();
   const [invoiceCounts, setInvoiceCounts] = useState<InvoiceCounts>();
 
   const searchFilterInputRef = useRef<HTMLInputElement>(null);
   const dateRangeRef = useRef<any>(null);
-  const selectedFilesUrls = Object.keys(rowSelection).map(
-    (key) => filteredData[parseInt(key)] as Invoice,
+  const selectedInvoices = Object.keys(rowSelection).map(
+    (key) => filteredData[parseInt(key)] as Invoice | Email,
   );
+
   const tabs = useMemo(
     () => (user && BILLS_DATA_TABLE_TABS(user)) || [],
     [user],
@@ -121,9 +124,9 @@ export function InvoiceDataTable<TData, TValue>({
       return;
     }
 
-    if (tabValue.state) {
+    if (tabValue.type === 'Invoice' && tabValue.state) {
       getCompanyInvoicesByStates([tabValue.state].flat(), setData);
-    } else if (tabValue.companyId) {
+    } else if (tabValue.type === 'Email' && tabValue.companyId) {
       getCompanyInvoicesFromGmailInbox(tabValue.companyId, setData);
     }
   }, [JSON.stringify(tabValue)]);
@@ -186,29 +189,27 @@ export function InvoiceDataTable<TData, TValue>({
     dateRangeRef.current?.clearDate();
   };
 
-  const ActionBar = () => {
+  const InvoiceActionBar = () => {
     const handleScanInvoices = async (selectedInvoices: Invoice[]) => {
-      setIsUploading(true);
-      const scanPromises = selectedInvoices.map(
-        async (invoice) => await invoice.scan(),
-      );
-      await Promise.all(scanPromises).then(() => {
-        tabValue?.state &&
-          getCompanyInvoicesByStates([tabValue.state].flat(), setData);
-        setRowSelection({});
-        setIsUploading(false);
+      startUploading(async () => {
+        const scanPromises = selectedInvoices.map(
+          async (invoice) => await invoice.scan(),
+        );
+        await Promise.all(scanPromises).then(() => {
+          tabValue?.state &&
+            getCompanyInvoicesByStates([tabValue.state].flat(), setData);
+          setRowSelection({});
+        });
+        getInvoiceCounts().then(setInvoiceCounts);
       });
-      getInvoiceCounts().then(setInvoiceCounts);
     };
 
     const deleteInvoicesBulk = async () => {
-      setIsUploading(true);
-      const invoiceIds = selectedFilesUrls.map((inv) => inv.id);
+      const invoiceIds = selectedInvoices.map((inv) => inv.id);
       await deleteInvoices(invoiceIds).then(() => {
         tabValue?.state &&
           getCompanyInvoicesByStates([tabValue.state].flat(), setData);
         setRowSelection({});
-        setIsUploading(false);
       });
       getInvoiceCounts().then(setInvoiceCounts);
     };
@@ -249,8 +250,8 @@ export function InvoiceDataTable<TData, TValue>({
           ifTrue={
             <Button
               variant="secondary"
-              disabled={canActionBeDisabled && selectedFilesUrls.length === 0}
-              onClick={() => handleScanInvoices(selectedFilesUrls)}
+              disabled={canActionBeDisabled && selectedInvoices.length === 0}
+              onClick={() => handleScanInvoices(selectedInvoices as Invoice[])}
             >
               <ScanIcon className="h-4 w-4" />
               Scan Selected
@@ -259,8 +260,8 @@ export function InvoiceDataTable<TData, TValue>({
           ifFalse={
             <Button
               variant="secondary"
-              disabled={canActionBeDisabled && selectedFilesUrls.length === 0}
-              onClick={() => onAction(selectedFilesUrls)}
+              disabled={canActionBeDisabled && selectedInvoices.length === 0}
+              onClick={() => onAction(selectedInvoices as Invoice[])}
             >
               {actionIcon}
               {actionOnSelectText}
@@ -272,11 +273,62 @@ export function InvoiceDataTable<TData, TValue>({
     );
   };
 
+  const EmailActionBar = () => {
+    const ignoreEmails = async () => {
+      const emailIds = selectedInvoices.map((email) => email.id);
+
+      getInvoiceCounts().then(setInvoiceCounts);
+    };
+
+    const MoreOptionsButton = () => {
+      return (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              size={'icon'}
+              variant={'outline'}
+              disabled={!Object.keys(rowSelection).length}
+            >
+              <Ellipsis className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="mr-4">
+            <DropdownMenuItem onClick={ignoreEmails} asChild>
+              <Button
+                size={'sm'}
+                className="!h-fit w-48 justify-start gap-2 p-2"
+                variant={'ghost'}
+                appearance={'destructive-strong'}
+              >
+                <BellOffIcon className="size-4" />
+                Ignore
+              </Button>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      );
+    };
+
+    return (
+      <div className="flex flex-row gap-2">
+        <Button
+          variant="secondary"
+          disabled={canActionBeDisabled && selectedInvoices.length === 0}
+        >
+          <ScanIcon className="h-4 w-4" />
+          Scan Selected
+        </Button>
+
+        <MoreOptionsButton />
+      </div>
+    );
+  };
+
   return (
     <>
       <UploadingAlertDialog
         isUploading={isUploading}
-        n={selectedFilesUrls.length}
+        n={selectedInvoices.length}
       />
       <div>
         <Tabs
@@ -318,13 +370,12 @@ export function InvoiceDataTable<TData, TValue>({
               <input
                 ref={searchFilterInputRef}
                 value={
-                  (table
-                    .getColumn('file_name&sender')
-                    ?.getFilterValue() as string) ?? ''
+                  (table.getColumn('filterable')?.getFilterValue() as string) ??
+                  ''
                 }
                 onChange={(event) =>
                   table
-                    .getColumn('file_name&sender')
+                    .getColumn('filterable')
                     ?.setFilterValue(event.target.value)
                 }
                 placeholder="Filter by invoice name or sender"
@@ -346,11 +397,19 @@ export function InvoiceDataTable<TData, TValue>({
               Clear Filters
             </Button>
           </div>
-          <ActionBar />
+          <IfElseRender
+            condition={tabValue?.type === 'Invoice'}
+            ifTrue={<InvoiceActionBar />}
+            ifFalse={<></>}
+          />
         </div>
         <div className="rounded-b-md border">
           <Table>
-            <InvoiceTableBody table={table as TableType<Invoice>} />
+            <IfElseRender
+              condition={tabValue?.type === 'Invoice'}
+              ifTrue={<InvoiceTableBody table={table as TableType<Invoice>} />}
+              ifFalse={<EmailTableBody table={table as TableType<Email>} />}
+            />
             <DataTableFooter
               table={table}
               numCols={columns.length}
