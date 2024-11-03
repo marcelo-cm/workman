@@ -3,6 +3,7 @@ import { UUID } from 'crypto';
 import { toast } from '@/components/ui/use-toast';
 
 import { useAppContext } from '@/app/(dashboards)/context';
+import { Email } from '@/app/api/v1/gmail/messages/route';
 import { Approvable, ApprovalStatus, InvoiceStatus } from '@/constants/enums';
 import { InvoiceCountsResponse } from '@/interfaces/db.interfaces';
 import { createClient } from '@/lib/utils/supabase/client';
@@ -53,7 +54,7 @@ export const useInvoice = () => {
 
   async function getCompanyInvoicesFromGmailInbox(
     companyId: string,
-    callBack?: (invoices: Invoice[]) => void,
+    callBack?: (invoices: Email[]) => void,
   ) {
     const userId = user.id;
 

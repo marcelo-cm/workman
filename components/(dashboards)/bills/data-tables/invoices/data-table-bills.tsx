@@ -1,15 +1,12 @@
 'use client';
 
-import { memo, useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
-import {
-  MagnifyingGlassIcon,
-  PaperPlaneIcon,
-  TrashIcon,
-} from '@radix-ui/react-icons';
+import { MagnifyingGlassIcon, TrashIcon } from '@radix-ui/react-icons';
 import { Ellipsis, ScanIcon } from 'lucide-react';
 
 import {
+  ColumnDef,
   ColumnFiltersState,
   SortingState,
   Table as TableType,
@@ -35,7 +32,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import IfElseRender from '@/components/ui/if-else-renderer';
@@ -53,6 +49,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useInvoice } from '@/lib/hooks/supabase/useInvoice';
 
 import { useAppContext } from '@/app/(dashboards)/context';
+import { Email } from '@/app/api/v1/gmail/messages/route';
 import { InvoiceStatus } from '@/constants/enums';
 import { InvoiceCounts } from '@/interfaces/db.interfaces';
 import Invoice from '@/models/Invoice';
@@ -61,11 +58,12 @@ import {
   INVOICE_DATA_TABLE_TABS,
   InvoiceTabValue as TabValue,
 } from '../constants';
+import { columns as email_columns } from './columns-email';
 import { columns as processed_columns } from './columns-invoices-processed';
 import { columns as unprocessed_columns } from './columns-invoices-unprocessed';
 
 interface DataTableProps {
-  onAction: ((selectedFiles: Invoice[]) => void) | (() => void);
+  onAction: ((selectedFiles: Invoice[] | Email[]) => void) | (() => void);
   actionOnSelectText: string;
   actionIcon: React.ReactNode;
   canActionBeDisabled?: boolean;
@@ -86,7 +84,7 @@ export function InvoiceDataTable<TData, TValue>({
     deleteInvoices,
   } = useInvoice();
   const { user } = useAppContext();
-  const [data, setData] = useState<Invoice[]>([]);
+  const [data, setData] = useState<Invoice[] | Email[]>([]);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [rowSelection, setRowSelection] = useState({});
@@ -94,7 +92,7 @@ export function InvoiceDataTable<TData, TValue>({
     from: undefined,
     to: undefined,
   });
-  const [filteredData, setFilteredData] = useState<Invoice[]>([]);
+  const [filteredData, setFilteredData] = useState<Invoice[] | Email[]>([]);
   const [tabValue, setTabValue] = useState<TabValue>();
   const [isUploading, setIsUploading] = useState(false);
   const [invoiceCounts, setInvoiceCounts] = useState<InvoiceCounts>();
@@ -143,14 +141,17 @@ export function InvoiceDataTable<TData, TValue>({
     updateFilteredData();
   }, [dateRange, data]);
 
-  const columns =
-    tabValue?.state === InvoiceStatus.UNPROCESSED
+  const columns = tabValue?.state
+    ? tabValue.state === InvoiceStatus.UNPROCESSED
       ? unprocessed_columns
-      : processed_columns;
+      : processed_columns
+    : tabValue?.companyId
+      ? email_columns
+      : [];
 
-  const table = useReactTable({
+  const table = useReactTable<Email | Invoice>({
     data: filteredData,
-    columns: columns,
+    columns: columns as ColumnDef<Invoice | Email, any>[],
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     onSortingChange: setSorting,
@@ -177,15 +178,12 @@ export function InvoiceDataTable<TData, TValue>({
       return;
     }
 
-    const filtered = data.filter((item) => {
-      const invoiceDate = new Date((item as Invoice).data.date).getTime();
+    const filtered: Invoice[] | Email[] = data.filter((item) => {
+      const date = new Date(item.date).getTime();
       const fromTime = dateRange.from && new Date(dateRange.from).getTime();
       const toTime = dateRange.to && new Date(dateRange.to).getTime();
-      return (
-        (!fromTime || invoiceDate >= fromTime) &&
-        (!toTime || invoiceDate <= toTime)
-      );
-    });
+      return (!fromTime || date >= fromTime) && (!toTime || date <= toTime);
+    }) as Invoice[] | Email[];
     setFilteredData(filtered);
   };
 
@@ -235,10 +233,6 @@ export function InvoiceDataTable<TData, TValue>({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="mr-4">
-            {/* @todo implement ignore email label */}
-            <DropdownMenuItem asChild>
-              <Button>Ignore Email</Button>
-            </DropdownMenuItem>
             <DropdownMenuItem onClick={deleteInvoicesBulk} asChild>
               <Button
                 size={'sm'}
@@ -285,6 +279,51 @@ export function InvoiceDataTable<TData, TValue>({
     );
   };
 
+  const InvoiceTable = () => {
+    return (
+      <div className="flex w-full flex-row items-center justify-between rounded-tr-md border-x border-t p-2">
+        <div className="flex flex-row gap-2">
+          <div className="flex h-10 w-[300px] flex-row items-center gap-2 rounded-md border bg-transparent px-3 py-1 text-sm text-wm-white-500 transition-colors">
+            <MagnifyingGlassIcon
+              className="pointer-events-none h-5 w-5 cursor-pointer"
+              onClick={() => searchFilterInputRef.current?.focus()}
+            />
+            <input
+              ref={searchFilterInputRef}
+              value={
+                (table
+                  .getColumn('file_name&sender')
+                  ?.getFilterValue() as string) ?? ''
+              }
+              onChange={(event) =>
+                table
+                  .getColumn('file_name&sender')
+                  ?.setFilterValue(event.target.value)
+              }
+              placeholder="Filter by invoice name or sender"
+              className="h-full w-full appearance-none bg-transparent text-black outline-none placeholder:text-wm-white-500 disabled:cursor-not-allowed disabled:opacity-50"
+            />
+          </div>
+          <DatePickerWithRange
+            placeholder="Filter by Date Invoiced"
+            onDateChange={setDateRange}
+            ref={dateRangeRef}
+          />
+          <Button
+            variant="ghost"
+            onClick={handleClearFilters}
+            className={
+              columnFilters.length === 0 && !dateRange.from ? 'hidden' : ''
+            }
+          >
+            Clear Filters
+          </Button>
+        </div>
+        <ActionBar />
+      </div>
+    );
+  };
+
   return (
     <>
       <UploadingAlertDialog
@@ -321,46 +360,7 @@ export function InvoiceDataTable<TData, TValue>({
               ))}
           </TabsList>
         </Tabs>
-        <div className="flex w-full flex-row items-center justify-between rounded-tr-md border-x border-t p-2">
-          <div className="flex flex-row gap-2">
-            <div className="flex h-10 w-[300px] flex-row items-center gap-2 rounded-md border bg-transparent px-3 py-1 text-sm text-wm-white-500 transition-colors">
-              <MagnifyingGlassIcon
-                className="pointer-events-none h-5 w-5 cursor-pointer"
-                onClick={() => searchFilterInputRef.current?.focus()}
-              />
-              <input
-                ref={searchFilterInputRef}
-                value={
-                  (table
-                    .getColumn('file_name&sender')
-                    ?.getFilterValue() as string) ?? ''
-                }
-                onChange={(event) =>
-                  table
-                    .getColumn('file_name&sender')
-                    ?.setFilterValue(event.target.value)
-                }
-                placeholder="Filter by invoice name or sender"
-                className="h-full w-full appearance-none bg-transparent text-black outline-none placeholder:text-wm-white-500 disabled:cursor-not-allowed disabled:opacity-50"
-              />
-            </div>
-            <DatePickerWithRange
-              placeholder="Filter by Date Invoiced"
-              onDateChange={setDateRange}
-              ref={dateRangeRef}
-            />
-            <Button
-              variant="ghost"
-              onClick={handleClearFilters}
-              className={
-                columnFilters.length === 0 && !dateRange.from ? 'hidden' : ''
-              }
-            >
-              Clear Filters
-            </Button>
-          </div>
-          <ActionBar />
-        </div>
+        <InvoiceTable />
         <div className="rounded-b-md border">
           <Table>
             <TableHeader>
@@ -447,7 +447,7 @@ const DataTableFooter = ({
   numCols,
   numInvoices,
 }: {
-  table: TableType<Invoice>;
+  table: TableType<Invoice | Email>;
   numCols: number;
   numInvoices: number;
 }) => {
