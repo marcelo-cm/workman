@@ -59,7 +59,8 @@ export const columns: ColumnDef<Invoice>[] = [
   },
   {
     accessorKey: 'file_name&sender',
-    accessorFn: (row) => decodeURI(row.fileName + ' ' + row.data.supplierName),
+    accessorFn: (row) =>
+      decodeURI(row?.fileName + ' ' + row.data?.supplierName),
     header: ({ column }) => {
       return <div>Invoice Name & Company</div>;
     },
@@ -69,14 +70,14 @@ export const columns: ColumnDef<Invoice>[] = [
           <Tooltip>
             <TooltipContent side="right">
               <div className="no-scrollbar max-h-[600px] overflow-x-hidden overflow-y-scroll">
-                <PDFViewer file={row.original.fileUrl} width={400} />
+                <PDFViewer file={row.original?.fileUrl} width={400} />
               </div>
             </TooltipContent>
             <TooltipTrigger asChild>
               <div className="flex w-fit flex-col">
                 <div className="w-fit">{row.original?.data?.supplierName}</div>
                 <div className="text-xs text-wm-white-300">
-                  {sliceWithEllipsis(decodeURI(row.original.fileName), 35)}
+                  {sliceWithEllipsis(decodeURI(row.original?.fileName), 35)}
                 </div>
               </div>
             </TooltipTrigger>
@@ -90,7 +91,7 @@ export const columns: ColumnDef<Invoice>[] = [
     header: 'Invoice No.',
     cell: ({ row }) => (
       <Badge variant="info">
-        {row.original.data.invoiceNumber || (
+        {row.original.data?.invoiceNumber || (
           <em className="text-wm-white-300">None</em>
         )}
       </Badge>
@@ -98,7 +99,7 @@ export const columns: ColumnDef<Invoice>[] = [
   },
   {
     accessorKey: 'date_due',
-    accessorFn: (row) => new Date(row.data.dueDate),
+    accessorFn: (row) => new Date(row.data?.dueDate),
     header: ({ column }) => (
       <Button
         variant="ghost"
@@ -114,12 +115,12 @@ export const columns: ColumnDef<Invoice>[] = [
       </Button>
     ),
     cell: ({ row }) => (
-      <div>{formatDate(new Date(row.original.data.dueDate))}</div>
+      <div>{formatDate(new Date(row.original.data?.dueDate))}</div>
     ),
   },
   {
     accessorKey: 'date_invoiced',
-    accessorFn: (row) => new Date(row.data.date),
+    accessorFn: (row) => new Date(row.data?.date),
     header: ({ column }) => (
       <Button
         variant="ghost"
@@ -135,7 +136,7 @@ export const columns: ColumnDef<Invoice>[] = [
       </Button>
     ),
     cell: ({ row }) => (
-      <div>{formatDate(new Date(row.original.data.date))}</div>
+      <div>{formatDate(new Date(row.original.data?.date))}</div>
     ),
   },
   {
@@ -159,7 +160,7 @@ export const columns: ColumnDef<Invoice>[] = [
       const formatted = new Intl.NumberFormat('en-US', {
         style: 'currency',
         currency: 'USD',
-      }).format(row.original.data.totalNet);
+      }).format(row.original.data?.totalNet);
 
       return <div>{formatted}</div>;
     },
@@ -170,7 +171,9 @@ export const columns: ColumnDef<Invoice>[] = [
     cell: ({ row }) => {
       const status = row.original.status;
       return (
-        <Badge variant={getBadgeType(status)}>{status.replace('_', ' ')}</Badge>
+        <Badge variant={getBadgeType(status)}>
+          {status?.replace('_', ' ')}
+        </Badge>
       );
     },
   },

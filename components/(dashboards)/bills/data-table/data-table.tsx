@@ -10,7 +10,6 @@ import {
   ColumnFiltersState,
   SortingState,
   Table as TableType,
-  flexRender,
   getCoreRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
@@ -35,15 +34,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import IfElseRender from '@/components/ui/if-else-renderer';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableFooter,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+import { Table } from '@/components/ui/table';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 import { useInvoice } from '@/lib/hooks/supabase/useInvoice';
@@ -54,13 +45,15 @@ import { InvoiceStatus } from '@/constants/enums';
 import { InvoiceCounts } from '@/interfaces/db.interfaces';
 import Invoice from '@/models/Invoice';
 
-import { columns as email_columns } from './columns/columns-email';
-import { columns as processed_columns } from './columns/columns-invoices-processed';
-import { columns as unprocessed_columns } from './columns/columns-invoices-unprocessed';
 import {
   BILLS_DATA_TABLE_TABS,
   InvoiceTabValue as TabValue,
 } from './constants';
+import { DataTableFooter } from './data-table-footer';
+import { columns as email_columns } from './email/columns-email';
+import { columns as processed_columns } from './invoice/columns-invoices-processed';
+import { columns as unprocessed_columns } from './invoice/columns-invoices-unprocessed';
+import { InvoiceTableBody } from './invoice/table-body';
 
 interface DataTableProps {
   onAction: ((selectedFiles: Invoice[]) => void) | (() => void);
@@ -279,51 +272,6 @@ export function InvoiceDataTable<TData, TValue>({
     );
   };
 
-  const InvoiceTable = () => {
-    return (
-      <div className="flex w-full flex-row items-center justify-between rounded-tr-md border-x border-t p-2">
-        <div className="flex flex-row gap-2">
-          <div className="flex h-10 w-[300px] flex-row items-center gap-2 rounded-md border bg-transparent px-3 py-1 text-sm text-wm-white-500 transition-colors">
-            <MagnifyingGlassIcon
-              className="pointer-events-none h-5 w-5 cursor-pointer"
-              onClick={() => searchFilterInputRef.current?.focus()}
-            />
-            <input
-              ref={searchFilterInputRef}
-              value={
-                (table
-                  .getColumn('file_name&sender')
-                  ?.getFilterValue() as string) ?? ''
-              }
-              onChange={(event) =>
-                table
-                  .getColumn('file_name&sender')
-                  ?.setFilterValue(event.target.value)
-              }
-              placeholder="Filter by invoice name or sender"
-              className="h-full w-full appearance-none bg-transparent text-black outline-none placeholder:text-wm-white-500 disabled:cursor-not-allowed disabled:opacity-50"
-            />
-          </div>
-          <DatePickerWithRange
-            placeholder="Filter by Date Invoiced"
-            onDateChange={setDateRange}
-            ref={dateRangeRef}
-          />
-          <Button
-            variant="ghost"
-            onClick={handleClearFilters}
-            className={
-              columnFilters.length === 0 && !dateRange.from ? 'hidden' : ''
-            }
-          >
-            Clear Filters
-          </Button>
-        </div>
-        <ActionBar />
-      </div>
-    );
-  };
-
   return (
     <>
       <UploadingAlertDialog
@@ -360,59 +308,53 @@ export function InvoiceDataTable<TData, TValue>({
               ))}
           </TabsList>
         </Tabs>
-        <InvoiceTable />
+        <div className="flex w-full flex-row items-center justify-between rounded-tr-md border-x border-t p-2">
+          <div className="flex flex-row gap-2">
+            <div className="flex h-10 w-[300px] flex-row items-center gap-2 rounded-md border bg-transparent px-3 py-1 text-sm text-wm-white-500 transition-colors">
+              <MagnifyingGlassIcon
+                className="pointer-events-none h-5 w-5 cursor-pointer"
+                onClick={() => searchFilterInputRef.current?.focus()}
+              />
+              <input
+                ref={searchFilterInputRef}
+                value={
+                  (table
+                    .getColumn('file_name&sender')
+                    ?.getFilterValue() as string) ?? ''
+                }
+                onChange={(event) =>
+                  table
+                    .getColumn('file_name&sender')
+                    ?.setFilterValue(event.target.value)
+                }
+                placeholder="Filter by invoice name or sender"
+                className="h-full w-full appearance-none bg-transparent text-black outline-none placeholder:text-wm-white-500 disabled:cursor-not-allowed disabled:opacity-50"
+              />
+            </div>
+            <DatePickerWithRange
+              placeholder="Filter by Date Invoiced"
+              onDateChange={setDateRange}
+              ref={dateRangeRef}
+            />
+            <Button
+              variant="ghost"
+              onClick={handleClearFilters}
+              className={
+                columnFilters.length === 0 && !dateRange.from ? 'hidden' : ''
+              }
+            >
+              Clear Filters
+            </Button>
+          </div>
+          <ActionBar />
+        </div>
         <div className="rounded-b-md border">
           <Table>
-            <TableHeader>
-              {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => {
-                    return (
-                      <TableHead key={header.id}>
-                        {header.isPlaceholder
-                          ? null
-                          : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext(),
-                            )}
-                      </TableHead>
-                    );
-                  })}
-                </TableRow>
-              ))}
-            </TableHeader>
-            <TableBody>
-              {table.getRowModel().rows?.length ? (
-                table.getRowModel().rows.map((row) => (
-                  <TableRow
-                    key={row.id}
-                    data-state={row.getIsSelected() && 'selected'}
-                  >
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext(),
-                        )}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell
-                    colSpan={columns.length}
-                    className="h-24 text-center"
-                  >
-                    No results.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
+            <InvoiceTableBody table={table as TableType<Invoice>} />
             <DataTableFooter
               table={table}
               numCols={columns.length}
-              numInvoices={data.length}
+              numRows={data.length}
             />
           </Table>
         </div>
@@ -441,56 +383,3 @@ const UploadingAlertDialog = ({
     </AlertDialogContent>
   </AlertDialog>
 );
-
-const DataTableFooter = ({
-  table,
-  numCols,
-  numInvoices,
-}: {
-  table: TableType<Invoice | Email>;
-  numCols: number;
-  numInvoices: number;
-}) => {
-  const { pageSize, pageIndex } = table.getState().pagination;
-  const startIndex = pageSize * pageIndex + 1; //adding 1 to start counting from 1 for the invoices user is seeing (not 0-9)
-  const endIndex = Math.min(pageSize * (pageIndex + 1), numInvoices); // Ensure it doesn't exceed total rows
-
-  return (
-    <TableFooter>
-      <TableRow>
-        <TableCell colSpan={numCols}>
-          <div className="flex items-center justify-end space-x-2 ">
-            <div className="flex-1">
-              <div className="text-muted-foreground items-center text-sm">
-                {table.getFilteredSelectedRowModel().rows.length} of{' '}
-                {table.getFilteredRowModel().rows.length} invoice(s) selected.
-              </div>
-              <div className="text-xs font-normal">
-                Viewing Invoices {startIndex}-{endIndex}
-              </div>
-            </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => table.previousPage()}
-              disabled={!table.getCanPreviousPage()}
-            >
-              Previous
-            </Button>
-            <div className="w-4 text-center">
-              {table.getState().pagination.pageIndex + 1}
-            </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => table.nextPage()}
-              disabled={!table.getCanNextPage()}
-            >
-              Next
-            </Button>
-          </div>
-        </TableCell>
-      </TableRow>
-    </TableFooter>
-  );
-};
