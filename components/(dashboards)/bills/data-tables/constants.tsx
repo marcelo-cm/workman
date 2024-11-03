@@ -12,7 +12,7 @@ export interface InvoiceTabValue {
   companyId?: string;
 }
 
-export const INVOICE_DATA_TABLE_TABS = (
+export const BILLS_DATA_TABLE_TABS = (
   user: User,
 ): {
   title: string;

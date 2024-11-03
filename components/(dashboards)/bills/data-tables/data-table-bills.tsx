@@ -54,16 +54,16 @@ import { InvoiceStatus } from '@/constants/enums';
 import { InvoiceCounts } from '@/interfaces/db.interfaces';
 import Invoice from '@/models/Invoice';
 
+import { columns as email_columns } from './columns/columns-email';
+import { columns as processed_columns } from './columns/columns-invoices-processed';
+import { columns as unprocessed_columns } from './columns/columns-invoices-unprocessed';
 import {
-  INVOICE_DATA_TABLE_TABS,
+  BILLS_DATA_TABLE_TABS,
   InvoiceTabValue as TabValue,
-} from '../constants';
-import { columns as email_columns } from './columns-email';
-import { columns as processed_columns } from './columns-invoices-processed';
-import { columns as unprocessed_columns } from './columns-invoices-unprocessed';
+} from './constants';
 
 interface DataTableProps {
-  onAction: ((selectedFiles: Invoice[] | Email[]) => void) | (() => void);
+  onAction: ((selectedFiles: Invoice[]) => void) | (() => void);
   actionOnSelectText: string;
   actionIcon: React.ReactNode;
   canActionBeDisabled?: boolean;
@@ -103,7 +103,7 @@ export function InvoiceDataTable<TData, TValue>({
     (key) => filteredData[parseInt(key)] as Invoice,
   );
   const tabs = useMemo(
-    () => (user && INVOICE_DATA_TABLE_TABS(user)) || [],
+    () => (user && BILLS_DATA_TABLE_TABS(user)) || [],
     [user],
   );
 
