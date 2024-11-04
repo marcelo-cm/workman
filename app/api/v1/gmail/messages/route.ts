@@ -120,7 +120,6 @@ const getPDFAndSubject = async (
   const data: Message = await response.json();
 
   const { subject, date, from } = parseEmailHeaders(data.payload.headers);
-
   const attachments = await getPdfAttachmentData(data.payload.parts, token);
 
   return {
