@@ -42,6 +42,7 @@ export const columns: ColumnDef<Invoice>[] = [
     enableSorting: false,
   },
   {
+    id: 'filterable',
     accessorKey: 'filterable',
     accessorFn: (row) =>
       decodeURI(

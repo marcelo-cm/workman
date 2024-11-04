@@ -2,7 +2,10 @@
 
 import { Table as TableType, flexRender } from '@tanstack/react-table';
 
+import PDFViewer from '@/components/(shared)/PDF/PDFViewer';
+import { Checkbox } from '@/components/ui/checkbox';
 import Container from '@/components/ui/container';
+import IfElseRender from '@/components/ui/if-else-renderer';
 import {
   TableBody,
   TableCell,
@@ -10,6 +13,12 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 import { Email } from '@/app/api/v1/gmail/messages/route';
 
@@ -54,9 +63,39 @@ export const EmailTableBody = ({ table }: { table: TableType<Email> }) => {
               <TableRow>
                 <TableCell colSpan={columns.length} className="pt-0">
                   <Container innerClassName="py-2 px-4">
+                    <IfElseRender
+                      condition={row.getIsSelected()}
+                      ifTrue={
+                        <div className="pb-1 text-wm-white-400">
+                          Select Attachments to Process
+                        </div>
+                      }
+                    />
                     {row.original?.attachments?.map((attachment, index) => (
-                      <div key={index}>
-                        {attachment.filename} {String(row.getIsSelected())}
+                      <div
+                        key={index}
+                        className="flex flex-row items-center gap-2 "
+                      >
+                        <IfElseRender
+                          condition={row.getIsSelected()}
+                          ifTrue={<Checkbox defaultChecked disabled />}
+                        />
+
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipContent side="right">
+                              <div className="no-scrollbar max-h-[600px] overflow-x-hidden overflow-y-scroll">
+                                <PDFViewer
+                                  file={attachment.base64}
+                                  width={400}
+                                />
+                              </div>
+                            </TooltipContent>
+                            <TooltipTrigger>
+                              {attachment.filename}
+                            </TooltipTrigger>
+                          </Tooltip>
+                        </TooltipProvider>
                       </div>
                     ))}
                   </Container>

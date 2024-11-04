@@ -36,6 +36,7 @@ export const columns: ColumnDef<Email>[] = [
     enableSorting: false,
   },
   {
+    id: 'filterable',
     accessorKey: 'filterable',
     accessorFn: (data) => data.subject + ' ' + data.from,
     header: 'Subject and Sender',
@@ -43,7 +44,7 @@ export const columns: ColumnDef<Email>[] = [
       return (
         <div className="flex w-fit flex-col">
           <div className="w-fit">{row.original.subject}</div>
-          <div className="text-xs text-wm-white-300">{row.original?.from}</div>
+          <div className="text-xs text-wm-white-400">{row.original?.from}</div>
         </div>
       );
     },

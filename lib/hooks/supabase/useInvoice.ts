@@ -64,7 +64,10 @@ export const useInvoice = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        cache: 'no-cache',
+        cache: 'force-cache',
+        next: {
+          revalidate: 1200,
+        },
       });
 
       if (!response.ok) {

@@ -53,7 +53,7 @@ import {
 import { DataTableFooter } from './data-table-footer';
 import { columns as email_columns } from './email/columns-email';
 import { EmailTableBody } from './email/table-body';
-import { columns as processed_columns } from './invoice/columns-invoices-processed';
+import { columns as for_review_columns } from './invoice/columns-invoices-for-review';
 import { columns as unprocessed_columns } from './invoice/columns-invoices-unprocessed';
 import { InvoiceTableBody } from './invoice/table-body';
 
@@ -137,13 +137,17 @@ export function InvoiceDataTable<TData, TValue>({
     updateFilteredData();
   }, [dateRange, data]);
 
-  const columns = tabValue?.state
-    ? tabValue.state === InvoiceStatus.UNPROCESSED
-      ? unprocessed_columns
-      : processed_columns
-    : tabValue?.companyId
-      ? email_columns
-      : [];
+  const columns = useMemo(() => {
+    if (tabValue?.type == 'Invoice') {
+      return for_review_columns;
+    }
+
+    if (tabValue?.type === 'Email') {
+      return email_columns;
+    }
+
+    return [];
+  }, [tabValue?.type]);
 
   const table = useReactTable<Email | Invoice>({
     data: filteredData,
@@ -276,8 +280,6 @@ export function InvoiceDataTable<TData, TValue>({
   const EmailActionBar = () => {
     const ignoreEmails = async () => {
       const emailIds = selectedInvoices.map((email) => email.id);
-
-      getInvoiceCounts().then(setInvoiceCounts);
     };
 
     const MoreOptionsButton = () => {
@@ -400,7 +402,7 @@ export function InvoiceDataTable<TData, TValue>({
           <IfElseRender
             condition={tabValue?.type === 'Invoice'}
             ifTrue={<InvoiceActionBar />}
-            ifFalse={<></>}
+            ifFalse={<EmailActionBar />}
           />
         </div>
         <div className="rounded-b-md border">

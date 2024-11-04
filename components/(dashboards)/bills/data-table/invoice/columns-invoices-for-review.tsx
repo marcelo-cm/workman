@@ -58,6 +58,7 @@ export const columns: ColumnDef<Invoice>[] = [
     enableSorting: false,
   },
   {
+    id: 'filterable',
     accessorKey: 'filterable',
     accessorFn: (row) =>
       decodeURI(row?.fileName + ' ' + row.data?.supplierName),
@@ -76,7 +77,7 @@ export const columns: ColumnDef<Invoice>[] = [
             <TooltipTrigger asChild>
               <div className="flex w-fit flex-col">
                 <div className="w-fit">{row.original?.data?.supplierName}</div>
-                <div className="text-xs text-wm-white-300">
+                <div className="text-xs text-wm-white-400">
                   {sliceWithEllipsis(decodeURI(row.original?.fileName), 35)}
                 </div>
               </div>
