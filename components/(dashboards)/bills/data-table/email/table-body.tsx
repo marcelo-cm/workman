@@ -92,7 +92,7 @@ export const EmailTableBody = ({ table }: { table: TableType<Email> }) => {
                               </div>
                             </TooltipContent>
                             <TooltipTrigger>
-                              {attachment.filename}
+                              {attachment.fileName}
                             </TooltipTrigger>
                           </Tooltip>
                         </TooltipProvider>

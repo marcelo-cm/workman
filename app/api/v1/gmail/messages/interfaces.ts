@@ -1,7 +1,7 @@
-import { Message } from '@/interfaces/gmail.interfaces';
+import { Message, Message_Partial } from '@/interfaces/gmail.interfaces';
 
 export interface MessagesListResponse {
-  messages: Message[];
+  messages: Message_Partial[];
   resultSizeEstimate: number;
   nextPageToken?: string;
 }

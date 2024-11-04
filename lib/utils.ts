@@ -23,7 +23,7 @@ export function toTitleCase(str: string) {
 
 export const base64Decode = (base64String: string, filename: string) => {
   const buffer = Buffer.from(base64String, 'base64');
-  return { filename, bufferData: buffer };
+  return buffer;
 };
 
 export const sliceWithEllipsis = (

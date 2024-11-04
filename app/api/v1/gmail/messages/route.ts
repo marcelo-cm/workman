@@ -1,4 +1,3 @@
-import { Nango } from '@nangohq/node';
 import { StatusCodes } from 'http-status-codes';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -9,10 +8,18 @@ import {
   ok,
   unauthorized,
 } from '@/app/api/utils';
-import { Header, Message, MessagePart } from '@/interfaces/gmail.interfaces';
-import { base64Decode } from '@/lib/utils';
+import { MimeTypes } from '@/constants/enums';
+import {
+  Header,
+  Message,
+  MessageHeaderName,
+  MessagePart,
+  MessagePartBody,
+  Message_Partial,
+} from '@/interfaces/gmail.interfaces';
 import { getGmailToken } from '@/lib/utils/nango/google.server';
 
+import { IGNORED_EMAIL_LABEL, SCANNED_EMAIL_LABEL } from './constants';
 import { MessagesListResponse } from './interfaces';
 
 export type Email = {
@@ -20,14 +27,15 @@ export type Email = {
   subject: string;
   date: string;
   from: string;
-  attachments: PDFData[];
+  attachments: ExtractedPDFData[];
   labelIds: string[];
 };
 
-export interface PDFData {
+export interface ExtractedPDFData {
   base64: string;
-  filename: string;
-  bufferData: Buffer;
+  buffer: Buffer;
+  fileName: string;
+  size: number;
 }
 
 export async function GET(req: NextRequest): Promise<NextResponse> {
@@ -63,12 +71,13 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
   }
 }
 
-const getMailIds = async (token: string) => {
+const getMailIds = async (token: string): Promise<Message_Partial[]> => {
+  // Get date 6 months prior to current date in YYYY/MM/DD format
   const date = new Date();
   date.setMonth(date.getMonth() - 6);
-  const after = date.toISOString().split('T')[0].replace(/-/g, '/');
+  const after = date.toISOString().slice(0, 10).replace(/-/g, '/');
 
-  const query = `filename:pdf after:${after} has:attachment filename:pdf smaller:10M label:inbox -label:WORKMAN_SCANNED -label:WORKMAN_IGNORE`;
+  const query = `filename:pdf after:${after} has:attachment smaller:10M label:inbox -label:${IGNORED_EMAIL_LABEL} -label:${SCANNED_EMAIL_LABEL}`;
   const url = `https://gmail.googleapis.com/gmail/v1/users/me/messages?q=${query}`;
 
   const response = await fetch(url, {
@@ -111,6 +120,7 @@ const getPDFAndSubject = async (
   const data: Message = await response.json();
 
   const { subject, date, from } = parseEmailHeaders(data.payload.headers);
+
   const attachments = await getPdfAttachmentData(data.payload.parts, token);
 
   return {
@@ -126,10 +136,17 @@ const getPDFAndSubject = async (
 const parseEmailHeaders = (
   headers: Header[],
 ): { subject: string; date: string; from: string } => {
-  const subject =
-    headers.find((header) => header.name === 'Subject')?.value || '';
-  const date = headers.find((header) => header.name === 'Date')?.value || '';
-  const from = headers.find((header) => header.name === 'From')?.value || '';
+  let subject = '';
+  let date = '';
+  let from = '';
+
+  for (const header of headers) {
+    if (header.name === MessageHeaderName.Subject) subject = header.value;
+    else if (header.name === MessageHeaderName.Date) date = header.value;
+    else if (header.name === MessageHeaderName.From) from = header.value;
+
+    if (subject && date && from) break;
+  }
 
   return { subject, date, from };
 };
@@ -137,16 +154,15 @@ const parseEmailHeaders = (
 const getPdfAttachmentData = async (
   parts: MessagePart[],
   token: string,
-): Promise<PDFData[]> => {
-  const attachments: PDFData[] = [];
+): Promise<ExtractedPDFData[]> => {
+  const attachments: ExtractedPDFData[] = [];
 
   const extractAttachmentData = async (parts: MessagePart[], token: string) => {
-    if (!parts) {
-      return;
-    }
     for (const part of parts) {
-      if (part.mimeType === 'application/pdf' && part.body?.attachmentId) {
-        const url = `https://gmail.googleapis.com/gmail/v1/users/me/messages/{messageId}/attachments/${part.body.attachmentId}`;
+      if (part.mimeType === MimeTypes['.pdf'] && part.body?.attachmentId) {
+        const attachmentId = part.body.attachmentId;
+        const url = `https://gmail.googleapis.com/gmail/v1/users/me/messages/{messageId}/attachments/${attachmentId}`;
+
         const response = await fetch(url, {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -156,24 +172,31 @@ const getPdfAttachmentData = async (
         });
 
         if (!response.ok) {
-          throw new Error(
-            `Failed to fetch attachment: ${response.status} ${response.statusText}`,
+          throw await invalidResponseError(
+            'Failed to fetch attachment',
+            response,
           );
         }
 
-        const data = await response.json();
+        const data: MessagePartBody = await response.json();
 
-        const decodedBase64 = base64Decode(data.data, part.filename);
+        if (!data.data) {
+          throw new Error('Attachment data not found');
+        }
+
+        const base64Buffer = Buffer.from(data.data, 'base64');
 
         const rawBase64 = data.data;
         const base64repaired = rawBase64.replace(/-/g, '+').replace(/_/g, '/');
 
         attachments.push({
           base64: base64repaired,
-          filename: decodedBase64.filename,
-          bufferData: decodedBase64.bufferData,
+          buffer: base64Buffer,
+          fileName: part.filename,
+          size: data.size,
         });
       }
+
       if (part.parts) {
         extractAttachmentData(part.parts, token);
       }
