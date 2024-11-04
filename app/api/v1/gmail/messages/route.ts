@@ -2,12 +2,18 @@ import { Nango } from '@nangohq/node';
 import { StatusCodes } from 'http-status-codes';
 import { NextRequest, NextResponse } from 'next/server';
 
+import {
+  badRequest,
+  internalServerError,
+  invalidResponseError,
+  ok,
+  unauthorized,
+} from '@/app/api/utils';
 import { Header, Message, MessagePart } from '@/interfaces/gmail.interfaces';
 import { base64Decode } from '@/lib/utils';
+import { getGmailToken } from '@/lib/utils/nango/google.server';
 
-const nango = new Nango({
-  secretKey: process.env.NANGO_SECRET_KEY!,
-});
+import { MessagesListResponse } from './interfaces';
 
 export type Email = {
   id: string;
@@ -25,32 +31,21 @@ export interface PDFData {
 }
 
 export async function GET(req: NextRequest): Promise<NextResponse> {
-  const searchParams = req.nextUrl.searchParams;
+  const searchParams = await req.nextUrl.searchParams;
   const userId = searchParams.get('userId');
 
-  try {
-    if (!userId) {
-      return new NextResponse(JSON.stringify('User ID is required'), {
-        status: StatusCodes.BAD_REQUEST,
-      });
-    }
+  if (!userId) {
+    return badRequest('User ID is required');
+  }
 
-    const googleMailToken = await nango.getToken('google-mail', userId);
+  try {
+    const googleMailToken = await getGmailToken(userId);
 
     if (!googleMailToken) {
-      return new NextResponse(JSON.stringify('Unauthorized'), {
-        status: StatusCodes.UNAUTHORIZED,
-      });
+      return unauthorized('Google Mail token not found');
     }
 
     const emailsFetched = await getMailIds(String(googleMailToken));
-
-    if (!emailsFetched) {
-      // No emails found — so cannot iterate over them
-      return new NextResponse(JSON.stringify([]), {
-        status: StatusCodes.OK,
-      });
-    }
 
     const emails: Email[] = [];
     for (const email of emailsFetched) {
@@ -61,14 +56,10 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       emails.push(newEmail);
     }
 
-    return new NextResponse(JSON.stringify(emails), {
-      status: StatusCodes.OK,
-    });
+    return ok(emails);
   } catch (e: unknown) {
     console.error(e);
-    return new NextResponse(JSON.stringify('Internal Server Error'), {
-      status: StatusCodes.INTERNAL_SERVER_ERROR,
-    });
+    return internalServerError('Failed to fetch emails');
   }
 }
 
@@ -77,7 +68,9 @@ const getMailIds = async (token: string) => {
   date.setMonth(date.getMonth() - 6);
   const after = date.toISOString().split('T')[0].replace(/-/g, '/');
 
-  const url = `https://gmail.googleapis.com/gmail/v1/users/me/messages?q=filename:pdf after:${after} has:attachment filename:pdf smaller:10M label:inbox -label:WORKMAN_SCANNED -label:WORKMAN_IGNORE`;
+  const query = `filename:pdf after:${after} has:attachment filename:pdf smaller:10M label:inbox -label:WORKMAN_SCANNED -label:WORKMAN_IGNORE`;
+  const url = `https://gmail.googleapis.com/gmail/v1/users/me/messages?q=${query}`;
+
   const response = await fetch(url, {
     headers: {
       Authorization: `Bearer ${token}`,
@@ -86,19 +79,14 @@ const getMailIds = async (token: string) => {
   });
 
   if (!response.ok) {
-    throw new Error(
-      `Failed to fetch emails: ${response.status} ${response.statusText}`,
-    );
+    throw await invalidResponseError('Failed to fetch email IDs', response);
   }
 
   if (response.status === StatusCodes.NO_CONTENT) {
-    return;
+    return [];
   }
 
-  const data: {
-    messages: { id: string; threadId: string; labelIds: string[] }[];
-    resultSizeEstimate: number;
-  } = await response.json();
+  const data: MessagesListResponse = await response.json();
 
   return data.messages;
 };
@@ -117,9 +105,7 @@ const getPDFAndSubject = async (
   });
 
   if (!response.ok) {
-    throw new Error(
-      `Failed to fetch email: ${response.status} ${response.statusText}`,
-    );
+    throw await invalidResponseError('Failed to fetch email', response);
   }
 
   const data: Message = await response.json();

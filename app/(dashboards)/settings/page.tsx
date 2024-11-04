@@ -22,7 +22,7 @@ import { useUser } from '@/lib/hooks/supabase/useUser';
 
 import { Label_Basic } from '@/interfaces/gmail.interfaces';
 import { Vendor } from '@/interfaces/quickbooks.interfaces';
-import { handleGoogleMailIntegration } from '@/lib/utils/nango/google';
+import { handleGoogleMailIntegration } from '@/lib/utils/nango/google.client';
 import { handleQuickBooksIntegration } from '@/lib/utils/nango/quickbooks.client';
 
 import { useAppContext } from '../context';
