@@ -5,7 +5,7 @@ import { UUID } from 'crypto';
 import { toast } from '@/components/ui/use-toast';
 
 import { useAppContext } from '@/app/(dashboards)/context';
-import { PDFData } from '@/app/api/v1/gmail/messages/route';
+import { ExtractedPDFData } from '@/app/api/v1/gmail/messages/route';
 import { InvoiceStatus } from '@/constants/enums';
 import { InvoiceData, InvoiceLineItem } from '@/interfaces/common.interfaces';
 import { Invoice_Quickbooks } from '@/interfaces/quickbooks.interfaces';
@@ -56,14 +56,14 @@ export class Invoice {
    * @param file The file to upload to storage
    * @returns The public URL of the uploaded file
    */
-  static async uploadToStorage(file: File | PDFData): Promise<string> {
+  static async uploadToStorage(file: File | ExtractedPDFData): Promise<string> {
     let filePath, fileBody: File | ArrayBuffer;
 
     if (file instanceof File) {
       filePath = `/${file.name}_${new Date().getTime()}`;
       fileBody = file;
     } else {
-      filePath = `/${file.filename}_${new Date().getTime()}`;
+      filePath = `/${file.fileName}_${new Date().getTime()}`;
       fileBody = decode(file.base64);
     }
 
@@ -73,7 +73,7 @@ export class Invoice {
 
     if (error) {
       toast({
-        title: `Failed to upload ${file instanceof File ? file.name : decodeURI(file.filename)}`,
+        title: `Failed to upload ${file instanceof File ? file.name : decodeURI(file.fileName)}`,
         description: 'Please try to upload this document again',
         variant: 'destructive',
       });
@@ -81,7 +81,7 @@ export class Invoice {
     }
 
     toast({
-      title: `${file instanceof File ? file.name : decodeURI(file.filename)} uploaded to storage successfully`,
+      title: `${file instanceof File ? file.name : decodeURI(file.fileName)} uploaded to storage successfully`,
       variant: 'success',
     });
 
