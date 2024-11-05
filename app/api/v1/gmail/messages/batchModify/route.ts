@@ -13,14 +13,14 @@ import { getGmailToken } from '@/lib/utils/nango/google.server';
 import { BatchModifyPostBody } from '../interfaces';
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
-  const { userId, emailIds, addLabelIds, removeLabelIds } = await req.json();
+  const { companyId, emailIds, addLabelIds, removeLabelIds } = await req.json();
 
-  if (!userId) {
+  if (!companyId) {
     return badRequest('User ID is required');
   }
 
   try {
-    const googleMailToken = await getGmailToken(userId);
+    const googleMailToken = await getGmailToken(companyId);
 
     if (!googleMailToken) {
       return unauthorized('Google Mail token not found');

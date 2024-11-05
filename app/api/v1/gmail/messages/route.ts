@@ -20,23 +20,7 @@ import {
 import { getGmailToken } from '@/lib/utils/nango/google.server';
 
 import { IGNORED_EMAIL_LABEL, SCANNED_EMAIL_LABEL } from './constants';
-import { MessagesListResponse } from './interfaces';
-
-export type Email = {
-  id: string;
-  subject: string;
-  date: string;
-  from: string;
-  attachments: ExtractedPDFData[];
-  labelIds: string[];
-};
-
-export interface ExtractedPDFData {
-  base64: string;
-  buffer: Buffer;
-  fileName: string;
-  size: number;
-}
+import { Email, ExtractedPDFData, MessagesListResponse } from './interfaces';
 
 export async function GET(req: NextRequest): Promise<NextResponse> {
   const searchParams = await req.nextUrl.searchParams;

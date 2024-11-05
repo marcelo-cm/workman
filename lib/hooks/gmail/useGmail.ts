@@ -11,11 +11,11 @@ export const useGmail = () => {
   const supabase = createSupabaseClient();
 
   const getLabelByID = async (labelId: string) => {
-    try {
-      const userId = user?.id;
+    const companyId = user.company.id;
 
+    try {
       const response = await fetch(
-        `/api/v1/gmail/labels/${labelId}?userId=${userId}`,
+        `/api/v1/gmail/labels/${labelId}?companyId=${companyId}`,
         {
           method: 'GET',
           headers: {
@@ -44,15 +44,18 @@ export const useGmail = () => {
   const getLabels = async (
     setLabelsCallback?: React.Dispatch<SetStateAction<Label_Basic[]>>,
   ) => {
-    try {
-      const userId = user?.id;
+    const companyId = user?.company.id;
 
-      const response = await fetch(`/api/v1/gmail/labels?userId=${userId}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
+    try {
+      const response = await fetch(
+        `/api/v1/gmail/labels?companyId=${companyId}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
         },
-      });
+      );
 
       if (!response.ok) {
         toast({
@@ -79,9 +82,9 @@ export const useGmail = () => {
   };
 
   const createLabel = async (label: Omit<Label_Basic, 'id'>) => {
-    try {
-      const userId = user?.id;
+    const companyId = user.company.id;
 
+    try {
       const response = await fetch(`/api/v1/gmail/labels`, {
         method: 'POST',
         headers: {
@@ -89,7 +92,7 @@ export const useGmail = () => {
         },
         body: JSON.stringify({
           label,
-          userId,
+          companyId,
         }),
       });
 
@@ -148,16 +151,16 @@ export const useGmail = () => {
     emailIDs: string[],
     labelIDs: string[],
   ) => {
-    try {
-      const userId = user?.id;
+    const companyId = user.company.id;
 
+    try {
       const response = await fetch(`/api/v1/gmail/messages/batchModify`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          userId,
+          companyId,
           emailIds: emailIDs,
           addLabelIds: labelIDs,
           removeLabelIds: [],
@@ -184,20 +187,20 @@ export const useGmail = () => {
   };
 
   const removeLabelsFromEmailById = async (
-    emailId: string,
+    emailIDs: string[],
     labelIDs: string[],
   ) => {
-    try {
-      const userId = user?.id;
+    const companyId = user.company.id;
 
+    try {
       const response = await fetch(`/api/v1/gmail/messages/batchModify`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          userId,
-          emailIds: [emailId],
+          companyId,
+          emailIds: emailIDs,
           addLabelIds: [],
           removeLabelIds: labelIDs,
         }),
@@ -227,7 +230,7 @@ export const useGmail = () => {
     labelIDsAdding: string[],
     labelIDsRemoving: string[],
   ) => {
-    const userId = user?.id;
+    const companyId = user.company.id;
 
     try {
       const response = await fetch(`/api/v1/gmail/messages/batchModify`, {
@@ -236,7 +239,7 @@ export const useGmail = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          userId,
+          companyId,
           emailIds: emailIDs,
           addLabelIds: labelIDsAdding,
           removeLabelIds: labelIDsRemoving,

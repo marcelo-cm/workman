@@ -1,7 +1,5 @@
 'use client';
 
-import { useState } from 'react';
-
 import { CaretDownIcon, CaretUpIcon } from '@radix-ui/react-icons';
 
 import { ColumnDef } from '@tanstack/react-table';
@@ -10,8 +8,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 
-import { Email } from '@/app/api/v1/gmail/messages/route';
-import { formatDate, sliceWithEllipsis } from '@/lib/utils';
+import { Email } from '@/app/api/v1/gmail/messages/interfaces';
+import { formatDate } from '@/lib/utils';
 
 export const columns: ColumnDef<Email>[] = [
   {

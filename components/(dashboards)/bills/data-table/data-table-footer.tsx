@@ -14,7 +14,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { TableCell, TableFooter, TableRow } from '@/components/ui/table';
 
-import { Email } from '@/app/api/v1/gmail/messages/route';
+import { Email } from '@/app/api/v1/gmail/messages/interfaces';
 import Invoice from '@/models/Invoice';
 
 export const DataTableFooter = ({

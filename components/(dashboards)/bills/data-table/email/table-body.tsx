@@ -20,7 +20,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 
-import { Email } from '@/app/api/v1/gmail/messages/route';
+import { Email } from '@/app/api/v1/gmail/messages/interfaces';
 
 export const EmailTableBody = ({ table }: { table: TableType<Email> }) => {
   const columns = table.getAllColumns();

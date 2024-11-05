@@ -11,3 +11,19 @@ export interface BatchModifyPostBody {
   addLabelIds?: string[];
   removeLabelIds?: string[];
 }
+
+export type Email = {
+  id: string;
+  subject: string;
+  date: string;
+  from: string;
+  attachments: ExtractedPDFData[];
+  labelIds: string[];
+};
+
+export interface ExtractedPDFData {
+  base64: string;
+  buffer: Buffer;
+  fileName: string;
+  size: number;
+}

@@ -1,9 +1,7 @@
-import { UUID } from 'crypto';
-
 import { toast } from '@/components/ui/use-toast';
 
 import { useAppContext } from '@/app/(dashboards)/context';
-import { Email } from '@/app/api/v1/gmail/messages/route';
+import { Email } from '@/app/api/v1/gmail/messages/interfaces';
 import { Approvable, ApprovalStatus, InvoiceStatus } from '@/constants/enums';
 import { InvoiceCountsResponse } from '@/interfaces/db.interfaces';
 import { createClient } from '@/lib/utils/supabase/client';

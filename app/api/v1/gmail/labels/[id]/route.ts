@@ -1,4 +1,3 @@
-import { StatusCodes } from 'http-status-codes';
 import { NextRequest, NextResponse } from 'next/server';
 
 import {
@@ -13,15 +12,15 @@ export async function GET(
   req: NextRequest,
   { params }: { params: { id: string } },
 ): Promise<NextResponse> {
-  const userId = req.nextUrl.searchParams.get('userId');
+  const companyId = req.nextUrl.searchParams.get('companyId');
   const labelId = params.id;
 
-  if (!userId) {
+  if (!companyId || !labelId) {
     return badRequest('User ID is required');
   }
 
   try {
-    const googleMailToken = await getGmailToken(userId);
+    const googleMailToken = await getGmailToken(companyId);
 
     if (!googleMailToken) {
       return unauthorized('Google Mail token not found');

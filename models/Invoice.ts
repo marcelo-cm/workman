@@ -5,7 +5,7 @@ import { UUID } from 'crypto';
 import { toast } from '@/components/ui/use-toast';
 
 import { useAppContext } from '@/app/(dashboards)/context';
-import { ExtractedPDFData } from '@/app/api/v1/gmail/messages/route';
+import { ExtractedPDFData } from '@/app/api/v1/gmail/messages/interfaces';
 import { InvoiceStatus } from '@/constants/enums';
 import { InvoiceData, InvoiceLineItem } from '@/interfaces/common.interfaces';
 import { Invoice_Quickbooks } from '@/interfaces/quickbooks.interfaces';

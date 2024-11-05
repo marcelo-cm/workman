@@ -37,11 +37,10 @@ import IfElseRender from '@/components/ui/if-else-renderer';
 import { Table } from '@/components/ui/table';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-import { useGmail } from '@/lib/hooks/gmail/useGmail';
 import { useInvoice } from '@/lib/hooks/supabase/useInvoice';
 
 import { useAppContext } from '@/app/(dashboards)/context';
-import { Email } from '@/app/api/v1/gmail/messages/route';
+import { Email } from '@/app/api/v1/gmail/messages/interfaces';
 import { InvoiceStatus } from '@/constants/enums';
 import { InvoiceCounts } from '@/interfaces/db.interfaces';
 import Invoice from '@/models/Invoice';
