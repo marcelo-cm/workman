@@ -75,8 +75,10 @@ export function InvoiceDataTable<TData, TValue>({
     getCompanyInvoicesFromGmailInbox,
     getInvoicesAwaitingUserApproval,
     getInvoiceCounts,
+    processInvoicesByFileURLs,
     deleteInvoices,
   } = useInvoice();
+
   const { user } = useAppContext();
   const [data, setData] = useState<Invoice[] | Email[]>([]);
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -277,7 +279,7 @@ export function InvoiceDataTable<TData, TValue>({
   };
 
   const EmailActionBar = () => {
-    const { addIgnoreLabelToEmails } = useGmail();
+    const { addIgnoreLabelToEmails, addProcessedLabelToEmails } = useGmail();
 
     const ignoreEmails = async () => {
       const emailIds = selectedInvoices.map((email) => email.id);
@@ -285,6 +287,35 @@ export function InvoiceDataTable<TData, TValue>({
       tabValue?.companyId &&
         getCompanyInvoicesFromGmailInbox(tabValue.companyId, setData);
       setRowSelection({});
+    };
+
+    const handleScanEmails = async (selectedEmails: Email[]) => {
+      startUploading(async () => {
+        const uploadedFileURLs = await Promise.all(
+          selectedEmails.flatMap((email) =>
+            email.attachments.map((attachment) =>
+              Invoice.uploadToStorage(attachment),
+            ),
+          ),
+        );
+
+        const invoices = await Promise.all(
+          uploadedFileURLs.map((fileURL, index) => {
+            processInvoicesByFileURLs([fileURL]);
+            addProcessedLabelToEmails([selectedEmails[index].id]);
+          }),
+        )
+          .then(async () => {
+            tabValue?.companyId &&
+              (await getCompanyInvoicesFromGmailInbox(
+                tabValue.companyId,
+                setData,
+              ));
+          })
+          .finally(async () => {
+            await getInvoiceCounts().then(setInvoiceCounts);
+          });
+      });
     };
 
     const MoreOptionsButton = () => {
@@ -321,6 +352,7 @@ export function InvoiceDataTable<TData, TValue>({
         <Button
           variant="secondary"
           disabled={canActionBeDisabled && selectedInvoices.length === 0}
+          onClick={() => handleScanEmails(selectedInvoices as Email[])}
         >
           <ScanIcon className="h-4 w-4" />
           Scan Selected

@@ -58,18 +58,25 @@ export class Invoice {
    */
   static async uploadToStorage(file: File | ExtractedPDFData): Promise<string> {
     let filePath, fileBody: File | ArrayBuffer;
+    let data, error;
 
     if (file instanceof File) {
       filePath = `/${file.name}_${new Date().getTime()}`;
       fileBody = file;
+
+      ({ data, error } = await supabase.storage
+        .from('invoices')
+        .upload(filePath, fileBody));
     } else {
       filePath = `/${file.fileName}_${new Date().getTime()}`;
       fileBody = decode(file.base64);
-    }
 
-    const { data, error } = await supabase.storage
-      .from('invoices')
-      .upload(filePath, fileBody);
+      ({ data, error } = await supabase.storage
+        .from('invoices')
+        .upload(filePath, fileBody, {
+          contentType: 'application/pdf',
+        }));
+    }
 
     if (error) {
       toast({
@@ -87,7 +94,7 @@ export class Invoice {
 
     const {
       data: { publicUrl },
-    } = await supabase.storage.from('invoices').getPublicUrl(data.path);
+    } = supabase.storage.from('invoices').getPublicUrl(data!.path);
 
     return publicUrl;
   }

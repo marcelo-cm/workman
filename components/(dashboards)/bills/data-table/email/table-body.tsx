@@ -13,12 +13,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
 
 import { Email } from '@/app/api/v1/gmail/messages/interfaces';
 import { bytesToKB } from '@/lib/utils';
