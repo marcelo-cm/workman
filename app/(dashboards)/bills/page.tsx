@@ -2,9 +2,7 @@
 
 import { useState } from 'react';
 
-import { Pencil2Icon } from '@radix-ui/react-icons';
-
-import { InvoiceDataTable } from '@/components/(dashboards)/bills/data-tables/invoices/data-table-invoice';
+import { InvoiceDataTable } from '@/components/(dashboards)/bills/data-table/data-table';
 import InvoiceExtractionReview from '@/components/(dashboards)/bills/extraction/InvoiceExtractionReview';
 import UploadInvoiceButton from '@/components/(shared)/general/UploadInvoiceButton';
 import {
@@ -45,11 +43,7 @@ export default function ForApproval() {
             Upload your file and we'll process it for you. Select multiple files
             to below to review the scan and upload to QuickBooks.
           </p>
-          <InvoiceDataTable
-            onAction={handleReviewSelected}
-            actionIcon={<Pencil2Icon />}
-            actionOnSelectText="Review Selected"
-          />
+          <InvoiceDataTable onAction={handleReviewSelected} />
         </div>
       )}
     </>

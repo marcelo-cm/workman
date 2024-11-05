@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { UUID } from 'crypto';
 
@@ -20,7 +20,6 @@ import {
 import { toTitleCase } from '@/lib/utils';
 import { Approval } from '@/models/Approval';
 import Invoice from '@/models/Invoice';
-import { Receipt } from '@/models/Receipt';
 import { User, User_Nested } from '@/models/User';
 
 interface ApprovalOption {

@@ -92,31 +92,6 @@ const PDFSplitter = () => {
     }
   }, [stage]);
 
-  const handleProcessFiles = async () => {
-    if (!filesToUpload) {
-      return;
-    }
-
-    const files = Array.from(filesToUpload) as File[];
-    setProgress(new Array(files.length).fill(0));
-
-    try {
-      startUploading(async () => {
-        const fileUrls = await Promise.all(
-          files.map((file, index) => uploadFile(file, index)),
-        );
-
-        await Promise.all(
-          fileUrls.map((url, index) => processFile(url, index)),
-        );
-
-        setTimeout(() => window.location.reload(), 500);
-      });
-    } catch (error: unknown) {
-      console.error('Error uploading files:', error);
-    }
-  };
-
   const startSmoothProgress = (index: number, target: number) => {
     return setInterval(() => {
       setProgress((prevProgress) =>
@@ -134,6 +109,35 @@ const PDFSplitter = () => {
     setProgress((prevProgress) =>
       prevProgress.map((p, i) => (i === index ? value : p)),
     );
+  };
+
+  const handleProcessFiles = async () => {
+    if (!filesToUpload) {
+      return;
+    }
+
+    const files = Array.from(filesToUpload) as File[];
+    setProgress(new Array(files.length).fill(0));
+
+    try {
+      startUploading(async () => {
+        const fileUrls = await Promise.all(
+          files.map((file, index) => uploadFile(file, index)),
+        );
+
+        const processPromises = fileUrls.map((fileUrl, index) =>
+          processFile(fileUrl, index),
+        );
+
+        await Promise.all(processPromises).then(() => {
+          setTimeout(() => {
+            window.location.reload();
+          }, 1000);
+        });
+      });
+    } catch (error: unknown) {
+      console.error('Error uploading files:', error);
+    }
   };
 
   const uploadFile = async (file: File, index: number): Promise<string> => {
@@ -154,15 +158,10 @@ const PDFSplitter = () => {
   };
 
   const processFile = async (fileUrl: string, index: number) => {
-    const smoothIncrement = startSmoothProgress(index, PROCESS_PROGRESS - 10);
-
-    try {
-      await processInvoicesByFileURLs([fileUrl]);
+    startSmoothProgress(index, PROCESS_PROGRESS - 10);
+    await processInvoicesByFileURLs([fileUrl]).then(() => {
       updateProgress(index, PROCESS_PROGRESS);
-    } catch (error) {
-      console.error(`Error processing file at index ${index}:`, error);
-      throw error;
-    }
+    });
   };
 
   return (

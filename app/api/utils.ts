@@ -70,3 +70,11 @@ export const unsupportedMediaType = (message: string) =>
   new NextResponse(JSON.stringify(message), {
     status: StatusCodes.UNSUPPORTED_MEDIA_TYPE,
   });
+
+export const invalidResponseError = async (
+  message: string,
+  response: Response,
+): Promise<Error> => {
+  const errorText = response.text();
+  return new Error(`${response.status}: ${message}, ${errorText}`);
+};

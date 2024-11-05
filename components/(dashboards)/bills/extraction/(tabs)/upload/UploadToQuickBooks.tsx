@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useTransition } from 'react';
+import { useEffect, useState, useTransition } from 'react';
 
 import { ArrowLeftIcon } from '@radix-ui/react-icons';
 import { HammerIcon, Loader2Icon } from 'lucide-react';

@@ -23,7 +23,7 @@ export function toTitleCase(str: string) {
 
 export const base64Decode = (base64String: string, filename: string) => {
   const buffer = Buffer.from(base64String, 'base64');
-  return { filename, bufferData: buffer };
+  return buffer;
 };
 
 export const sliceWithEllipsis = (
@@ -83,4 +83,8 @@ export function findMostSimilar<T>(
     const currSimilarity = stringSimilarity(getOptionValue(curr), target);
     return currSimilarity > prevSimilarity ? curr : prev;
   }, options[0]);
+}
+
+export function bytesToKB(bytes: number): string {
+  return (bytes / 1024).toFixed(2);
 }

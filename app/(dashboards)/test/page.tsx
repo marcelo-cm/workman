@@ -4,14 +4,9 @@ import React, { useEffect, useState } from 'react';
 
 import PDFViewer from '@/components/(shared)/PDF/PDFViewer';
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
-import { ComboBox } from '@/components/ui/combo-box';
 import Container from '@/components/ui/container';
 import { Input } from '@/components/ui/input';
-import {
-  PaginatedComboBox,
-  Pagination,
-} from '@/components/ui/paginated-combo-box';
+import { Pagination } from '@/components/ui/paginated-combo-box';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 import { useVendor } from '@/lib/hooks/quickbooks/useVendor';
@@ -101,9 +96,6 @@ const page = () => {
   const handleFetchingBlob = async () => {
     try {
       const data = await fetchBlob();
-      console.log('UNSTRIPPED', data);
-      // const base64 = stripBase64Prefix(data as string);
-      // console.log('STRIPPED', base64);
       setBase64(data as string);
     } catch (e) {
       console.error(e);

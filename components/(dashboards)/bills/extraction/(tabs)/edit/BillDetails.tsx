@@ -4,7 +4,6 @@ import { z } from 'zod';
 import ExtractionFormComponent from '../../components/ExtractionFormComponent';
 import { ComboBox } from '@/components/ui/combo-box';
 import {
-  Form,
   FormControl,
   FormField,
   FormItem,
