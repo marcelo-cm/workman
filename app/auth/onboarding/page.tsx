@@ -236,7 +236,11 @@ const Onboarding = () => {
   );
 };
 
-export default Onboarding;
+const page = () => {
+  return <div></div>;
+};
+
+export default page;
 
 // const upsertWorkmanLabels = async () => {
 //   const labels = await getLabels();
