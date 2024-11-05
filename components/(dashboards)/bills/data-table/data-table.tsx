@@ -366,10 +366,6 @@ export function InvoiceDataTable<TData, TValue>({
 
   return (
     <>
-      <UploadingAlertDialog
-        isUploading={isUploading}
-        n={selectedInvoices.length}
-      />
       <div>
         <Tabs
           defaultValue={tabs && (tabs[0]?.value as unknown as string)}
@@ -458,27 +454,18 @@ export function InvoiceDataTable<TData, TValue>({
           </Table>
         </div>
       </div>
+      <AlertDialog open={isUploading}>
+        <AlertDialogContent className="justify-center">
+          <AlertDialogHeader className="items-center">
+            <WorkmanLogo className="w-32 animate-pulse" />
+            <AlertDialogTitle>Uploading your Data Now!</AlertDialogTitle>
+          </AlertDialogHeader>
+          <AlertDialogDescription className="text-center">
+            It's important that you don't close this window while we're
+            uploading your data.
+          </AlertDialogDescription>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }
-
-const UploadingAlertDialog = ({
-  isUploading,
-  n,
-}: {
-  isUploading: boolean;
-  n: number;
-}) => (
-  <AlertDialog open={isUploading}>
-    <AlertDialogContent className="justify-center">
-      <AlertDialogHeader className="items-center">
-        <WorkmanLogo className="w-32 animate-pulse" />
-        <AlertDialogTitle>Uploading your Data Now!</AlertDialogTitle>
-      </AlertDialogHeader>
-      <AlertDialogDescription className="text-center">
-        It's important that you don't close this window while we're uploading
-        your data. We are uploading {n} files.
-      </AlertDialogDescription>
-    </AlertDialogContent>
-  </AlertDialog>
-);
