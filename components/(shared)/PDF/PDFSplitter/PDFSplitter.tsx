@@ -125,15 +125,21 @@ const PDFSplitter = () => {
           files.map((file, index) => uploadFile(file, index)),
         );
 
-        const processPromises = fileUrls.map((fileUrl, index) =>
-          processFile(fileUrl, index),
-        );
+        for (let i = 0; i < fileUrls.length; i += 4) {
+          const batch = fileUrls
+            .slice(i, i + 4)
+            .map((fileUrl, index) => processFile(fileUrl, i + index));
 
-        await Promise.all(processPromises).then(() => {
-          setTimeout(() => {
-            window.location.reload();
-          }, 1000);
-        });
+          await Promise.all(batch);
+
+          if (i + 4 < fileUrls.length) {
+            await new Promise((resolve) => setTimeout(resolve, 5000));
+          }
+        }
+
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000);
       });
     } catch (error: unknown) {
       console.error('Error uploading files:', error);
