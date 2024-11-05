@@ -22,8 +22,8 @@ import { useUser } from '@/lib/hooks/supabase/useUser';
 
 import { Label_Basic } from '@/interfaces/gmail.interfaces';
 import { Vendor } from '@/interfaces/quickbooks.interfaces';
-import { handleGoogleMailIntegration } from '@/lib/utils/nango/google.client';
-import { handleQuickBooksIntegration } from '@/lib/utils/nango/quickbooks.client';
+import { createGoogleMailIntegrationByCompanyID } from '@/lib/utils/nango/google.client';
+import { createQuickBooksIntegrationByCompanyID } from '@/lib/utils/nango/quickbooks.client';
 
 import { useAppContext } from '../context';
 
@@ -120,13 +120,21 @@ const Account = () => {
         <div className="text-xl">Integrations</div>
         <div className="flex w-fit flex-row items-center justify-between gap-4">
           Google Mail Integration <Gmail />
-          <Button onClick={handleGoogleMailIntegration}>
+          <Button
+            onClick={() =>
+              createGoogleMailIntegrationByCompanyID(user.company.id)
+            }
+          >
             Connect Google Mail
           </Button>
         </div>
         <div className="flex w-fit flex-row items-center justify-between gap-4">
           QuickBooks Integration <QuickBooks />
-          <Button onClick={handleQuickBooksIntegration}>
+          <Button
+            onClick={() =>
+              createQuickBooksIntegrationByCompanyID(user.company.id)
+            }
+          >
             Connect QuickBooks
           </Button>
         </div>

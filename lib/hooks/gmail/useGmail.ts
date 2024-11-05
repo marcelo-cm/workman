@@ -156,34 +156,30 @@ export const useGmail = () => {
 
   const getIgnoredLabelByCompanyID = async (id: string): Promise<Label> => {
     const { data, error } = await supabase
-      .from('company')
-      .select('gmail_integration(*)')
-      .eq('id', id)
+      .from('gmail_integration')
+      .select('ignored_label')
+      .eq('company', id)
       .maybeSingle();
 
     if (error || !data) {
       throw new Error('Failed to get ignored label');
     }
 
-    const gmailIntegration = new GmailIntegration(data.gmail_integration[0]);
-
-    return gmailIntegration.ignoredLabel;
+    return data.ignored_label;
   };
 
   const getProcessedLabelByCompanyID = async (id: string): Promise<Label> => {
     const { data, error } = await supabase
-      .from('company')
-      .select('gmail_integration(*)')
-      .eq('id', id)
+      .from('gmail_integration')
+      .select('processed_label')
+      .eq('company', id)
       .maybeSingle();
 
     if (error || !data) {
       throw new Error('Failed to get processed label');
     }
 
-    const gmailIntegration = new GmailIntegration(data.gmail_integration[0]);
-
-    return gmailIntegration.processedLabel;
+    return data.processed_label;
   };
 
   const addLabelsToEmailsById = async (

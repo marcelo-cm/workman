@@ -56,15 +56,16 @@ export const useInvoice = () => {
     companyId: string,
     callBack?: (invoices: Email[]) => void,
   ) {
-    const userId = user.id;
-
     try {
-      const response = await fetch(`/api/v1/gmail/messages?userId=${userId}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
+      const response = await fetch(
+        `/api/v1/gmail/messages?companyId=${companyId}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
         },
-      });
+      );
 
       if (!response.ok) {
         toast({

@@ -40,14 +40,14 @@ export interface ExtractedPDFData {
 
 export async function GET(req: NextRequest): Promise<NextResponse> {
   const searchParams = await req.nextUrl.searchParams;
-  const userId = searchParams.get('userId');
+  const companyId = searchParams.get('companyId');
 
-  if (!userId) {
+  if (!companyId) {
     return badRequest('User ID is required');
   }
 
   try {
-    const googleMailToken = await getGmailToken(userId);
+    const googleMailToken = await getGmailToken(companyId);
 
     if (!googleMailToken) {
       return unauthorized('Google Mail token not found');
