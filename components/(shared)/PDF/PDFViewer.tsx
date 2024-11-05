@@ -14,7 +14,7 @@ const MIN_ZOOM = 1;
 const MAX_ZOOM = 2;
 
 interface PDFViewerProps {
-  file: File | string;
+  file: File | Buffer | string;
   width?: number;
   gridColumns?: 1 | 2 | 3;
   zoomable?: boolean;

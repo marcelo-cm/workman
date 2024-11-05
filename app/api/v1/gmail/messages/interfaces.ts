@@ -1,4 +1,4 @@
-import { Message, Message_Partial } from '@/interfaces/gmail.interfaces';
+import { Message_Partial } from '@/interfaces/gmail.interfaces';
 
 export interface MessagesListResponse {
   messages: Message_Partial[];
@@ -23,7 +23,6 @@ export type Email = {
 
 export interface ExtractedPDFData {
   base64: string;
-  buffer: Buffer;
   fileName: string;
   size: number;
 }

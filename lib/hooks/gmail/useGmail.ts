@@ -129,18 +129,20 @@ export const useGmail = () => {
   ) => {
     const companyId = user.company.id;
 
+    const payload = {
+      companyId,
+      emailIds: emailIDs,
+      addLabelIds: labelIDs,
+      removeLabelIds: [],
+    };
+
     try {
       const response = await fetch(`/api/v1/gmail/messages/batchModify`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          companyId,
-          emailIds: emailIDs,
-          addLabelIds: labelIDs,
-          removeLabelIds: [],
-        }),
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) {

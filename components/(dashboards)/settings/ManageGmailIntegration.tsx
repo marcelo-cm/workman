@@ -15,7 +15,9 @@ import { createGoogleMailIntegrationByCompanyID } from '@/lib/utils/nango/google
 import {
   GmailIntegration,
   WORKMAN_IGNORE_LABEL_CREATE,
+  WORKMAN_IGNORE_LABEL_NAME,
   WORKMAN_PROCESSED_LABEL_CREATE,
+  WORKMAN_PROCESSED_LABEL_NAME,
 } from '@/models/GmailIntegration';
 
 const StatusBadge = ({
@@ -50,12 +52,18 @@ const ManageGmailIntegration = () => {
     );
 
     let ignoredLabel;
-    if (!gmailIntegration?.ignoredLabel) {
+    if (
+      !gmailIntegration?.ignoredLabel ||
+      gmailIntegration?.ignoredLabel.name !== WORKMAN_IGNORE_LABEL_NAME
+    ) {
       ignoredLabel = await createLabel(WORKMAN_IGNORE_LABEL_CREATE);
     }
 
     let processedLabel;
-    if (!gmailIntegration?.processedLabel) {
+    if (
+      !gmailIntegration?.processedLabel ||
+      gmailIntegration?.processedLabel.name !== WORKMAN_PROCESSED_LABEL_NAME
+    ) {
       processedLabel = await createLabel(WORKMAN_PROCESSED_LABEL_CREATE);
     }
 

@@ -3,8 +3,8 @@ import { UUID } from 'crypto';
 import { Label, Label_Basic } from '@/interfaces/gmail.interfaces';
 import { createClient } from '@/lib/utils/supabase/client';
 
-export const WORKMAN_IGNORE_LABEL_NAME = 'Ignored (WM)';
-export const WORKMAN_PROCESSED_LABEL_NAME = 'Processed (WM)';
+export const WORKMAN_IGNORE_LABEL_NAME = 'Ignored';
+export const WORKMAN_PROCESSED_LABEL_NAME = 'Processed';
 
 export const WORKMAN_IGNORE_LABEL_CREATE: Omit<Label_Basic, 'id'> = {
   name: WORKMAN_IGNORE_LABEL_NAME,

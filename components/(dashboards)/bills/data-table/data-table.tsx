@@ -37,6 +37,7 @@ import IfElseRender from '@/components/ui/if-else-renderer';
 import { Table } from '@/components/ui/table';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
+import { useGmail } from '@/lib/hooks/gmail/useGmail';
 import { useInvoice } from '@/lib/hooks/supabase/useInvoice';
 
 import { useAppContext } from '@/app/(dashboards)/context';
@@ -52,8 +53,7 @@ import {
 import { DataTableFooter } from './data-table-footer';
 import { columns as email_columns } from './email/columns-email';
 import { EmailTableBody } from './email/table-body';
-import { columns as for_review_columns } from './invoice/columns-invoices-for-review';
-import { columns as unprocessed_columns } from './invoice/columns-invoices-unprocessed';
+import { columns as invoice_columns } from './invoice/columns-invoice';
 import { InvoiceTableBody } from './invoice/table-body';
 
 interface DataTableProps {
@@ -138,7 +138,7 @@ export function InvoiceDataTable<TData, TValue>({
 
   const columns = useMemo(() => {
     if (tabValue?.type == 'Invoice') {
-      return for_review_columns;
+      return invoice_columns;
     }
 
     if (tabValue?.type === 'Email') {
@@ -277,8 +277,14 @@ export function InvoiceDataTable<TData, TValue>({
   };
 
   const EmailActionBar = () => {
+    const { addIgnoreLabelToEmails } = useGmail();
+
     const ignoreEmails = async () => {
       const emailIds = selectedInvoices.map((email) => email.id);
+      await addIgnoreLabelToEmails(emailIds);
+      tabValue?.companyId &&
+        getCompanyInvoicesFromGmailInbox(tabValue.companyId, setData);
+      setRowSelection({});
     };
 
     const MoreOptionsButton = () => {

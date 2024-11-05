@@ -167,14 +167,12 @@ const getPdfAttachmentData = async (
           throw new Error('Attachment data not found');
         }
 
-        const base64Buffer = Buffer.from(data.data, 'base64');
-
         const rawBase64 = data.data;
+
         const base64repaired = rawBase64.replace(/-/g, '+').replace(/_/g, '/');
 
         attachments.push({
           base64: base64repaired,
-          buffer: base64Buffer,
           fileName: part.filename,
           size: data.size,
         });

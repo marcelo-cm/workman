@@ -84,3 +84,7 @@ export function findMostSimilar<T>(
     return currSimilarity > prevSimilarity ? curr : prev;
   }, options[0]);
 }
+
+export function bytesToKB(bytes: number): string {
+  return (bytes / 1024).toFixed(2);
+}

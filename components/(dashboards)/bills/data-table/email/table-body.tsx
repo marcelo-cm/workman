@@ -21,6 +21,7 @@ import {
 } from '@/components/ui/tooltip';
 
 import { Email } from '@/app/api/v1/gmail/messages/interfaces';
+import { bytesToKB } from '@/lib/utils';
 
 export const EmailTableBody = ({ table }: { table: TableType<Email> }) => {
   const columns = table.getAllColumns();
@@ -80,22 +81,10 @@ export const EmailTableBody = ({ table }: { table: TableType<Email> }) => {
                           condition={row.getIsSelected()}
                           ifTrue={<Checkbox defaultChecked disabled />}
                         />
-
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipContent side="right">
-                              <div className="no-scrollbar max-h-[600px] overflow-x-hidden overflow-y-scroll">
-                                <PDFViewer
-                                  file={attachment.base64}
-                                  width={400}
-                                />
-                              </div>
-                            </TooltipContent>
-                            <TooltipTrigger>
-                              {attachment.fileName}
-                            </TooltipTrigger>
-                          </Tooltip>
-                        </TooltipProvider>
+                        <p>{attachment.fileName} </p>
+                        <p className="ml-auto">
+                          ({bytesToKB(attachment.size)} KB)
+                        </p>
                       </div>
                     ))}
                   </Container>

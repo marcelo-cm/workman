@@ -5,6 +5,7 @@ import {
   badRequest,
   internalServerError,
   invalidResponseError,
+  noContent,
   ok,
   unauthorized,
 } from '@/app/api/utils';
@@ -49,9 +50,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       );
     }
 
-    const data = await response.json();
-
-    return ok(data);
+    return noContent();
   } catch (e: unknown) {
     console.error(e);
     return internalServerError('Failed to batch modify labels');
