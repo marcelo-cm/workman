@@ -2,8 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState, useTransition } from 'react';
 
-import { MagnifyingGlassIcon, TrashIcon } from '@radix-ui/react-icons';
-import { BellOffIcon, Ellipsis, ScanIcon } from 'lucide-react';
+import { MagnifyingGlassIcon } from '@radix-ui/react-icons';
 
 import {
   ColumnDef,
@@ -27,59 +26,35 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { DatePickerWithRange } from '@/components/ui/date-range-picker';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import IfElseRender from '@/components/ui/if-else-renderer';
 import { Table } from '@/components/ui/table';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-import { useGmail } from '@/lib/hooks/gmail/useGmail';
 import { useInvoice } from '@/lib/hooks/supabase/useInvoice';
 
-import { useAppContext } from '@/app/(dashboards)/context';
 import { Email } from '@/app/api/v1/gmail/messages/interfaces';
-import { InvoiceStatus } from '@/constants/enums';
-import { InvoiceCounts } from '@/interfaces/db.interfaces';
 import Invoice from '@/models/Invoice';
 
-import {
-  BILLS_DATA_TABLE_TABS,
-  InvoiceTabValue as TabValue,
-} from './constants';
-import { DataTableFooter } from './data-table-footer';
+import { TabValue } from './constants';
+import DataTableFooter from './data-table-footer';
+import DataTableTabs, { DataTableTabsRef } from './data-table-tabs';
+import DataTableEmailActionBar from './email/action-bar';
 import { columns as email_columns } from './email/columns-email';
 import { EmailTableBody } from './email/table-body';
+import DataTableInvoiceActionBar from './invoice/action-bar';
 import { columns as invoice_columns } from './invoice/columns-invoice';
 import { InvoiceTableBody } from './invoice/table-body';
 
 interface DataTableProps {
   onAction: ((selectedFiles: Invoice[]) => void) | (() => void);
-  actionOnSelectText: string;
-  actionIcon: React.ReactNode;
-  canActionBeDisabled?: boolean;
-  defaultInvoiceStatus?: InvoiceStatus;
 }
 
-export function InvoiceDataTable<TData, TValue>({
-  onAction,
-  actionOnSelectText,
-  actionIcon,
-  canActionBeDisabled = true,
-}: DataTableProps) {
+export function InvoiceDataTable<TData, TValue>({ onAction }: DataTableProps) {
   const {
     getCompanyInvoicesByStates,
     getCompanyInvoicesFromGmailInbox,
     getInvoicesAwaitingUserApproval,
-    getInvoiceCounts,
-    processInvoicesByFileURLs,
-    deleteInvoices,
   } = useInvoice();
 
-  const { user } = useAppContext();
   const [data, setData] = useState<Invoice[] | Email[]>([]);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -91,28 +66,21 @@ export function InvoiceDataTable<TData, TValue>({
   const [filteredData, setFilteredData] = useState<Invoice[] | Email[]>([]);
   const [tabValue, setTabValue] = useState<TabValue>();
   const [isUploading, startUploading] = useTransition();
-  const [invoiceCounts, setInvoiceCounts] = useState<InvoiceCounts>();
 
-  const searchFilterInputRef = useRef<HTMLInputElement>(null);
+  const tabsRef = useRef<DataTableTabsRef>(null);
   const dateRangeRef = useRef<any>(null);
-  const selectedInvoices = Object.keys(rowSelection).map(
-    (key) => filteredData[parseInt(key)] as Invoice | Email,
-  );
 
-  const tabs = useMemo(
-    () => (user && BILLS_DATA_TABLE_TABS(user)) || [],
-    [user],
-  );
+  const columns = useMemo(() => {
+    if (tabValue?.type == 'Invoice') {
+      return invoice_columns;
+    }
 
-  useEffect(() => {
-    getInvoiceCounts().then(setInvoiceCounts);
-  }, []);
+    if (tabValue?.type === 'Email') {
+      return email_columns;
+    }
 
-  useEffect(() => {
-    if (!tabs.length) return;
-
-    setTabValue(tabs[0].value as TabValue);
-  }, [tabs]);
+    return [];
+  }, [tabValue?.type]);
 
   useEffect(() => {
     if (!tabValue) return;
@@ -137,18 +105,6 @@ export function InvoiceDataTable<TData, TValue>({
 
     updateFilteredData();
   }, [dateRange, data]);
-
-  const columns = useMemo(() => {
-    if (tabValue?.type == 'Invoice') {
-      return invoice_columns;
-    }
-
-    if (tabValue?.type === 'Email') {
-      return email_columns;
-    }
-
-    return [];
-  }, [tabValue?.type]);
 
   const table = useReactTable<Email | Invoice>({
     data: filteredData,
@@ -194,217 +150,33 @@ export function InvoiceDataTable<TData, TValue>({
     dateRangeRef.current?.clearDate();
   };
 
-  const InvoiceActionBar = () => {
-    const handleScanInvoices = async (selectedInvoices: Invoice[]) => {
-      startUploading(async () => {
-        const scanPromises = selectedInvoices.map(
-          async (invoice) => await invoice.scan(),
-        );
-        await Promise.all(scanPromises).then(() => {
-          tabValue?.state &&
-            getCompanyInvoicesByStates([tabValue.state].flat(), setData);
-          setRowSelection({});
-        });
-        getInvoiceCounts().then(setInvoiceCounts);
-      });
-    };
-
-    const deleteInvoicesBulk = async () => {
-      const invoiceIds = selectedInvoices.map((inv) => inv.id);
-      await deleteInvoices(invoiceIds).then(() => {
-        tabValue?.state &&
-          getCompanyInvoicesByStates([tabValue.state].flat(), setData);
-        setRowSelection({});
-      });
-      getInvoiceCounts().then(setInvoiceCounts);
-    };
-
-    const MoreOptionsButton = () => {
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              size={'icon'}
-              variant={'outline'}
-              disabled={!Object.keys(rowSelection).length}
-            >
-              <Ellipsis className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="mr-4">
-            <DropdownMenuItem onClick={deleteInvoicesBulk} asChild>
-              <Button
-                size={'sm'}
-                className="!h-fit w-48 justify-start gap-2 p-2"
-                variant={'ghost'}
-                appearance={'destructive-strong'}
-              >
-                <TrashIcon className="size-4" />
-                Delete
-              </Button>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
-    };
-
-    return (
-      <div className="flex flex-row gap-2">
-        <IfElseRender
-          condition={tabValue?.state === InvoiceStatus.UNPROCESSED}
-          ifTrue={
-            <Button
-              variant="secondary"
-              disabled={canActionBeDisabled && selectedInvoices.length === 0}
-              onClick={() => handleScanInvoices(selectedInvoices as Invoice[])}
-            >
-              <ScanIcon className="h-4 w-4" />
-              Scan Selected
-            </Button>
-          }
-          ifFalse={
-            <Button
-              variant="secondary"
-              disabled={canActionBeDisabled && selectedInvoices.length === 0}
-              onClick={() => onAction(selectedInvoices as Invoice[])}
-            >
-              {actionIcon}
-              {actionOnSelectText}
-            </Button>
-          }
-        />
-        <MoreOptionsButton />
-      </div>
-    );
+  const handleEmailAction = async () => {
+    tabValue?.companyId &&
+      (await getCompanyInvoicesFromGmailInbox(tabValue.companyId, setData));
+    setRowSelection({});
+    tabsRef.current?.refreshInvoiceCounts();
   };
 
-  const EmailActionBar = () => {
-    const { addIgnoreLabelToEmails, addProcessedLabelToEmails } = useGmail();
-
-    const ignoreEmails = async () => {
-      const emailIds = selectedInvoices.map((email) => email.id);
-      await addIgnoreLabelToEmails(emailIds);
-      tabValue?.companyId &&
-        getCompanyInvoicesFromGmailInbox(tabValue.companyId, setData);
-      setRowSelection({});
-    };
-
-    const handleScanEmails = async (selectedEmails: Email[]) => {
-      startUploading(async () => {
-        const uploadedFileURLs = await Promise.all(
-          selectedEmails.flatMap((email) =>
-            email.attachments.map((attachment) =>
-              Invoice.uploadToStorage(attachment),
-            ),
-          ),
-        );
-
-        const invoices = await Promise.all(
-          uploadedFileURLs.map((fileURL, index) => {
-            processInvoicesByFileURLs([fileURL]);
-          }),
-        )
-          .then(async () => {
-            // Optimistic update @todo fix logic to make sense
-            addProcessedLabelToEmails(selectedEmails.map((email) => email.id));
-            tabValue?.companyId &&
-              (await getCompanyInvoicesFromGmailInbox(
-                tabValue.companyId,
-                setData,
-              ));
-          })
-          .finally(async () => {
-            await getInvoiceCounts().then(setInvoiceCounts);
-          });
-      });
-    };
-
-    const MoreOptionsButton = () => {
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              size={'icon'}
-              variant={'outline'}
-              disabled={!Object.keys(rowSelection).length}
-            >
-              <Ellipsis className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="mr-4">
-            <DropdownMenuItem onClick={ignoreEmails} asChild>
-              <Button
-                size={'sm'}
-                className="!h-fit w-48 justify-start gap-2 p-2"
-                variant={'ghost'}
-                appearance={'destructive-strong'}
-              >
-                <BellOffIcon className="size-4" />
-                Ignore
-              </Button>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
-    };
-
-    return (
-      <div className="flex flex-row gap-2">
-        <Button
-          variant="secondary"
-          disabled={canActionBeDisabled && selectedInvoices.length === 0}
-          onClick={() => handleScanEmails(selectedInvoices as Email[])}
-        >
-          <ScanIcon className="h-4 w-4" />
-          Scan Selected
-        </Button>
-
-        <MoreOptionsButton />
-      </div>
-    );
+  const handleInvoiceAction = async () => {
+    tabValue?.state &&
+      (await getCompanyInvoicesByStates([tabValue.state].flat(), setData));
+    setRowSelection({});
+    tabsRef.current?.refreshInvoiceCounts();
   };
 
   return (
     <>
       <div>
-        <Tabs
-          defaultValue={tabs && (tabs[0]?.value as unknown as string)}
-          onValueChange={(value) => setTabValue(value as unknown as TabValue)}
-          value={tabValue as unknown as string}
-        >
-          <TabsList className="h-fit rounded-b-none rounded-t-md border border-b-0">
-            {tabs &&
-              tabs.map((tab) => (
-                <TabsTrigger
-                  key={tab.title}
-                  value={tab.value as unknown as string}
-                  className="flex h-10 grow justify-start gap-2 data-[state=active]:border-b data-[state=active]:border-wm-orange data-[state=active]:text-wm-orange"
-                >
-                  {tab.icon}
-                  {tab.title}
-                  {tab.countKey && invoiceCounts && (
-                    <Button
-                      asChild
-                      className={`ml-1 !h-6 !w-5 text-xs ${tabValue != tab.value ? 'bg-gray-400' : ''}`}
-                      size={'sm'}
-                      type="button"
-                    >
-                      <span>{invoiceCounts[tab.countKey]}</span>
-                    </Button>
-                  )}
-                </TabsTrigger>
-              ))}
-          </TabsList>
-        </Tabs>
+        <DataTableTabs
+          tabValue={tabValue}
+          setTabValue={setTabValue}
+          ref={tabsRef}
+        />
         <div className="flex w-full flex-row items-center justify-between rounded-tr-md border-x border-t p-2">
           <div className="flex flex-row gap-2">
-            <div className="flex h-10 w-[300px] flex-row items-center gap-2 rounded-md border bg-transparent px-3 py-1 text-sm text-wm-white-500 transition-colors">
-              <MagnifyingGlassIcon
-                className="pointer-events-none h-5 w-5 cursor-pointer"
-                onClick={() => searchFilterInputRef.current?.focus()}
-              />
+            <div className="relative flex h-10 w-[300px] flex-row items-center gap-2 rounded-md border bg-transparent px-3 py-1 text-sm text-wm-white-500 transition-colors">
+              <MagnifyingGlassIcon className="pointer-events-none absolute h-5 w-5" />
               <input
-                ref={searchFilterInputRef}
                 value={
                   (table.getColumn('filterable')?.getFilterValue() as string) ??
                   ''
@@ -415,7 +187,7 @@ export function InvoiceDataTable<TData, TValue>({
                     ?.setFilterValue(event.target.value)
                 }
                 placeholder="Filter by invoice name or sender"
-                className="h-full w-full appearance-none bg-transparent text-black outline-none placeholder:text-wm-white-500 disabled:cursor-not-allowed disabled:opacity-50"
+                className="h-full w-full appearance-none bg-transparent pl-6 text-black outline-none placeholder:text-wm-white-500 disabled:cursor-not-allowed disabled:opacity-50"
               />
             </div>
             <DatePickerWithRange
@@ -435,8 +207,21 @@ export function InvoiceDataTable<TData, TValue>({
           </div>
           <IfElseRender
             condition={tabValue?.type === 'Invoice'}
-            ifTrue={<InvoiceActionBar />}
-            ifFalse={<EmailActionBar />}
+            ifTrue={
+              <DataTableInvoiceActionBar
+                rowSelection={rowSelection}
+                data={filteredData as Invoice[]}
+                onAction={onAction}
+                afterAction={handleInvoiceAction}
+              />
+            }
+            ifFalse={
+              <DataTableEmailActionBar
+                rowSelection={rowSelection}
+                data={filteredData as Email[]}
+                afterAction={handleEmailAction}
+              />
+            }
           />
         </div>
         <div className="rounded-b-md border">

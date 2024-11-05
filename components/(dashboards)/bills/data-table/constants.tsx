@@ -6,7 +6,7 @@ import { InvoiceStatus } from '@/constants/enums';
 import { InvoiceCountResponseKeys } from '@/interfaces/db.interfaces';
 import { User } from '@/models/User';
 
-export interface InvoiceTabValue {
+export interface TabValue {
   type: 'Invoice' | 'Email';
   state?: InvoiceStatus | InvoiceStatus[];
   approverId?: string;
@@ -18,7 +18,7 @@ export const BILLS_DATA_TABLE_TABS = (
 ): {
   title: string;
   icon: ReactNode;
-  value: InvoiceTabValue;
+  value: TabValue;
   countKey?: InvoiceCountResponseKeys;
 }[] => {
   return [

@@ -1,3 +1,5 @@
+import { memo } from 'react';
+
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -17,7 +19,7 @@ import { TableCell, TableFooter, TableRow } from '@/components/ui/table';
 import { Email } from '@/app/api/v1/gmail/messages/interfaces';
 import Invoice from '@/models/Invoice';
 
-export const DataTableFooter = ({
+const DataTableFooter = ({
   table,
   numCols,
   numRows,
@@ -69,3 +71,5 @@ export const DataTableFooter = ({
     </TableFooter>
   );
 };
+
+export default memo(DataTableFooter);

@@ -45,11 +45,7 @@ export default function ForApproval() {
             Upload your file and we'll process it for you. Select multiple files
             to below to review the scan and upload to QuickBooks.
           </p>
-          <InvoiceDataTable
-            onAction={handleReviewSelected}
-            actionIcon={<Pencil2Icon />}
-            actionOnSelectText="Review Selected"
-          />
+          <InvoiceDataTable onAction={handleReviewSelected} />
         </div>
       )}
     </>
