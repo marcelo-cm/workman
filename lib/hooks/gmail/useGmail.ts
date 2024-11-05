@@ -1,29 +1,22 @@
 import { SetStateAction } from 'react';
 
+import { UUID } from 'crypto';
+
 import { toast } from '@/components/ui/use-toast';
 
 import { useAppContext } from '@/app/(dashboards)/context';
 import { Email } from '@/app/api/v1/gmail/messages/route';
 import { Label, Label_Basic } from '@/interfaces/gmail.interfaces';
 import { createClient as createSupabaseClient } from '@/lib/utils/supabase/client';
+import { GmailIntegration } from '@/models/GmailIntegration';
 
 export const useGmail = () => {
   const { user } = useAppContext();
   const supabase = createSupabaseClient();
 
-  const getLabelbyID = async (labelId: string) => {
+  const getLabelByID = async (labelId: string) => {
     try {
-      const { data, error } = await supabase.auth.getUser();
-
-      if (error) {
-        throw new Error('Failed to get user');
-      }
-
-      const userId = data?.user?.id;
-
-      if (!userId) {
-        throw new Error('User ID not found');
-      }
+      const userId = user?.id;
 
       const response = await fetch(
         `/api/v1/gmail/labels/${labelId}?userId=${userId}`,
@@ -56,17 +49,7 @@ export const useGmail = () => {
     setMailCallback?: React.Dispatch<SetStateAction<Email[]>>,
   ) => {
     try {
-      const { data, error } = await supabase.auth.getUser();
-
-      if (error) {
-        throw new Error('Failed to get user');
-      }
-
-      const userId = data?.user?.id;
-
-      if (!userId) {
-        throw new Error('User ID not found');
-      }
+      const userId = user?.id;
 
       const response = await fetch(`/api/v1/gmail/messages?userId=${userId}`, {
         method: 'GET',
@@ -100,17 +83,7 @@ export const useGmail = () => {
     setLabelsCallback?: React.Dispatch<SetStateAction<Label_Basic[]>>,
   ) => {
     try {
-      const { data, error } = await supabase.auth.getUser();
-
-      if (error) {
-        throw new Error('Failed to get user');
-      }
-
-      const userId = data?.user?.id;
-
-      if (!userId) {
-        throw new Error('User ID not found');
-      }
+      const userId = user?.id;
 
       const response = await fetch(`/api/v1/gmail/labels?userId=${userId}`, {
         method: 'GET',
@@ -145,17 +118,7 @@ export const useGmail = () => {
 
   const createLabel = async (label: Omit<Label_Basic, 'id'>) => {
     try {
-      const { data, error } = await supabase.auth.getUser();
-
-      if (error) {
-        throw new Error('Failed to get user');
-      }
-
-      const userId = data?.user?.id;
-
-      if (!userId) {
-        throw new Error('User ID not found');
-      }
+      const userId = user?.id;
 
       const response = await fetch(`/api/v1/gmail/labels`, {
         method: 'POST',
@@ -191,102 +154,179 @@ export const useGmail = () => {
     }
   };
 
-  // const markAsIgnore = async (emailId: string) => {
-  //   try {
-  //     const { data: userData, error } = await supabase.auth.getUser();
+  const getIgnoredLabelByCompanyID = async (id: string): Promise<Label> => {
+    const { data, error } = await supabase
+      .from('company')
+      .select('gmail_integration(*)')
+      .eq('id', id)
+      .maybeSingle();
 
-  //     if (error) {
-  //       throw new Error('Failed to get user');
-  //     }
+    if (error || !data) {
+      throw new Error('Failed to get ignored label');
+    }
 
-  //     const userId = userData?.user?.id;
+    const gmailIntegration = new GmailIntegration(data.gmail_integration[0]);
 
-  //     if (!userId) {
-  //       throw new Error('User ID not found');
-  //     }
+    return gmailIntegration.ignoredLabel;
+  };
 
-  //     const response = await fetch(`/api/v1/gmail/messages/batchModify`, {
-  //       method: 'POST',
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //       },
-  //       body: JSON.stringify({
-  //         userId,
-  //         emailIds: [emailId],
-  //         addLabelIds: [user.ignoreLabelId],
-  //         removeLabelIds: [],
-  //       }),
-  //     });
+  const getProcessedLabelByCompanyID = async (id: string): Promise<Label> => {
+    const { data, error } = await supabase
+      .from('company')
+      .select('gmail_integration(*)')
+      .eq('id', id)
+      .maybeSingle();
 
-  //     if (!response.ok) {
-  //       toast({
-  //         title: 'Error marking email as ignore',
-  //         description: response.statusText,
-  //         variant: 'destructive',
-  //       });
-  //     }
+    if (error || !data) {
+      throw new Error('Failed to get processed label');
+    }
 
-  //     toast({
-  //       title: 'Email marked as ignore',
-  //     });
+    const gmailIntegration = new GmailIntegration(data.gmail_integration[0]);
 
-  //     return response;
-  //   } catch (error) {
-  //     throw new Error(`Failed to mark email as ignore, ${error}`);
-  //   }
-  // };
+    return gmailIntegration.processedLabel;
+  };
 
-  // const markAsScanned = async (emailId: string) => {
-  //   try {
-  //     const { data: userData, error } = await supabase.auth.getUser();
+  const addLabelsToEmailsById = async (
+    emailIDs: string[],
+    labelIDs: string[],
+  ) => {
+    try {
+      const userId = user?.id;
 
-  //     if (error) {
-  //       throw new Error('Failed to get user');
-  //     }
+      const response = await fetch(`/api/v1/gmail/messages/batchModify`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId,
+          emailIds: emailIDs,
+          addLabelIds: labelIDs,
+          removeLabelIds: [],
+        }),
+      });
 
-  //     const userId = userData?.user?.id;
+      if (!response.ok) {
+        toast({
+          title: 'Error adding labels to email',
+          description: response.statusText,
+          variant: 'destructive',
+        });
+        throw new Error('Failed to add labels to email');
+      }
 
-  //     if (!userId) {
-  //       throw new Error('User ID not found');
-  //     }
+      toast({
+        title: 'Labels added to email',
+      });
 
-  //     const response = await fetch(`/api/v1/gmail/messages/batchModify`, {
-  //       method: 'POST',
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //       },
-  //       body: JSON.stringify({
-  //         userId,
-  //         emailIds: [emailId],
-  //         addLabelIds: [user.scannedLabelId],
-  //         removeLabelIds: [],
-  //       }),
-  //     });
+      return response;
+    } catch (error: unknown) {
+      throw new Error(`Failed to add labels to email, ${error}`);
+    }
+  };
 
-  //     if (!response.ok) {
-  //       toast({
-  //         title: 'Error marking email as scanned',
-  //         description: response.statusText,
-  //         variant: 'destructive',
-  //       });
-  //     }
+  const removeLabelsFromEmailById = async (
+    emailId: string,
+    labelIDs: string[],
+  ) => {
+    try {
+      const userId = user?.id;
 
-  //     toast({
-  //       title: 'Email marked as scanned',
-  //     });
+      const response = await fetch(`/api/v1/gmail/messages/batchModify`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId,
+          emailIds: [emailId],
+          addLabelIds: [],
+          removeLabelIds: labelIDs,
+        }),
+      });
 
-  //     return response;
-  //   } catch (error) {
-  //     throw new Error(`Failed to mark email as scanned, ${error}`);
-  //   }
-  // };
+      if (!response.ok) {
+        toast({
+          title: 'Error removing labels from email',
+          description: response.statusText,
+          variant: 'destructive',
+        });
+        throw new Error('Failed to remove labels from email');
+      }
+
+      toast({
+        title: 'Labels removed from email',
+      });
+
+      return response;
+    } catch (error: unknown) {
+      throw new Error(`Failed to remove labels from email, ${error}`);
+    }
+  };
+
+  const modifyLabelsOnEmailById = async (
+    emailIDs: string[],
+    labelIDsAdding: string[],
+    labelIDsRemoving: string[],
+  ) => {
+    const userId = user?.id;
+
+    try {
+      const response = await fetch(`/api/v1/gmail/messages/batchModify`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId,
+          emailIds: emailIDs,
+          addLabelIds: labelIDsAdding,
+          removeLabelIds: labelIDsRemoving,
+        }),
+      });
+
+      if (!response.ok) {
+        toast({
+          title: 'Error modifying labels on email',
+          description: response.statusText,
+          variant: 'destructive',
+        });
+        throw new Error('Failed to modify labels on email');
+      }
+
+      toast({
+        title: 'Labels modified on email',
+      });
+
+      return response;
+    } catch (error: unknown) {
+      throw new Error(`Failed to modify labels on email, ${error}`);
+    }
+  };
+
+  const addIgnoreLabelToEmails = async (emailIDs: string[]) => {
+    const ignoreLabel = await getIgnoredLabelByCompanyID(user?.company.id);
+
+    return addLabelsToEmailsById(emailIDs, [ignoreLabel.id]);
+  };
+
+  const addProcessedLabelToEmails = async (emailIDs: string[]) => {
+    const processedLabel = await getProcessedLabelByCompanyID(user?.company.id);
+
+    return addLabelsToEmailsById(emailIDs, [processedLabel.id]);
+  };
 
   return {
     getEmails,
     getLabels,
-    getLabelbyID,
+    getLabelByID,
     createLabel,
-    // markAsIgnore,
-    // markAsScanned,
+    getIgnoredLabelByCompanyID,
+    getProcessedLabelByCompanyID,
+    addLabelsToEmailsById,
+    removeLabelsFromEmailById,
+    modifyLabelsOnEmailById,
+    addIgnoreLabelToEmails,
+    addProcessedLabelToEmails,
   };
 };

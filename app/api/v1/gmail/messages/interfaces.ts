@@ -5,3 +5,9 @@ export interface MessagesListResponse {
   resultSizeEstimate: number;
   nextPageToken?: string;
 }
+
+export interface BatchModifyPostBody {
+  ids: string[];
+  addLabelIds?: string[];
+  removeLabelIds?: string[];
+}

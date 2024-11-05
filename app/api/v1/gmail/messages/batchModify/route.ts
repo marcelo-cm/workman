@@ -1,31 +1,33 @@
-import { Nango } from '@nangohq/node';
 import { StatusCodes } from 'http-status-codes';
 import { NextRequest, NextResponse } from 'next/server';
 
-const nango = new Nango({
-  secretKey: process.env.NANGO_SECRET_KEY!,
-});
+import {
+  badRequest,
+  internalServerError,
+  invalidResponseError,
+  ok,
+  unauthorized,
+} from '@/app/api/utils';
+import { getGmailToken } from '@/lib/utils/nango/google.server';
+
+import { BatchModifyPostBody } from '../interfaces';
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
+  const { userId, emailIds, addLabelIds, removeLabelIds } = await req.json();
+
+  if (!userId) {
+    return badRequest('User ID is required');
+  }
+
   try {
-    const { userId, emailIds, addLabelIds, removeLabelIds } = await req.json();
-
-    if (!userId) {
-      return new NextResponse(JSON.stringify('User ID is required'), {
-        status: StatusCodes.BAD_REQUEST,
-      });
-    }
-
-    const googleMailToken = await nango.getToken('google-mail', userId);
+    const googleMailToken = await getGmailToken(userId);
 
     if (!googleMailToken) {
-      return new NextResponse(JSON.stringify('Unauthorized'), {
-        status: StatusCodes.UNAUTHORIZED,
-      });
+      return unauthorized('Google Mail token not found');
     }
 
     const url = `https://gmail.googleapis.com/gmail/v1/users/me/messages/batchModify`;
-    const body = {
+    const body: BatchModifyPostBody = {
       ids: emailIds,
       addLabelIds,
       removeLabelIds,
@@ -41,18 +43,17 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     });
 
     if (!response.ok) {
-      throw new Error(
-        `Failed to fetch emails: ${response.status} ${response.statusText}`,
+      throw await invalidResponseError(
+        'Failed to batch modify labels',
+        response,
       );
     }
 
-    return new NextResponse(JSON.stringify(response), {
-      status: StatusCodes.OK,
-    });
+    const data = await response.json();
+
+    return ok(data);
   } catch (e: unknown) {
     console.error(e);
-    return new NextResponse(JSON.stringify('Internal Server Error'), {
-      status: StatusCodes.INTERNAL_SERVER_ERROR,
-    });
+    return internalServerError('Failed to batch modify labels');
   }
 }
