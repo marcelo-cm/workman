@@ -61,4 +61,4 @@ const DataTableFooter = ({
   );
 };
 
-export default memo(DataTableFooter);
+export default DataTableFooter;
