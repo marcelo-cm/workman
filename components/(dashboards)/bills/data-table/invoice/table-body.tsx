@@ -3,7 +3,6 @@
 import { Table as TableType, flexRender } from '@tanstack/react-table';
 
 import {
-  Table,
   TableBody,
   TableCell,
   TableHead,

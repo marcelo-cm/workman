@@ -1,17 +1,6 @@
 import { memo } from 'react';
 
-import {
-  ColumnDef,
-  ColumnFiltersState,
-  SortingState,
-  Table as TableType,
-  flexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  useReactTable,
-} from '@tanstack/react-table';
+import { Table as TableType } from '@tanstack/react-table';
 
 import { Button } from '@/components/ui/button';
 import { TableCell, TableFooter, TableRow } from '@/components/ui/table';

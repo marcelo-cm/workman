@@ -1,5 +1,3 @@
-import React from 'react';
-
 import QuickBooks from '@/components/molecules/QuickBooks';
 import { Button } from '@/components/ui/button';
 import Container from '@/components/ui/container';

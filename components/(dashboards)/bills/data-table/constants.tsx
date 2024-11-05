@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 
-import { Check, Inbox, Mail, Scan } from 'lucide-react';
+import { Check, Inbox, Mail } from 'lucide-react';
 
 import { InvoiceStatus } from '@/constants/enums';
 import { InvoiceCountResponseKeys } from '@/interfaces/db.interfaces';

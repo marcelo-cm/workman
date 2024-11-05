@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import Gmail from '@/components/molecules/Gmail';
 import { Badge } from '@/components/ui/badge';

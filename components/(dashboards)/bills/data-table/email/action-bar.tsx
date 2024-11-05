@@ -1,4 +1,4 @@
-import React, { memo, useTransition } from 'react';
+import { memo, useTransition } from 'react';
 
 import { BellOffIcon, Ellipsis, ScanIcon } from 'lucide-react';
 
@@ -21,7 +21,6 @@ import {
 import { useGmail } from '@/lib/hooks/gmail/useGmail';
 import { useInvoice } from '@/lib/hooks/supabase/useInvoice';
 
-import { useAppContext } from '@/app/(dashboards)/context';
 import { Email } from '@/app/api/v1/gmail/messages/interfaces';
 import Invoice from '@/models/Invoice';
 

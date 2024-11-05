@@ -2,7 +2,6 @@
 
 import { Table as TableType, flexRender } from '@tanstack/react-table';
 
-import PDFViewer from '@/components/(shared)/PDF/PDFViewer';
 import { Checkbox } from '@/components/ui/checkbox';
 import Container from '@/components/ui/container';
 import IfElseRender from '@/components/ui/if-else-renderer';

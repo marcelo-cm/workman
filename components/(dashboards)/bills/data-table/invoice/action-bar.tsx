@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import { memo } from 'react';
 
 import { Pencil2Icon, TrashIcon } from '@radix-ui/react-icons';
 import { Ellipsis } from 'lucide-react';

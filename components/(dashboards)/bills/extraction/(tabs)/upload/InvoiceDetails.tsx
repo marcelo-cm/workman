@@ -1,5 +1,3 @@
-import React from 'react';
-
 import { InvoiceData } from '@/interfaces/common.interfaces';
 
 const InvoiceDetails = ({ invoice }: { invoice: InvoiceData }) => {

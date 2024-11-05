@@ -4,14 +4,9 @@ import React, { useEffect, useState } from 'react';
 
 import PDFViewer from '@/components/(shared)/PDF/PDFViewer';
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
-import { ComboBox } from '@/components/ui/combo-box';
 import Container from '@/components/ui/container';
 import { Input } from '@/components/ui/input';
-import {
-  PaginatedComboBox,
-  Pagination,
-} from '@/components/ui/paginated-combo-box';
+import { Pagination } from '@/components/ui/paginated-combo-box';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 import { useVendor } from '@/lib/hooks/quickbooks/useVendor';

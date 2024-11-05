@@ -2,8 +2,6 @@
 
 import { useState } from 'react';
 
-import { Pencil2Icon } from '@radix-ui/react-icons';
-
 import { InvoiceDataTable } from '@/components/(dashboards)/bills/data-table/data-table';
 import InvoiceExtractionReview from '@/components/(dashboards)/bills/extraction/InvoiceExtractionReview';
 import UploadInvoiceButton from '@/components/(shared)/general/UploadInvoiceButton';
