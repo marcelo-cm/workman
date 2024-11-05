@@ -5,8 +5,6 @@ import { createClient } from '@/lib/utils/supabase/client';
 
 import { Company } from './Company';
 
-const supabase = createClient();
-
 export class User {
   private _name: string;
   private _id: UUID;
