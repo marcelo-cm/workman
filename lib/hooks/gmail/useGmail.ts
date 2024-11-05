@@ -1,14 +1,10 @@
 import { SetStateAction } from 'react';
 
-import { UUID } from 'crypto';
-
 import { toast } from '@/components/ui/use-toast';
 
 import { useAppContext } from '@/app/(dashboards)/context';
-import { Email } from '@/app/api/v1/gmail/messages/route';
 import { Label, Label_Basic } from '@/interfaces/gmail.interfaces';
 import { createClient as createSupabaseClient } from '@/lib/utils/supabase/client';
-import { GmailIntegration } from '@/models/GmailIntegration';
 
 export const useGmail = () => {
   const { user } = useAppContext();
@@ -42,40 +38,6 @@ export const useGmail = () => {
       return label;
     } catch (error) {
       throw new Error(`Failed to get label, ${error}`);
-    }
-  };
-
-  const getEmails = async (
-    setMailCallback?: React.Dispatch<SetStateAction<Email[]>>,
-  ) => {
-    try {
-      const userId = user?.id;
-
-      const response = await fetch(`/api/v1/gmail/messages?userId=${userId}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        cache: 'no-cache',
-      });
-
-      if (!response.ok) {
-        toast({
-          title: 'Error fetching mail',
-          description: response.statusText,
-          variant: 'destructive',
-        });
-        throw new Error('Failed to fetch mail');
-      }
-
-      const emails = await response.json();
-      if (setMailCallback) {
-        setMailCallback(emails);
-      }
-
-      return emails;
-    } catch (error) {
-      throw new Error(`Failed to get mail, ${error}`);
     }
   };
 
@@ -313,7 +275,6 @@ export const useGmail = () => {
   };
 
   return {
-    getEmails,
     getLabels,
     getLabelByID,
     createLabel,

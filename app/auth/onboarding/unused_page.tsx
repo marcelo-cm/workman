@@ -22,7 +22,7 @@ import { Input } from '@/components/ui/input';
 
 import { useUser } from '@/lib/hooks/supabase/useUser';
 
-import { handleQuickBooksIntegration } from '@/lib/utils/nango/quickbooks.client';
+import { createQuickBooksIntegrationByCompanyID } from '@/lib/utils/nango/quickbooks.client';
 import { createClient as createSupabaseClient } from '@/lib/utils/supabase/client';
 import { User } from '@/models/User';
 
@@ -220,12 +220,7 @@ const Onboarding = () => {
           <p className="text-sm">
             Workman directly creates bills in your QuickBooks in just one click.
           </p>
-          <Button
-            className="w-fit self-end"
-            variant={'secondary'}
-            disabled={!userData || !!isAuthenticated.quickbooks || isLoading}
-            onClick={handleQuickBooksIntegration}
-          >
+          <Button className="w-fit self-end" variant={'secondary'}>
             <QuickBooks />
             Authenticate QuickBooks
           </Button>
