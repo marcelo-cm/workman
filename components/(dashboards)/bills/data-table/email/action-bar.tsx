@@ -1,7 +1,15 @@
-import React, { memo, useEffect, useTransition } from 'react';
+import React, { memo, useTransition } from 'react';
 
 import { BellOffIcon, Ellipsis, ScanIcon } from 'lucide-react';
 
+import WorkmanLogo from '@/components/molecules/WorkmanLogo';
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -49,7 +57,7 @@ const DataTableEmailActionBar = ({
         ),
       );
 
-      const invoices = await Promise.all(
+      await Promise.all(
         uploadedFileURLs.map((fileURL, index) => {
           processInvoicesByFileURLs([fileURL]);
         }),
@@ -93,18 +101,32 @@ const DataTableEmailActionBar = ({
     );
   };
   return (
-    <div className="flex flex-row gap-2">
-      <Button
-        variant="secondary"
-        disabled={selectedInvoices.length === 0}
-        onClick={() => handleScanEmails(selectedInvoices as Email[])}
-      >
-        <ScanIcon className="h-4 w-4" />
-        Scan Selected
-      </Button>
+    <>
+      <div className="flex flex-row gap-2">
+        <Button
+          variant="secondary"
+          disabled={selectedInvoices.length === 0}
+          onClick={() => handleScanEmails(selectedInvoices as Email[])}
+        >
+          <ScanIcon className="h-4 w-4" />
+          Scan Selected
+        </Button>
 
-      <MoreOptionsButton />
-    </div>
+        <MoreOptionsButton />
+      </div>
+      <AlertDialog open={isUploading}>
+        <AlertDialogContent className="justify-center">
+          <AlertDialogHeader className="items-center">
+            <WorkmanLogo className="w-32 animate-pulse" />
+            <AlertDialogTitle>Uploading your Data Now!</AlertDialogTitle>
+          </AlertDialogHeader>
+          <AlertDialogDescription className="text-center">
+            It's important that you don't close this window while we're
+            uploading your data.
+          </AlertDialogDescription>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 };
 

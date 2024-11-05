@@ -16,16 +16,9 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 
-import WorkmanLogo from '@/components/molecules/WorkmanLogo';
-import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { DatePickerWithRange } from '@/components/ui/date-range-picker';
+import LoadingState from '@/components/ui/empty-state';
 import IfElseRender from '@/components/ui/if-else-renderer';
 import { Table } from '@/components/ui/table';
 
@@ -65,7 +58,7 @@ export function InvoiceDataTable<TData, TValue>({ onAction }: DataTableProps) {
   });
   const [filteredData, setFilteredData] = useState<Invoice[] | Email[]>([]);
   const [tabValue, setTabValue] = useState<TabValue>();
-  const [isUploading, startUploading] = useTransition();
+  const [isFetchingData, startFetchingData] = useTransition();
 
   const tabsRef = useRef<DataTableTabsRef>(null);
   const dateRangeRef = useRef<any>(null);
@@ -88,16 +81,18 @@ export function InvoiceDataTable<TData, TValue>({ onAction }: DataTableProps) {
     setData([]);
     setRowSelection({});
 
-    if (tabValue.approverId) {
-      getInvoicesAwaitingUserApproval(tabValue.approverId, setData);
-      return;
-    }
+    startFetchingData(async () => {
+      if (tabValue.approverId) {
+        await getInvoicesAwaitingUserApproval(tabValue.approverId, setData);
+        return;
+      }
 
-    if (tabValue.type === 'Invoice' && tabValue.state) {
-      getCompanyInvoicesByStates([tabValue.state].flat(), setData);
-    } else if (tabValue.type === 'Email' && tabValue.companyId) {
-      getCompanyInvoicesFromGmailInbox(tabValue.companyId, setData);
-    }
+      if (tabValue.type === 'Invoice' && tabValue.state) {
+        await getCompanyInvoicesByStates([tabValue.state].flat(), setData);
+      } else if (tabValue.type === 'Email' && tabValue.companyId) {
+        await getCompanyInvoicesFromGmailInbox(tabValue.companyId, setData);
+      }
+    });
   }, [JSON.stringify(tabValue)]);
 
   useEffect(() => {
@@ -227,9 +222,19 @@ export function InvoiceDataTable<TData, TValue>({ onAction }: DataTableProps) {
         <div className="rounded-b-md border">
           <Table>
             <IfElseRender
-              condition={tabValue?.type === 'Invoice'}
-              ifTrue={<InvoiceTableBody table={table as TableType<Invoice>} />}
-              ifFalse={<EmailTableBody table={table as TableType<Email>} />}
+              condition={isFetchingData}
+              ifTrue={
+                <LoadingState className="animate-pulse rounded-none border-none" />
+              }
+              ifFalse={
+                <IfElseRender
+                  condition={tabValue?.type === 'Invoice'}
+                  ifTrue={
+                    <InvoiceTableBody table={table as TableType<Invoice>} />
+                  }
+                  ifFalse={<EmailTableBody table={table as TableType<Email>} />}
+                />
+              }
             />
             <DataTableFooter
               table={table}
@@ -239,18 +244,6 @@ export function InvoiceDataTable<TData, TValue>({ onAction }: DataTableProps) {
           </Table>
         </div>
       </div>
-      <AlertDialog open={isUploading}>
-        <AlertDialogContent className="justify-center">
-          <AlertDialogHeader className="items-center">
-            <WorkmanLogo className="w-32 animate-pulse" />
-            <AlertDialogTitle>Uploading your Data Now!</AlertDialogTitle>
-          </AlertDialogHeader>
-          <AlertDialogDescription className="text-center">
-            It's important that you don't close this window while we're
-            uploading your data.
-          </AlertDialogDescription>
-        </AlertDialogContent>
-      </AlertDialog>
     </>
   );
 }
