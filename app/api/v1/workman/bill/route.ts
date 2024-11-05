@@ -1,6 +1,7 @@
 'use server';
 
-import { PredictResponse } from 'mindee';
+import { SupabaseClient } from '@supabase/supabase-js';
+import { Client, PredictResponse } from 'mindee';
 import { InvoiceV4 } from 'mindee/src/product';
 import { NextRequest, NextResponse } from 'next/server';
 
@@ -11,11 +12,12 @@ import { createMindeeClient } from '@/lib/utils/mindee/client';
 import { createClient } from '@/lib/utils/supabase/server';
 import Invoice from '@/models/Invoice';
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
-
 export async function POST(
   req: NextRequest,
 ): Promise<NextResponse<InvoiceData | unknown>> {
+  const mindee = createMindeeClient();
+  const supabase = createClient();
+
   const {
     fileURLs,
     userId,
@@ -33,13 +35,14 @@ export async function POST(
     const response = [];
 
     for (const fileURL of fileURLs) {
-      const processedBill = await processBill(fileURL);
+      // Passing through as a prop to minimize the number of times we create a new client
+      const processedBill = await processBill(fileURL, mindee, supabase);
       response.push(processedBill);
     }
 
     const endTime = Date.now();
     console.log(
-      'Time taken to process and update invoice:',
+      'Time taken to process and update invoices:',
       endTime - startTime,
     );
 
@@ -50,10 +53,12 @@ export async function POST(
   }
 }
 
-async function processBill(fileURL: string): Promise<Invoice> {
-  const supabase = createClient();
+async function processBill(
+  fileURL: string,
+  mindee: Client,
+  supabase: SupabaseClient,
+): Promise<Invoice> {
   const startTime = Date.now();
-  const mindee = createMindeeClient();
 
   const input = mindee.docFromUrl(decodeURI(fileURL));
   const response = await mindee.parse(InvoiceV4, input);

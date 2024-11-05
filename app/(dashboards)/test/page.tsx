@@ -96,9 +96,6 @@ const page = () => {
   const handleFetchingBlob = async () => {
     try {
       const data = await fetchBlob();
-      console.log('UNSTRIPPED', data);
-      // const base64 = stripBase64Prefix(data as string);
-      // console.log('STRIPPED', base64);
       setBase64(data as string);
     } catch (e) {
       console.error(e);
