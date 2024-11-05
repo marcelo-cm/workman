@@ -18,8 +18,11 @@ import {
   Message_Partial,
 } from '@/interfaces/gmail.interfaces';
 import { getGmailToken } from '@/lib/utils/nango/google.server';
+import {
+  WORKMAN_IGNORE_LABEL_NAME,
+  WORKMAN_PROCESSED_LABEL_NAME,
+} from '@/models/GmailIntegration';
 
-import { IGNORED_EMAIL_LABEL, SCANNED_EMAIL_LABEL } from './constants';
 import { Email, ExtractedPDFData, MessagesListResponse } from './interfaces';
 
 export async function GET(req: NextRequest): Promise<NextResponse> {
@@ -40,6 +43,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     const emailsFetched = await getMailIds(String(googleMailToken));
 
     const emails: Email[] = [];
+
     for (const email of emailsFetched) {
       const newEmail = await getPDFAndSubject(
         email.id,
@@ -61,7 +65,7 @@ const getMailIds = async (token: string): Promise<Message_Partial[]> => {
   date.setMonth(date.getMonth() - 6);
   const after = date.toISOString().slice(0, 10).replace(/-/g, '/');
 
-  const query = `filename:pdf after:${after} has:attachment smaller:10M label:inbox -label:${IGNORED_EMAIL_LABEL} -label:${SCANNED_EMAIL_LABEL}`;
+  const query = `filename:pdf after:${after} has:attachment smaller:10M label:inbox -label:${WORKMAN_IGNORE_LABEL_NAME} -label:${WORKMAN_PROCESSED_LABEL_NAME}`;
   const url = `https://gmail.googleapis.com/gmail/v1/users/me/messages?q=${query}`;
 
   const response = await fetch(url, {
@@ -75,13 +79,9 @@ const getMailIds = async (token: string): Promise<Message_Partial[]> => {
     throw await invalidResponseError('Failed to fetch email IDs', response);
   }
 
-  if (response.status === StatusCodes.NO_CONTENT) {
-    return [];
-  }
-
   const data: MessagesListResponse = await response.json();
 
-  return data.messages;
+  return data.messages ?? [];
 };
 
 const getPDFAndSubject = async (

@@ -45,7 +45,11 @@ const CompanyRules = ({ company }: { company: Company }) => {
   };
 
   return (
-    <Container header="Company Rules" innerClassName="p-3">
+    <Container
+      header="Company Rules"
+      innerClassName="p-3"
+      className="max-w-[1000px]"
+    >
       All Invoices must be reviewed by:
       <IfElseRender
         condition={!!company.id && !fetchingDefaultApprovers}

@@ -3,11 +3,15 @@ import { SetStateAction } from 'react';
 import { toast } from '@/components/ui/use-toast';
 
 import { useAppContext } from '@/app/(dashboards)/context';
-import { Label, Label_Basic } from '@/interfaces/gmail.interfaces';
+import { Label_Basic } from '@/interfaces/gmail.interfaces';
 import { createClient as createSupabaseClient } from '@/lib/utils/supabase/client';
+
+import { useGmailIntegration } from '../supabase/useGmailIntegration';
 
 export const useGmail = () => {
   const { user } = useAppContext();
+  const { getIgnoredLabelByCompanyID, getProcessedLabelByCompanyID } =
+    useGmailIntegration();
   const supabase = createSupabaseClient();
 
   const getLabelByID = async (labelId: string) => {
@@ -117,34 +121,6 @@ export const useGmail = () => {
     } catch (error) {
       throw new Error(`Failed to create label, ${error}`);
     }
-  };
-
-  const getIgnoredLabelByCompanyID = async (id: string): Promise<Label> => {
-    const { data, error } = await supabase
-      .from('gmail_integration')
-      .select('ignored_label')
-      .eq('company', id)
-      .maybeSingle();
-
-    if (error || !data) {
-      throw new Error('Failed to get ignored label');
-    }
-
-    return data.ignored_label;
-  };
-
-  const getProcessedLabelByCompanyID = async (id: string): Promise<Label> => {
-    const { data, error } = await supabase
-      .from('gmail_integration')
-      .select('processed_label')
-      .eq('company', id)
-      .maybeSingle();
-
-    if (error || !data) {
-      throw new Error('Failed to get processed label');
-    }
-
-    return data.processed_label;
   };
 
   const addLabelsToEmailsById = async (
@@ -281,8 +257,6 @@ export const useGmail = () => {
     getLabels,
     getLabelByID,
     createLabel,
-    getIgnoredLabelByCompanyID,
-    getProcessedLabelByCompanyID,
     addLabelsToEmailsById,
     removeLabelsFromEmailById,
     modifyLabelsOnEmailById,

@@ -189,8 +189,6 @@ export class Invoice {
       throw new Error(`Failed to update invoice: ${error.message}`);
     }
 
-    console.log('updatedInvoice', updatedInvoice);
-
     toast({
       title: `Invoice has been updated`,
       variant: 'success',

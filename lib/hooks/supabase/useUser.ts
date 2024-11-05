@@ -119,20 +119,6 @@ export const useUser = () => {
     };
   };
 
-  const getGmailIntegrationById = async (id: UUID) => {
-    const { data, error } = await supabase
-      .from('gmail_integration')
-      .select('*')
-      .eq('company', id)
-      .single();
-
-    if (error || !data) {
-      throw new Error('Failed to get gmail integration');
-    }
-
-    return data;
-  };
-
   return {
     // createUser,
     updateUser,

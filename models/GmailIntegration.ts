@@ -1,6 +1,24 @@
 import { UUID } from 'crypto';
 
-import { Label } from '@/interfaces/gmail.interfaces';
+import { Label, Label_Basic } from '@/interfaces/gmail.interfaces';
+import { createClient } from '@/lib/utils/supabase/client';
+
+export const WORKMAN_IGNORE_LABEL_NAME = 'Ignored (WM)';
+export const WORKMAN_PROCESSED_LABEL_NAME = 'Processed (WM)';
+
+export const WORKMAN_IGNORE_LABEL_CREATE: Omit<Label_Basic, 'id'> = {
+  name: WORKMAN_IGNORE_LABEL_NAME,
+  messageListVisibility: 'show',
+  labelListVisibility: 'labelShow',
+  type: 'user',
+};
+
+export const WORKMAN_PROCESSED_LABEL_CREATE: Omit<Label_Basic, 'id'> = {
+  name: WORKMAN_PROCESSED_LABEL_NAME,
+  messageListVisibility: 'show',
+  labelListVisibility: 'labelShow',
+  type: 'user',
+};
 
 export class GmailIntegration {
   private _id: UUID;
@@ -55,5 +73,36 @@ export class GmailIntegration {
 
   get processedLabelID(): string {
     return this._processed_label.id;
+  }
+
+  async update(
+    data: Partial<{
+      email: string;
+      ignored_label: Label;
+      processed_label: Label;
+    }>,
+  ): Promise<void> {
+    const supabase = createClient();
+
+    const { error } = await supabase
+      .from('gmail_integrations')
+      .update(data)
+      .eq('id', this.id);
+
+    if (error) {
+      throw error;
+    }
+
+    if (data.email) {
+      this._email = data.email;
+    }
+
+    if (data.ignored_label) {
+      this._ignored_label = data.ignored_label;
+    }
+
+    if (data.processed_label) {
+      this._processed_label = data.processed_label;
+    }
   }
 }
