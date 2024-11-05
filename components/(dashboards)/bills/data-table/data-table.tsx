@@ -302,10 +302,11 @@ export function InvoiceDataTable<TData, TValue>({
         const invoices = await Promise.all(
           uploadedFileURLs.map((fileURL, index) => {
             processInvoicesByFileURLs([fileURL]);
-            addProcessedLabelToEmails([selectedEmails[index].id]);
           }),
         )
           .then(async () => {
+            // Optimistic update @todo fix logic to make sense
+            addProcessedLabelToEmails(selectedEmails.map((email) => email.id));
             tabValue?.companyId &&
               (await getCompanyInvoicesFromGmailInbox(
                 tabValue.companyId,
