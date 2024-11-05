@@ -65,7 +65,7 @@ const getMailIds = async (token: string): Promise<Message_Partial[]> => {
   date.setMonth(date.getMonth() - 6);
   const after = date.toISOString().slice(0, 10).replace(/-/g, '/');
 
-  const query = `filename:pdf after:${after} has:attachment smaller:10M label:inbox -label:${WORKMAN_IGNORE_LABEL_NAME} -label:${WORKMAN_PROCESSED_LABEL_NAME}`;
+  const query = `filename:pdf after:${after} has:attachment smaller:10M label:Inbox -label:${WORKMAN_IGNORE_LABEL_NAME} -label:${WORKMAN_PROCESSED_LABEL_NAME}`;
   const url = `https://gmail.googleapis.com/gmail/v1/users/me/messages?q=${query}`;
 
   const response = await fetch(url, {
