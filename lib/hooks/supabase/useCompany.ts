@@ -5,16 +5,16 @@ import { User_Nested } from '@/models/User';
 const supabase = createClient();
 
 export const useCompany = () => {
-  const createCompany = async (company_name: string): Promise<Company> => {
+  const createCompany = async (company_name: string) => {
     const { data, error } = await supabase
       .from('companies')
       .insert({
-        company_name: company_name,
+        name: company_name,
       })
-      .select('*')
-      .single();
+      .select('*');
 
     if (error) {
+      console.log('there was an error creating the company ', error);
       throw new Error('Failed to create company');
     }
 

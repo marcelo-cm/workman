@@ -39,7 +39,7 @@ export class User {
     scanned_label_id: string;
     gmail_integration_status: string;
     quickbooks_integration_status: string;
-    roles: Roles[];
+    roles: string[]; //Used to be Roles[]
     created_at: string;
   }) {
     this._name = name;

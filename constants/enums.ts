@@ -18,6 +18,12 @@ export enum Roles {
   BOOKKEEPER = 'BOOKKEEPER',
 }
 
+export const rolesList: Roles[] = [
+  Roles.PLATFORM_ADMIN,
+  Roles.COMPANY_ADMIN,
+  Roles.BOOKKEEPER,
+];
+
 export enum Approvable {
   INVOICE = 'Invoice',
   RECEIPT = 'Receipt',

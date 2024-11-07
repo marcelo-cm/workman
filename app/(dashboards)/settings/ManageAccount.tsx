@@ -54,7 +54,7 @@ const ManageAccount = ({
       name: form.getValues('name'),
       email: form.getValues('email'),
     });
-    setEdit(false);
+    // setEdit(false);
     refetchUser();
   };
 
@@ -68,14 +68,23 @@ const ManageAccount = ({
             ifTrue={
               <Button
                 variant={'ghost'}
-                onClick={() => setEdit(false)}
+                onClick={() => {
+                  console.log('hi');
+                  // form.reset({ name: user?.name, email: user?.email });
+                  // setEdit(false);
+                }}
                 appearance="destructive-strong"
               >
                 Cancel <X className="h-4 w-4" />
               </Button>
             }
             ifFalse={
-              <Button variant={'ghost'} onClick={() => setEdit(true)}>
+              <Button
+                variant={'ghost'}
+                onClick={() => {
+                  console.log('hi');
+                }}
+              >
                 Edit
                 <Pencil1Icon />
               </Button>

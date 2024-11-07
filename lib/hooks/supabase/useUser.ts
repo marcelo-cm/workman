@@ -100,7 +100,8 @@ export const useUser = () => {
     const { data, error } = await supabase
       .from('users')
       .select('*')
-      .eq('company_id', company_id);
+      .eq('company_id', company_id)
+      .order('created_at', { ascending: false });
 
     if (error || !data) {
       throw new Error('Failed to fetch users');
@@ -117,6 +118,19 @@ export const useUser = () => {
       quickbooks: quickbooksToken,
     };
   };
+
+  const updateUserData = async (id: UUID, column_value: User_Update) => {
+    const { error } = await supabase
+      .from('users')
+      .update(column_value)
+      .eq('id', id);
+
+    if (error) {
+      throw new Error('Failed to update user data');
+    }
+
+    return;
+  };
   return {
     // createUser,
     updateUser,
@@ -125,5 +139,6 @@ export const useUser = () => {
     getUserById,
     getUsersByCompanyId,
     getNangoIntegrationsById,
+    updateUserData,
   };
 };
