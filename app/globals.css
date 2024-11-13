@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&display=swap');
 
 @tailwind base;
@@ -25,6 +25,10 @@
     'Open Sans',
     'Helvetica Neue',
     sans-serif;
+}
+
+.font-poppins {
+  font-family: 'Poppins', sans-serif !important;
 }
 
 .no-scrollbar {
