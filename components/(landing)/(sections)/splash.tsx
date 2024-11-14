@@ -12,7 +12,7 @@ const IMAGE_CLASS_NAME =
 
 const Splash = () => {
   return (
-    <section className="h-[85dvh] overflow-clip border-b bg-gradient-to-b from-white from-45% to-wm-orange-500 px-4 py-16 md:px-0 lg:h-[90dvh] lg:py-24">
+    <section className="h-[85dvh] overflow-clip border-b bg-gradient-to-b from-white from-45% to-wm-orange-500 px-4 py-16 md:px-0 lg:py-24">
       <div className="container mx-auto flex flex-col items-center justify-center">
         <Chip className="animate-appear-from-top mb-4 border border-wm-orange-300 bg-wm-orange-100 font-medium text-wm-orange">
           Accounting Automation for SMB Homebuilders
