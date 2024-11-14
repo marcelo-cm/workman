@@ -125,6 +125,9 @@ const UploadToQuickBooks = () => {
         files.map((file, idx) => handleUploadToQuickBooks(file, idx, user.id)),
       ).then(() => {
         console.log('All files uploaded');
+        setTimeout(() => {
+          window.location.reload();
+        }, 1200);
       });
     });
   };
