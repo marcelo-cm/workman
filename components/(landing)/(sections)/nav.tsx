@@ -1,9 +1,5 @@
 import React from 'react';
 
-import { PhoneCallIcon } from 'lucide-react';
-
-import { Button } from '../../ui/button';
-
 import BookDemo from '../(molecules)/book-demo-button';
 import SignIn from '../(molecules)/sign-in-button';
 import WorkmanLogo from '../../molecules/WorkmanLogo';

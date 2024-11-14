@@ -12,12 +12,12 @@ const IMAGE_CLASS_NAME =
 
 const Splash = () => {
   return (
-    <section className="h-[85dvh] overflow-clip border-b bg-gradient-to-b from-white from-45% to-wm-orange-500 px-4 py-16 md:px-0 lg:py-24">
+    <section className="h-[90dvh] overflow-clip border-b bg-gradient-to-b from-white from-45% to-wm-orange-500 p-12 px-4 sm:h-[85dvh] md:px-0 md:py-16 lg:py-24">
       <div className="container mx-auto flex flex-col items-center justify-center">
         <Chip className="animate-appear-from-top mb-4 border border-wm-orange-300 bg-wm-orange-100 font-medium text-wm-orange">
           Accounting Automation for SMB Homebuilders
         </Chip>
-        <h1 className="fade-in mb-8 text-balance text-center text-4xl font-medium leading-[120%] sm:text-4xl md:text-5xl lg:text-6xl">
+        <h1 className="fade-in mb-4 text-balance text-center text-3xl font-medium leading-[120%] sm:text-4xl md:mb-8 md:text-5xl lg:text-6xl">
           <span className="font-poppins ">
             Process invoices from your email to QuickBooks in{' '}
             <OrangeText className="font-poppins">5 clicks</OrangeText>
@@ -31,7 +31,7 @@ const Splash = () => {
         </h3>
         <CallToAction />
       </div>
-      <div className="relative mx-auto mt-16 flex w-full justify-center overflow-clip px-8">
+      <div className="relative mx-auto mt-12 flex w-full justify-center overflow-clip px-2 md:mt-16 md:px-8">
         <Image
           className={`${IMAGE_CLASS_NAME} animate-appear-from-bottom-6-deg`}
           src="/images/landing/landing-dashboard.svg"
