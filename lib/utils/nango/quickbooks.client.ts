@@ -8,7 +8,7 @@ export const createQuickBooksIntegrationByCompanyID = async (
   companyID: string,
 ) => {
   try {
-    await nango.auth('google-mail', companyID).then(() => {
+    await nango.auth('quickbooks', companyID).then(() => {
       toast({
         title: 'Authorization Successful',
         description: 'You have successfully authorized Google Mail',

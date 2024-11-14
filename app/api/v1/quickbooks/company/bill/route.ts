@@ -19,22 +19,23 @@ import { Bill, InvoiceWithMatchedValues, LineItem } from './interfaces';
 
 export async function POST(req: NextRequest) {
   const {
-    userId,
+    companyId,
     invoice,
-  }: { userId: string; invoice: InvoiceWithMatchedValues } = await req.json();
+  }: { companyId: string; invoice: InvoiceWithMatchedValues } =
+    await req.json();
 
-  if (!userId || !invoice) {
-    return badRequest('User ID and Invoice are required.');
+  if (!companyId || !invoice) {
+    return badRequest('Company ID and Invoice are required.');
   }
 
   try {
-    const quickbooksToken = await getQuickBooksToken(userId);
+    const quickbooksToken = await getQuickBooksToken(companyId);
 
     if (!quickbooksToken) {
       return unauthorized('QuickBooks token not found');
     }
 
-    const quickbooksRealmId = await getQuickBooksRealmId(userId);
+    const quickbooksRealmId = await getQuickBooksRealmId(companyId);
 
     if (!quickbooksRealmId) {
       return unauthorized('QuickBooks realm ID not found');

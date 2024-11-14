@@ -19,22 +19,22 @@ const nango = new Nango({
 
 export async function GET(req: NextRequest) {
   const searchParams = req.nextUrl.searchParams;
-  const userId = searchParams.get('userId');
+  const companyId = searchParams.get('companyId');
   const select = searchParams.get('select');
   const where = searchParams.get('where');
 
-  if (!(userId && select)) {
+  if (!(companyId && select)) {
     return badRequest('User ID and select columns are required');
   }
 
   try {
-    const quickbooksToken = await getQuickBooksToken(userId);
+    const quickbooksToken = await getQuickBooksToken(companyId);
 
     if (!quickbooksToken) {
       return unauthorized('QuickBooks token not found');
     }
 
-    const quickbooksRealmId = await getQuickBooksRealmId(userId);
+    const quickbooksRealmId = await getQuickBooksRealmId(companyId);
 
     if (!quickbooksRealmId) {
       return unauthorized('QuickBooks realm ID not found');
