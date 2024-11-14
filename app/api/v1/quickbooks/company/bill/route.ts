@@ -40,6 +40,7 @@ export async function POST(req: NextRequest) {
     if (!quickbooksRealmId) {
       return unauthorized('QuickBooks realm ID not found');
     }
+
     const bill = preparePayload(invoice);
     const billResponse = await sendBillToQuickBooks(
       quickbooksRealmId,

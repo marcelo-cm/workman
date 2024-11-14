@@ -1,6 +1,8 @@
 import { StatusCodes } from 'http-status-codes';
 import { NextRequest, NextResponse } from 'next/server';
 
+import { internalServerError } from '@/app/api/utils';
+
 import { POST } from './route';
 import { API_POST_RESPONSE, INVALID_FILE, VALID_FILE } from './test.constants';
 
@@ -47,7 +49,7 @@ describe('POST /api/bills', () => {
 
       expect(result.status).toBe(StatusCodes.BAD_REQUEST);
       const responseBody = await result.json();
-      expect(responseBody.message).toBe('Company ID and File are required');
+      expect(responseBody).toBe('Company ID and Invoice are required.');
     });
 
     it('should throw an error if the file is invalid', async () => {
@@ -56,11 +58,10 @@ describe('POST /api/bills', () => {
         invoice: INVALID_FILE,
       });
 
-      await expect(POST(req)).rejects.toThrow(
-        new Error(
-          `The file is incomplete or invalid, TypeError: Cannot read properties of undefined (reading 'Id')`,
-        ),
-      );
+      const result = await POST(req);
+      const response = await result.json();
+
+      expect(response).toBe('Failed to upload bill to QuickBooks');
     });
   });
 
@@ -110,7 +111,7 @@ describe('POST /api/bills', () => {
 
       expect(result.status).toBe(StatusCodes.UNAUTHORIZED);
       const responseBody = await result.json();
-      expect(responseBody).toBe('QuickBooks not authorized');
+      expect(responseBody).toBe('QuickBooks token not found');
     });
   });
 });
