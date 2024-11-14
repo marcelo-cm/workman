@@ -9,29 +9,52 @@ import { User } from '@/models/User';
 const supabase = createSupabaseClient();
 
 export const useUser = () => {
-  // const createUser = async (company_id: UUID): Promise<User> => {
-  //   const { data: userData } = await fetchUser();
+  const createUser = async (
+    company_id: UUID,
+    name: string,
+    password: string,
+    email: string,
+    roles: string[],
+  ) => {
+    // Step 1: Sign up the user using Supabase Auth
+    const { data, error } = await supabase.auth.signUp({
+      email: email,
+      password: password,
+    });
 
-  //   const { data, error } = await supabase
-  //     .from('users')
-  //     .insert({
-  //       user_id: userData.user?.id,
-  //       ignore_label_id: null,
-  //       scanned_label_id: null,
-  //       gmail_integration_status: false,
-  //       quickbooks_integration_status: false,
-  //       email: userData?.user?.email,
-  //       company_id: company_id,
-  //     })
-  //     .select('*')
-  //     .single();
+    if (error) {
+      console.log('Error during sign-up:', error.message);
+      throw new Error(`Failed to create user, ${error.message}`);
+    }
 
-  //   if (error) {
-  //     throw new Error(`Failed to create user, ${error.message}`);
-  //   }
+    // Step 2: Ensure the user data is available from the sign-up process
+    if (!data.user) {
+      console.log('No user data returned from sign-up');
+      throw new Error('User data is missing after sign-up');
+    }
 
-  //   return new User(data);
-  // };
+    // Step 3: Insert the user into the custom 'users' table
+    const { error: userError } = await supabase.from('users').insert({
+      id: data.user.id, // Use the 'id' field from the Auth response
+      email: email,
+      company_id: company_id,
+      roles: roles,
+      name: name,
+    });
+
+    if (userError) {
+      console.log(
+        'Error when inserting user into the users table:',
+        userError.message,
+      );
+      throw new Error(
+        `Failed to create user in the custom table, ${userError.message}`,
+      );
+    }
+
+    console.log('User created successfully');
+    return;
+  };
 
   const updateUser = async (column_value: User_Update) => {
     const { data: userData } = await fetchUser();
@@ -132,7 +155,7 @@ export const useUser = () => {
     return;
   };
   return {
-    // createUser,
+    createUser,
     updateUser,
     fetchUserData,
     fetchUser,

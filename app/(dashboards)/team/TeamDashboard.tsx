@@ -15,17 +15,10 @@ import { UUID } from 'crypto';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
+import AddUserForm from '@/components/(dashboards)/teams/AddUserForm';
+import RemovalButton from '@/components/(dashboards)/teams/RemovalButton';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ComboBox } from '@/components/ui/combo-box';
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
 import {
   Form,
   FormControl,
@@ -34,17 +27,9 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
+import IfElseRender from '@/components/ui/if-else-renderer';
 import { Input } from '@/components/ui/input';
 import { MultiComboBox } from '@/components/ui/multi-combo-box';
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 
 import { useUser } from '@/lib/hooks/supabase/useUser';
 
@@ -59,7 +44,8 @@ const editAccountFormSchema = z.object({
 const createAccountFormSchema = z.object({
   name: z.string().min(1),
   email: z.string().email().min(1),
-  roles: z.array(z.string()).nonempty('At least one role is required'),
+  // roles: z.array(z.string()).nonempty('At least one role is required'),
+  password: z.string().min(1),
 });
 
 export default function TeamDashboard({
@@ -71,12 +57,13 @@ export default function TeamDashboard({
 }) {
   const { getUsersByCompanyId } = useUser();
   const { updateUserData } = useUser();
+
   const [usersData, setUsersData] = useState<User[]>([]);
   const [editingUserId, setEditingUserId] = useState<UUID | null>(null);
-  const [selectedRoles, setSelectedRoles] = useState<string[] | null>(null);
+  const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
+
   const [addUser, setAddUser] = useState<boolean>(false);
   const formEditUser = useForm<z.infer<typeof editAccountFormSchema>>();
-  const formAddUser = useForm<z.infer<typeof createAccountFormSchema>>();
 
   useEffect(() => {
     getUsersByCompanyId(companyID).then((data) => {
@@ -109,26 +96,24 @@ export default function TeamDashboard({
               scanned_label_id: user.scannedLabelId,
               gmail_integration_status: user.gmailIntegrationStatus,
               quickbooks_integration_status: user.quickbooksIntegrationStatus,
-              roles: selectedRoles ? selectedRoles : user.roles,
+              roles: selectedRoles.length > 0 ? selectedRoles : user.roles,
               created_at: user.createdAt.toISOString(),
             })
           : user,
       ),
     );
     formEditUser.reset();
-    setSelectedRoles(null);
+    setSelectedRoles([]);
     setEditingUserId(null);
   };
 
-  const handleSelect = (selectedRole: { id: string }) => {
+  const handleSelectedRoles = (selectedRole: { id: string }) => {
     setSelectedRoles((prevRoles) => {
-      if (prevRoles && prevRoles.includes(selectedRole.id)) {
-        // Remove role ID if it already exists
-        const updatedRoles = prevRoles.filter((id) => id !== selectedRole.id);
-        return updatedRoles.length > 0 ? updatedRoles : null; // Set to null if empty
+      const isSelected = prevRoles.includes(selectedRole.id);
+      if (isSelected) {
+        return prevRoles.filter((val) => val !== selectedRole.id);
       } else {
-        // Add role ID if it's not already selected
-        return prevRoles ? [...prevRoles, selectedRole.id] : [selectedRole.id];
+        return [...prevRoles, selectedRole.id];
       }
     });
   };
@@ -209,29 +194,16 @@ export default function TeamDashboard({
                       </FormItem>
                     )}
                   />
-
-                  {/* <Select onValueChange={(value) => setSelectedRole([value])}>
-                    <SelectTrigger>
-                      <SelectValue placeholder={user.roles} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        {rolesList.map((role) => (
-                          <SelectItem value={role}>{role}</SelectItem>
-                        ))}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select> */}
                   <MultiComboBox
                     className="w-full"
-                    valuesToMatch={user.roles.map((role) => ({ id: role }))}
+                    valuesToMatch={selectedRoles.map((role) => ({ id: role }))}
                     options={[
                       { id: 'PLATFORM_ADMIN' },
                       { id: 'COMPANY_ADMIN' },
                       { id: 'BOOKKEEPER' },
                     ]}
                     getOptionLabel={(option) => option?.id}
-                    callBackFunction={handleSelect}
+                    callBackFunction={handleSelectedRoles}
                   />
 
                   <Button
@@ -243,7 +215,10 @@ export default function TeamDashboard({
                   <Button
                     variant="ghost"
                     appearance="destructive-strong"
-                    onClick={() => setEditingUserId(null)}
+                    onClick={() => {
+                      setEditingUserId(null);
+                      setSelectedRoles([]);
+                    }}
                   >
                     <X className="h-4 w-4" />
                   </Button>
@@ -262,31 +237,13 @@ export default function TeamDashboard({
                   ))}
                 </div>
 
-                <Dialog>
-                  <DialogTrigger>
-                    <Button variant="ghost">
-                      <TrashIcon />
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Requesting Confirmation</DialogTitle>
-                    </DialogHeader>
-                    <p>
-                      Are you sure you want to remove{' '}
-                      <p className="inline font-medium">{user.name}</p> from{' '}
-                      <p className="inline font-medium">{companyName}</p>
-                    </p>
-                    <DialogFooter>
-                      <Button variant={'outline'} appearance={'destructive'}>
-                        Remove
-                      </Button>
-                    </DialogFooter>
-                  </DialogContent>
-                </Dialog>
+                <RemovalButton userName={user.name} companyName={companyName} />
                 <Button
                   variant="ghost"
-                  onClick={() => setEditingUserId(user.id)}
+                  onClick={() => {
+                    setEditingUserId(user.id);
+                    setSelectedRoles(user.roles);
+                  }}
                 >
                   <Pencil1Icon />
                 </Button>
@@ -305,90 +262,11 @@ export default function TeamDashboard({
           </Button>
         </footer>
       </div>
-      {addUser ? (
-        <Form {...formAddUser}>
-          <form className="absolute right-0 flex w-[420px] flex-col gap-2 rounded-md border p-2 pl-2">
-            <FormField
-              control={formAddUser.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem className="flex items-center gap-2">
-                  <p className="text-base">Name</p>
-                  <FormControl>
-                    <Input
-                      className="text-base"
-                      {...field}
-                      {...formAddUser.register(field.name, {
-                        onChange(event: { target: { value: any } }) {
-                          formAddUser.setValue(field.name, event.target.value, {
-                            shouldValidate: true,
-                            shouldDirty: true,
-                          });
-                        },
-                      })}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={formAddUser.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem className="flex items-center gap-2">
-                  <p className="text-base">Email</p>
-                  <FormControl>
-                    <Input
-                      className="text-base"
-                      {...field}
-                      {...formAddUser.register(field.name, {
-                        onChange(event: { target: { value: any } }) {
-                          formAddUser.setValue(field.name, event.target.value, {
-                            shouldValidate: true,
-                            shouldDirty: true,
-                          });
-                        },
-                      })}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={formAddUser.control}
-              name="roles"
-              render={({ field }) => (
-                <FormItem className="flex items-center gap-2">
-                  <p className="text-base">Roles</p>
-                  <FormControl>
-                    <MultiComboBox
-                      className="w-full"
-                      options={[
-                        { id: 'PLATFORM_ADMIN' },
-                        { id: 'COMPANY_ADMIN' },
-                        { id: 'BOOKKEEPER' },
-                      ]}
-                      getOptionLabel={(option) => option?.id}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-            <div className="flex gap-2">
-              <Button variant={'ghost'}>
-                <CheckIcon />
-              </Button>
-              <Button
-                variant={'ghost'}
-                appearance={'destructive-strong'}
-                onClick={() => setAddUser(false)}
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            </div>
-          </form>
-        </Form>
-      ) : null}
+      <IfElseRender
+        condition={addUser}
+        ifTrue={<AddUserForm companyID={companyID} setAddUser={setAddUser} />}
+        ifFalse={null}
+      />
     </div>
   );
 }
