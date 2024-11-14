@@ -4,7 +4,6 @@ import { toast } from '@/components/ui/use-toast';
 
 import { useAppContext } from '@/app/(dashboards)/context';
 import { Label_Basic } from '@/interfaces/gmail.interfaces';
-import { createClient as createSupabaseClient } from '@/lib/utils/supabase/client';
 
 import { useGmailIntegration } from '../supabase/useGmailIntegration';
 
@@ -12,7 +11,6 @@ export const useGmail = () => {
   const { user } = useAppContext();
   const { getIgnoredLabelByCompanyID, getProcessedLabelByCompanyID } =
     useGmailIntegration();
-  const supabase = createSupabaseClient();
 
   const getLabelByID = async (labelId: string) => {
     const companyId = user.company.id;
