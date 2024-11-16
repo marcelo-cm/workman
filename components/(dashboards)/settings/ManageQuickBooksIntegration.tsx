@@ -17,7 +17,7 @@ const StatusBadge = ({
     quickbooksRealmId: boolean;
   } | null;
 }) => {
-  if (!integration) {
+  if (!integration?.quickbooksRealmId && !integration?.quickbooksToken) {
     return <Badge variant="destructive">Not Connected</Badge>;
   }
 
