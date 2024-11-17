@@ -52,7 +52,7 @@ export const useUser = () => {
       );
     }
 
-    console.log('User created successfully');
+    window.location.reload();
     return;
   };
 

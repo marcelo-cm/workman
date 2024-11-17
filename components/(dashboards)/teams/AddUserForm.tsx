@@ -5,6 +5,7 @@ import React, { useState } from 'react';
 import { CheckIcon } from '@radix-ui/react-icons';
 import { X } from 'lucide-react';
 
+import { zodResolver } from '@hookform/resolvers/zod';
 import { UUID } from 'crypto';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -42,7 +43,9 @@ export default function AddUserForm({
   const [selectedNewUserRoles, setSelectedNewUserRoles] = useState<string[]>(
     [],
   );
-  const formAddUser = useForm<z.infer<typeof createAccountFormSchema>>();
+  const formAddUser = useForm<z.infer<typeof createAccountFormSchema>>({
+    resolver: zodResolver(createAccountFormSchema),
+  });
 
   const handleSelectedNewUserRoles = (selectedRole: { id: string }) => {
     setSelectedNewUserRoles((prevRoles) => {
@@ -54,9 +57,23 @@ export default function AddUserForm({
       }
     });
   };
+
+  const handleCreateUser = () => {
+    createUser(
+      companyID,
+      formAddUser.getValues('name'),
+      formAddUser.getValues('password'),
+      formAddUser.getValues('email'),
+      selectedNewUserRoles,
+    );
+  };
+
   return (
     <Form {...formAddUser}>
-      <form className="absolute right-0 flex w-[420px] flex-col gap-2 rounded-md border p-2 pl-2">
+      <form
+        className="absolute right-0 flex w-[420px] flex-col gap-2 rounded-md border p-2 pl-2"
+        onSubmit={formAddUser.handleSubmit(handleCreateUser)}
+      >
         <FormField
           control={formAddUser.control}
           name="name"
@@ -144,15 +161,10 @@ export default function AddUserForm({
 
         <div className="flex gap-2">
           <Button
+            type="submit"
             variant={'ghost'}
-            onClick={() =>
-              createUser(
-                companyID,
-                formAddUser.getValues('name'),
-                formAddUser.getValues('password'),
-                formAddUser.getValues('email'),
-                selectedNewUserRoles,
-              )
+            disabled={
+              !formAddUser.formState.isDirty || !formAddUser.formState.isValid
             }
           >
             <CheckIcon />
@@ -163,6 +175,7 @@ export default function AddUserForm({
             onClick={() => {
               setAddUser(false);
               setSelectedNewUserRoles([]);
+              formAddUser.reset();
             }}
           >
             <X className="h-4 w-4" />

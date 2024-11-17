@@ -41,13 +41,6 @@ const editAccountFormSchema = z.object({
   email: z.string().email().min(1),
 });
 
-const createAccountFormSchema = z.object({
-  name: z.string().min(1),
-  email: z.string().email().min(1),
-  // roles: z.array(z.string()).nonempty('At least one role is required'),
-  password: z.string().min(1),
-});
-
 export default function TeamDashboard({
   companyID,
   companyName,
@@ -63,7 +56,9 @@ export default function TeamDashboard({
   const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
 
   const [addUser, setAddUser] = useState<boolean>(false);
-  const formEditUser = useForm<z.infer<typeof editAccountFormSchema>>();
+  const formEditUser = useForm<z.infer<typeof editAccountFormSchema>>({
+    resolver: zodResolver(editAccountFormSchema),
+  });
 
   useEffect(() => {
     getUsersByCompanyId(companyID).then((data) => {
@@ -218,6 +213,7 @@ export default function TeamDashboard({
                     onClick={() => {
                       setEditingUserId(null);
                       setSelectedRoles([]);
+                      formEditUser.reset();
                     }}
                   >
                     <X className="h-4 w-4" />
