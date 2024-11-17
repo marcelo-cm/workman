@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useRef, useState } from 'react';
+import { ChangeEvent, useRef, useState } from 'react';
 
 import { UploadIcon } from '@radix-ui/react-icons';
 

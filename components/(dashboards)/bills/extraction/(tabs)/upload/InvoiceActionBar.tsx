@@ -1,4 +1,4 @@
-import React, { useTransition } from 'react';
+import { useTransition } from 'react';
 
 import { BookmarkIcon, EyeOpenIcon } from '@radix-ui/react-icons';
 import { HammerIcon, Loader2Icon } from 'lucide-react';

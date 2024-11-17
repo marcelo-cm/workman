@@ -1,6 +1,4 @@
-import React from 'react';
-
-import { UseFormReturn, useFieldArray } from 'react-hook-form';
+import { UseFormReturn } from 'react-hook-form';
 
 import ExtractionFormComponent from '../../components/ExtractionFormComponent';
 import Approvals from '@/components/(shared)/Approvals';

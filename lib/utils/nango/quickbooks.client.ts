@@ -1,40 +1,25 @@
 import { toast } from '@/components/ui/use-toast';
 
 import { createClient as createNangoClient } from '@/lib/utils/nango/client';
-import { createClient as createSupabaseClient } from '@/lib/utils/supabase/client';
 
 const nango = createNangoClient();
-const supabase = createSupabaseClient();
 
-export const handleQuickBooksIntegration = async () => {
-  const { data } = await supabase.auth.getUser();
-  const userId = data?.user?.id;
-
-  if (!userId) {
-    console.error('User not found');
-    return;
-  }
-
-  nango
-    .auth('quickbooks', userId)
-    .then(
-      async (result: { providerConfigKey: string; connectionId: string }) => {
-        await supabase
-          .from('users')
-          .update({ quickbooks_integration_status: true })
-          .eq('id', userId);
-        toast({
-          title: 'Authorization Successful',
-          description:
-            'You have successfully authorized QuickBooks, please refresh.',
-        });
-      },
-    )
-    .catch((err: { message: string; type: string }) => {
+export const createQuickBooksIntegrationByCompanyID = async (
+  companyID: string,
+) => {
+  try {
+    await nango.auth('google-mail', companyID).then(() => {
       toast({
-        title: 'Authorization Failed',
-        description: err.message,
-        variant: 'destructive',
+        title: 'Authorization Successful',
+        description: 'You have successfully authorized Google Mail',
       });
     });
+  } catch (error) {
+    console.error(error);
+    toast({
+      title: 'Authorization Failed',
+      description: 'An error occurred while authorizing Google Mail',
+      variant: 'destructive',
+    });
+  }
 };

@@ -1,8 +1,7 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import {
   CaretRightIcon,
-  DownloadIcon,
   PlusIcon,
   ResetIcon,
   ScissorsIcon,
@@ -10,7 +9,6 @@ import {
 } from '@radix-ui/react-icons';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { formatISO } from 'date-fns';
 import { PDFDocument } from 'pdf-lib';
 import { useFieldArray, useForm } from 'react-hook-form';
 import { pdfjs } from 'react-pdf';

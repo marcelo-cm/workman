@@ -1,5 +1,3 @@
-import React from 'react';
-
 import { PlusIcon, TrashIcon } from '@radix-ui/react-icons';
 
 import { UseFormReturn, useFieldArray } from 'react-hook-form';

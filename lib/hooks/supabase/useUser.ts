@@ -1,12 +1,11 @@
 import { UserResponse } from '@supabase/supabase-js';
 import { UUID } from 'crypto';
 
+import { useAppContext } from '@/app/(dashboards)/context';
 import { User_Update } from '@/interfaces/db.interfaces';
 import { getGoogleMailToken, getQuickBooksToken } from '@/lib/actions/actions';
 import { createClient as createSupabaseClient } from '@/lib/utils/supabase/client';
 import { User } from '@/models/User';
-
-const supabase = createSupabaseClient();
 
 export const useUser = () => {
   const createUser = async (
@@ -51,6 +50,28 @@ export const useUser = () => {
         `Failed to create user in the custom table, ${userError.message}`,
       );
     }
+    const supabase = createSupabaseClient();
+    const { user } = useAppContext();
+    // const createUser = async (company_id: UUID): Promise<User> => {
+    //   const { data: userData } = await fetchUser();
+
+    //   const { data, error } = await supabase
+    //     .from('users')
+    //     .insert({
+    //       user_id: userData.user?.id,
+    //       ignore_label_id: null,
+    //       scanned_label_id: null,
+    //       gmail_integration_status: false,
+    //       quickbooks_integration_status: false,
+    //       email: userData?.user?.email,
+    //       company_id: company_id,
+    //     })
+    //     .select('*')
+    //     .single();
+
+    //   if (error) {
+    //     throw new Error(`Failed to create user, ${error.message}`);
+    //   }
 
     window.location.reload();
     return;
@@ -154,6 +175,7 @@ export const useUser = () => {
 
     return;
   };
+
   return {
     createUser,
     updateUser,

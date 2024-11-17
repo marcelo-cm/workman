@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
-import { Pencil1Icon, Pencil2Icon } from '@radix-ui/react-icons';
+import { Pencil1Icon } from '@radix-ui/react-icons';
 import { X } from 'lucide-react';
 
 import { zodResolver } from '@hookform/resolvers/zod';
