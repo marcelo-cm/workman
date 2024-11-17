@@ -8,6 +8,8 @@ import { createClient as createSupabaseClient } from '@/lib/utils/supabase/clien
 import { User } from '@/models/User';
 
 export const useUser = () => {
+  const supabase = createSupabaseClient();
+  const { user } = useAppContext();
   const createUser = async (
     company_id: UUID,
     name: string,
@@ -50,8 +52,6 @@ export const useUser = () => {
         `Failed to create user in the custom table, ${userError.message}`,
       );
     }
-    const supabase = createSupabaseClient();
-    const { user } = useAppContext();
     // const createUser = async (company_id: UUID): Promise<User> => {
     //   const { data: userData } = await fetchUser();
 
