@@ -1,4 +1,3 @@
-import { StatusCodes } from 'http-status-codes';
 import { NextRequest, NextResponse } from 'next/server';
 
 import {
@@ -62,7 +61,7 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
 const getMailIds = async (token: string): Promise<Message_Partial[]> => {
   // Get date 6 months prior to current date in YYYY/MM/DD format
   const date = new Date();
-  date.setMonth(date.getMonth() - 6);
+  date.setMonth(date.getMonth() - 3);
   const after = date.toISOString().slice(0, 10).replace(/-/g, '/');
 
   const query = `filename:pdf after:${after} has:attachment smaller:10M label:Inbox -label:${WORKMAN_IGNORE_LABEL_NAME} -label:${WORKMAN_PROCESSED_LABEL_NAME}`;
