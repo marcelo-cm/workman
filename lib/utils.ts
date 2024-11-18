@@ -1,6 +1,8 @@
 import { type ClassValue, clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
+import { useAppContext } from '@/app/(dashboards)/context';
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
@@ -87,4 +89,19 @@ export function findMostSimilar<T>(
 
 export function bytesToKB(bytes: number): string {
   return (bytes / 1024).toFixed(2);
+}
+
+export async function checkQuickBooksIntegration(companyId: string) {
+  const response = await fetch(
+    `/api/v1/quickbooks/healthcheck?companyId=${companyId}`,
+    {
+      method: 'GET',
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error('Failed to check QuickBooks integration');
+  }
+
+  return response.json();
 }

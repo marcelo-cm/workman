@@ -13,27 +13,27 @@ import {
 
 export async function POST(req: NextRequest) {
   const {
-    userId,
+    companyId,
     invoiceId,
     invoiceURL,
   }: {
-    userId: string;
+    companyId: string;
     invoiceId: string;
     invoiceURL: string;
   } = await req.json();
 
-  if (!userId || !invoiceId || !invoiceURL) {
+  if (!companyId || !invoiceId || !invoiceURL) {
     return badRequest('User ID, Invoice ID, and Invoice URL are required.');
   }
 
   try {
-    const quickbooksToken = await getQuickBooksToken(userId);
+    const quickbooksToken = await getQuickBooksToken(companyId);
 
     if (!quickbooksToken) {
       return unauthorized('QuickBooks token not found');
     }
 
-    const quickbooksRealmId = await getQuickBooksRealmId(userId);
+    const quickbooksRealmId = await getQuickBooksRealmId(companyId);
 
     if (!quickbooksRealmId) {
       return unauthorized('QuickBooks realm ID not found');
