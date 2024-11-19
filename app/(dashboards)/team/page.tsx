@@ -1,19 +1,12 @@
 'use client';
 
-import React, { use, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
-import {
-  ArrowLeftIcon,
-  ArrowRightIcon,
-  CheckIcon,
-  PlusIcon,
-} from '@radix-ui/react-icons';
-import { X } from 'lucide-react';
+import { PlusIcon } from '@radix-ui/react-icons';
 
 import { UUID } from 'crypto';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
 
+import AddCompanyForm from '@/components/(dashboards)/teams/AddCompanyForm';
 import TeamDashboard from '@/components/(dashboards)/teams/TeamDashboard';
 import {
   BreadcrumbItem,
@@ -22,41 +15,27 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
 import { Button } from '@/components/ui/button';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
+import IfElseRender from '@/components/ui/if-else-renderer';
 
 import { useCompany } from '@/lib/hooks/supabase/useCompany';
-
-const createCompanyFormSchema = z.object({
-  name: z.string().min(1),
-});
 
 interface Company {
   id: UUID;
   name: string;
 }
 
-export default function page() {
+export default function Page() {
   const { fetchCompanyData } = useCompany();
-  const { createCompany } = useCompany();
+
   const [companyData, setCompanyData] = useState<Company[]>([]);
   const [addCompany, setAddCompany] = useState<boolean>(false);
-  const formAddCompany = useForm<z.infer<typeof createCompanyFormSchema>>();
+  const [activeAddUserCompanyID, setActiveAddUserCompanyID] =
+    useState<UUID | null>(null);
+  const [selectedCompanyID, setSelectedCompanyID] = useState<UUID | null>(null);
+
   useEffect(() => {
     fetchCompanyData().then((data) => setCompanyData(data));
-    formAddCompany.reset();
   }, []);
-
-  const handleCreateCompany = async () => {
-    await createCompany(formAddCompany.getValues('name'));
-  };
 
   return (
     <div className="flex h-full w-full flex-col gap-6 px-4 py-8">
@@ -74,71 +53,49 @@ export default function page() {
             <p>Add Company</p> <PlusIcon />
           </Button>
         </div>
-        {addCompany ? (
-          <Form {...formAddCompany}>
-            <form className="absolute right-0 flex w-[420px] flex-col gap-2 rounded border p-2 pl-2">
-              <FormField
-                control={formAddCompany.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem className="flex w-full items-center gap-2">
-                    <p>Name</p>
-                    <FormControl>
-                      <Input
-                        className="w-full"
-                        {...field}
-                        {...formAddCompany.register(field.name, {
-                          onChange(event: { target: { value: any } }) {
-                            formAddCompany.setValue(
-                              field.name,
-                              event.target.value,
-                              { shouldValidate: true, shouldDirty: true },
-                            );
-                          },
-                        })}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-              <div className="flex gap-2">
-                <Button variant={'ghost'} onClick={() => handleCreateCompany()}>
-                  <CheckIcon />
-                </Button>
-                <Button
-                  variant={'ghost'}
-                  appearance={'destructive-strong'}
-                  onClick={() => setAddCompany(false)}
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              </div>
-            </form>
-          </Form>
-        ) : null}
+        <IfElseRender
+          condition={addCompany}
+          ifTrue={<AddCompanyForm setAddCompany={setAddCompany} />}
+          ifFalse={null}
+        />
       </div>
 
-      <section className="flex gap-2">
-        <Button variant={'outline'}>
-          <ArrowLeftIcon />
-        </Button>
+      <section className="scrollbar-hidden flex max-w-[900px] gap-2">
         {companyData.map((company) => (
-          <Button variant={'outline'}>
-            <a>{company.name}</a>
+          <Button
+            key={company.id}
+            variant="outline"
+            className={`${
+              selectedCompanyID === company.id
+                ? 'bg-wm-white-100' // Example selected styles
+                : 'bg-white text-black' // Default styles
+            } whitespace-nowrap`}
+            onClick={() =>
+              setSelectedCompanyID((prev) =>
+                prev === company.id ? null : company.id,
+              )
+            }
+          >
+            {company.name}
           </Button>
         ))}
-        <Button variant={'outline'}>
-          <ArrowRightIcon />
-        </Button>
       </section>
+
       <section className="flex flex-col gap-6">
-        {companyData.map((company) => (
-          <TeamDashboard
-            key={company.id}
-            companyID={company.id}
-            companyName={company.name}
-          />
-        ))}
+        {companyData
+          .filter(
+            (company) =>
+              selectedCompanyID === null || company.id === selectedCompanyID,
+          )
+          .map((company) => (
+            <TeamDashboard
+              key={company.id}
+              companyID={company.id}
+              companyName={company.name}
+              isAddUserActive={activeAddUserCompanyID === company.id}
+              setActiveAddUserCompanyID={setActiveAddUserCompanyID}
+            />
+          ))}
       </section>
     </div>
   );

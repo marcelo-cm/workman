@@ -38,7 +38,7 @@ export default function AddUserForm({
   setAddUser,
 }: {
   companyID: UUID;
-  setAddUser: (truth: boolean) => void;
+  setAddUser: (id: UUID | null) => void;
 }) {
   const [selectedNewUserRoles, setSelectedNewUserRoles] = useState<string[]>(
     [],
@@ -79,7 +79,7 @@ export default function AddUserForm({
           name="name"
           render={({ field }) => (
             <FormItem className="flex items-center gap-2">
-              <p className="text-base">Name</p>
+              <p className="w-[90px] text-base">Name</p>
               <FormControl>
                 <Input
                   className="text-base"
@@ -102,7 +102,7 @@ export default function AddUserForm({
           name="email"
           render={({ field }) => (
             <FormItem className="flex items-center gap-2">
-              <p className="text-base">Email</p>
+              <p className="w-[90px] text-base">Email</p>
               <FormControl>
                 <Input
                   className="text-base"
@@ -125,7 +125,7 @@ export default function AddUserForm({
           name="password"
           render={({ field }) => (
             <FormItem className="flex items-center gap-2">
-              <p className="text-base">Password</p>
+              <p className="w-[90px] text-base">Password</p>
               <FormControl>
                 <Input
                   className="text-base"
@@ -145,7 +145,7 @@ export default function AddUserForm({
         />
 
         <div className="flex items-center gap-2">
-          <p className="text-base">Roles</p>
+          <p className="w-[90px] text-base">Roles</p>
 
           <MultiComboBox
             className="w-full"
@@ -173,7 +173,7 @@ export default function AddUserForm({
             variant={'ghost'}
             appearance={'destructive-strong'}
             onClick={() => {
-              setAddUser(false);
+              setAddUser(null);
               setSelectedNewUserRoles([]);
               formAddUser.reset();
             }}

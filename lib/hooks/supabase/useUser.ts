@@ -8,9 +8,8 @@ import { createClient as createSupabaseClient } from '@/lib/utils/supabase/clien
 import { User } from '@/models/User';
 
 export const useUser = () => {
-  const supabase = createSupabaseClient();
-
   // const { user } = useAppContext();
+  const supabase = createSupabaseClient();
 
   const createUser = async (
     company_id: UUID,
@@ -65,7 +64,7 @@ export const useUser = () => {
     const { data, error } = await supabase
       .from('users')
       .update(column_value)
-      .eq('id', userData?.user?.id);
+      .eq('id', userData.user?.id);
 
     if (error) {
       throw new Error(`Failed to update user, ${error.message}`);

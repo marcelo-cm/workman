@@ -44,18 +44,20 @@ const editAccountFormSchema = z.object({
 export default function TeamDashboard({
   companyID,
   companyName,
+  isAddUserActive,
+  setActiveAddUserCompanyID,
 }: {
   companyID: UUID;
   companyName: string;
+  isAddUserActive: boolean;
+  setActiveAddUserCompanyID: (id: UUID | null) => void;
 }) {
-  const { getUsersByCompanyId } = useUser();
-  const { updateUserData } = useUser();
+  const { getUsersByCompanyId, updateUserData } = useUser();
 
   const [usersData, setUsersData] = useState<User[]>([]);
   const [editingUserId, setEditingUserId] = useState<UUID | null>(null);
   const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
 
-  const [addUser, setAddUser] = useState<boolean>(false);
   const formEditUser = useForm<z.infer<typeof editAccountFormSchema>>({
     resolver: zodResolver(editAccountFormSchema),
   });
@@ -118,7 +120,10 @@ export default function TeamDashboard({
       <div className="flex w-[900px] flex-col items-center justify-between rounded-md border">
         <header className="flex w-full flex-row items-center p-2">
           <p className="w-full">{companyName}</p>
-          <Button variant="secondary" onClick={() => setAddUser(true)}>
+          <Button
+            variant="secondary"
+            onClick={() => setActiveAddUserCompanyID(companyID)}
+          >
             <a className="w-20">Add Person</a>
             <PlusIcon />
           </Button>
@@ -260,8 +265,13 @@ export default function TeamDashboard({
         </footer>
       </div>
       <IfElseRender
-        condition={addUser}
-        ifTrue={<AddUserForm companyID={companyID} setAddUser={setAddUser} />}
+        condition={isAddUserActive}
+        ifTrue={
+          <AddUserForm
+            companyID={companyID}
+            setAddUser={setActiveAddUserCompanyID}
+          />
+        }
         ifFalse={null}
       />
     </div>
