@@ -14,6 +14,7 @@ import { UUID } from 'crypto';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
+import TeamDashboard from '@/components/(dashboards)/teams/TeamDashboard';
 import {
   BreadcrumbItem,
   BreadcrumbLink,
@@ -32,8 +33,6 @@ import {
 import { Input } from '@/components/ui/input';
 
 import { useCompany } from '@/lib/hooks/supabase/useCompany';
-
-import TeamDashboard from './TeamDashboard';
 
 const createCompanyFormSchema = z.object({
   name: z.string().min(1),

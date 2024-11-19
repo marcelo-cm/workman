@@ -204,6 +204,7 @@ export default function TeamDashboard({
                   <Button
                     variant="ghost"
                     onClick={() => handleSaveClick(user.id)}
+                    disabled={!formEditUser.formState.isDirty}
                   >
                     <CheckIcon />
                   </Button>
