@@ -16,7 +16,7 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 import AddUserForm from '@/components/(dashboards)/teams/AddUserForm';
-import RemovalButton from '@/components/(dashboards)/teams/RemovalButton';
+import RemovalUserButton from '@/components/(dashboards)/teams/RemovalUserButton';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -136,123 +136,137 @@ export default function TeamDashboard({
           <div className="w-64" />
         </header>
 
-        {usersData.map((user) => (
-          <>
-            {editingUserId === user.id ? (
-              <Form {...formEditUser} key={user.id}>
-                <form className="flex w-full flex-row items-center gap-2 border-t pl-1">
-                  <FormField
-                    control={formEditUser.control}
-                    name="name"
-                    render={({ field }) => (
-                      <FormItem className="w-full">
-                        <FormControl>
-                          <Input
-                            className="w-full text-base"
-                            defaultValue={user.name}
-                            {...field}
-                            {...formEditUser.register(field.name, {
-                              onChange(event) {
-                                formEditUser.setValue(
-                                  field.name,
-                                  event.target.value,
-                                  {
-                                    shouldValidate: true,
-                                    shouldDirty: true,
-                                  },
-                                );
-                              },
-                            })}
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    name="email"
-                    render={({ field }) => (
-                      <FormItem className="w-full">
-                        <FormControl>
-                          <Input
-                            className="w-full text-base"
-                            defaultValue={user.email}
-                            {...field}
-                            {...formEditUser.register(field.name, {
-                              onChange(event) {
-                                formEditUser.setValue(
-                                  field.name,
-                                  event.target.value,
-                                  {
-                                    shouldValidate: true,
-                                    shouldDirty: true,
-                                  },
-                                );
-                              },
-                            })}
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                  <MultiComboBox
-                    className="w-full"
-                    valuesToMatch={selectedRoles.map((role) => ({ id: role }))}
-                    options={[
-                      { id: 'PLATFORM_ADMIN' },
-                      { id: 'COMPANY_ADMIN' },
-                      { id: 'BOOKKEEPER' },
-                    ]}
-                    getOptionLabel={(option) => option?.id}
-                    callBackFunction={handleSelectedRoles}
-                  />
+        {usersData.length > 0 ? (
+          usersData.map((user) => (
+            <>
+              {editingUserId === user.id ? (
+                <Form {...formEditUser} key={user.id}>
+                  <form className="flex w-full flex-row items-center gap-2 border-t pl-1">
+                    <FormField
+                      control={formEditUser.control}
+                      name="name"
+                      render={({ field }) => (
+                        <FormItem className="w-full">
+                          <FormControl>
+                            <Input
+                              className="w-full text-base"
+                              defaultValue={user.name}
+                              {...field}
+                              {...formEditUser.register(field.name, {
+                                onChange(event) {
+                                  formEditUser.setValue(
+                                    field.name,
+                                    event.target.value,
+                                    {
+                                      shouldValidate: true,
+                                      shouldDirty: true,
+                                    },
+                                  );
+                                },
+                              })}
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      name="email"
+                      render={({ field }) => (
+                        <FormItem className="w-full">
+                          <FormControl>
+                            <Input
+                              className="w-full text-base"
+                              defaultValue={user.email}
+                              {...field}
+                              {...formEditUser.register(field.name, {
+                                onChange(event) {
+                                  formEditUser.setValue(
+                                    field.name,
+                                    event.target.value,
+                                    {
+                                      shouldValidate: true,
+                                      shouldDirty: true,
+                                    },
+                                  );
+                                },
+                              })}
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                    <MultiComboBox
+                      className="w-full"
+                      valuesToMatch={selectedRoles.map((role) => ({
+                        id: role,
+                      }))}
+                      options={[
+                        { id: 'PLATFORM_ADMIN' },
+                        { id: 'COMPANY_ADMIN' },
+                        { id: 'BOOKKEEPER' },
+                      ]}
+                      getOptionLabel={(option) => option?.id}
+                      callBackFunction={handleSelectedRoles}
+                    />
 
+                    <Button
+                      variant="ghost"
+                      onClick={() => handleSaveClick(user.id)}
+                      disabled={!formEditUser.formState.isDirty}
+                    >
+                      <CheckIcon />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      appearance="destructive-strong"
+                      onClick={() => {
+                        setEditingUserId(null);
+                        setSelectedRoles([]);
+                        formEditUser.reset();
+                      }}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </form>
+                </Form>
+              ) : (
+                <div
+                  key={user.id}
+                  className="flex w-full flex-row items-center gap-2 border-t pl-2"
+                >
+                  <p className="w-full">{user.name}</p>
+                  <p className="w-full">{user.email}</p>
+                  <div className="w-full">
+                    {user.roles.map((role) => (
+                      <Badge>{role.replaceAll('_', ' ')}</Badge>
+                    ))}
+                  </div>
+
+                  <RemovalUserButton
+                    userName={user.name}
+                    companyName={companyName}
+                    userID={user.id}
+                    companyID={companyID}
+                    setUsersData={setUsersData}
+                  />
                   <Button
                     variant="ghost"
-                    onClick={() => handleSaveClick(user.id)}
-                    disabled={!formEditUser.formState.isDirty}
-                  >
-                    <CheckIcon />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    appearance="destructive-strong"
                     onClick={() => {
-                      setEditingUserId(null);
-                      setSelectedRoles([]);
-                      formEditUser.reset();
+                      setEditingUserId(user.id);
+                      setSelectedRoles(user.roles);
                     }}
                   >
-                    <X className="h-4 w-4" />
+                    <Pencil1Icon />
                   </Button>
-                </form>
-              </Form>
-            ) : (
-              <div
-                key={user.id}
-                className="flex w-full flex-row items-center gap-2 border-t pl-2"
-              >
-                <p className="w-full">{user.name}</p>
-                <p className="w-full">{user.email}</p>
-                <div className="w-full">
-                  {user.roles.map((role) => (
-                    <Badge>{role.replaceAll('_', ' ')}</Badge>
-                  ))}
                 </div>
-
-                <RemovalButton userName={user.name} companyName={companyName} />
-                <Button
-                  variant="ghost"
-                  onClick={() => {
-                    setEditingUserId(user.id);
-                    setSelectedRoles(user.roles);
-                  }}
-                >
-                  <Pencil1Icon />
-                </Button>
-              </div>
-            )}
-          </>
-        ))}
+              )}
+            </>
+          ))
+        ) : (
+          <div className="flex h-[40px] items-center">
+            <p className="text-wm-white-300">Add members to this team</p>
+          </div>
+        )}
 
         <footer className="flex w-full items-center justify-end gap-2 border-t p-2">
           <Button disabled variant="outline">

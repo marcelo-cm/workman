@@ -1,5 +1,6 @@
-import { UserResponse } from '@supabase/supabase-js';
+import { UserResponse, createClient } from '@supabase/supabase-js';
 import { UUID } from 'crypto';
+import { redirect } from 'next/navigation';
 
 import { useAppContext } from '@/app/(dashboards)/context';
 import { User_Update } from '@/interfaces/db.interfaces';
@@ -10,8 +11,19 @@ import { User } from '@/models/User';
 export const useUser = () => {
   // const { user } = useAppContext();
   const supabase = createSupabaseClient();
+  const supabaseAdmin = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY!,
+    {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: true,
+      },
+    },
+  );
 
   const createUser = async (
+    // when I create the user I sign into them fuck
     company_id: UUID,
     name: string,
     password: string,
@@ -19,7 +31,7 @@ export const useUser = () => {
     roles: string[],
   ) => {
     // Step 1: Sign up the user using Supabase Auth
-    const { data, error } = await supabase.auth.signUp({
+    const { data, error } = await supabaseAdmin.auth.admin.createUser({
       email: email,
       password: password,
     });
@@ -157,6 +169,44 @@ export const useUser = () => {
     return;
   };
 
+  const deleteUserDB = async (userID: UUID) => {
+    console.log('this is the userID that got deleted: ', userID);
+    const { data: userData, error: userError } = await fetchUser();
+
+    if (userError) {
+      console.log(
+        'Yo this is the errror when fetchin session user: ',
+        userError,
+      );
+    } else {
+      console.log('Current users mail: ', userData.user.email);
+    }
+
+    const { data, error } = await supabase
+      .from('users')
+      .delete()
+      .eq('id', userID);
+
+    if (error) {
+      console.error('Failed to delete user from DB', error);
+      return;
+    }
+
+    return;
+  };
+
+  const deleteUserAuth = async (userID: UUID) => {
+    const { data, error } = await supabaseAdmin.auth.admin.deleteUser(userID);
+
+    if (error) {
+      console.error('Failed to delete user from Auth: ', error);
+    }
+
+    window.location.reload();
+
+    return;
+  };
+
   return {
     createUser,
     updateUser,
@@ -166,5 +216,7 @@ export const useUser = () => {
     getUsersByCompanyId,
     getNangoIntegrationsById,
     updateUserData,
+    deleteUserDB,
+    deleteUserAuth,
   };
 };

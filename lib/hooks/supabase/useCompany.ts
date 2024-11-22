@@ -22,7 +22,10 @@ export const useCompany = () => {
   };
 
   const fetchCompanyData = async () => {
-    const { data, error } = await supabase.from('companies').select('*');
+    const { data, error } = await supabase
+      .from('companies')
+      .select('*')
+      .order('created_at', { ascending: true }); //fetchest earliest
     if (error) {
       console.error('Error fetching company data: ', error);
       throw new Error('Failed to fetch company data');

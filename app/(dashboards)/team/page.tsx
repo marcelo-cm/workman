@@ -5,6 +5,7 @@ import React, { useEffect, useState } from 'react';
 import { PlusIcon } from '@radix-ui/react-icons';
 
 import { UUID } from 'crypto';
+import { useRouter } from 'next/navigation';
 
 import AddCompanyForm from '@/components/(dashboards)/teams/AddCompanyForm';
 import TeamDashboard from '@/components/(dashboards)/teams/TeamDashboard';
@@ -19,13 +20,17 @@ import IfElseRender from '@/components/ui/if-else-renderer';
 
 import { useCompany } from '@/lib/hooks/supabase/useCompany';
 
+import { useAppContext } from '../context';
+
 interface Company {
   id: UUID;
   name: string;
 }
 
 export default function Page() {
+  const { user } = useAppContext();
   const { fetchCompanyData } = useCompany();
+  const router = useRouter();
 
   const [companyData, setCompanyData] = useState<Company[]>([]);
   const [addCompany, setAddCompany] = useState<boolean>(false);
@@ -34,6 +39,9 @@ export default function Page() {
   const [selectedCompanyID, setSelectedCompanyID] = useState<UUID | null>(null);
 
   useEffect(() => {
+    if (!user?.roles?.includes('PLATFORM_ADMIN')) {
+      router.push('/settings');
+    }
     fetchCompanyData().then((data) => setCompanyData(data));
   }, []);
 
@@ -60,25 +68,26 @@ export default function Page() {
         />
       </div>
 
-      <section className="scrollbar-hidden flex max-w-[900px] gap-2">
-        {companyData.map((company) => (
-          <Button
-            key={company.id}
-            variant="outline"
-            className={`${
-              selectedCompanyID === company.id
-                ? 'bg-wm-white-100' // Example selected styles
-                : 'bg-white text-black' // Default styles
-            } whitespace-nowrap`}
-            onClick={() =>
-              setSelectedCompanyID((prev) =>
-                prev === company.id ? null : company.id,
-              )
-            }
-          >
-            {company.name}
-          </Button>
-        ))}
+      <section className="no-scrollbar min-h-fit w-[900px] overflow-x-auto">
+        <div className="flex w-max gap-2">
+          {companyData.map((company) => (
+            <button
+              key={company.id}
+              className={`${
+                selectedCompanyID === company.id // Overflow-x-auto makes it dissapear for some reason
+                  ? 'bg-[#f3f4f6] text-black'
+                  : 'bg-white '
+              }  whitespace-nowrap rounded-md border border-[#e4e4e4] px-4 py-1`}
+              onClick={() =>
+                setSelectedCompanyID((prev) =>
+                  prev === company.id ? null : company.id,
+                )
+              }
+            >
+              {company.name}
+            </button>
+          ))}
+        </div>
       </section>
 
       <section className="flex flex-col gap-6">

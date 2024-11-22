@@ -36,6 +36,7 @@ export default function AddCompanyForm({
 
   const handleCreateCompany = async () => {
     await createCompany(formAddCompany.getValues('name'));
+    window.location.reload();
   };
   return (
     <Form {...formAddCompany}>

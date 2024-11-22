@@ -9,6 +9,7 @@ import IfElseRender from '../../ui/if-else-renderer';
 
 import useLocalStorage from '@/lib/hooks/useLocalStorage';
 
+import { useAppContext } from '@/app/(dashboards)/context';
 import { createClient } from '@/lib/utils/supabase/client';
 
 import WorkmanLogo from '../../molecules/WorkmanLogo';
@@ -36,6 +37,7 @@ async function handleSignOut() {
 }
 
 const SideBar = () => {
+  const { user } = useAppContext();
   const { getItem, setItem } = useLocalStorage();
 
   const [expanded, setExpanded] = useState(false);
@@ -91,17 +93,23 @@ const SideBar = () => {
                   ifFalse={null}
                 />
               </MenuItem>
-              <MenuItem
-                leadingIcon={<PersonIcon className="h-4 w-4" />}
-                route="/team"
-              >
-                Team
-                <IfElseRender
-                  condition={expanded}
-                  ifTrue={<div className="w-full" />}
-                  ifFalse={null}
-                />
-              </MenuItem>
+              <IfElseRender
+                condition={user?.roles?.includes('PLATFORM_ADMIN')}
+                ifTrue={
+                  <MenuItem
+                    leadingIcon={<PersonIcon className="h-4 w-4" />}
+                    route="/team"
+                  >
+                    Team
+                    <IfElseRender
+                      condition={expanded}
+                      ifTrue={<div className="w-full" />}
+                      ifFalse={null}
+                    />
+                  </MenuItem>
+                }
+                ifFalse={null}
+              />
             </div>
             <div className="w-full rounded-r-lg bg-wm-white-50 py-1 pr-2">
               {MENU_TABS.map((tab) => (
