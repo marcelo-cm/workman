@@ -9,9 +9,10 @@ const nango = new Nango({
 });
 
 export async function POST(req: NextRequest) {
-  const { userId, bill }: { userId: string; bill: Bill } = await req.json();
+  const { companyId, bill }: { companyId: string; bill: Bill } =
+    await req.json();
 
-  if (!userId || !bill) {
+  if (!companyId || !bill) {
     return new NextResponse(
       JSON.stringify({ message: 'User ID and File are required' }),
       {
@@ -20,7 +21,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const { realmId, token } = await getCredentials(userId);
+  const { realmId, token } = await getCredentials(companyId);
 
   if (!realmId || !token) {
     return new NextResponse(JSON.stringify('QuickBooks not authorized'), {
@@ -35,9 +36,9 @@ export async function POST(req: NextRequest) {
   });
 }
 
-const getCredentials = async (userId: string) => {
-  const token = await nango.getToken('quickbooks', userId);
-  const connection = await nango.getConnection('quickbooks', userId);
+const getCredentials = async (companyId: string) => {
+  const token = await nango.getToken('quickbooks', companyId);
+  const connection = await nango.getConnection('quickbooks', companyId);
   const realmId = connection?.connection_config.realmId;
 
   if (!token || !realmId) {

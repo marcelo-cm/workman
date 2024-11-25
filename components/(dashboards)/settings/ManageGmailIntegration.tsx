@@ -23,7 +23,7 @@ import {
 const StatusBadge = ({
   integration,
 }: {
-  integration: GmailIntegration | undefined;
+  integration: GmailIntegration | null;
 }) => {
   if (!integration) {
     return <Badge variant="destructive">Not Connected</Badge>;
@@ -40,7 +40,8 @@ const ManageGmailIntegration = () => {
   const { user } = useAppContext();
   const { getGmailIntegrationByCompanyID } = useGmailIntegration();
   const { createLabel } = useGmail();
-  const [gmailIntegration, setGmailIntegration] = useState<GmailIntegration>();
+  const [gmailIntegration, setGmailIntegration] =
+    useState<GmailIntegration | null>(null);
 
   useEffect(() => {
     getGmailIntegrationByCompanyID(user.company.id).then(setGmailIntegration);

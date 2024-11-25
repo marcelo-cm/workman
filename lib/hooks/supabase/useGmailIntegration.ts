@@ -14,8 +14,12 @@ export const useGmailIntegration = () => {
       .eq('company', id)
       .maybeSingle();
 
-    if (error || !data) {
-      throw new Error('Failed to get gmail integration');
+    if (error) {
+      throw new Error('Failed to get Gmail integration');
+    }
+
+    if (!data) {
+      throw null as any;
     }
 
     return new GmailIntegration(data);
