@@ -1,14 +1,15 @@
 import { UserResponse } from '@supabase/supabase-js';
 import { UUID } from 'crypto';
 
+import { useAppContext } from '@/app/(dashboards)/context';
 import { User_Update } from '@/interfaces/db.interfaces';
 import { getGoogleMailToken, getQuickBooksToken } from '@/lib/actions/actions';
 import { createClient as createSupabaseClient } from '@/lib/utils/supabase/client';
 import { User } from '@/models/User';
 
-const supabase = createSupabaseClient();
-
 export const useUser = () => {
+  const supabase = createSupabaseClient();
+  const { user } = useAppContext();
   // const createUser = async (company_id: UUID): Promise<User> => {
   //   const { data: userData } = await fetchUser();
 
@@ -117,6 +118,7 @@ export const useUser = () => {
       quickbooks: quickbooksToken,
     };
   };
+
   return {
     // createUser,
     updateUser,

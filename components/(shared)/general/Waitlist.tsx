@@ -7,6 +7,7 @@ import { LoaderIcon } from 'lucide-react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { LogSnagProvider, useLogSnag } from '@logsnag/next';
 import { useForm } from 'react-hook-form';
+import { ClassNameValue } from 'tailwind-merge';
 import { z } from 'zod';
 
 import { Button } from '@/components/ui/button';
@@ -17,7 +18,7 @@ import { Input } from '@/components/ui/input';
 const waitlistSchema = z.object({
   email: z.string().email().min(1),
 });
-const Waitlist = () => {
+const Waitlist = ({ className }: { className?: ClassNameValue }) => {
   const { track } = useLogSnag();
   const form = useForm<z.infer<typeof waitlistSchema>>({
     resolver: zodResolver(waitlistSchema),
@@ -62,7 +63,9 @@ const Waitlist = () => {
       token={process.env.NEXT_PUBLIC_LOGSNAG_API_KEY!}
       project="workman"
     >
-      <Container className="w-full p-4 text-left shadow-sm focus-within:animate-none hover:animate-none motion-safe:animate-bounce md:w-1/2 md:min-w-[500px]">
+      <Container
+        className={`w-full p-4 text-left shadow-sm focus-within:animate-none hover:animate-none md:w-1/2 md:min-w-[400px] lg:motion-safe:animate-bounce ${className}`}
+      >
         <p className="mb-2 text-center font-medium">
           Get started, we'll email you with next steps!
         </p>

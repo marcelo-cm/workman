@@ -1,6 +1,7 @@
 import { toast } from '@/components/ui/use-toast';
 
 import { useAppContext } from '@/app/(dashboards)/context';
+import { Email } from '@/app/api/v1/gmail/messages/interfaces';
 import { Approvable, ApprovalStatus, InvoiceStatus } from '@/constants/enums';
 import { InvoiceCountsResponse } from '@/interfaces/db.interfaces';
 import { createClient } from '@/lib/utils/supabase/client';
@@ -46,6 +47,39 @@ export const useInvoice = () => {
       const parsedData = data.map((invoice) => new Invoice(invoice));
       callBack && callBack(parsedData);
       return parsedData;
+    }
+  }
+
+  async function getCompanyInvoicesFromGmailInbox(
+    companyId: string,
+    callBack?: (invoices: Email[]) => void,
+  ) {
+    try {
+      const response = await fetch(
+        `/api/v1/gmail/messages?companyId=${companyId}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          cache: 'no-cache',
+        },
+      );
+
+      if (!response.ok) {
+        toast({
+          title: 'Error fetching emails',
+          description: response.statusText,
+          variant: 'destructive',
+        });
+        throw new Error('Failed to fetch mail');
+      }
+
+      const emails = await response.json();
+
+      callBack?.(emails);
+    } catch (error) {
+      throw new Error(`Failed to get emails, ${error}`);
     }
   }
 
@@ -135,6 +169,7 @@ export const useInvoice = () => {
   return {
     getInvoiceCounts,
     getCompanyInvoicesByStates,
+    getCompanyInvoicesFromGmailInbox,
     getInvoicesByStateApproverAndApprovalStatus,
     getInvoicesAwaitingUserApproval,
     processInvoicesByFileURLs,

@@ -1,5 +1,3 @@
-import React from 'react';
-
 import { CaretDownIcon } from '@radix-ui/react-icons';
 
 import { Checkbox } from '@/components/ui/checkbox';

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&display=swap');
 
 @tailwind base;
@@ -9,6 +9,78 @@
   .text-balance {
     text-wrap: balance;
   }
+}
+
+@keyframes appear-from-bottom {
+  from {
+    opacity: 0;
+    transform: translateY(500px) scale(0.3) rotate(-10deg);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1) rotate(-0deg);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes animate-appear-from-right {
+  from {
+    opacity: 0;
+    transform: translateX(1000px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes animate-appear-from-left {
+  from {
+    opacity: 0;
+    transform: translateX(-1000px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes animate-appear-from-top {
+  from {
+    opacity: 0;
+    transform: translateY(-1000px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fade-in 1s;
+  will-change: opacity;
+}
+
+.fade-out {
+  animation: fade-out 1s;
+  will-change: opacity;
 }
 
 * {
@@ -27,7 +99,43 @@
     sans-serif;
 }
 
+.font-poppins {
+  font-family: 'Poppins', sans-serif !important;
+}
+
 .no-scrollbar {
   scrollbar-width: none;
   -ms-overflow-style: none;
+}
+
+.animate-appear-from-bottom {
+  animation: appear-from-bottom 0.75s cubic-bezier(0.075, 0.82, 0.165, 1);
+  will-change: transform, opacity;
+}
+
+.animate-appear-from-bottom-3-deg {
+  animation: appear-from-bottom 1.25s cubic-bezier(0.075, 0.82, 0.165, 1);
+  will-change: transform, opacity;
+  rotate: -3deg;
+}
+
+.animate-appear-from-bottom-6-deg {
+  animation: appear-from-bottom 1.5s cubic-bezier(0.075, 0.82, 0.165, 1);
+  will-change: transform, opacity;
+  rotate: -6deg;
+}
+
+.animate-appear-from-top {
+  animation: animate-appear-from-top 0.75s cubic-bezier(0.075, 0.82, 0.165, 1);
+  will-change: transform, opacity;
+}
+
+.animate-appear-from-right {
+  animation: animate-appear-from-right 0.75s cubic-bezier(0.075, 0.82, 0.165, 1);
+  will-change: transform, opacity;
+}
+
+.animate-appear-from-left {
+  animation: animate-appear-from-left 0.75s cubic-bezier(0.075, 0.82, 0.165, 1);
+  will-change: transform, opacity;
 }

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import {
   ArrowRightIcon,
@@ -215,8 +215,6 @@ const ExtractionTabs = ({
     form.reset(originalFileData);
     files[activeIndex].data = originalFileData;
   };
-
-  console.log(form.formState['errors']);
 
   return (
     <Tabs defaultValue="1" className="relative flex h-full w-full flex-col ">

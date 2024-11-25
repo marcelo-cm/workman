@@ -18,20 +18,20 @@ export async function GET(
 ) {
   const searchParams = req.nextUrl.searchParams;
   const vendorId = params.slug;
-  const userId = searchParams.get('userId');
+  const companyId = searchParams.get('companyId');
 
-  if (!(userId && vendorId)) {
+  if (!(companyId && vendorId)) {
     return badRequest('User ID and vendor ID are required');
   }
 
   try {
-    const quickbooksToken = await getQuickBooksToken(userId);
+    const quickbooksToken = await getQuickBooksToken(companyId);
 
     if (!quickbooksToken) {
       return unauthorized('QuickBooks token not found');
     }
 
-    const quickbooksRealmId = await getQuickBooksRealmId(userId);
+    const quickbooksRealmId = await getQuickBooksRealmId(companyId);
 
     if (!quickbooksRealmId) {
       return unauthorized('QuickBooks realm ID not found');

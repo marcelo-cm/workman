@@ -5,11 +5,9 @@ import { toast } from '@/components/ui/use-toast';
 import { useAppContext } from '@/app/(dashboards)/context';
 import { createClient as createSupabaseClient } from '@/lib/utils/supabase/client';
 
-import { useUser } from '../supabase/useUser';
-
 export const useAccount = () => {
   const { user } = useAppContext();
-  const supabase = createSupabaseClient();
+  const companyId = user.company.id;
 
   const getAccountList = async (
     columns: string[] | ['*'] = ['*'],
@@ -17,22 +15,10 @@ export const useAccount = () => {
     setAccountCallback?: React.Dispatch<SetStateAction<any[]>>,
   ) => {
     try {
-      const { data, error } = await supabase.auth.getUser();
-
-      if (error) {
-        throw new Error('Failed to get user');
-      }
-
-      const userId = data?.user?.id;
-
-      if (!userId) {
-        throw new Error('User ID not found');
-      }
-
       const columnsToSelect = columns.join(',');
 
       const response = await fetch(
-        `/api/v1/quickbooks/company/account?userId=${userId}&select=${columnsToSelect}${where ? `&where=${where}` : ''}`,
+        `/api/v1/quickbooks/company/account?companyId=${companyId}&select=${columnsToSelect}${where ? `&where=${where}` : ''}`,
         {
           method: 'GET',
           headers: {
@@ -56,10 +42,7 @@ export const useAccount = () => {
           (account: any) => account.Name,
         ) ?? [];
 
-      if (setAccountCallback) {
-        setAccountCallback(customers);
-      }
-
+      setAccountCallback?.(customers);
       return customers;
     } catch (error) {
       throw new Error(`Failed to get Account list ${error}`);
@@ -70,10 +53,8 @@ export const useAccount = () => {
     setAccountCallback?: React.Dispatch<SetStateAction<any[]>>,
   ): Promise<any[]> => {
     try {
-      const userId = user.id;
-
       const response = await fetch(
-        `/api/v1/quickbooks/company/account/all?userId=${userId}`,
+        `/api/v1/quickbooks/company/account/all?companyId=${companyId}`,
         {
           method: 'GET',
           headers: {
@@ -93,7 +74,7 @@ export const useAccount = () => {
 
       const accounts = await response.json();
 
-      setAccountCallback && setAccountCallback(accounts);
+      setAccountCallback?.(accounts);
       return accounts;
     } catch (error) {
       throw new Error(`Failed to get Account list ${error}`);

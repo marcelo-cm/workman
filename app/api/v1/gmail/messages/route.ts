@@ -1,58 +1,48 @@
-import { Nango } from '@nangohq/node';
-import { StatusCodes } from 'http-status-codes';
 import { NextRequest, NextResponse } from 'next/server';
 
-import { Header, Message, MessagePart } from '@/interfaces/gmail.interfaces';
-import { base64Decode } from '@/lib/utils';
+import {
+  badRequest,
+  internalServerError,
+  invalidResponseError,
+  ok,
+  unauthorized,
+} from '@/app/api/utils';
+import { MimeTypes } from '@/constants/enums';
+import {
+  Header,
+  Message,
+  MessageHeaderName,
+  MessagePart,
+  MessagePartBody,
+  Message_Partial,
+} from '@/interfaces/gmail.interfaces';
+import { getGmailToken } from '@/lib/utils/nango/google.server';
+import {
+  WORKMAN_IGNORE_LABEL_NAME,
+  WORKMAN_PROCESSED_LABEL_NAME,
+} from '@/models/GmailIntegration';
 
-const nango = new Nango({
-  secretKey: process.env.NANGO_SECRET_KEY!,
-});
-
-export type Email = {
-  id: string;
-  subject: string;
-  date: string;
-  from: string;
-  attachments: PDFData[];
-  labelIds: string[];
-};
-
-export interface PDFData {
-  base64: string;
-  filename: string;
-  bufferData: Buffer;
-}
+import { Email, ExtractedPDFData, MessagesListResponse } from './interfaces';
 
 export async function GET(req: NextRequest): Promise<NextResponse> {
-  const searchParams = req.nextUrl.searchParams;
-  const userId = searchParams.get('userId');
+  const searchParams = await req.nextUrl.searchParams;
+  const companyId = searchParams.get('companyId');
+
+  if (!companyId) {
+    return badRequest('User ID is required');
+  }
 
   try {
-    if (!userId) {
-      return new NextResponse(JSON.stringify('User ID is required'), {
-        status: StatusCodes.BAD_REQUEST,
-      });
-    }
-
-    const googleMailToken = await nango.getToken('google-mail', userId);
+    const googleMailToken = await getGmailToken(companyId);
 
     if (!googleMailToken) {
-      return new NextResponse(JSON.stringify('Unauthorized'), {
-        status: StatusCodes.UNAUTHORIZED,
-      });
+      return unauthorized('Google Mail token not found');
     }
 
     const emailsFetched = await getMailIds(String(googleMailToken));
 
-    if (!emailsFetched) {
-      // No emails found — so cannot iterate over them
-      return new NextResponse(JSON.stringify([]), {
-        status: StatusCodes.OK,
-      });
-    }
-
     const emails: Email[] = [];
+
     for (const email of emailsFetched) {
       const newEmail = await getPDFAndSubject(
         email.id,
@@ -61,23 +51,22 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
       emails.push(newEmail);
     }
 
-    return new NextResponse(JSON.stringify(emails), {
-      status: StatusCodes.OK,
-    });
+    return ok(emails);
   } catch (e: unknown) {
     console.error(e);
-    return new NextResponse(JSON.stringify('Internal Server Error'), {
-      status: StatusCodes.INTERNAL_SERVER_ERROR,
-    });
+    return internalServerError('Failed to fetch emails');
   }
 }
 
-const getMailIds = async (token: string) => {
+const getMailIds = async (token: string): Promise<Message_Partial[]> => {
+  // Get date 6 months prior to current date in YYYY/MM/DD format
   const date = new Date();
-  date.setMonth(date.getMonth() - 6);
-  const after = date.toISOString().split('T')[0].replace(/-/g, '/');
+  date.setMonth(date.getMonth() - 3);
+  const after = date.toISOString().slice(0, 10).replace(/-/g, '/');
 
-  const url = `https://gmail.googleapis.com/gmail/v1/users/me/messages?q=filename:pdf after:${after} has:attachment filename:pdf smaller:10M label:inbox -label:WORKMAN_SCANNED -label:WORKMAN_IGNORE`;
+  const query = `filename:pdf after:${after} has:attachment smaller:10M label:Inbox -label:${WORKMAN_IGNORE_LABEL_NAME} -label:${WORKMAN_PROCESSED_LABEL_NAME}`;
+  const url = `https://gmail.googleapis.com/gmail/v1/users/me/messages?q=${query}`;
+
   const response = await fetch(url, {
     headers: {
       Authorization: `Bearer ${token}`,
@@ -86,21 +75,12 @@ const getMailIds = async (token: string) => {
   });
 
   if (!response.ok) {
-    throw new Error(
-      `Failed to fetch emails: ${response.status} ${response.statusText}`,
-    );
+    throw await invalidResponseError('Failed to fetch email IDs', response);
   }
 
-  if (response.status === StatusCodes.NO_CONTENT) {
-    return;
-  }
+  const data: MessagesListResponse = await response.json();
 
-  const data: {
-    messages: { id: string; threadId: string; labelIds: string[] }[];
-    resultSizeEstimate: number;
-  } = await response.json();
-
-  return data.messages;
+  return data.messages ?? [];
 };
 
 const getPDFAndSubject = async (
@@ -117,9 +97,7 @@ const getPDFAndSubject = async (
   });
 
   if (!response.ok) {
-    throw new Error(
-      `Failed to fetch email: ${response.status} ${response.statusText}`,
-    );
+    throw await invalidResponseError('Failed to fetch email', response);
   }
 
   const data: Message = await response.json();
@@ -140,10 +118,17 @@ const getPDFAndSubject = async (
 const parseEmailHeaders = (
   headers: Header[],
 ): { subject: string; date: string; from: string } => {
-  const subject =
-    headers.find((header) => header.name === 'Subject')?.value || '';
-  const date = headers.find((header) => header.name === 'Date')?.value || '';
-  const from = headers.find((header) => header.name === 'From')?.value || '';
+  let subject = '';
+  let date = '';
+  let from = '';
+
+  for (const header of headers) {
+    if (header.name === MessageHeaderName.Subject) subject = header.value;
+    else if (header.name === MessageHeaderName.Date) date = header.value;
+    else if (header.name === MessageHeaderName.From) from = header.value;
+
+    if (subject && date && from) break;
+  }
 
   return { subject, date, from };
 };
@@ -151,16 +136,15 @@ const parseEmailHeaders = (
 const getPdfAttachmentData = async (
   parts: MessagePart[],
   token: string,
-): Promise<PDFData[]> => {
-  const attachments: PDFData[] = [];
+): Promise<ExtractedPDFData[]> => {
+  const attachments: ExtractedPDFData[] = [];
 
   const extractAttachmentData = async (parts: MessagePart[], token: string) => {
-    if (!parts) {
-      return;
-    }
     for (const part of parts) {
-      if (part.mimeType === 'application/pdf' && part.body?.attachmentId) {
-        const url = `https://gmail.googleapis.com/gmail/v1/users/me/messages/{messageId}/attachments/${part.body.attachmentId}`;
+      if (part.mimeType === MimeTypes['.pdf'] && part.body?.attachmentId) {
+        const attachmentId = part.body.attachmentId;
+        const url = `https://gmail.googleapis.com/gmail/v1/users/me/messages/{messageId}/attachments/${attachmentId}`;
+
         const response = await fetch(url, {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -170,24 +154,29 @@ const getPdfAttachmentData = async (
         });
 
         if (!response.ok) {
-          throw new Error(
-            `Failed to fetch attachment: ${response.status} ${response.statusText}`,
+          throw await invalidResponseError(
+            'Failed to fetch attachment',
+            response,
           );
         }
 
-        const data = await response.json();
+        const data: MessagePartBody = await response.json();
 
-        const decodedBase64 = base64Decode(data.data, part.filename);
+        if (!data.data) {
+          throw new Error('Attachment data not found');
+        }
 
         const rawBase64 = data.data;
+
         const base64repaired = rawBase64.replace(/-/g, '+').replace(/_/g, '/');
 
         attachments.push({
           base64: base64repaired,
-          filename: decodedBase64.filename,
-          bufferData: decodedBase64.bufferData,
+          fileName: part.filename,
+          size: data.size,
         });
       }
+
       if (part.parts) {
         extractAttachmentData(part.parts, token);
       }

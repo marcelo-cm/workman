@@ -1,10 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
-import React from 'react';
 
 import {
   CaretRightIcon,
   EyeOpenIcon,
-  PlusIcon,
   ScissorsIcon,
   TrashIcon,
 } from '@radix-ui/react-icons';
@@ -14,8 +12,6 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
   DialogClose,
-  DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,

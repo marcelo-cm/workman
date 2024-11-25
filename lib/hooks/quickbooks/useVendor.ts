@@ -11,17 +11,18 @@ const supabase = createSupabaseClient();
 
 export const useVendor = () => {
   const { user } = useAppContext();
+  const companyId = user.company.id;
+
   const getVendorList = async (
     columns: (keyof Vendor)[] | ['*'] = ['*'],
     query: string | null = null,
     setVendorCallback?: Function | Dispatch<SetStateAction<Vendor[]>>,
   ): Promise<Vendor[]> => {
     try {
-      const userId = user.id;
       const columnsToSelect = columns.join(',');
 
       const response = await fetch(
-        `/api/v1/quickbooks/company/vendor?userId=${userId}&select=${columnsToSelect}${query ? `&where=${query}` : ''}`,
+        `/api/v1/quickbooks/company/vendor?companyId=${companyId}&select=${columnsToSelect}${query ? `&where=${query}` : ''}`,
         {
           method: 'GET',
           headers: {
@@ -45,7 +46,7 @@ export const useVendor = () => {
           (vendor: any) => vendor.DisplayName,
         ) ?? [];
 
-      setVendorCallback && setVendorCallback(vendors);
+      setVendorCallback?.(vendors);
       return vendors;
     } catch (error) {
       throw new Error(`Failed to get vendor list ${error}`);
@@ -56,10 +57,8 @@ export const useVendor = () => {
     setVendorCallback?: Function | Dispatch<SetStateAction<Vendor[]>>,
   ): Promise<Vendor[]> => {
     try {
-      const userId = user.id;
-
       const response = await fetch(
-        `/api/v1/quickbooks/company/vendor/all?userId=${userId}`,
+        `/api/v1/quickbooks/company/vendor/all?companyId=${companyId}`,
         {
           method: 'GET',
           headers: {
@@ -82,7 +81,7 @@ export const useVendor = () => {
 
       const vendors = await response.json();
 
-      setVendorCallback && setVendorCallback(vendors);
+      setVendorCallback?.(vendors);
       return vendors;
     } catch (error) {
       throw new Error(`Failed to get all vendors ${error}`);
@@ -91,13 +90,11 @@ export const useVendor = () => {
 
   const getVendorByID = async (
     vendorId: string,
-    vendorCallback?: Function | Dispatch<SetStateAction<Vendor>>,
+    setVendorCallback?: Function | Dispatch<SetStateAction<Vendor>>,
   ): Promise<Vendor> => {
     try {
-      const userId = user.id;
-
       const response = await fetch(
-        `/api/v1/quickbooks/company/vendor/${vendorId}?userId=${userId}`,
+        `/api/v1/quickbooks/company/vendor/${vendorId}?companyId=${companyId}`,
         {
           method: 'GET',
           headers: {
@@ -117,7 +114,7 @@ export const useVendor = () => {
 
       const responseData = await response.json();
       const vendor = responseData.Vendor;
-      vendorCallback && vendorCallback(vendor);
+      setVendorCallback?.(vendor);
       return vendor;
     } catch (error) {
       throw new Error(`Failed to get vendor by ID ${error}`);
@@ -126,24 +123,22 @@ export const useVendor = () => {
 
   const getDefaultCategoryByVendorName = async (
     vendorName: string,
-    categoryCallback?:
+    setCategoryCallback?:
       | Function
       | Dispatch<SetStateAction<Default_Vendor_Category>>,
   ): Promise<Default_Vendor_Category | null> => {
-    if (!user.company) throw new Error('Company ID not found');
-
     const { data, error } = await supabase
       .from('default_vendor_categories')
       .select('*')
       .eq('vendor_name', vendorName)
-      .eq('company_id', user.company.id)
+      .eq('company_id', companyId)
       .maybeSingle();
 
     if (error) {
       throw new Error(`Failed to get default category, ${error.message}`);
     }
 
-    categoryCallback?.(data);
+    setCategoryCallback?.(data);
     return data;
   };
 
@@ -151,20 +146,12 @@ export const useVendor = () => {
     vendor_name: string,
     category: string,
   ): Promise<Default_Vendor_Category> => {
-    const company = user.company;
-
-    if (!company) {
-      throw new Error(
-        'Company ID not found, you must have a company to save default category',
-      );
-    }
-
     const { data, error } = await supabase
       .from('default_vendor_categories')
       .upsert(
         {
           vendor_name,
-          company_id: company.id,
+          company_id: companyId,
           category,
         },
         { onConflict: 'vendor_name, company_id' },
