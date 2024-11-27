@@ -6,7 +6,7 @@ import Chip from '@/components/ui/chip';
 
 const Features = () => {
   return (
-    <section className="animate-appear-from-bottom container mx-auto flex flex-col items-center justify-center gap-8 px-4 py-16 lg:px-24">
+    <section className="animate-appear-from-bottom container mx-auto flex flex-col items-center justify-center gap-8 px-4 py-16 lg:max-w-full lg:px-24">
       <h1 className="mb-4 text-center text-xl font-medium md:text-4xl">
         Seamlessly fits into your workflow, making your life easier
       </h1>
