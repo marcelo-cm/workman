@@ -511,12 +511,12 @@ const BackgroundShape = () => {
 
 const Integrations = () => {
   return (
-    <div className="relative flex h-fit w-full items-center justify-center">
+    <section className="relative flex h-fit w-full items-center justify-center">
       <span className="z-30 flex max-w-screen-xl flex-col items-center justify-center p-16 px-8 md:px-16">
         <h1 className="mb-12 w-3/4 text-wrap text-center text-2xl font-medium text-white md:text-4xl">
           Integrated To Your Favourite Apps
         </h1>
-        <div className="grid w-full grid-cols-1 gap-4 text-balance text-center lg:grid-cols-2">
+        <div className="grid w-full grid-cols-1 gap-4 text-balance text-center sm:text-left lg:grid-cols-2">
           <div className="rounded-lg border border-teal-300 bg-teal-100 p-2">
             <div className="flex h-full w-full flex-col items-center justify-center gap-4 rounded bg-white p-[10%] sm:flex-row">
               <div className="w-fit rounded-full bg-gradient-to-br from-teal-100 to-teal-400 p-8">
@@ -552,7 +552,7 @@ const Integrations = () => {
         </div>
       </span>
       <BackgroundShape />
-    </div>
+    </section>
   );
 };
 

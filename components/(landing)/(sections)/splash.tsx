@@ -140,7 +140,7 @@ const Details = () => {
 
 const Splash = () => {
   return (
-    <section className="border-b">
+    <section>
       <Landing />
       <Details />
     </section>
