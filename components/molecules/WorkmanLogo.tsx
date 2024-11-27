@@ -13,13 +13,13 @@ const WorkmanLogo = ({
         <img
           src="/workman-emblem.svg"
           alt="Workman Emblem"
-          className="w-full"
+          className="w-full fill-inherit"
         />
       ) : variant === 'WORDMARK' ? (
         <img
           src="/workman-wordmark.svg"
           alt="Workman Wordmark"
-          className="w-full"
+          className="w-full fill-inherit"
         />
       ) : variant === 'COMBO' ? (
         <img src="/workman-combo.svg" alt="Workman Combo" className="w-full" />

@@ -63,52 +63,45 @@ const Waitlist = ({ className }: { className?: ClassNameValue }) => {
       token={process.env.NEXT_PUBLIC_LOGSNAG_API_KEY!}
       project="workman"
     >
-      <Container
-        className={`w-full p-4 text-left shadow-sm focus-within:animate-none hover:animate-none md:w-1/2 md:min-w-[400px] lg:motion-safe:animate-bounce ${className}`}
-      >
-        <p className="mb-2 text-center font-medium">
-          Get started, we'll email you with next steps!
-        </p>
-        <Form {...form}>
-          <form onSubmit={handleSubmit}>
-            <FormField
-              name="email"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <div className="flex">
-                    <Input
-                      type="email"
-                      placeholder="Email"
-                      className="rounded-r-none"
-                      {...field}
-                      {...form.register(field.name, {
-                        onChange(event) {
-                          form.setValue(field.name, event.target.value, {
-                            shouldValidate: true,
-                            shouldDirty: true,
-                          });
-                        },
-                      })}
-                    />
-                    <Button
-                      className="h-9 rounded-l-none"
-                      type="submit"
-                      disabled={
-                        isLoading || isSubmitted || !form.formState.isValid
-                      }
-                    >
-                      {isSubmitted ? 'Submitted' : 'Submit!'}
-                      {isLoading && <LoaderIcon className="animate-spin" />}
-                    </Button>
-                  </div>
-                  <FormMessage className="mt-1" />
-                </FormItem>
-              )}
-            />
-          </form>
-        </Form>
-      </Container>
+      <Form {...form}>
+        <form onSubmit={handleSubmit}>
+          <FormField
+            name="email"
+            control={form.control}
+            render={({ field }) => (
+              <FormItem>
+                <div className="flex">
+                  <Input
+                    type="email"
+                    placeholder="Email"
+                    className="rounded-r-none bg-white"
+                    {...field}
+                    {...form.register(field.name, {
+                      onChange(event) {
+                        form.setValue(field.name, event.target.value, {
+                          shouldValidate: true,
+                          shouldDirty: true,
+                        });
+                      },
+                    })}
+                  />
+                  <Button
+                    className="h-9 rounded-l-none"
+                    type="submit"
+                    disabled={
+                      isLoading || isSubmitted || !form.formState.isValid
+                    }
+                  >
+                    {isSubmitted ? 'Submitted' : 'Submit!'}
+                    {isLoading && <LoaderIcon className="animate-spin" />}
+                  </Button>
+                </div>
+                <FormMessage className="mt-1" />
+              </FormItem>
+            )}
+          />
+        </form>
+      </Form>
     </LogSnagProvider>
   );
 };
