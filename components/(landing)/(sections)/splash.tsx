@@ -33,7 +33,7 @@ const PRODUCT_STATS = [
 const Landing = () => {
   return (
     <span className="relative">
-      <div className="container relative z-50 mx-auto flex h-[75dvh] flex-col items-center overflow-hidden p-12 px-4 md:px-0 md:py-16 min-[1272px]:overflow-visible">
+      <div className="slg:max-[1500px]:h-[65dvh] container relative z-50 mx-auto flex h-[90dvh] flex-col items-center overflow-hidden p-12 px-4 sm:h-[80dvh] md:px-0 md:py-16 lg:h-[75dvh] min-[1280px]:overflow-visible">
         <Chip className="animate-appear-from-top mb-4 border border-wm-orange-300 bg-wm-orange-100 font-medium text-wm-orange">
           Accounting Automation for SMB Homebuilders
         </Chip>
@@ -50,6 +50,14 @@ const Landing = () => {
           an invoice down to <OrangeText>20 seconds</OrangeText>
         </h3>
         <CallToAction />
+        <Image
+          className={`animate-appear-from-bottom pointer-events-none relative z-30 mt-8 w-full select-none rounded border border-wm-orange-200 bg-wm-orange-100 p-2 min-[1280px]:hidden`}
+          src="/images/landing/landing-dashboard.svg"
+          alt="Splash"
+          width="1000"
+          height="1000"
+          priority
+        />
       </div>
       <Image
         className="absolute left-0 top-0 z-0"
@@ -71,8 +79,8 @@ const Landing = () => {
 
 const Details = () => {
   return (
-    <div className="grid w-full gap-8 bg-zinc-800 p-8 sm:grid-cols-2 lg:max-h-[650px] lg:grid-cols-4 lg:grid-rows-2">
-      <div className="fade-in relative col-span-1 row-span-1 flex lg:row-span-2">
+    <div className="grid w-full grid-cols-1 gap-8 bg-zinc-800 p-8 sm:grid-cols-2 lg:max-h-[650px] lg:grid-cols-4 min-[1280px]:grid-rows-2">
+      <div className="fade-in relative col-span-1 row-span-1 flex min-[1280px]:row-span-2">
         <InverseRectangleTLEdge className="absolute z-50 flex h-full w-full" />
         <Image
           className="absolute bottom-0 right-0 object-cover"
@@ -81,7 +89,7 @@ const Details = () => {
           fill
         />
       </div>
-      <div className="relative col-span-2 flex">
+      <div className="relative hidden min-h-[200px] sm:col-span-2 min-[1280px]:flex">
         <div className="absolute bottom-0 flex w-full">
           <Image
             className={`animate-appear-from-bottom pointer-events-none relative z-30 w-full select-none rounded border border-wm-orange-200 bg-wm-orange-100 p-2 min-[1272px]:w-[47dvw]`}
@@ -93,7 +101,7 @@ const Details = () => {
           />
         </div>
       </div>
-      <div className="fade-in relative col-span-1 row-span-1 grid grid-rows-3 flex-col lg:row-span-2">
+      <div className="fade-in relative col-span-1 row-span-1 grid grid-rows-3 flex-col min-[1280px]:row-span-2">
         {PRODUCT_STATS.map((stat, index) => (
           <div className="z-50 row-span-1 mx-4 flex flex-col justify-center gap-1 border-t border-zinc-500 py-4 text-right font-poppins font-medium text-wm-orange-50 first:border-none">
             <p className="text-2xl text-wm-orange-200">{stat.subject}</p>
@@ -104,11 +112,11 @@ const Details = () => {
         <RectangleTLEdge className="absolute h-full w-full" />
       </div>
       <div className="fade-in relative col-span-1 row-span-1 flex">
-        <span className="z-50 flex flex-col p-4 text-white">
+        <span className="z-50 flex flex-col gap-4 p-4 text-white">
           <div className="w-fit rounded bg-zinc-600 p-2 font-poppins text-sm leading-tight min-[1640px]:text-base">
             Tad Ellsworth, CEO
           </div>
-          <h3 className="max-w-[475px] text-pretty text-xl min-[1272px]:text-sm min-[1414px]:text-base min-[1640px]:text-xl">
+          <h3 className="w-4/5 max-w-[475px] text-pretty text-2xl min-[1280px]:w-full min-[1280px]:text-base min-[1640px]:text-xl">
             “The set-up was incredibly intuitive. The Workman team onboarded us
             seamlessly and the platform has saved us HOURS of time daily. You
             wouldn't believe how beneficial it's been. I couldn't recommend them
