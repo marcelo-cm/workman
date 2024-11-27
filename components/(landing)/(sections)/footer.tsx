@@ -33,7 +33,7 @@ const WorkmanWordmark = ({ className }: { className?: string }) => {
 
 const EmailCollection = () => {
   return (
-    <div className="z-30 grid md:h-[50dvh] md:grid-cols-2">
+    <div className="z-30 grid  md:grid-cols-2">
       <Image
         className="hidden h-full w-full object-cover md:flex"
         src="/images/landing/builder-stock-image.png"
@@ -82,7 +82,7 @@ const LogoFooter = () => {
 
 const Footer = () => {
   return (
-    <section className="h-fit">
+    <section className="flex h-fit flex-col">
       <EmailCollection />
       <LogoFooter />
     </section>
