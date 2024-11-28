@@ -114,13 +114,12 @@ const Details = () => {
       <div className="fade-in relative col-span-1 row-span-1 flex">
         <span className="z-50 flex flex-col gap-4 p-4 text-white">
           <div className="w-fit rounded bg-zinc-600 p-2 font-poppins text-sm leading-tight min-[1640px]:text-base">
-            Tad Ellsworth, CEO
+            Pilot Program
           </div>
           <h3 className="w-4/5 max-w-[475px] text-pretty text-2xl min-[1280px]:w-full min-[1280px]:text-base min-[1640px]:text-xl">
-            “The set-up was incredibly intuitive. The Workman team onboarded us
-            seamlessly and the platform has saved us HOURS of time daily. You
-            wouldn't believe how beneficial it's been. I couldn't recommend them
-            more.”
+            We've partnered with a select group of homebuilders to test our
+            platform. Are you interested in joining our pilot program? Book a
+            demo today!
           </h3>
         </span>
         <BoxTREdge className="absolute z-10 h-full w-full" />
