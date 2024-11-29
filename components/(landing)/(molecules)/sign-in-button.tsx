@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { memo } from 'react';
 
 import Link from 'next/link';
 
 import { Button, ButtonProps } from '@/components/ui/button';
 
-const SignIn = ({ ...props }: ButtonProps) => {
+const SignIn = memo(({ ...props }: ButtonProps) => {
   return (
     <Link href="/auth/sign-in">
       <Button variant="outline" {...props}>
@@ -12,6 +12,6 @@ const SignIn = ({ ...props }: ButtonProps) => {
       </Button>
     </Link>
   );
-};
+});
 
 export default SignIn;

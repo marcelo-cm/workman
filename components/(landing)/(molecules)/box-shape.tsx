@@ -1,4 +1,6 @@
-const BoxTLEdge = ({ className }: { className?: string }) => {
+import { memo } from 'react';
+
+const BoxTLEdge = memo(({ className }: { className?: string }) => {
   return (
     <div className={className}>
       <svg
@@ -19,9 +21,9 @@ const BoxTLEdge = ({ className }: { className?: string }) => {
       </svg>
     </div>
   );
-};
+});
 
-const BoxTREdge = ({ className }: { className?: string }) => {
+const BoxTREdge = memo(({ className }: { className?: string }) => {
   return (
     <div className={className}>
       <svg
@@ -42,9 +44,9 @@ const BoxTREdge = ({ className }: { className?: string }) => {
       </svg>
     </div>
   );
-};
+});
 
-const InverseBoxTLEdge = ({ className }: { className: string }) => {
+const InverseBoxTLEdge = memo(({ className }: { className: string }) => {
   return (
     <div className={className}>
       <svg
@@ -67,7 +69,7 @@ const InverseBoxTLEdge = ({ className }: { className: string }) => {
       </svg>
     </div>
   );
-};
+});
 
 const BoxBLEdge = ({ className }: { className: string }) => {};
 

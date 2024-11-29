@@ -1,17 +1,23 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useMemo } from 'react';
 
 import Image from 'next/image';
 
 import Chip from '@/components/ui/chip';
 
 const Features = () => {
+  const FEATURE_STYLES = useMemo(
+    () =>
+      'flex h-full w-full rounded-lg border border-wm-orange-200 bg-wm-orange-100 p-2',
+    [],
+  );
+
   return (
     <section className="animate-appear-from-bottom container mx-auto flex flex-col items-center justify-center gap-8 px-4 py-16 lg:max-w-full lg:px-24">
       <h1 className="mb-4 text-center text-xl font-medium md:text-4xl">
         Seamlessly fits into your workflow, making your life easier
       </h1>
       <div className="grid w-full grid-cols-1 gap-2 md:gap-8 lg:grid-cols-2">
-        <div className="flex h-full w-full rounded-lg border border-wm-orange-200 bg-wm-orange-100 p-2">
+        <div className={FEATURE_STYLES}>
           <div className="flex h-full w-full flex-col justify-center gap-4 rounded bg-white p-[15%]">
             <Chip className="bg-teal-600 text-white">Automation</Chip>
             <h1 className="font-poppins text-4xl font-medium">
@@ -64,7 +70,7 @@ const Features = () => {
             />
           </div>
         </div>
-        <div className="flex h-full w-full rounded-lg border border-wm-orange-200 bg-wm-orange-100 p-2">
+        <div className={FEATURE_STYLES}>
           <div className="flex h-full w-full flex-col justify-center gap-4 rounded bg-white p-[15%]">
             <Chip className="bg-teal-600 text-white">Management</Chip>
             <h1 className="font-poppins text-4xl font-medium">

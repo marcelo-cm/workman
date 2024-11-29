@@ -33,7 +33,7 @@ const WorkmanWordmark = ({ className }: { className?: string }) => {
 
 const EmailCollection = () => {
   return (
-    <div className="z-30 grid  md:grid-cols-2">
+    <div className="z-30 grid md:grid-cols-2">
       <Image
         className="hidden h-full w-full object-cover md:flex"
         src="/images/landing/builder-stock-image.png"

@@ -1,4 +1,6 @@
-const RectangleTLEdge = ({ className }: { className?: string }) => {
+import { memo } from 'react';
+
+const RectangleTLEdge = memo(({ className }: { className?: string }) => {
   return (
     <div className={className}>
       <svg
@@ -19,9 +21,9 @@ const RectangleTLEdge = ({ className }: { className?: string }) => {
       </svg>
     </div>
   );
-};
+});
 
-const RectangleTREdge = ({ className }: { className?: string }) => {
+const RectangleTREdge = memo(({ className }: { className?: string }) => {
   return (
     <div className={className}>
       <svg
@@ -42,9 +44,9 @@ const RectangleTREdge = ({ className }: { className?: string }) => {
       </svg>
     </div>
   );
-};
+});
 
-const InverseRectangleTLEdge = ({ className }: { className?: string }) => {
+const InverseRectangleTLEdge = memo(({ className }: { className?: string }) => {
   return (
     <div className={className}>
       <svg
@@ -67,7 +69,7 @@ const InverseRectangleTLEdge = ({ className }: { className?: string }) => {
       </svg>
     </div>
   );
-};
+});
 
 const RectangleBLEdge = ({ className }: { className?: string }) => {
   return;

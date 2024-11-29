@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 
 import { PhoneCallIcon } from 'lucide-react';
 
@@ -6,7 +6,7 @@ import Link from 'next/link';
 
 import { Button, ButtonProps } from '@/components/ui/button';
 
-const BookDemo = ({ ...props }: ButtonProps) => {
+const BookDemo = memo(({ ...props }: ButtonProps) => {
   return (
     <Link href="https://cal.com/ethanhan">
       <Button variant={'secondary'} {...props}>
@@ -14,6 +14,6 @@ const BookDemo = ({ ...props }: ButtonProps) => {
       </Button>
     </Link>
   );
-};
+});
 
 export default BookDemo;
