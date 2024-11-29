@@ -50,16 +50,8 @@ const UploadToQuickBooks = () => {
     setUploadedFileIndexes([...uploadedFileIndexes, fileIndex]);
   };
 
-  const handleUploadToQuickBooks = async (
-    invoice: Invoice,
-    idx: number,
-    userId?: UUID,
-  ) => {
-    let id = userId;
-
-    if (!id) {
-      id = user.id;
-    }
+  const handleUploadToQuickBooks = async (invoice: Invoice, idx: number) => {
+    let id = user.company.id;
 
     const matchedCustomer = findMostSimilar(
       invoice.customerAddress,
@@ -99,7 +91,7 @@ const UploadToQuickBooks = () => {
     const response = await fetch('/api/v1/quickbooks/company/bill', {
       method: 'POST',
       body: JSON.stringify({
-        userId: id,
+        companyId: id,
         invoice: invoiceWithMatchedValues,
       }),
       headers: {
@@ -122,7 +114,7 @@ const UploadToQuickBooks = () => {
   const handleUploadAllToQuickBooks = async () => {
     startBulkUpload(async () => {
       await Promise.all(
-        files.map((file, idx) => handleUploadToQuickBooks(file, idx, user.id)),
+        files.map((file, idx) => handleUploadToQuickBooks(file, idx)),
       ).then(() => {
         console.log('All files uploaded');
         setTimeout(() => {

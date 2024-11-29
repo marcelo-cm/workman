@@ -4,10 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 import Waitlist from '@/components/(shared)/general/Waitlist';
-import WorkmanLogo from '@/components/molecules/WorkmanLogo';
 import { OrangeText } from '@/components/ui/orange-text';
-
-import { CallToAction } from '../(molecules)/call-to-action';
 
 const WorkmanWordmark = ({ className }: { className?: string }) => {
   return (
