@@ -7,5 +7,5 @@ export const OrangeText = ({
   children: ReactNode;
   className?: string;
 }) => {
-  return <span className={`text-wm-orange ${className}`}>{children}</span>;
+  return <span className={`text-wm-orange-500 ${className}`}>{children}</span>;
 };

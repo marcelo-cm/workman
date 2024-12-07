@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 
 import { ChatBubbleIcon } from '@radix-ui/react-icons';
 
@@ -6,7 +6,7 @@ import Link from 'next/link';
 
 import { Button } from '@/components/ui/button';
 
-const EmailFounders = () => {
+const EmailFounders = memo(() => {
   return (
     <Link href="mailto:ethan@workman.so">
       <Button variant={'outline'}>
@@ -14,6 +14,6 @@ const EmailFounders = () => {
       </Button>
     </Link>
   );
-};
+});
 
 export default EmailFounders;
