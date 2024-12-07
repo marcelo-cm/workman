@@ -41,7 +41,7 @@ export default function AddCompanyForm({
   return (
     <Form {...formAddCompany}>
       <form
-        className="absolute right-0 flex w-[420px] flex-col gap-2 rounded border p-2 pl-2"
+        className="absolute left-[916px] flex w-full max-w-[420px] flex-col gap-2 rounded-md border p-2 pl-2"
         onSubmit={formAddCompany.handleSubmit(handleCreateCompany)}
       >
         <FormField

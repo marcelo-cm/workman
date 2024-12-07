@@ -54,7 +54,7 @@ export default function Page() {
           Team
         </BreadcrumbLink>
       </BreadcrumbList>
-      <div className="relative flex gap-4">
+      <div className="relative flex w-full gap-4">
         <div className="flex w-[900px] items-center justify-between">
           <h1 className="font-poppins text-4xl">Team</h1>
           <Button onClick={() => setAddCompany(true)}>
@@ -106,6 +106,7 @@ export default function Page() {
             />
           ))}
       </section>
+      <div className="h-8 text-white">.</div>
     </div>
   );
 }
