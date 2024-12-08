@@ -7,6 +7,7 @@ import { UUID } from 'crypto';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 
+import { Roles } from '@/constants/enums';
 import { User } from '@/models/User';
 
 import RemoveUserButton from './RemoveUserButton';
@@ -18,7 +19,7 @@ export default function DefaultUserRow({
 }: {
   user: User;
   setEditingUserId: (id: UUID) => void;
-  setSelectedRoles: (roles: string[]) => void;
+  setSelectedRoles: (roles: Roles[]) => void;
 }) {
   return (
     <div

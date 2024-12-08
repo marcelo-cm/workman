@@ -21,6 +21,7 @@ import IfElseRender from '@/components/ui/if-else-renderer';
 
 import { useCompany } from '@/lib/hooks/supabase/useCompany';
 
+import { Roles } from '@/constants/enums';
 import { Company } from '@/models/Company';
 
 import { useAppContext } from '../context';
@@ -37,7 +38,7 @@ export default function Page() {
   const [selectedCompanyID, setSelectedCompanyID] = useState<UUID | null>(null);
 
   useEffect(() => {
-    if (!user?.roles?.includes('PLATFORM_ADMIN')) {
+    if (!user?.roles?.includes(Roles['PLATFORM_ADMIN'])) {
       router.push('/settings');
     }
     fetchAllCompanies().then((data) => setCompanyData(data));

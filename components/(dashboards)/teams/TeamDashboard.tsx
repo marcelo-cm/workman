@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 
 import { useUser } from '@/lib/hooks/supabase/useUser';
 
+import { Roles } from '@/constants/enums';
 import { User } from '@/models/User';
 
 import DefaultUserRow from './DefaultUserRow';
@@ -29,7 +30,7 @@ export default function TeamDashboard({
 
   const [usersData, setUsersData] = useState<User[]>([]);
   const [editingUserId, setEditingUserId] = useState<UUID | null>(null);
-  const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
+  const [selectedRoles, setSelectedRoles] = useState<Roles[]>([]);
 
   useEffect(() => {
     getUsersByCompanyId(companyID).then((data) => {

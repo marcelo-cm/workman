@@ -1,6 +1,6 @@
 'use client';
 
-import React, { Dispatch, SetStateAction, useState } from 'react';
+import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
 
 import { CheckIcon, PlusIcon } from '@radix-ui/react-icons';
 import { X } from 'lucide-react';
@@ -11,12 +11,14 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 import { Button } from '@/components/ui/button';
+import Chip from '@/components/ui/chip';
 import {
   Dialog,
   DialogClose,
   DialogContent,
   DialogFooter,
   DialogHeader,
+  DialogPortal,
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
@@ -41,7 +43,7 @@ const { createUser } = useUser();
 const createAccountFormSchema = z.object({
   name: z.string().min(1),
   email: z.string().email().min(1),
-  // roles: z.array(z.string()).nonempty('At least one role is required'),
+  roles: z.array(z.string()).min(1),
   password: z.string().min(1),
 });
 
@@ -56,22 +58,36 @@ export default function AddUserForm({
   setAddUser: (id: UUID | null) => void;
   setUsersData: Dispatch<SetStateAction<User[]>>;
 }) {
-  const [selectedNewUserRoles, setSelectedNewUserRoles] = useState<string[]>(
-    [],
-  );
   const formAddUser = useForm<z.infer<typeof createAccountFormSchema>>({
     resolver: zodResolver(createAccountFormSchema),
   });
+  const { watch, setValue, setError, clearErrors } = formAddUser;
+  const roles = watch('roles');
+
+  useEffect(() => {
+    if (roles?.length === 0) {
+      setError('roles', {
+        message: 'Please select at least one role',
+      });
+    } else {
+      clearErrors('roles');
+    }
+  }, [roles]);
 
   const handleSelectedNewUserRoles = (selectedRole: { id: string }) => {
-    setSelectedNewUserRoles((prevRoles) => {
-      const isSelected = prevRoles.includes(selectedRole.id);
-      if (isSelected) {
-        return prevRoles.filter((val) => val !== selectedRole.id);
+    const isSelected = roles?.includes(selectedRole.id);
+    if (isSelected) {
+      const newRoles = roles?.filter((role) => role !== selectedRole.id);
+      return setValue('roles', newRoles);
+    } else {
+      let newRoles;
+      if (roles) {
+        newRoles = [...roles, selectedRole.id];
       } else {
-        return [...prevRoles, selectedRole.id];
+        newRoles = [selectedRole.id];
       }
-    });
+      return setValue('roles', newRoles);
+    }
   };
 
   const handleCreateUser = async () => {
@@ -81,7 +97,7 @@ export default function AddUserForm({
         formAddUser.getValues('name'),
         formAddUser.getValues('password'),
         formAddUser.getValues('email'),
-        selectedNewUserRoles,
+        formAddUser.getValues('roles'),
       );
 
       setUsersData((prevUsers) => [createdUser, ...prevUsers]);
@@ -104,15 +120,17 @@ export default function AddUserForm({
         </DialogHeader>
         <Form {...formAddUser}>
           <form
-            className="flex w-full flex-col gap-2"
+            className="flex w-full flex-col gap-3"
             onSubmit={formAddUser.handleSubmit(handleCreateUser)}
           >
             <FormField
               control={formAddUser.control}
               name="name"
               render={({ field }) => (
-                <FormItem className="flex flex-col gap-2">
-                  <p className="text-base">Name</p>
+                <FormItem className="flex flex-col">
+                  <div className="mb-1 flex w-full justify-between">
+                    <FormLabel>Name</FormLabel> <FormMessage />
+                  </div>
                   <FormControl>
                     <Input
                       className="text-base"
@@ -134,8 +152,10 @@ export default function AddUserForm({
               control={formAddUser.control}
               name="email"
               render={({ field }) => (
-                <FormItem className="flex flex-col gap-2">
-                  <p className="text-base">Email</p>
+                <FormItem className="flex flex-col">
+                  <div className="mb-1 flex w-full justify-between">
+                    <FormLabel>Email</FormLabel> <FormMessage />
+                  </div>
                   <FormControl>
                     <Input
                       className="text-base"
@@ -154,23 +174,39 @@ export default function AddUserForm({
               )}
             />
 
-            <div className=" flex flex-col gap-2">
-              <p className="text-base">Roles</p>
-
-              <MultiComboBox
-                className="w-full"
-                options={Object.values(Roles).map((role) => ({ id: role }))}
-                getOptionLabel={(option) => option?.id.replaceAll('_', ' ')}
-                callBackFunction={handleSelectedNewUserRoles}
-              />
-            </div>
-
+            <FormField
+              control={formAddUser.control}
+              name="roles"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <div className="mb-1 flex w-full justify-between">
+                    <FormLabel>Roles</FormLabel> <FormMessage />
+                  </div>
+                  <MultiComboBox
+                    className="w-full"
+                    options={Object.values(Roles).map((role) => ({
+                      id: role,
+                    }))}
+                    getOptionLabel={(option) => option?.id.replaceAll('_', ' ')}
+                    callBackFunction={handleSelectedNewUserRoles}
+                    renderValues={(value) => (
+                      <Chip>
+                        {Roles[value.id]}{' '}
+                        <X className="h-3 w-3 group-hover:text-red-500" />
+                      </Chip>
+                    )}
+                  />
+                </FormItem>
+              )}
+            />
             <FormField
               control={formAddUser.control}
               name="password"
               render={({ field }) => (
-                <FormItem className="flex flex-col gap-2">
-                  <p className=" text-base">Password</p>
+                <FormItem className="flex flex-col">
+                  <div className="mb-1 flex w-full justify-between">
+                    <FormLabel>Password</FormLabel> <FormMessage />
+                  </div>
                   <FormControl>
                     <Input
                       className="text-base"

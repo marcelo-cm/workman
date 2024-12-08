@@ -9,14 +9,8 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 import { Button } from '@/components/ui/button';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
+import Chip from '@/components/ui/chip';
+import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { MultiComboBox } from '@/components/ui/multi-combo-box';
 
@@ -40,7 +34,7 @@ export default function EditUserForm({
   user: User;
   setEditingUserId: (id: UUID | null) => void;
   setUsersData: (userData: any) => void;
-  selectedRoles: string[];
+  selectedRoles: Roles[];
   setSelectedRoles: (role: any) => void;
 }) {
   const { updateUserData } = useUser();
@@ -153,6 +147,12 @@ export default function EditUserForm({
           }))}
           getOptionLabel={(option) => option?.id.replaceAll('_', ' ')}
           callBackFunction={handleSelectedRoles}
+          renderValues={(value) => (
+            <Chip>
+              {Roles[value.id]}{' '}
+              <X className="h-3 w-3 group-hover:text-red-500" />
+            </Chip>
+          )}
         />
 
         <Button

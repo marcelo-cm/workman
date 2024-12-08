@@ -10,7 +10,7 @@ export class User {
   private _id: UUID;
   private _email: string;
   private _company: Company;
-  private _roles: string[];
+  private _roles: Roles[];
   private _created_at: Date;
   private _ignore_label_id: string;
   private _scanned_label_id: string;
@@ -37,7 +37,7 @@ export class User {
     scanned_label_id: string;
     gmail_integration_status: string;
     quickbooks_integration_status: string;
-    roles: string[]; //Used to be Roles[]
+    roles: Roles[]; //Used to be Roles[]
     created_at: string;
   }) {
     this._name = name;
@@ -68,7 +68,7 @@ export class User {
     return this._company;
   }
 
-  get roles(): string[] {
+  get roles(): Roles[] {
     return this._roles;
   }
 

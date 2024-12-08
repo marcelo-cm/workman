@@ -10,6 +10,7 @@ import IfElseRender from '../../ui/if-else-renderer';
 import useLocalStorage from '@/lib/hooks/useLocalStorage';
 
 import { useAppContext } from '@/app/(dashboards)/context';
+import { Roles } from '@/constants/enums';
 import { createClient } from '@/lib/utils/supabase/client';
 
 import WorkmanLogo from '../../molecules/WorkmanLogo';
@@ -94,7 +95,7 @@ const SideBar = () => {
                 />
               </MenuItem>
               <IfElseRender
-                condition={user?.roles?.includes('PLATFORM_ADMIN')}
+                condition={user?.roles?.includes(Roles['PLATFORM_ADMIN'])}
                 ifTrue={
                   <MenuItem
                     leadingIcon={<Users className="h-4 w-4" />}
