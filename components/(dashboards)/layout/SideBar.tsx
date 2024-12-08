@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
-import { ExitIcon, GearIcon, PersonIcon } from '@radix-ui/react-icons';
-import { ArrowLeftToLine, ArrowRightToLine } from 'lucide-react';
+import { ExitIcon, GearIcon } from '@radix-ui/react-icons';
+import { ArrowLeftToLine, ArrowRightToLine, Users } from 'lucide-react';
 
 import { usePathname } from 'next/navigation';
 
@@ -97,10 +97,10 @@ const SideBar = () => {
                 condition={user?.roles?.includes('PLATFORM_ADMIN')}
                 ifTrue={
                   <MenuItem
-                    leadingIcon={<PersonIcon className="h-4 w-4" />}
+                    leadingIcon={<Users className="h-4 w-4" />}
                     route="/team"
                   >
-                    Team
+                    Companies
                     <IfElseRender
                       condition={expanded}
                       ifTrue={<div className="w-full" />}

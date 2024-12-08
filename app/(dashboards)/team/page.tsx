@@ -8,6 +8,7 @@ import { UUID } from 'crypto';
 import { useRouter } from 'next/navigation';
 
 import AddCompanyForm from '@/components/(dashboards)/teams/AddCompanyForm';
+import CompanyChip from '@/components/(dashboards)/teams/CompanyChip';
 import TeamDashboard from '@/components/(dashboards)/teams/TeamDashboard';
 import {
   BreadcrumbItem,
@@ -20,20 +21,17 @@ import IfElseRender from '@/components/ui/if-else-renderer';
 
 import { useCompany } from '@/lib/hooks/supabase/useCompany';
 
-import { useAppContext } from '../context';
+import { Company } from '@/models/Company';
 
-interface Company {
-  id: UUID;
-  name: string;
-}
+import { useAppContext } from '../context';
 
 export default function Page() {
   const { user } = useAppContext();
-  const { fetchCompanyData } = useCompany();
+  const { fetchAllCompanies } = useCompany();
   const router = useRouter();
 
   const [companyData, setCompanyData] = useState<Company[]>([]);
-  const [addCompany, setAddCompany] = useState<boolean>(false);
+  const [showCompanyForm, setShowCompanyForm] = useState<boolean>(false);
   const [activeAddUserCompanyID, setActiveAddUserCompanyID] =
     useState<UUID | null>(null);
   const [selectedCompanyID, setSelectedCompanyID] = useState<UUID | null>(null);
@@ -42,7 +40,7 @@ export default function Page() {
     if (!user?.roles?.includes('PLATFORM_ADMIN')) {
       router.push('/settings');
     }
-    fetchCompanyData().then((data) => setCompanyData(data));
+    fetchAllCompanies().then((data) => setCompanyData(data));
   }, []);
 
   return (
@@ -51,41 +49,25 @@ export default function Page() {
         <BreadcrumbItem>Dashboard</BreadcrumbItem>
         <BreadcrumbSeparator />
         <BreadcrumbLink className="text-black" href="/settings">
-          Team
+          Companies
         </BreadcrumbLink>
       </BreadcrumbList>
       <div className="relative flex w-full gap-4">
-        <div className="flex w-[900px] items-center justify-between">
-          <h1 className="font-poppins text-4xl">Team</h1>
-          <Button onClick={() => setAddCompany(true)}>
-            <p>Add Company</p> <PlusIcon />
-          </Button>
+        <div className="flex w-[1000px] items-center justify-between">
+          <h1 className="font-poppins text-4xl">Companies</h1>
+
+          <AddCompanyForm setCompanyData={setCompanyData} />
         </div>
-        <IfElseRender
-          condition={addCompany}
-          ifTrue={<AddCompanyForm setAddCompany={setAddCompany} />}
-          ifFalse={null}
-        />
       </div>
 
-      <section className="no-scrollbar min-h-fit w-[900px] overflow-x-auto">
+      <section className="no-scrollbar min-h-fit w-[1000px] overflow-x-auto">
         <div className="flex w-max gap-2">
           {companyData.map((company) => (
-            <button
-              key={company.id}
-              className={`${
-                selectedCompanyID === company.id // Overflow-x-auto makes it dissapear for some reason
-                  ? 'bg-[#f3f4f6] text-black'
-                  : 'bg-white '
-              }  whitespace-nowrap rounded-md border border-[#e4e4e4] px-4 py-1`}
-              onClick={() =>
-                setSelectedCompanyID((prev) =>
-                  prev === company.id ? null : company.id,
-                )
-              }
-            >
-              {company.name}
-            </button>
+            <CompanyChip
+              company={company}
+              selectedCompanyID={selectedCompanyID}
+              setSelectedCompanyID={setSelectedCompanyID}
+            />
           ))}
         </div>
       </section>
@@ -106,7 +88,7 @@ export default function Page() {
             />
           ))}
       </section>
-      <div className="h-8 text-white">.</div>
+      <div className="text-white">.</div>
     </div>
   );
 }

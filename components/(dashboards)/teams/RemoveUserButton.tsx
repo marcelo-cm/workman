@@ -16,18 +16,12 @@ import {
 
 import { useUser } from '@/lib/hooks/supabase/useUser';
 
-export default function RemovalUserButton({
+export default function RemoveUserButton({
   userName,
   userID,
-  companyName,
-  companyID,
-  setUsersData,
 }: {
   userName: string;
   userID: UUID;
-  companyName: string;
-  companyID: UUID;
-  setUsersData: (data: any) => void;
 }) {
   const { deleteUserAuth } = useUser();
 
@@ -44,13 +38,16 @@ export default function RemovalUserButton({
         </DialogHeader>
         <p>
           Are you sure you want to remove{' '}
-          <p className="inline font-medium">{userName}</p> from memory
+          <p className="inline font-medium">{userName}</p> from memory?
         </p>
         <DialogFooter>
           <Button
             variant={'outline'}
             appearance={'destructive-strong'}
-            onClick={() => deleteUserAuth(userID)}
+            onClick={() => {
+              deleteUserAuth(userID);
+              window.location.reload();
+            }}
           >
             Remove
           </Button>

@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { Dispatch, SetStateAction, useState } from 'react';
 
-import { CheckIcon } from '@radix-ui/react-icons';
+import { CheckIcon, PlusIcon } from '@radix-ui/react-icons';
 import { X } from 'lucide-react';
 
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -11,6 +11,15 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 import {
   Form,
   FormControl,
@@ -24,6 +33,9 @@ import { MultiComboBox } from '@/components/ui/multi-combo-box';
 
 import { useUser } from '@/lib/hooks/supabase/useUser';
 
+import { Roles } from '@/constants/enums';
+import { User } from '@/models/User';
+
 const { createUser } = useUser();
 
 const createAccountFormSchema = z.object({
@@ -35,10 +47,14 @@ const createAccountFormSchema = z.object({
 
 export default function AddUserForm({
   companyID,
+  companyName,
   setAddUser,
+  setUsersData,
 }: {
   companyID: UUID;
+  companyName: string;
   setAddUser: (id: UUID | null) => void;
+  setUsersData: Dispatch<SetStateAction<User[]>>;
 }) {
   const [selectedNewUserRoles, setSelectedNewUserRoles] = useState<string[]>(
     [],
@@ -58,130 +74,155 @@ export default function AddUserForm({
     });
   };
 
-  const handleCreateUser = () => {
-    createUser(
-      companyID,
-      formAddUser.getValues('name'),
-      formAddUser.getValues('password'),
-      formAddUser.getValues('email'),
-      selectedNewUserRoles,
-    );
+  const handleCreateUser = async () => {
+    try {
+      const createdUser: User = await createUser(
+        companyID,
+        formAddUser.getValues('name'),
+        formAddUser.getValues('password'),
+        formAddUser.getValues('email'),
+        selectedNewUserRoles,
+      );
+
+      setUsersData((prevUsers) => [createdUser, ...prevUsers]);
+    } catch (error) {
+      throw new Error(`Error creating user: ${error}`);
+    }
   };
 
   return (
-    <Form {...formAddUser}>
-      <form
-        className="absolute left-[916px] flex w-full max-w-[420px] flex-col gap-2 rounded-md border p-2 pl-2"
-        onSubmit={formAddUser.handleSubmit(handleCreateUser)}
-      >
-        <FormField
-          control={formAddUser.control}
-          name="name"
-          render={({ field }) => (
-            <FormItem className="flex items-center gap-2">
-              <p className="w-[90px] text-base">Name</p>
-              <FormControl>
-                <Input
-                  className="text-base"
-                  {...field}
-                  {...formAddUser.register(field.name, {
-                    onChange(event: { target: { value: any } }) {
-                      formAddUser.setValue(field.name, event.target.value, {
-                        shouldValidate: true,
-                        shouldDirty: true,
-                      });
-                    },
-                  })}
-                />
-              </FormControl>
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={formAddUser.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem className="flex items-center gap-2">
-              <p className="w-[90px] text-base">Email</p>
-              <FormControl>
-                <Input
-                  className="text-base"
-                  {...field}
-                  {...formAddUser.register(field.name, {
-                    onChange(event: { target: { value: any } }) {
-                      formAddUser.setValue(field.name, event.target.value, {
-                        shouldValidate: true,
-                        shouldDirty: true,
-                      });
-                    },
-                  })}
-                />
-              </FormControl>
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={formAddUser.control}
-          name="password"
-          render={({ field }) => (
-            <FormItem className="flex items-center gap-2">
-              <p className="w-[90px] text-base">Password</p>
-              <FormControl>
-                <Input
-                  className="text-base"
-                  {...field}
-                  {...formAddUser.register(field.name, {
-                    onChange(event: { target: { value: any } }) {
-                      formAddUser.setValue(field.name, event.target.value, {
-                        shouldValidate: true,
-                        shouldDirty: true,
-                      });
-                    },
-                  })}
-                />
-              </FormControl>
-            </FormItem>
-          )}
-        />
-
-        <div className="flex items-center gap-2">
-          <p className="w-[90px] text-base">Roles</p>
-
-          <MultiComboBox
-            className="w-full"
-            options={[
-              { id: 'PLATFORM_ADMIN' },
-              { id: 'COMPANY_ADMIN' },
-              { id: 'BOOKKEEPER' },
-            ]}
-            getOptionLabel={(option) => option?.id}
-            callBackFunction={handleSelectedNewUserRoles}
-          />
-        </div>
-
-        <div className="flex gap-2">
-          <Button
-            type="submit"
-            variant={'ghost'}
-            disabled={
-              !formAddUser.formState.isDirty || !formAddUser.formState.isValid
-            }
+    <Dialog>
+      <DialogTrigger>
+        <Button variant="outline">
+          <a className="text-nowrap">Add Member</a>
+          <PlusIcon />
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Add a new member to {companyName}</DialogTitle>
+        </DialogHeader>
+        <Form {...formAddUser}>
+          <form
+            className="flex w-full flex-col gap-2"
+            onSubmit={formAddUser.handleSubmit(handleCreateUser)}
           >
-            <CheckIcon />
-          </Button>
-          <Button
-            variant={'ghost'}
-            appearance={'destructive-strong'}
-            onClick={() => {
-              setAddUser(null);
-              setSelectedNewUserRoles([]);
-              formAddUser.reset();
-            }}
-          >
-            <X className="h-4 w-4" />
-          </Button>
-        </div>
-      </form>
-    </Form>
+            <FormField
+              control={formAddUser.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem className="flex flex-col gap-2">
+                  <p className="text-base">Name</p>
+                  <FormControl>
+                    <Input
+                      className="text-base"
+                      {...field}
+                      {...formAddUser.register(field.name, {
+                        onChange(event: { target: { value: any } }) {
+                          formAddUser.setValue(field.name, event.target.value, {
+                            shouldValidate: true,
+                            shouldDirty: true,
+                          });
+                        },
+                      })}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={formAddUser.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem className="flex flex-col gap-2">
+                  <p className="text-base">Email</p>
+                  <FormControl>
+                    <Input
+                      className="text-base"
+                      {...field}
+                      {...formAddUser.register(field.name, {
+                        onChange(event: { target: { value: any } }) {
+                          formAddUser.setValue(field.name, event.target.value, {
+                            shouldValidate: true,
+                            shouldDirty: true,
+                          });
+                        },
+                      })}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+
+            <div className=" flex flex-col gap-2">
+              <p className="text-base">Roles</p>
+
+              <MultiComboBox
+                className="w-full"
+                options={Object.values(Roles).map((role) => ({ id: role }))}
+                getOptionLabel={(option) => option?.id.replaceAll('_', ' ')}
+                callBackFunction={handleSelectedNewUserRoles}
+              />
+            </div>
+
+            <FormField
+              control={formAddUser.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem className="flex flex-col gap-2">
+                  <p className=" text-base">Password</p>
+                  <FormControl>
+                    <Input
+                      className="text-base"
+                      {...field}
+                      {...formAddUser.register(field.name, {
+                        onChange(event: { target: { value: any } }) {
+                          formAddUser.setValue(field.name, event.target.value, {
+                            shouldValidate: true,
+                            shouldDirty: true,
+                          });
+                        },
+                      })}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <DialogFooter>
+              <DialogClose>
+                <Button
+                  variant={'outline'}
+                  appearance={'destructive'}
+                  onClick={() => {
+                    setAddUser(null);
+                    // setSelectedNewUserRoles([]);
+                    formAddUser.reset({
+                      name: '',
+                      email: '',
+                      password: '',
+                    });
+                  }}
+                >
+                  Cancel
+                  <X className="h-4 w-4" />
+                </Button>
+              </DialogClose>
+
+              <Button
+                type="submit"
+                variant={'secondary'}
+                disabled={
+                  !formAddUser.formState.isDirty ||
+                  !formAddUser.formState.isValid
+                }
+              >
+                Add User
+                <CheckIcon />
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
   );
 }

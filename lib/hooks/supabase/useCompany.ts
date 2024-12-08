@@ -13,23 +13,17 @@ export const useCompany = () => {
       })
       .select('*');
 
-    if (error) {
-      console.log('there was an error creating the company ', error);
-      throw new Error('Failed to create company');
-    }
+    if (error) throw new Error(`Failed to create company, ${error}`);
 
-    return data;
+    return data[0];
   };
 
-  const fetchCompanyData = async () => {
+  const fetchAllCompanies = async () => {
     const { data, error } = await supabase
       .from('companies')
       .select('*')
       .order('created_at', { ascending: true }); //fetchest earliest
-    if (error) {
-      console.error('Error fetching company data: ', error);
-      throw new Error('Failed to fetch company data');
-    }
+    if (error) throw new Error(`Failed to fetch company data ${error}`);
 
     return data;
   };
@@ -53,7 +47,7 @@ export const useCompany = () => {
 
   return {
     createCompany,
-    fetchCompanyData,
+    fetchAllCompanies,
     getDefaultApprovers,
   };
 };

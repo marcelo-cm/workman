@@ -5,25 +5,16 @@ import { redirect } from 'next/navigation';
 import { useAppContext } from '@/app/(dashboards)/context';
 import { User_Update } from '@/interfaces/db.interfaces';
 import { getGoogleMailToken, getQuickBooksToken } from '@/lib/actions/actions';
+import { createAdminClient } from '@/lib/utils/supabase/admin';
 import { createClient as createSupabaseClient } from '@/lib/utils/supabase/client';
 import { User } from '@/models/User';
 
 export const useUser = () => {
   // const { user } = useAppContext();
   const supabase = createSupabaseClient();
-  const supabaseAdmin = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY!,
-    {
-      auth: {
-        autoRefreshToken: false,
-        persistSession: true,
-      },
-    },
-  );
+  const supabaseAdmin = createAdminClient();
 
   const createUser = async (
-    // when I create the user I sign into them fuck
     company_id: UUID,
     name: string,
     password: string,
@@ -37,37 +28,33 @@ export const useUser = () => {
     });
 
     if (error) {
-      console.log('Error during sign-up:', error.message);
       throw new Error(`Failed to create user, ${error.message}`);
     }
 
     // Step 2: Ensure the user data is available from the sign-up process
     if (!data.user) {
-      console.log('No user data returned from sign-up');
       throw new Error('User data is missing after sign-up');
     }
 
     // Step 3: Insert the user into the custom 'users' table
-    const { error: userError } = await supabase.from('users').insert({
-      id: data.user.id, // Use the 'id' field from the Auth response
-      email: email,
-      company_id: company_id,
-      roles: roles,
-      name: name,
-    });
+    const { data: newUser, error: userError } = await supabase
+      .from('users')
+      .insert({
+        id: data.user.id, // Use the 'id' field from the Auth response
+        email: email,
+        company_id: company_id,
+        roles: roles,
+        name: name,
+      })
+      .select();
 
     if (userError) {
-      console.log(
-        'Error when inserting user into the users table:',
-        userError.message,
-      );
       throw new Error(
-        `Failed to create user in the custom table, ${userError.message}`,
+        `Error when inserting user into the users table, ${userError.message}`,
       );
     }
 
-    window.location.reload();
-    return;
+    return newUser[0];
   };
 
   const updateUser = async (column_value: User_Update) => {
@@ -170,26 +157,13 @@ export const useUser = () => {
   };
 
   const deleteUserDB = async (userID: UUID) => {
-    console.log('this is the userID that got deleted: ', userID);
-    const { data: userData, error: userError } = await fetchUser();
-
-    if (userError) {
-      console.log(
-        'Yo this is the errror when fetchin session user: ',
-        userError,
-      );
-    } else {
-      console.log('Current users mail: ', userData.user.email);
-    }
-
     const { data, error } = await supabase
       .from('users')
       .delete()
       .eq('id', userID);
 
     if (error) {
-      console.error('Failed to delete user from DB', error);
-      return;
+      throw new Error(`Failed to delete user from DB ${error}`);
     }
 
     return;
@@ -199,10 +173,8 @@ export const useUser = () => {
     const { data, error } = await supabaseAdmin.auth.admin.deleteUser(userID);
 
     if (error) {
-      console.error('Failed to delete user from Auth: ', error);
+      throw new Error(`Failed to delete user from Auth ${error}`);
     }
-
-    window.location.reload();
 
     return;
   };
