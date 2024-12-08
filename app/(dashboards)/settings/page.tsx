@@ -2,6 +2,7 @@
 
 import CompanyRules from '@/components/(dashboards)/settings/CompanyRules';
 import ManageAccount from '@/components/(dashboards)/settings/ManageAccount';
+import ManageCompany from '@/components/(dashboards)/settings/ManageCompany';
 import ManageGmailIntegration from '@/components/(dashboards)/settings/ManageGmailIntegration';
 import ManageQuickBooksIntegration from '@/components/(dashboards)/settings/ManageQuickBooksIntegration';
 import { BreadcrumbLink, BreadcrumbList } from '@/components/ui/breadcrumb';
@@ -30,6 +31,7 @@ const Account = () => {
           <ManageQuickBooksIntegration />
         </div>
       </div>
+      <ManageCompany companyID={user.company.id} />
     </div>
   );
 };

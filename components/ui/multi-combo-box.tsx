@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/command';
 import {
   Popover,
+  PopoverAnchor,
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
@@ -156,7 +157,7 @@ export function MultiComboBox<
   };
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={setOpen} modal>
       <PopoverTrigger asChild>
         <Button
           variant="outline"
@@ -201,7 +202,7 @@ export function MultiComboBox<
       <PopoverContent className="w-max min-w-[200px] p-0">
         <Command>
           <CommandInput placeholder="Search framework..." />
-          <CommandList className="no-scrollbar">
+          <CommandList className="no-scrollbar overflow-x-scroll">
             <CommandEmpty>No Vendor found.</CommandEmpty>
             {optionsList.map((option) => (
               <CommandItem
