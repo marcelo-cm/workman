@@ -1,6 +1,12 @@
 'use client';
 
-import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import React, {
+  Dispatch,
+  SetStateAction,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 
 import { CheckIcon, PlusIcon } from '@radix-ui/react-icons';
 import { X } from 'lucide-react';
@@ -41,26 +47,25 @@ import { User } from '@/models/User';
 const { createUser } = useUser();
 
 const createAccountFormSchema = z.object({
-  name: z.string().min(1),
+  name: z.string().min(3),
   email: z.string().email().min(1),
   roles: z.array(z.string()).min(1),
-  password: z.string().min(1),
+  password: z.string().min(8),
 });
 
 export default function AddUserForm({
   companyID,
   companyName,
-  setAddUser,
   setUsersData,
 }: {
   companyID: UUID;
   companyName: string;
-  setAddUser: (id: UUID | null) => void;
   setUsersData: Dispatch<SetStateAction<User[]>>;
 }) {
   const formAddUser = useForm<z.infer<typeof createAccountFormSchema>>({
     resolver: zodResolver(createAccountFormSchema),
   });
+  const dialogCloseRef = useRef<HTMLButtonElement>(null);
   const { watch, setValue, setError, clearErrors } = formAddUser;
   const roles = watch('roles');
 
@@ -101,6 +106,8 @@ export default function AddUserForm({
       );
 
       setUsersData((prevUsers) => [createdUser, ...prevUsers]);
+
+      dialogCloseRef.current?.click();
     } catch (error) {
       throw new Error(`Error creating user: ${error}`);
     }
@@ -109,7 +116,17 @@ export default function AddUserForm({
   return (
     <Dialog>
       <DialogTrigger>
-        <Button variant="outline">
+        <Button
+          variant="outline"
+          onClick={() =>
+            formAddUser.reset({
+              name: '',
+              email: '',
+              password: '',
+              roles: undefined,
+            })
+          }
+        >
           <a className="text-nowrap">Add Member</a>
           <PlusIcon />
         </Button>
@@ -191,7 +208,7 @@ export default function AddUserForm({
                     callBackFunction={handleSelectedNewUserRoles}
                     renderValues={(value) => (
                       <Chip>
-                        {Roles[value.id]}{' '}
+                        {Roles[value.id].replaceAll('_', ' ')}{' '}
                         <X className="h-3 w-3 group-hover:text-red-500" />
                       </Chip>
                     )}
@@ -225,17 +242,15 @@ export default function AddUserForm({
               )}
             />
             <DialogFooter>
-              <DialogClose>
+              <DialogClose ref={dialogCloseRef}>
                 <Button
                   variant={'outline'}
-                  appearance={'destructive'}
                   onClick={() => {
-                    setAddUser(null);
-                    // setSelectedNewUserRoles([]);
                     formAddUser.reset({
                       name: '',
                       email: '',
                       password: '',
+                      roles: undefined,
                     });
                   }}
                 >

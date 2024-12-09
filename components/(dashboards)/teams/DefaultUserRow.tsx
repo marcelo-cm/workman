@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Dispatch, SetStateAction } from 'react';
 
 import { Pencil1Icon } from '@radix-ui/react-icons';
 
@@ -16,10 +16,12 @@ export default function DefaultUserRow({
   user,
   setEditingUserId,
   setSelectedRoles,
+  setUsersData,
 }: {
   user: User;
   setEditingUserId: (id: UUID) => void;
   setSelectedRoles: (roles: Roles[]) => void;
+  setUsersData: Dispatch<SetStateAction<User[]>>;
 }) {
   return (
     <div
@@ -28,13 +30,17 @@ export default function DefaultUserRow({
     >
       <p className="w-full">{user.name}</p>
       <p className="w-full">{user.email}</p>
-      <div className="w-full">
+      <div className="flex w-full gap-2">
         {user.roles.map((role) => (
           <Badge>{role.replaceAll('_', ' ')}</Badge>
         ))}
       </div>
 
-      <RemoveUserButton userName={user.name} userID={user.id} />
+      <RemoveUserButton
+        userName={user.name}
+        userID={user.id}
+        setUsersData={setUsersData}
+      />
       <Button
         variant="ghost"
         onClick={() => {

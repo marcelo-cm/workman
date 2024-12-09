@@ -6,7 +6,7 @@ interface Company {
   id: UUID;
   name: string;
 }
-//re design what it looks like
+
 export default function CompanyChip({
   company,
   selectedCompanyID,
@@ -23,7 +23,7 @@ export default function CompanyChip({
         selectedCompanyID === company.id
           ? 'bg-[#f3f4f6] text-black'
           : 'bg-white '
-      }  whitespace-nowrap rounded-md border border-[#e4e4e4] px-4 py-1`}
+      }  whitespace-nowrap rounded-full border border-[#e4e4e4] px-4 py-1`}
       onClick={() =>
         setSelectedCompanyID((prev) =>
           prev === company.id ? null : company.id,

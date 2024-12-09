@@ -1,12 +1,14 @@
-import React from 'react';
+import React, { Dispatch, SetStateAction, useRef } from 'react';
 
 import { TrashIcon } from '@radix-ui/react-icons';
+import { X } from 'lucide-react';
 
 import { UUID } from 'crypto';
 
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogFooter,
   DialogHeader,
@@ -16,14 +18,31 @@ import {
 
 import { useUser } from '@/lib/hooks/supabase/useUser';
 
+import { User } from '@/models/User';
+
 export default function RemoveUserButton({
   userName,
   userID,
+  setUsersData,
 }: {
   userName: string;
   userID: UUID;
+  setUsersData: Dispatch<SetStateAction<User[]>>;
 }) {
   const { deleteUserAuth } = useUser();
+  const dialogCloseRef = useRef<HTMLButtonElement>(null);
+
+  const handleDeleteUser = async () => {
+    try {
+      await deleteUserAuth(userID);
+      setUsersData((prevUsers) =>
+        prevUsers.filter((user) => user.id !== userID),
+      );
+      dialogCloseRef.current?.click();
+    } catch (error) {
+      throw new Error(`Error deleting user ${error}`);
+    }
+  };
 
   return (
     <Dialog>
@@ -41,15 +60,19 @@ export default function RemoveUserButton({
           <p className="inline font-medium">{userName}</p> from memory?
         </p>
         <DialogFooter>
+          <DialogClose ref={dialogCloseRef}>
+            <Button variant={'outline'}>
+              Cancel
+              <X className="h-4 w-4" />
+            </Button>
+          </DialogClose>
           <Button
-            variant={'outline'}
-            appearance={'destructive-strong'}
-            onClick={() => {
-              deleteUserAuth(userID);
-              window.location.reload();
-            }}
+            variant={'secondary'}
+            appearance={'destructive'}
+            onClick={handleDeleteUser}
           >
-            Remove
+            Remove User
+            <TrashIcon />
           </Button>
         </DialogFooter>
       </DialogContent>

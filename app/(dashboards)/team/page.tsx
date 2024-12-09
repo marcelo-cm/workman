@@ -16,8 +16,6 @@ import {
   BreadcrumbList,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
-import { Button } from '@/components/ui/button';
-import IfElseRender from '@/components/ui/if-else-renderer';
 
 import { useCompany } from '@/lib/hooks/supabase/useCompany';
 
@@ -32,9 +30,6 @@ export default function Page() {
   const router = useRouter();
 
   const [companyData, setCompanyData] = useState<Company[]>([]);
-  const [showCompanyForm, setShowCompanyForm] = useState<boolean>(false);
-  const [activeAddUserCompanyID, setActiveAddUserCompanyID] =
-    useState<UUID | null>(null);
   const [selectedCompanyID, setSelectedCompanyID] = useState<UUID | null>(null);
 
   useEffect(() => {
@@ -84,8 +79,6 @@ export default function Page() {
               key={company.id}
               companyID={company.id}
               companyName={company.name}
-              isAddUserActive={activeAddUserCompanyID === company.id}
-              setActiveAddUserCompanyID={setActiveAddUserCompanyID}
             />
           ))}
       </section>

@@ -149,7 +149,7 @@ export default function EditUserForm({
           callBackFunction={handleSelectedRoles}
           renderValues={(value) => (
             <Chip>
-              {Roles[value.id]}{' '}
+              {Roles[value.id].replaceAll('_', ' ')}{' '}
               <X className="h-3 w-3 group-hover:text-red-500" />
             </Chip>
           )}

@@ -18,13 +18,9 @@ import EditUserForm from './EditUserForm';
 export default function TeamDashboard({
   companyID,
   companyName,
-  isAddUserActive,
-  setActiveAddUserCompanyID,
 }: {
   companyID: UUID;
   companyName: string;
-  isAddUserActive: boolean;
-  setActiveAddUserCompanyID: (id: UUID | null) => void;
 }) {
   const { getUsersByCompanyId } = useUser();
 
@@ -42,10 +38,9 @@ export default function TeamDashboard({
     <div className="relative flex gap-4">
       <div className="flex w-[1000px] flex-col items-center justify-between rounded-md border">
         <div className="flex w-full flex-row items-center p-2">
-          <p className="w-full">{companyName}</p>
+          <p className="w-full text-sm font-medium">{companyName}</p>
           <AddUserForm
             companyID={companyID}
-            setAddUser={setActiveAddUserCompanyID}
             setUsersData={setUsersData}
             companyName={companyName}
           />
@@ -76,6 +71,7 @@ export default function TeamDashboard({
                   user={user}
                   setEditingUserId={setEditingUserId}
                   setSelectedRoles={setSelectedRoles}
+                  setUsersData={setUsersData}
                 />
               )}
             </>

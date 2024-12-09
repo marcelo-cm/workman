@@ -52,7 +52,6 @@ export default function AddCompanyForm({
       const createdCompany = await createCompany(form.getValues('name'));
 
       setCompanyData((prevCompanies) => [...prevCompanies, createdCompany]);
-      form.reset({ name: '' });
       dialogCloseRef.current?.click();
     } catch (error) {
       throw new Error(`Error creating Company: ${error}`);
@@ -62,7 +61,7 @@ export default function AddCompanyForm({
   return (
     <Dialog>
       <DialogTrigger>
-        <Button variant={'secondary'}>
+        <Button variant={'secondary'} onClick={() => form.reset({ name: '' })}>
           <p>Add Company</p> <PlusIcon />
         </Button>
       </DialogTrigger>
@@ -80,7 +79,9 @@ export default function AddCompanyForm({
               name="name"
               render={({ field }) => (
                 <FormItem className="flex w-full flex-col gap-2">
-                  <p>Name</p>
+                  <div className="mb-1 flex w-full justify-between">
+                    <FormLabel>Name</FormLabel> <FormMessage />
+                  </div>
                   <FormControl>
                     <Input
                       className="w-full"
@@ -102,7 +103,6 @@ export default function AddCompanyForm({
               <DialogClose ref={dialogCloseRef}>
                 <Button
                   variant={'outline'}
-                  appearance={'destructive'}
                   onClick={() => {
                     form.reset({ name: '' });
                   }}
