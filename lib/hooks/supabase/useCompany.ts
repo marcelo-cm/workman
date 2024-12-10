@@ -5,33 +5,25 @@ import { User_Nested } from '@/models/User';
 const supabase = createClient();
 
 export const useCompany = () => {
-  const createCompany = async (company_name: string): Promise<Company> => {
+  const createCompany = async (company_name: string) => {
     const { data, error } = await supabase
       .from('companies')
       .insert({
-        company_name: company_name,
+        name: company_name,
       })
-      .select('*')
-      .single();
+      .select('*');
 
-    if (error) {
-      throw new Error('Failed to create company');
-    }
+    if (error) throw new Error(`Failed to create company, ${error}`);
 
-    return data;
+    return data[0];
   };
 
-  const fetchCompanyData = async (
-    columns: (keyof Company)[] | ['*'] = ['*'],
-  ): Promise<Company> => {
+  const fetchAllCompanies = async () => {
     const { data, error } = await supabase
       .from('companies')
       .select('*')
-      .single();
-
-    if (error) {
-      throw new Error('Failed to fetch company data');
-    }
+      .order('created_at', { ascending: true }); //fetchest earliest
+    if (error) throw new Error(`Failed to fetch company data ${error}`);
 
     return data;
   };
@@ -55,7 +47,7 @@ export const useCompany = () => {
 
   return {
     createCompany,
-    fetchCompanyData,
+    fetchAllCompanies,
     getDefaultApprovers,
   };
 };

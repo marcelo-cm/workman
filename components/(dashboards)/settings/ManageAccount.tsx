@@ -54,7 +54,7 @@ const ManageAccount = ({
       email: form.getValues('email'),
     });
     setEdit(false);
-    refetchUser();
+    refetchUser(); //@todo this doesn't fetch a user when called
   };
 
   return (
