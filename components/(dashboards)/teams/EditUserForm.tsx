@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 
 import { CheckIcon } from '@radix-ui/react-icons';
 import { X } from 'lucide-react';
@@ -26,23 +26,20 @@ const editAccountFormSchema = z.object({
 
 export default function EditUserForm({
   user,
-  setEditingUserId,
-  setUsersData,
-  selectedRoles,
-  setSelectedRoles,
+  onSubmit,
+  onClose,
 }: {
   user: User;
-  setEditingUserId: (id: UUID | null) => void;
-  setUsersData: (userData: any) => void;
-  selectedRoles: Roles[];
-  setSelectedRoles: (role: any) => void;
+  onSubmit: Function;
+  onClose: Function;
 }) {
   const { updateUserData } = useUser();
+  const [selectedRoles, setSelectedRoles] = useState<Roles[]>(user.roles);
   const formEditUser = useForm<z.infer<typeof editAccountFormSchema>>({
     resolver: zodResolver(editAccountFormSchema),
   });
 
-  const handleSaveClick = (id: UUID) => {
+  const handleSaveClick = async (id: UUID) => {
     const rowToUpdate = {
       ...(formEditUser.getValues('name') && {
         name: formEditUser.getValues('name'),
@@ -53,29 +50,12 @@ export default function EditUserForm({
       ...(selectedRoles && { roles: selectedRoles }),
     };
 
-    updateUserData(id, rowToUpdate);
+    await updateUserData(id, rowToUpdate);
 
-    setUsersData((prevUsers: User[]) =>
-      prevUsers.map((user) =>
-        user.id === id
-          ? new User({
-              name: formEditUser.getValues('name') ?? user.name,
-              id: user.id,
-              email: formEditUser.getValues('email') ?? user.email,
-              company: user.company,
-              ignore_label_id: user.ignoreLabelId,
-              scanned_label_id: user.scannedLabelId,
-              gmail_integration_status: user.gmailIntegrationStatus,
-              quickbooks_integration_status: user.quickbooksIntegrationStatus,
-              roles: selectedRoles.length > 0 ? selectedRoles : user.roles,
-              created_at: user.createdAt.toISOString(),
-            })
-          : user,
-      ),
-    );
+    await onClose();
+    await onSubmit();
     formEditUser.reset();
     setSelectedRoles([]);
-    setEditingUserId(null);
   };
 
   const handleSelectedRoles = (selectedRole: { id: string }) => {
@@ -154,21 +134,23 @@ export default function EditUserForm({
             </Chip>
           )}
         />
-
         <Button
+          type="button"
           variant="ghost"
           onClick={() => handleSaveClick(user.id)}
           disabled={!formEditUser.formState.isDirty}
         >
           <CheckIcon />
         </Button>
+
         <Button
+          type="button"
           variant="ghost"
           appearance="destructive-strong"
           onClick={() => {
-            setEditingUserId(null);
             setSelectedRoles([]);
             formEditUser.reset();
+            onClose();
           }}
         >
           <X className="h-4 w-4" />

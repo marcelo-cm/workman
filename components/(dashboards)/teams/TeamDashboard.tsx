@@ -9,7 +9,6 @@ import { Button } from '@/components/ui/button';
 
 import { useUser } from '@/lib/hooks/supabase/useUser';
 
-import { Roles } from '@/constants/enums';
 import { User } from '@/models/User';
 
 import DefaultUserRow from './DefaultUserRow';
@@ -26,13 +25,16 @@ export default function TeamDashboard({
 
   const [usersData, setUsersData] = useState<User[]>([]);
   const [editingUserId, setEditingUserId] = useState<UUID | null>(null);
-  const [selectedRoles, setSelectedRoles] = useState<Roles[]>([]);
 
   useEffect(() => {
+    handleFetchCompanyData();
+  }, []);
+
+  const handleFetchCompanyData = async () => {
     getUsersByCompanyId(companyID).then((data) => {
       setUsersData(data);
     });
-  }, []);
+  };
 
   return (
     <div className="relative flex gap-4">
@@ -60,18 +62,15 @@ export default function TeamDashboard({
                 <EditUserForm
                   key={user.id}
                   user={user}
-                  setEditingUserId={setEditingUserId}
-                  setUsersData={setUsersData}
-                  selectedRoles={selectedRoles}
-                  setSelectedRoles={setSelectedRoles}
+                  onSubmit={handleFetchCompanyData}
+                  onClose={() => setEditingUserId(null)}
                 />
               ) : (
                 <DefaultUserRow
                   key={user.id}
                   user={user}
-                  setEditingUserId={setEditingUserId}
-                  setSelectedRoles={setSelectedRoles}
-                  setUsersData={setUsersData}
+                  onClick={setEditingUserId}
+                  onSubmit={setUsersData}
                 />
               )}
             </>
