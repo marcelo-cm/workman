@@ -160,90 +160,88 @@ export function InvoiceDataTable<TData, TValue>({ onAction }: DataTableProps) {
   };
 
   return (
-    <>
-      <div>
-        <DataTableTabs
-          tabValue={tabValue}
-          setTabValue={setTabValue}
-          ref={tabsRef}
-        />
-        <div className="flex w-full flex-row items-center justify-between rounded-tr-md border-x border-t p-2">
-          <div className="flex flex-row gap-2">
-            <div className="relative flex h-10 w-[300px] flex-row items-center gap-2 rounded-md border bg-transparent px-3 py-1 text-sm text-wm-white-500 transition-colors">
-              <MagnifyingGlassIcon className="pointer-events-none absolute h-5 w-5" />
-              <input
-                value={
-                  (table.getColumn('filterable')?.getFilterValue() as string) ??
-                  ''
-                }
-                onChange={(event) =>
-                  table
-                    .getColumn('filterable')
-                    ?.setFilterValue(event.target.value)
-                }
-                placeholder="Filter by invoice name or sender"
-                className="h-full w-full appearance-none bg-transparent pl-6 text-black outline-none placeholder:text-wm-white-500 disabled:cursor-not-allowed disabled:opacity-50"
-              />
-            </div>
-            <DatePickerWithRange
-              placeholder="Filter by Date Invoiced"
-              onDateChange={setDateRange}
-              ref={dateRangeRef}
-            />
-            <Button
-              variant="ghost"
-              onClick={handleClearFilters}
-              className={
-                columnFilters.length === 0 && !dateRange.from ? 'hidden' : ''
+    <div>
+      <DataTableTabs
+        tabValue={tabValue}
+        setTabValue={setTabValue}
+        ref={tabsRef}
+      />
+      <div className="flex w-full flex-row items-center justify-between rounded-tr-md border-x border-t p-2">
+        <div className="flex flex-row gap-2">
+          <div className="relative flex h-10 w-[300px] flex-row items-center gap-2 rounded-md border bg-transparent px-3 py-1 text-sm text-wm-white-500 transition-colors">
+            <MagnifyingGlassIcon className="pointer-events-none absolute h-5 w-5" />
+            <input
+              value={
+                (table.getColumn('filterable')?.getFilterValue() as string) ??
+                ''
               }
-            >
-              Clear Filters
-            </Button>
+              onChange={(event) =>
+                table
+                  .getColumn('filterable')
+                  ?.setFilterValue(event.target.value)
+              }
+              placeholder="Filter by invoice name or sender"
+              className="h-full w-full appearance-none bg-transparent pl-6 text-black outline-none placeholder:text-wm-white-500 disabled:cursor-not-allowed disabled:opacity-50"
+            />
           </div>
+          <DatePickerWithRange
+            placeholder="Filter by Date Invoiced"
+            onDateChange={setDateRange}
+            ref={dateRangeRef}
+          />
+          <Button
+            variant="ghost"
+            onClick={handleClearFilters}
+            className={
+              columnFilters.length === 0 && !dateRange.from ? 'hidden' : ''
+            }
+          >
+            Clear Filters
+          </Button>
+        </div>
+        <IfElseRender
+          condition={tabValue?.type === 'Invoice'}
+          ifTrue={
+            <DataTableInvoiceActionBar
+              rowSelection={rowSelection}
+              data={filteredData as Invoice[]}
+              onAction={onAction}
+              afterAction={handleInvoiceAction}
+            />
+          }
+          ifFalse={
+            <DataTableEmailActionBar
+              rowSelection={rowSelection}
+              data={filteredData as Email[]}
+              afterAction={handleEmailAction}
+            />
+          }
+        />
+      </div>
+      <div className="rounded-b-md border">
+        <Table>
           <IfElseRender
-            condition={tabValue?.type === 'Invoice'}
+            condition={isFetchingData}
             ifTrue={
-              <DataTableInvoiceActionBar
-                rowSelection={rowSelection}
-                data={filteredData as Invoice[]}
-                onAction={onAction}
-                afterAction={handleInvoiceAction}
-              />
+              <LoadingState className="animate-pulse rounded-none border-none" />
             }
             ifFalse={
-              <DataTableEmailActionBar
-                rowSelection={rowSelection}
-                data={filteredData as Email[]}
-                afterAction={handleEmailAction}
+              <IfElseRender
+                condition={tabValue?.type === 'Invoice'}
+                ifTrue={
+                  <InvoiceTableBody table={table as TableType<Invoice>} />
+                }
+                ifFalse={<EmailTableBody table={table as TableType<Email>} />}
               />
             }
           />
-        </div>
-        <div className="rounded-b-md border">
-          <Table>
-            <IfElseRender
-              condition={isFetchingData}
-              ifTrue={
-                <LoadingState className="animate-pulse rounded-none border-none" />
-              }
-              ifFalse={
-                <IfElseRender
-                  condition={tabValue?.type === 'Invoice'}
-                  ifTrue={
-                    <InvoiceTableBody table={table as TableType<Invoice>} />
-                  }
-                  ifFalse={<EmailTableBody table={table as TableType<Email>} />}
-                />
-              }
-            />
-            <DataTableFooter
-              table={table}
-              numCols={columns.length}
-              numRows={data.length}
-            />
-          </Table>
-        </div>
+          <DataTableFooter
+            table={table}
+            numCols={columns.length}
+            numRows={data.length}
+          />
+        </Table>
       </div>
-    </>
+    </div>
   );
 }
