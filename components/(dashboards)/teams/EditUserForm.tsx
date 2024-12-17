@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 
 import { CheckIcon } from '@radix-ui/react-icons';
 import { X } from 'lucide-react';
@@ -10,18 +10,26 @@ import { z } from 'zod';
 
 import { Button } from '@/components/ui/button';
 import Chip from '@/components/ui/chip';
-import { Form, FormControl, FormField, FormItem } from '@/components/ui/form';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { MultiComboBox } from '@/components/ui/multi-combo-box';
 
 import { useUser } from '@/lib/hooks/supabase/useUser';
 
 import { Roles } from '@/constants/enums';
+import { prettifyRole } from '@/lib/utils';
 import { User } from '@/models/User';
 
 const editAccountFormSchema = z.object({
   name: z.string().min(1),
   email: z.string().email().min(1),
+  roles: z.array(z.string()).min(1),
 });
 
 export default function EditUserForm({
@@ -34,10 +42,26 @@ export default function EditUserForm({
   onClose: Function;
 }) {
   const { updateUserData } = useUser();
-  const [selectedRoles, setSelectedRoles] = useState<Roles[]>(user.roles);
   const formEditUser = useForm<z.infer<typeof editAccountFormSchema>>({
     resolver: zodResolver(editAccountFormSchema),
+    defaultValues: {
+      name: user.name,
+      email: user.email,
+      roles: user.roles,
+    },
   });
+  const { watch, setValue, setError, clearErrors } = formEditUser;
+  const roles = watch('roles');
+
+  useEffect(() => {
+    if (roles?.length === 0) {
+      setError('roles', {
+        message: 'Please select at least one role',
+      });
+    } else {
+      clearErrors('roles');
+    }
+  }, [roles]);
 
   const handleSaveClick = async (id: UUID) => {
     const rowToUpdate = {
@@ -47,26 +71,31 @@ export default function EditUserForm({
       ...(formEditUser.getValues('email') && {
         email: formEditUser.getValues('email'),
       }),
-      ...(selectedRoles && { roles: selectedRoles }),
+      ...(formEditUser.getValues('roles') && {
+        roles: formEditUser.getValues('roles'),
+      }),
     };
 
     await updateUserData(id, rowToUpdate);
 
     await onClose();
     await onSubmit();
-    formEditUser.reset();
-    setSelectedRoles([]);
   };
 
   const handleSelectedRoles = (selectedRole: { id: string }) => {
-    setSelectedRoles((prevRoles: any) => {
-      const isSelected = prevRoles.includes(selectedRole.id);
-      if (isSelected) {
-        return prevRoles.filter((val: any) => val !== selectedRole.id);
+    const isSelected = roles?.includes(selectedRole.id);
+    if (isSelected) {
+      const newRoles = roles?.filter((role) => role !== selectedRole.id);
+      return setValue('roles', newRoles);
+    } else {
+      let newRoles;
+      if (roles) {
+        newRoles = [...roles, selectedRole.id];
       } else {
-        return [...prevRoles, selectedRole.id];
+        newRoles = [selectedRole.id];
       }
-    });
+      return setValue('roles', newRoles);
+    }
   };
 
   return (
@@ -80,7 +109,6 @@ export default function EditUserForm({
               <FormControl>
                 <Input
                   className="w-full text-base"
-                  defaultValue={user.name}
                   {...field}
                   {...formEditUser.register(field.name, {
                     onChange(event) {
@@ -102,7 +130,6 @@ export default function EditUserForm({
               <FormControl>
                 <Input
                   className="w-full text-base"
-                  defaultValue={user.email}
                   {...field}
                   {...formEditUser.register(field.name, {
                     onChange(event) {
@@ -117,28 +144,37 @@ export default function EditUserForm({
             </FormItem>
           )}
         />
-        <MultiComboBox
-          className="w-full"
-          valuesToMatch={selectedRoles.map((role) => ({
-            id: role,
-          }))}
-          options={Object.values(Roles).map((role) => ({
-            id: role,
-          }))}
-          getOptionLabel={(option) => option?.id.replaceAll('_', ' ')}
-          callBackFunction={handleSelectedRoles}
-          renderValues={(value) => (
-            <Chip>
-              {Roles[value.id].replaceAll('_', ' ')}{' '}
-              <X className="h-3 w-3 group-hover:text-red-500" />
-            </Chip>
+        <FormField
+          control={formEditUser.control}
+          name="roles"
+          render={({ field }) => (
+            <FormItem className="w-full">
+              <FormControl>
+                <MultiComboBox
+                  className="w-full"
+                  valuesToMatch={roles.map((role) => ({ id: role }))}
+                  options={Object.values(Roles).map((role) => ({
+                    id: role,
+                  }))}
+                  getOptionLabel={(option) => prettifyRole(option?.id)}
+                  callBackFunction={handleSelectedRoles}
+                  renderValues={(value) => (
+                    <Chip>
+                      {prettifyRole(Roles[value.id as keyof typeof Roles])}{' '}
+                      <X className="h-3 w-3 group-hover:text-red-500" />
+                    </Chip>
+                  )}
+                />
+              </FormControl>
+            </FormItem>
           )}
         />
+
         <Button
           type="button"
           variant="ghost"
           onClick={() => handleSaveClick(user.id)}
-          disabled={!formEditUser.formState.isDirty}
+          disabled={!formEditUser.formState.isValid}
         >
           <CheckIcon />
         </Button>
@@ -148,7 +184,6 @@ export default function EditUserForm({
           variant="ghost"
           appearance="destructive-strong"
           onClick={() => {
-            setSelectedRoles([]);
             formEditUser.reset();
             onClose();
           }}

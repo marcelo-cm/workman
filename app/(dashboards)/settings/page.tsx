@@ -35,7 +35,7 @@ const Account = () => {
         ifTrue={
           <TeamDashboard
             companyID={user.company.id}
-            companyName={'Manage Team'}
+            companyName={user.company.name + ' Team'}
           />
         }
         ifFalse={null}

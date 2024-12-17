@@ -105,3 +105,11 @@ export async function checkQuickBooksIntegration(companyId: string) {
 
   return response.json();
 }
+
+export function prettifyRole(role: string): string {
+  let prettyRole = role.replace('_', ' ');
+  prettyRole = prettyRole
+    .toLowerCase()
+    .replace(/\b\w/g, (char) => char.toUpperCase());
+  return prettyRole;
+}

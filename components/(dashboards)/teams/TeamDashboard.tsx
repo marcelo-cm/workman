@@ -70,7 +70,7 @@ export default function TeamDashboard({
                   key={user.id}
                   user={user}
                   onClick={setEditingUserId}
-                  onSubmit={setUsersData}
+                  onSubmit={handleFetchCompanyData}
                 />
               )}
             </>

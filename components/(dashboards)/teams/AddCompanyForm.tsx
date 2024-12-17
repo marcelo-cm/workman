@@ -29,11 +29,8 @@ import { Input } from '@/components/ui/input';
 
 import { useCompany } from '@/lib/hooks/supabase/useCompany';
 
+import { CREATE_COMPANY_SCHEMA } from '@/constants/constants';
 import { Company } from '@/models/Company';
-
-const createCompanyFormSchema = z.object({
-  name: z.string().min(3),
-});
 
 export default function AddCompanyForm({
   setCompanyData,
@@ -41,8 +38,8 @@ export default function AddCompanyForm({
   setCompanyData: Dispatch<SetStateAction<Company[]>>;
 }) {
   const { createCompany } = useCompany();
-  const form = useForm<z.infer<typeof createCompanyFormSchema>>({
-    resolver: zodResolver(createCompanyFormSchema),
+  const form = useForm<z.infer<typeof CREATE_COMPANY_SCHEMA>>({
+    resolver: zodResolver(CREATE_COMPANY_SCHEMA),
   });
 
   const dialogCloseRef = useRef<HTMLButtonElement>(null);
@@ -100,13 +97,14 @@ export default function AddCompanyForm({
               )}
             />
             <DialogFooter>
-              <DialogClose ref={dialogCloseRef}>
-                <Button
-                  variant={'outline'}
-                  onClick={() => {
-                    form.reset({ name: '' });
-                  }}
-                >
+              <DialogClose
+                asChild
+                ref={dialogCloseRef}
+                onClick={() => {
+                  form.reset({ name: '' });
+                }}
+              >
+                <Button variant={'outline'}>
                   Cancel
                   <X className="h-4 w-4" />
                 </Button>

@@ -1,12 +1,6 @@
 'use client';
 
-import React, {
-  Dispatch,
-  SetStateAction,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import React, { Dispatch, SetStateAction, useEffect, useRef } from 'react';
 
 import { CheckIcon, PlusIcon } from '@radix-ui/react-icons';
 import { X } from 'lucide-react';
@@ -41,17 +35,10 @@ import { MultiComboBox } from '@/components/ui/multi-combo-box';
 
 import { useUser } from '@/lib/hooks/supabase/useUser';
 
+import { CREATE_USER_SCHEMA } from '@/constants/constants';
 import { Roles } from '@/constants/enums';
+import { prettifyRole } from '@/lib/utils';
 import { User } from '@/models/User';
-
-const { createUser } = useUser();
-
-const createAccountFormSchema = z.object({
-  name: z.string().min(3),
-  email: z.string().email().min(1),
-  roles: z.array(z.string()).min(1),
-  password: z.string().min(8),
-});
 
 export default function AddUserForm({
   companyID,
@@ -62,8 +49,9 @@ export default function AddUserForm({
   companyName: string;
   setUsersData: Dispatch<SetStateAction<User[]>>;
 }) {
-  const formAddUser = useForm<z.infer<typeof createAccountFormSchema>>({
-    resolver: zodResolver(createAccountFormSchema),
+  const { createUser } = useUser();
+  const formAddUser = useForm<z.infer<typeof CREATE_USER_SCHEMA>>({
+    resolver: zodResolver(CREATE_USER_SCHEMA),
   });
   const dialogCloseRef = useRef<HTMLButtonElement>(null);
   const { watch, setValue, setError, clearErrors } = formAddUser;
@@ -79,6 +67,7 @@ export default function AddUserForm({
     }
   }, [roles]);
 
+  //This code is necessary because the MultiComboBox component does not have a built-in way to handle the selected values
   const handleSelectedNewUserRoles = (selectedRole: { id: string }) => {
     const isSelected = roles?.includes(selectedRole.id);
     if (isSelected) {
@@ -113,20 +102,19 @@ export default function AddUserForm({
     }
   };
 
+  const handleFormReset = () => {
+    formAddUser.reset({
+      name: '',
+      email: '',
+      password: '',
+      roles: undefined,
+    });
+  };
+
   return (
     <Dialog>
       <DialogTrigger>
-        <Button
-          variant="outline"
-          onClick={() =>
-            formAddUser.reset({
-              name: '',
-              email: '',
-              password: '',
-              roles: undefined,
-            })
-          }
-        >
+        <Button variant="outline" onClick={handleFormReset}>
           <a className="text-nowrap">Add Member</a>
           <PlusIcon />
         </Button>
@@ -204,11 +192,11 @@ export default function AddUserForm({
                     options={Object.values(Roles).map((role) => ({
                       id: role,
                     }))}
-                    getOptionLabel={(option) => option?.id.replaceAll('_', ' ')}
+                    getOptionLabel={(option) => prettifyRole(option?.id)}
                     callBackFunction={handleSelectedNewUserRoles}
                     renderValues={(value) => (
                       <Chip>
-                        {Roles[value.id].replaceAll('_', ' ')}{' '}
+                        {prettifyRole(Roles[value.id])}{' '}
                         <X className="h-3 w-3 group-hover:text-red-500" />
                       </Chip>
                     )}

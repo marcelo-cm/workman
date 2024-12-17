@@ -31,7 +31,6 @@ export const useUser = () => {
       throw new Error(`Failed to create user, ${error.message}`);
     }
 
-    // Step 2: Ensure the user data is available from the sign-up process
     if (!data.user) {
       throw new Error('User data is missing after sign-up');
     }
@@ -46,7 +45,8 @@ export const useUser = () => {
         roles: roles,
         name: name,
       })
-      .select();
+      .select()
+      .single();
 
     if (userError) {
       throw new Error(
@@ -54,7 +54,7 @@ export const useUser = () => {
       );
     }
 
-    return newUser[0];
+    return newUser;
   };
 
   const updateUser = async (column_value: User_Update) => {
@@ -156,19 +156,6 @@ export const useUser = () => {
     return;
   };
 
-  const deleteUserDB = async (userID: UUID) => {
-    const { data, error } = await supabase
-      .from('users')
-      .delete()
-      .eq('id', userID);
-
-    if (error) {
-      throw new Error(`Failed to delete user from DB ${error}`);
-    }
-
-    return;
-  };
-
   const deleteUserAuth = async (userID: UUID) => {
     const { data, error } = await supabaseAdmin.auth.admin.deleteUser(userID);
 
@@ -188,7 +175,6 @@ export const useUser = () => {
     getUsersByCompanyId,
     getNangoIntegrationsById,
     updateUserData,
-    deleteUserDB,
     deleteUserAuth,
   };
 };

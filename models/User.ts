@@ -12,10 +12,6 @@ export class User {
   private _company: Company;
   private _roles: Roles[];
   private _created_at: Date;
-  private _ignore_label_id: string;
-  private _scanned_label_id: string;
-  private _gmail_integration_status: string;
-  private _quickbooks_integration_status: string;
 
   constructor({
     name,
@@ -46,10 +42,6 @@ export class User {
     this._company = company;
     this._roles = roles;
     this._created_at = new Date(created_at);
-    this._ignore_label_id = ignore_label_id;
-    this._scanned_label_id = scanned_label_id;
-    this._gmail_integration_status = gmail_integration_status;
-    this._quickbooks_integration_status = quickbooks_integration_status;
   }
 
   get name(): string {
@@ -74,18 +66,6 @@ export class User {
 
   get createdAt(): Date {
     return this._created_at;
-  }
-  get ignoreLabelId(): string {
-    return this._ignore_label_id;
-  }
-  get scannedLabelId(): string {
-    return this._scanned_label_id;
-  }
-  get gmailIntegrationStatus(): string {
-    return this._gmail_integration_status;
-  }
-  get quickbooksIntegrationStatus(): string {
-    return this._quickbooks_integration_status;
   }
 }
 

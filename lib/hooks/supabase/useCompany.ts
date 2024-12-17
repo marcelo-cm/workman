@@ -11,11 +11,12 @@ export const useCompany = () => {
       .insert({
         name: company_name,
       })
-      .select('*');
+      .select('*')
+      .maybeSingle();
 
     if (error) throw new Error(`Failed to create company, ${error}`);
 
-    return data[0];
+    return data;
   };
 
   const fetchAllCompanies = async () => {

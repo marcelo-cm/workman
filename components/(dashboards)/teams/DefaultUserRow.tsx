@@ -7,6 +7,7 @@ import { UUID } from 'crypto';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 
+import { prettifyRole } from '@/lib/utils';
 import { User } from '@/models/User';
 
 import RemoveUserButton from './RemoveUserButton';
@@ -18,7 +19,7 @@ export default function DefaultUserRow({
 }: {
   user: User;
   onClick: (id: UUID) => void;
-  onSubmit: Dispatch<SetStateAction<User[]>>;
+  onSubmit: Function;
 }) {
   return (
     <div
@@ -29,14 +30,14 @@ export default function DefaultUserRow({
       <p className="w-full">{user.email}</p>
       <div className="flex w-full gap-2">
         {user.roles.map((role) => (
-          <Badge>{role.replaceAll('_', ' ')}</Badge>
+          <Badge>{prettifyRole(role)}</Badge>
         ))}
       </div>
 
       <RemoveUserButton
         userName={user.name}
         userID={user.id}
-        setUsersData={onSubmit}
+        onSubmit={onSubmit}
       />
       <Button
         variant="ghost"

@@ -18,16 +18,14 @@ import {
 
 import { useUser } from '@/lib/hooks/supabase/useUser';
 
-import { User } from '@/models/User';
-
 export default function RemoveUserButton({
   userName,
   userID,
-  setUsersData,
+  onSubmit,
 }: {
   userName: string;
   userID: UUID;
-  setUsersData: Dispatch<SetStateAction<User[]>>;
+  onSubmit: Function;
 }) {
   const { deleteUserAuth } = useUser();
   const dialogCloseRef = useRef<HTMLButtonElement>(null);
@@ -35,9 +33,9 @@ export default function RemoveUserButton({
   const handleDeleteUser = async () => {
     try {
       await deleteUserAuth(userID);
-      setUsersData((prevUsers) =>
-        prevUsers.filter((user) => user.id !== userID),
-      );
+
+      await onSubmit();
+
       dialogCloseRef.current?.click();
     } catch (error) {
       throw new Error(`Error deleting user ${error}`);
@@ -56,8 +54,8 @@ export default function RemoveUserButton({
           <DialogTitle>Requesting Confirmation</DialogTitle>
         </DialogHeader>
         <p>
-          Are you sure you want to remove{' '}
-          <p className="inline font-medium">{userName}</p> from memory?
+          Are you sure you want to permanently delete{' '}
+          <p className="inline font-medium">{userName}</p> ?
         </p>
         <DialogFooter>
           <DialogClose ref={dialogCloseRef}>
@@ -71,7 +69,7 @@ export default function RemoveUserButton({
             appearance={'destructive'}
             onClick={handleDeleteUser}
           >
-            Remove User
+            Delete
             <TrashIcon />
           </Button>
         </DialogFooter>
