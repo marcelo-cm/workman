@@ -20,10 +20,6 @@ export class User {
     company,
     roles,
     created_at,
-    ignore_label_id,
-    scanned_label_id,
-    gmail_integration_status,
-    quickbooks_integration_status,
   }: {
     name: string;
     id: UUID;
