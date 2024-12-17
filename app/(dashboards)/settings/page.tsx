@@ -4,7 +4,11 @@ import CompanyRules from '@/components/(dashboards)/settings/CompanyRules';
 import ManageAccount from '@/components/(dashboards)/settings/ManageAccount';
 import ManageGmailIntegration from '@/components/(dashboards)/settings/ManageGmailIntegration';
 import ManageQuickBooksIntegration from '@/components/(dashboards)/settings/ManageQuickBooksIntegration';
+import TeamDashboard from '@/components/(dashboards)/teams/TeamDashboard';
 import { BreadcrumbLink, BreadcrumbList } from '@/components/ui/breadcrumb';
+import IfElseRender from '@/components/ui/if-else-renderer';
+
+import { Roles } from '@/constants/enums';
 
 import { useAppContext } from '../context';
 
@@ -23,6 +27,19 @@ const Account = () => {
       </div>
       <ManageAccount user={user} />
       <CompanyRules company={user.company} />
+      <IfElseRender
+        condition={
+          user.roles.includes(Roles['COMPANY_ADMIN']) ||
+          user.roles.includes(Roles['PLATFORM_ADMIN'])
+        }
+        ifTrue={
+          <TeamDashboard
+            companyID={user.company.id}
+            companyName={user.company.name + ' Team'}
+          />
+        }
+        ifFalse={null}
+      />
       <div className="flex flex-col gap-2">
         <div className="text-xl">Integrations</div>
         <div className="flex max-w-[1000px] flex-row gap-4">
@@ -30,6 +47,7 @@ const Account = () => {
           <ManageQuickBooksIntegration />
         </div>
       </div>
+      <div className="text-white">.</div>
     </div>
   );
 };

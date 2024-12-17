@@ -20,7 +20,7 @@ export interface User_Update {
   quickbooks_integration_status?: boolean;
   email?: string;
   company_id?: UUID;
-  roles?: Roles[];
+  roles?: string[]; //changed this to string from Roles[]
   name?: string;
 }
 

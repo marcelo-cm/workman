@@ -1,3 +1,5 @@
+import { z } from 'zod';
+
 import Gmail from '@/components/molecules/Gmail';
 import QuickBooks from '@/components/molecules/QuickBooks';
 
@@ -65,3 +67,14 @@ export const LANDING_BENEFITS = [
     description: 'Involve your team, have the last say',
   },
 ];
+
+export const CREATE_COMPANY_SCHEMA = z.object({
+  name: z.string().min(3),
+});
+
+export const CREATE_USER_SCHEMA = z.object({
+  name: z.string().min(3),
+  password: z.string().min(8),
+  email: z.string().email().min(1),
+  roles: z.array(z.string()).min(1),
+});

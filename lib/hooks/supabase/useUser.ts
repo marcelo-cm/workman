@@ -1,38 +1,61 @@
-import { UserResponse } from '@supabase/supabase-js';
+import { UserResponse, createClient } from '@supabase/supabase-js';
 import { UUID } from 'crypto';
+import { redirect } from 'next/navigation';
 
 import { useAppContext } from '@/app/(dashboards)/context';
 import { User_Update } from '@/interfaces/db.interfaces';
 import { getGoogleMailToken, getQuickBooksToken } from '@/lib/actions/actions';
+import { createAdminClient } from '@/lib/utils/supabase/admin';
 import { createClient as createSupabaseClient } from '@/lib/utils/supabase/client';
 import { User } from '@/models/User';
 
 export const useUser = () => {
+  // const { user } = useAppContext();
   const supabase = createSupabaseClient();
-  const { user } = useAppContext();
-  // const createUser = async (company_id: UUID): Promise<User> => {
-  //   const { data: userData } = await fetchUser();
+  const supabaseAdmin = createAdminClient();
 
-  //   const { data, error } = await supabase
-  //     .from('users')
-  //     .insert({
-  //       user_id: userData.user?.id,
-  //       ignore_label_id: null,
-  //       scanned_label_id: null,
-  //       gmail_integration_status: false,
-  //       quickbooks_integration_status: false,
-  //       email: userData?.user?.email,
-  //       company_id: company_id,
-  //     })
-  //     .select('*')
-  //     .single();
+  const createUser = async (
+    company_id: UUID,
+    name: string,
+    password: string,
+    email: string,
+    roles: string[],
+  ) => {
+    // Step 1: Sign up the user using Supabase Auth
+    const { data, error } = await supabaseAdmin.auth.admin.createUser({
+      email: email,
+      password: password,
+    });
 
-  //   if (error) {
-  //     throw new Error(`Failed to create user, ${error.message}`);
-  //   }
+    if (error) {
+      throw new Error(`Failed to create user, ${error.message}`);
+    }
 
-  //   return new User(data);
-  // };
+    if (!data.user) {
+      throw new Error('User data is missing after sign-up');
+    }
+
+    // Step 3: Insert the user into the custom 'users' table
+    const { data: newUser, error: userError } = await supabase
+      .from('users')
+      .insert({
+        id: data.user.id, // Use the 'id' field from the Auth response
+        email: email,
+        company_id: company_id,
+        roles: roles,
+        name: name,
+      })
+      .select()
+      .single();
+
+    if (userError) {
+      throw new Error(
+        `Error when inserting user into the users table, ${userError.message}`,
+      );
+    }
+
+    return newUser;
+  };
 
   const updateUser = async (column_value: User_Update) => {
     const { data: userData } = await fetchUser();
@@ -40,7 +63,7 @@ export const useUser = () => {
     const { data, error } = await supabase
       .from('users')
       .update(column_value)
-      .eq('id', userData?.user?.id);
+      .eq('id', userData.user?.id);
 
     if (error) {
       throw new Error(`Failed to update user, ${error.message}`);
@@ -101,7 +124,8 @@ export const useUser = () => {
     const { data, error } = await supabase
       .from('users')
       .select('*')
-      .eq('company_id', company_id);
+      .eq('company_id', company_id)
+      .order('created_at', { ascending: false });
 
     if (error || !data) {
       throw new Error('Failed to fetch users');
@@ -119,13 +143,38 @@ export const useUser = () => {
     };
   };
 
+  const updateUserData = async (id: UUID, column_value: User_Update) => {
+    const { error } = await supabase
+      .from('users')
+      .update(column_value)
+      .eq('id', id);
+
+    if (error) {
+      throw new Error('Failed to update user data');
+    }
+
+    return;
+  };
+
+  const deleteUserAuth = async (userID: UUID) => {
+    const { data, error } = await supabaseAdmin.auth.admin.deleteUser(userID);
+
+    if (error) {
+      throw new Error(`Failed to delete user from Auth ${error}`);
+    }
+
+    return;
+  };
+
   return {
-    // createUser,
+    createUser,
     updateUser,
     fetchUserData,
     fetchUser,
     getUserById,
     getUsersByCompanyId,
     getNangoIntegrationsById,
+    updateUserData,
+    deleteUserAuth,
   };
 };
